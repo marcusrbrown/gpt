@@ -10,7 +10,7 @@ repository:
     transformers,
     nlp,
     chatgpt,
-    gpt.mrbro.dev
+    gpt-4
 
 branches:
   - name: main
