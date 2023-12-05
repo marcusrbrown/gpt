@@ -7,5 +7,10 @@ export default {
     extend: {},
   },
   darkMode: 'class',
-  plugins: [nextui()],
+  plugins: [
+    nextui({
+      addCommonColors: true,
+      defaultTheme: 'dark',
+    }),
+  ],
 } satisfies Config;
