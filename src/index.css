@@ -2,13 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* #root,
-html,
-body {
-  height: 100%;
-  overflow: auto;
-} */
-
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 
