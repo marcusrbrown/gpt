@@ -2,12 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-#root,
+/* #root,
 html,
 body {
   height: 100%;
   overflow: auto;
-}
+} */
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -16,9 +16,4 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-body {
-  margin: 0;
-  display: flex;
 }
