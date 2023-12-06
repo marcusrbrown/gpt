@@ -1,9 +1,11 @@
-import {FC} from 'react';
+import {FC, useRef, useState} from 'react';
 import {Avatar, Card as NextUICard, CardBody, CardFooter, CardHeader, Divider, Link} from '@nextui-org/react';
 
 export const Card: FC = () => {
+  const ref = useRef<HTMLDivElement | null>(null);
+
   return (
-    <NextUICard className='hover:cursor-pointer max-w-[400px]' isPressable>
+    <NextUICard ref={ref} as='div' className={`hover:cursor-pointer max-w-[400px]`} isHoverable isPressable>
       <CardHeader className='flex gap-3'>
         <Avatar
           alt='GPT Logo'

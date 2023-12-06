@@ -19,7 +19,7 @@ export const Navbar: FC = () => {
         <NavbarBrand as='li' className='gap-3 max-w-fit'>
           <Link className='flex justify-start items-center gap-1 font-bold text-xl' href='/'>
             <Image alt='logo' src={logo} width={24} height={24} />
-            GPT
+            gpt.mrbro.dev
           </Link>
         </NavbarBrand>
       </NavbarContent>
