@@ -1,0 +1,15 @@
+{
+    "[css]": {
+        "editor.quickSuggestions": {
+            "strings": "on"
+        }
+    },
+
+    "files.associations": {
+        "*.css": "tailwindcss"
+    },
+
+    "typescript.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces": false,
+    "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+    "typescript.tsdk": "node_modules/typescript/lib"
+}
