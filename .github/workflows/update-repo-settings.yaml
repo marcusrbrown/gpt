@@ -25,15 +25,12 @@ jobs:
         uses: dorny/paths-filter@4512585405083f25c027a35db413c2b3b9006d50 # v2.11.1
         with:
           filters: |
-            settings:
-              - .github/settings.yml
-              - .github/workflows/update-repo-settings.yaml
-
-      - if: github.event_name == 'push' && steps.filter.outputs.settings != 'true'
-        name: Skip Repository Settings Update
-        run: echo "No changes to repository settings." && exit 0
+            changes:
+              - '.github/settings.yml'
+              - '.github/workflows/update-repo-settings.yaml'
 
       - id: get-workflow-access-token
+        if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
         uses: peter-murray/workflow-application-token-action@8e1ba3bf1619726336414f1014e37f17fbadf1db # v2.1.0
         name: Get Workflow Access Token
         with:
@@ -41,7 +38,8 @@ jobs:
           application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
           permissions: 'administration:write, contents:read, issues:write'
 
-      - name: Update Repository Settings (${{ github.repository_owner }}/.github)
-        uses: elstudio/actions-settings@v3-beta
-        env:
+      - env:
           GITHUB_TOKEN: ${{ steps.get-workflow-access-token.outputs.token }}
+        if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
+        name: Update Repository Settings
+        uses: elstudio/actions-settings@v3-beta
