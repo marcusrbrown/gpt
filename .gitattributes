@@ -1,1 +1,4 @@
 * text=auto eol=lf
+
+.vscode/*.json linguist-language=JSON-with-Comments
+tsconfig*.json linguist-language=JSON-with-Comments
