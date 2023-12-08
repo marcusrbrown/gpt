@@ -1,6 +1,12 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: ['github>marcusrbrown/renovate-config#v1.7.0'],
+  packageRules: [
+    {
+      matchFileNames: ['**/renovate.json5'],
+      branchTopic: 'reconfigure',
+    },
+  ],
   postUpgradeTasks: {
     commands: ['npx prettier --no-color --write .'],
     executionMode: 'branch',
