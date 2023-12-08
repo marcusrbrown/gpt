@@ -8,6 +8,10 @@ name: Update Repository Settings
     - cron: '23 */12 * * *' # Every 12 hours on the 23rd minute.
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 permissions: {}
 
 jobs:
