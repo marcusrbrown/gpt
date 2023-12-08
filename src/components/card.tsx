@@ -1,4 +1,4 @@
-import {FC, useRef, useState} from 'react';
+import {FC, useRef} from 'react';
 import {Avatar, Card as NextUICard, CardBody, CardFooter, CardHeader, Divider, Link} from '@nextui-org/react';
 
 export const Card: FC = () => {
