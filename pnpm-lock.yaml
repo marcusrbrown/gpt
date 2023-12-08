@@ -38,10 +38,10 @@ devDependencies:
     specifier: ^18.2.15
     version: 18.2.17
   '@typescript-eslint/eslint-plugin':
-    specifier: ^6.10.0
+    specifier: 6.13.1
     version: 6.13.1(@typescript-eslint/parser@6.13.1)(eslint@8.55.0)(typescript@5.3.3)
   '@typescript-eslint/parser':
-    specifier: ^6.10.0
+    specifier: 6.13.1
     version: 6.13.1(eslint@8.55.0)(typescript@5.3.3)
   '@vitejs/plugin-react-swc':
     specifier: 3.5.0
@@ -50,16 +50,16 @@ devDependencies:
     specifier: 10.4.16
     version: 10.4.16(postcss@8.4.32)
   eslint:
-    specifier: ^8.53.0
+    specifier: 8.55.0
     version: 8.55.0
   eslint-config-prettier:
     specifier: 9.1.0
     version: 9.1.0(eslint@8.55.0)
   eslint-plugin-react-hooks:
-    specifier: ^4.6.0
+    specifier: 4.6.0
     version: 4.6.0(eslint@8.55.0)
   eslint-plugin-react-refresh:
-    specifier: ^0.4.4
+    specifier: 0.4.5
     version: 0.4.5(eslint@8.55.0)
   postcss:
     specifier: 8.4.32
