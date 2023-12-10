@@ -16,21 +16,35 @@ permissions:
   contents: read
 
 jobs:
-  lint:
-    name: Lint
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
-
       - name: Setup Node.js
         uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
         with:
-          cache: pnpm
           node-version-file: '.node-version'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
+
+      - id: pnpm-store
+        name: Get pnpm store directory
+        run: |
+          echo "path=$(pnpm store path)" >> $GITHUB_OUTPUT
+        shell: bash
+
+      - id: pnpm-cache
+        name: Set up pnpm cache
+        uses: actions/cache@v3.3.2
+        with:
+          path: ${{ steps.pnpm-store.outputs.path }}
+          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -40,26 +54,6 @@ jobs:
 
       - name: Run ESLint
         run: pnpm run lint
-
-  build:
-    name: Build
-    needs: lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4.0.0
-        with:
-          cache: pnpm
-          node-version-file: '.node-version'
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
 
       - name: Build
         run: pnpm run build
