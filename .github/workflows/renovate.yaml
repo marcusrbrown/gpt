@@ -8,7 +8,6 @@ name: Renovate
   pull_request:
     types: [edited]
   push:
-    branches: [main, 'renovate/reconfigure']
   workflow_dispatch:
     inputs:
       print_config:
@@ -44,6 +43,7 @@ jobs:
         contains(join(github.event.*.body, ''), '- [x] <!-- unschedule-branch=')
       )
     outputs:
+      dry-run: ${{ steps.create-output.outputs.dry-run }}
       renovate: ${{ steps.create-output.outputs.renovate }}
     runs-on: ubuntu-latest
     steps:
@@ -59,7 +59,9 @@ jobs:
               - '.github/renovate.json5'
       - id: create-output
         if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
-        run: echo 'renovate=true' >> $GITHUB_OUTPUT
+        run: |
+          echo 'renovate=true' >> $GITHUB_OUTPUT
+          echo 'dry-run={{ !contains(["main", "renovate/reconfigure"], github.ref_name) }}' >> $GITHUB_OUTPUT
 
   renovate:
     if: needs.should-renovate.outputs.renovate == 'true'
@@ -70,6 +72,8 @@ jobs:
       - name: Renovate
         uses: bfra-me/renovate-action@e8a649957ea367f7d6a65953f9fec48cbfa79ec6 # v2.2.1
         with:
+          branch: ${{ github.ref != 'refs/heads/main' && github.ref_name || '' }}
+          dry_run: ${{ needs.should-renovate.outputs.dry-run }}
           print_config: ${{ inputs.print_config || 'false' }}
           renovate_app_id: ${{ secrets.APPLICATION_ID }}
           renovate_app_pem: ${{ secrets.APPLICATION_PRIVATE_KEY }}
