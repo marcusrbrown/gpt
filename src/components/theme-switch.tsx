@@ -2,6 +2,7 @@ import {FC} from 'react';
 import {SwitchProps, useSwitch, VisuallyHidden} from '@nextui-org/react';
 import {useTheme} from 'next-themes';
 import {useIsSSR} from '@react-aria/ssr';
+import {Moon, Sun} from 'lucide-react';
 import clsx from 'clsx';
 
 export interface ThemeSwitchProps {
@@ -48,7 +49,7 @@ export const ThemeSwitch: FC<ThemeSwitchProps> = ({className, classNames}) => {
           ),
         })}
       >
-        {!isSelected || isSSR ? '🔆' : '🌙'}
+        {!isSelected || isSSR ? <Sun /> : <Moon />}
       </div>
     </Component>
   );
