@@ -5,6 +5,8 @@
         }
     },
 
+    "cSpell.words": ["mrbro"],
+
     "files.associations": {
         "*.css": "tailwindcss"
     },
