@@ -1,4 +1,5 @@
 import {CardGroup} from '@/components/card-group';
+import {Footer} from '@/components/footer';
 import {Navbar} from '@/components/navbar';
 import {Providers} from './providers';
 
@@ -12,6 +13,7 @@ function App() {
             <h1 className='text-3xl text-center font-bold py-20'>Custom GPTs</h1>
             <CardGroup />
           </main>
+          <Footer />
         </div>
       </Providers>
     </>
