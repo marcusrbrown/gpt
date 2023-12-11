@@ -9,7 +9,9 @@ import {
   NavbarMenu,
   NavbarMenuToggle,
 } from '@nextui-org/react';
+import {Github} from 'lucide-react';
 import {ThemeSwitch} from '@/components/theme-switch';
+import {siteConfig} from '@/config/site';
 import logo from '@/assets/logo.png';
 
 export const Navbar: FC = () => {
@@ -25,12 +27,18 @@ export const Navbar: FC = () => {
       </NavbarContent>
 
       <NavbarContent className='hidden sm:flex basis-1/5 sm:basis-full' justify='end'>
-        <NavbarItem>
+        <NavbarItem className='hidden sm:flex gap-2'>
+          <Link aria-label='GitHub' href={siteConfig.links.repository} isExternal>
+            <Github className='text-default-500' size={24} />
+          </Link>
           <ThemeSwitch />
         </NavbarItem>
       </NavbarContent>
 
       <NavbarContent className='sm:hidden basis-1 pl-4' justify='end'>
+        <Link aria-label='GitHub' href={siteConfig.links.repository} isExternal>
+          <Github className='text-default-500' size={24} />
+        </Link>
         <ThemeSwitch />
         <NavbarMenuToggle />
       </NavbarContent>
