@@ -57,3 +57,31 @@ jobs:
 
       - name: Build
         run: pnpm run build
+
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v2.0.0
+        with:
+          path: dist
+
+  deploy:
+    concurrency:
+      group: pages
+      cancel-in-progress: true
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy-to-pages.outputs.page_url }}
+    if: github.ref =='refs/heads/main'
+    name: Deploy
+    needs: build
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Pages
+        uses: actions/configure-pages@v4.0.0
+
+      - name: Deploy to GitHub Pages
+        id: deploy-to-pages
+        uses: actions/deploy-pages@v3.0.1
