@@ -61,7 +61,7 @@ jobs:
         if: github.event_name != 'push' || steps.filter.outputs.changes == 'true'
         run: |
           echo 'renovate=true' >> $GITHUB_OUTPUT
-          echo 'dry-run={{ !contains(["main", "renovate/reconfigure"], github.ref_name) }}' >> $GITHUB_OUTPUT
+          echo "dry-run=${{ !contains('["main", "renovate/reconfigure"]', github.ref_name) }}" >> $GITHUB_OUTPUT
 
   renovate:
     if: needs.should-renovate.outputs.renovate == 'true'
