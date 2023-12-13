@@ -31,7 +31,7 @@ export const Card: FC<CardProps> = ({title, description, avatarUrl, author, auth
       <Divider />
       <CardFooter>
         <Link href={gptUrl.toString()} isExternal showAnchorIcon>
-          Chat
+          Open in ChatGPT
         </Link>
       </CardFooter>
     </NextUICard>
