@@ -3,9 +3,9 @@ name: main
 
 'on':
   pull_request:
-    branches: [main]
+    types: [opened, reopened, synchronize]
   push:
-    branches: [main]
+    branches: [main, 'renovate/**']
   workflow_dispatch:
 
 concurrency:
