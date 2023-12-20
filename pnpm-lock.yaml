@@ -9,8 +9,8 @@ dependencies:
     specifier: 2.2.9
     version: 2.2.9(@types/react@18.2.45)(framer-motion@10.16.16)(react-dom@18.2.0)(react@18.2.0)(tailwind-variants@0.1.18)(tailwindcss@3.4.0)
   '@react-aria/ssr':
-    specifier: 3.9.0
-    version: 3.9.0(react@18.2.0)
+    specifier: 3.9.1
+    version: 3.9.1(react@18.2.0)
   clsx:
     specifier: 2.0.0
     version: 2.0.0
@@ -1695,7 +1695,7 @@ packages:
       react: '>=18'
     dependencies:
       '@react-aria/interactions': 3.20.0(react@18.2.0)
-      '@react-aria/ssr': 3.9.0(react@18.2.0)
+      '@react-aria/ssr': 3.9.1(react@18.2.0)
       '@react-aria/utils': 3.22.0(react@18.2.0)
       '@react-types/shared': 3.22.0(react@18.2.0)
       react: 18.2.0
@@ -1765,7 +1765,7 @@ packages:
     peerDependencies:
       react: '>=18'
     dependencies:
-      '@react-aria/ssr': 3.9.0(react@18.2.0)
+      '@react-aria/ssr': 3.9.1(react@18.2.0)
       react: 18.2.0
     dev: false
 
@@ -1994,7 +1994,7 @@ packages:
       '@internationalized/message': 3.1.1
       '@internationalized/number': 3.4.0
       '@internationalized/string': 3.1.1
-      '@react-aria/ssr': 3.9.0(react@18.2.0)
+      '@react-aria/ssr': 3.9.1(react@18.2.0)
       '@react-aria/utils': 3.22.0(react@18.2.0)
       '@react-types/shared': 3.22.0(react@18.2.0)
       '@swc/helpers': 0.5.3
@@ -2006,7 +2006,7 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
     dependencies:
-      '@react-aria/ssr': 3.9.0(react@18.2.0)
+      '@react-aria/ssr': 3.9.1(react@18.2.0)
       '@react-aria/utils': 3.22.0(react@18.2.0)
       '@react-types/shared': 3.22.0(react@18.2.0)
       '@swc/helpers': 0.5.3
@@ -2095,7 +2095,7 @@ packages:
       '@react-aria/focus': 3.15.0(react@18.2.0)
       '@react-aria/i18n': 3.9.0(react@18.2.0)
       '@react-aria/interactions': 3.20.0(react@18.2.0)
-      '@react-aria/ssr': 3.9.0(react@18.2.0)
+      '@react-aria/ssr': 3.9.1(react@18.2.0)
       '@react-aria/utils': 3.22.0(react@18.2.0)
       '@react-aria/visually-hidden': 3.8.7(react@18.2.0)
       '@react-stately/overlays': 3.6.4(react@18.2.0)
@@ -2173,8 +2173,8 @@ packages:
       react: 18.2.0
     dev: false
 
-  /@react-aria/ssr@3.9.0(react@18.2.0):
-    resolution: {integrity: sha512-Bz6BqP6ZorCme9tSWHZVmmY+s7AU8l6Vl2NUYmBzezD//fVHHfFo4lFBn5tBuAaJEm3AuCLaJQ6H2qhxNSb7zg==}
+  /@react-aria/ssr@3.9.1(react@18.2.0):
+    resolution: {integrity: sha512-NqzkLFP8ZVI4GSorS0AYljC13QW2sc8bDqJOkBvkAt3M8gbcAXJWVRGtZBCRscki9RZF+rNlnPdg0G0jYkhJcg==}
     engines: {node: '>= 12'}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
@@ -2290,7 +2290,7 @@ packages:
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0
     dependencies:
-      '@react-aria/ssr': 3.9.0(react@18.2.0)
+      '@react-aria/ssr': 3.9.1(react@18.2.0)
       '@react-stately/utils': 3.9.0(react@18.2.0)
       '@react-types/shared': 3.22.0(react@18.2.0)
       '@swc/helpers': 0.5.3
