@@ -18,7 +18,7 @@ branches:
     protection:
       required_status_checks:
         strict: false
-        contexts: ['Build', 'Check if Renovate should run', 'Deploy', 'Renovate', 'Update Repository Settings']
+        contexts: ['Build', 'Deploy', 'Renovate']
       enforce_admins: true
       required_pull_request_reviews: null
       restrictions: null
