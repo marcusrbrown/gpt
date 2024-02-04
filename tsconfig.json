@@ -6,7 +6,7 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "paths": {
-      "@/*": ["./src/*"],
+      "@/*": ["./src/*"]
     },
 
     /* Bundler mode */
@@ -21,8 +21,8 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
+    "noFallthroughCasesInSwitch": true
   },
   "include": ["src"],
-  "references": [{"path": "./tsconfig.node.json"}],
+  "references": [{"path": "./tsconfig.node.json"}]
 }
