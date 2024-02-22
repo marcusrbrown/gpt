@@ -3,14 +3,14 @@ name: main
 
 'on':
   pull_request:
-    types: [opened, reopened, synchronize]
+    types: [opened, ready_for_review, reopened, synchronize]
   push:
     branches: [main, 'renovate/**']
   workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 permissions:
   contents: read

@@ -18,7 +18,7 @@ branches:
     protection:
       required_status_checks:
         strict: false
-        contexts: ['Build', 'Deploy', 'Renovate']
+        contexts: ['Build', 'Deploy', 'Renovate / Renovate']
       enforce_admins: true
       required_pull_request_reviews: null
       restrictions: null
