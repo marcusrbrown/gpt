@@ -1,6 +1,15 @@
 {
   $schema: 'https://docs.renovatebot.com/renovate-schema.json',
   extends: ['github>marcusrbrown/renovate-config#v2'],
+  packageRules: [
+    {
+      description: 'Automerge minor updates of `lucide-react`.',
+      matchCurrentVersion: '0.x',
+      matchPackageNames: ['lucide-react'],
+      matchUpdateTypes: ['minor'],
+      automerge: true,
+    },
+  ],
   postUpgradeTasks: {
     commands: [
       'npm install -g pnpm@8',
