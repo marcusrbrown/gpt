@@ -2,6 +2,7 @@ import {FC} from 'react';
 import {Card} from '@/components/card';
 import mine from '@/assets/mine.json';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type -- This is a placeholder for the props
 export interface CardGroupProps {}
 
 export const CardGroup: FC<CardGroupProps> = () => {
