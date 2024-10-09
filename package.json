@@ -42,7 +42,7 @@
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-react-hooks": "canary",
     "eslint-plugin-react-refresh": "0.4.11",
-    "globals": "15.10.0",
+    "globals": "15.11.0",
     "jiti": "1.21.6",
     "postcss": "8.4.39",
     "prettier": "3.3.3",
