@@ -16,7 +16,7 @@
     "@nextui-org/react": "2.4.8",
     "@react-aria/ssr": "3.9.6",
     "clsx": "2.1.1",
-    "framer-motion": "11.11.0",
+    "framer-motion": "11.11.9",
     "lucide-react": "0.446.0",
     "next-themes": "0.3.0",
     "react": "18.3.1",
