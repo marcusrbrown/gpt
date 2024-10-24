@@ -90,10 +90,10 @@ importers:
         version: 9.1.0(eslint@9.13.0(jiti@2.3.3))
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 5.1.0-rc-28668d39-20241023(eslint@9.13.0(jiti@2.3.3))
+        version: 5.1.0-rc-1631855f-20241023(eslint@9.13.0(jiti@2.3.3))
       eslint-plugin-react-refresh:
-        specifier: 0.4.13
-        version: 0.4.13(eslint@9.13.0(jiti@2.3.3))
+        specifier: 0.4.14
+        version: 0.4.14(eslint@9.13.0(jiti@2.3.3))
       globals:
         specifier: 15.11.0
         version: 15.11.0
@@ -1951,8 +1951,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@5.1.0-rc-28668d39-20241023:
-    resolution: {integrity: sha512-r4VdX9R0n3IwFufpaB6ZSwtiXQk1ACSj5dXWSfiqDY5vJBhZv2fHffcGFie0jKh0U/yXtwuC9XgEJANLsqbw9Q==}
+  eslint-plugin-react-hooks@5.1.0-rc-1631855f-20241023:
+    resolution: {integrity: sha512-ohDko9xwausG054sm2kvM0ZssnaZ0jRBL3tduCR9Bo3rott+zD8O9p6PC5B+LN/6f2RwKRNCdN2WcrkNul/ljg==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^9.10.0
@@ -1967,8 +1967,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-refresh@0.4.13:
-    resolution: {integrity: sha512-f1EppwrpJRWmqDTyvAyomFVDYRtrS7iTEqv3nokETnMiMzs2SSTmKRTACce4O2p4jYyowiSMvpdwC/RLcMFhuQ==}
+  eslint-plugin-react-refresh@0.4.14:
+    resolution: {integrity: sha512-aXvzCTK7ZBv1e7fahFuR3Z/fyQQSIQ711yPgYRj+Oj64tyTgO4iQIDmYXDBqvSWQ/FA4OSCsXOStlF+noU0/NA==}
     peerDependencies:
       eslint: ^9.10.0
 
@@ -5511,7 +5511,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@5.1.0-rc-28668d39-20241023(eslint@9.13.0(jiti@2.3.3)):
+  eslint-plugin-react-hooks@5.1.0-rc-1631855f-20241023(eslint@9.13.0(jiti@2.3.3)):
     dependencies:
       eslint: 9.13.0(jiti@2.3.3)
 
@@ -5534,7 +5534,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-refresh@0.4.13(eslint@9.13.0(jiti@2.3.3)):
+  eslint-plugin-react-refresh@0.4.14(eslint@9.13.0(jiti@2.3.3)):
     dependencies:
       eslint: 9.13.0(jiti@2.3.3)
 
