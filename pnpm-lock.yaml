@@ -68,8 +68,8 @@ importers:
         specifier: 8.42.3
         version: 8.42.3
       '@types/node':
-        specifier: 20.17.2
-        version: 20.17.2
+        specifier: 20.17.3
+        version: 20.17.3
       '@types/react':
         specifier: 18.3.12
         version: 18.3.12
@@ -78,7 +78,7 @@ importers:
         version: 18.3.1
       '@vitejs/plugin-react-swc':
         specifier: 3.7.1
-        version: 3.7.1(@swc/helpers@0.5.13)(vite@5.4.10(@types/node@20.17.2))
+        version: 3.7.1(@swc/helpers@0.5.13)(vite@5.4.10(@types/node@20.17.3))
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.4.47)
@@ -90,7 +90,7 @@ importers:
         version: 9.1.0(eslint@9.13.0(jiti@2.3.3))
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 5.1.0-rc-02c0e824-20241028(eslint@9.13.0(jiti@2.3.3))
+        version: 5.1.0-rc-0bc30748-20241028(eslint@9.13.0(jiti@2.3.3))
       eslint-plugin-react-refresh:
         specifier: 0.4.14
         version: 0.4.14(eslint@9.13.0(jiti@2.3.3))
@@ -114,10 +114,10 @@ importers:
         version: 5.6.3
       vite:
         specifier: 5.4.10
-        version: 5.4.10(@types/node@20.17.2)
+        version: 5.4.10(@types/node@20.17.3)
       vite-tsconfig-paths:
         specifier: 5.0.1
-        version: 5.0.1(typescript@5.6.3)(vite@5.4.10(@types/node@20.17.2))
+        version: 5.0.1(typescript@5.6.3)(vite@5.4.10(@types/node@20.17.3))
 
 packages:
 
@@ -1661,8 +1661,8 @@ packages:
   '@types/lodash@4.17.12':
     resolution: {integrity: sha512-sviUmCE8AYdaF/KIHLDJBQgeYzPBI0vf/17NaYehBJfYD1j6/L95Slh07NlyK2iNyBNaEkb3En2jRt+a8y3xZQ==}
 
-  '@types/node@20.17.2':
-    resolution: {integrity: sha512-OOHK4sjXqkL7yQ7VEEHcf6+0jSvKjWqwnaCtY7AKD/VLEvRHMsxxu7eI8ErnjxHS8VwmekD4PeVCpu4qZEZSxg==}
+  '@types/node@20.17.3':
+    resolution: {integrity: sha512-tSQrmKKatLDGnG92h40GD7FzUt0MjahaHwOME4VAFeeA/Xopayq5qLyQRy7Jg/pjgKIFBXuKcGhJo+UdYG55jQ==}
 
   '@types/prop-types@15.7.13':
     resolution: {integrity: sha512-hCZTSvwbzWGvhqxp/RqVqwU999pBf2vp7hzIjiYOsl8wqOmUxkQ6ddw1cV3l8811+kdUFus/q4d1Y3E3SyEifA==}
@@ -1961,8 +1961,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@5.1.0-rc-02c0e824-20241028:
-    resolution: {integrity: sha512-31hqgBo9ISrIus4wciRJCeMc8/ebebbRhQvWvlOnLjMiyGzk/cR8NAtUgliuZJZxwH6kU3PGBa/ZRxqYAJspQg==}
+  eslint-plugin-react-hooks@5.1.0-rc-0bc30748-20241028:
+    resolution: {integrity: sha512-rewMgmolwvtkbULITBMnN/TE7k+OdAxDvvyalLijoD3ZfZMgjrlfOXQgZFPkwAXS5SQOBklagQmqnB7E6gD8ew==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^9.10.0
@@ -5177,7 +5177,7 @@ snapshots:
 
   '@types/lodash@4.17.12': {}
 
-  '@types/node@20.17.2':
+  '@types/node@20.17.3':
     dependencies:
       undici-types: 6.19.8
 
@@ -5273,10 +5273,10 @@ snapshots:
       '@typescript-eslint/types': 8.12.2
       eslint-visitor-keys: 3.4.3
 
-  '@vitejs/plugin-react-swc@3.7.1(@swc/helpers@0.5.13)(vite@5.4.10(@types/node@20.17.2))':
+  '@vitejs/plugin-react-swc@3.7.1(@swc/helpers@0.5.13)(vite@5.4.10(@types/node@20.17.3))':
     dependencies:
       '@swc/core': 1.7.40(@swc/helpers@0.5.13)
-      vite: 5.4.10(@types/node@20.17.2)
+      vite: 5.4.10(@types/node@20.17.3)
     transitivePeerDependencies:
       - '@swc/helpers'
 
@@ -5527,7 +5527,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@5.1.0-rc-02c0e824-20241028(eslint@9.13.0(jiti@2.3.3)):
+  eslint-plugin-react-hooks@5.1.0-rc-0bc30748-20241028(eslint@9.13.0(jiti@2.3.3)):
     dependencies:
       eslint: 9.13.0(jiti@2.3.3)
 
@@ -6301,24 +6301,24 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  vite-tsconfig-paths@5.0.1(typescript@5.6.3)(vite@5.4.10(@types/node@20.17.2)):
+  vite-tsconfig-paths@5.0.1(typescript@5.6.3)(vite@5.4.10(@types/node@20.17.3)):
     dependencies:
       debug: 4.3.7
       globrex: 0.1.2
       tsconfck: 3.1.4(typescript@5.6.3)
     optionalDependencies:
-      vite: 5.4.10(@types/node@20.17.2)
+      vite: 5.4.10(@types/node@20.17.3)
     transitivePeerDependencies:
       - supports-color
       - typescript
 
-  vite@5.4.10(@types/node@20.17.2):
+  vite@5.4.10(@types/node@20.17.3):
     dependencies:
       esbuild: 0.21.5
       postcss: 8.4.47
       rollup: 4.24.2
     optionalDependencies:
-      '@types/node': 20.17.2
+      '@types/node': 20.17.3
       fsevents: 2.3.3
 
   which@2.0.2:
