@@ -29,7 +29,7 @@
     "@eslint-types/typescript-eslint": "7.5.0",
     "@eslint/compat": "1.2.2",
     "@eslint/eslintrc": "3.1.0",
-    "@eslint/js": "9.13.0",
+    "@eslint/js": "9.14.0",
     "@tsconfig/node20": "20.1.4",
     "@tsconfig/strictest": "2.0.5",
     "@types/eslint__js": "8.42.3",
@@ -38,7 +38,7 @@
     "@types/react-dom": "18.3.1",
     "@vitejs/plugin-react-swc": "3.7.1",
     "autoprefixer": "10.4.20",
-    "eslint": "9.13.0",
+    "eslint": "9.14.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-react-hooks": "canary",
     "eslint-plugin-react-refresh": "0.4.14",
@@ -53,7 +53,7 @@
   },
   "pnpm": {
     "overrides": {
-      "@eslint/js": "9.13.0",
+      "@eslint/js": "9.14.0",
       "eslint": "^9.10.0"
     }
   }

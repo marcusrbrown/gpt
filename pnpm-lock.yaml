@@ -5,7 +5,7 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  '@eslint/js': 9.13.0
+  '@eslint/js': 9.14.0
   eslint: ^9.10.0
 
 importers:
@@ -56,8 +56,8 @@ importers:
         specifier: 3.1.0
         version: 3.1.0
       '@eslint/js':
-        specifier: 9.13.0
-        version: 9.13.0
+        specifier: 9.14.0
+        version: 9.14.0
       '@tsconfig/node20':
         specifier: 20.1.4
         version: 20.1.4
@@ -90,7 +90,7 @@ importers:
         version: 9.1.0(eslint@9.13.0(jiti@2.4.0))
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 5.1.0-rc-603e6108-20241029(eslint@9.13.0(jiti@2.4.0))
+        version: 5.1.0-rc-b7e21579-20241031(eslint@9.13.0(jiti@2.4.0))
       eslint-plugin-react-refresh:
         specifier: 0.4.14
         version: 0.4.14(eslint@9.13.0(jiti@2.4.0))
@@ -335,8 +335,8 @@ packages:
     resolution: {integrity: sha512-4Bfj15dVJdoy3RfZmmo86RK1Fwzn6SstsvK9JS+BaVKqC6QQQQyXekNaC+g+LKNgkQ+2VhGAzm6hO40AhMR3zQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@eslint/js@9.13.0':
-    resolution: {integrity: sha512-IFLyoY4d72Z5y/6o/BazFBezupzI/taV8sGumxTAVw3lXG9A6md1Dc34T9s1FoD/an9pJH8RHbAxsaEbBed9lA==}
+  '@eslint/js@9.14.0':
+    resolution: {integrity: sha512-pFoEtFWCPyDOl+C6Ift+wC7Ro89otjigCf5vcuWqWgqNSQbRrpjSvdeE6ofLz4dHmyxD5f7gIdGT4+p36L6Twg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@eslint/object-schema@2.1.4':
@@ -1961,8 +1961,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@5.1.0-rc-603e6108-20241029:
-    resolution: {integrity: sha512-btivWAKpwyymHoOUyoc3evCcmAWSZw+qlDe/nhtFKDs0agXQrqfLBfmfwZb7sY1VWiKVaqEKPhhK19WNOxssNw==}
+  eslint-plugin-react-hooks@5.1.0-rc-b7e21579-20241031:
+    resolution: {integrity: sha512-g3BZCv/vxCojz/zuyn9RKvpTbgYrChzrFe/dybWiPmBOwzp9zUw/zfNMl/PaX/Ce/hpylAp2ha+oPos7XL7abQ==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^9.10.0
@@ -3025,7 +3025,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@eslint/js@9.13.0': {}
+  '@eslint/js@9.14.0': {}
 
   '@eslint/object-schema@2.1.4': {}
 
@@ -5527,7 +5527,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@5.1.0-rc-603e6108-20241029(eslint@9.13.0(jiti@2.4.0)):
+  eslint-plugin-react-hooks@5.1.0-rc-b7e21579-20241031(eslint@9.13.0(jiti@2.4.0)):
     dependencies:
       eslint: 9.13.0(jiti@2.4.0)
 
@@ -5611,7 +5611,7 @@ snapshots:
       '@eslint/config-array': 0.18.0
       '@eslint/core': 0.7.0
       '@eslint/eslintrc': 3.1.0
-      '@eslint/js': 9.13.0
+      '@eslint/js': 9.14.0
       '@eslint/plugin-kit': 0.2.1
       '@humanfs/node': 0.16.5
       '@humanwhocodes/module-importer': 1.0.1
