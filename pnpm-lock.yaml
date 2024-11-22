@@ -90,7 +90,7 @@ importers:
         version: 9.1.0(eslint@9.15.0(jiti@2.4.0))
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 5.1.0-rc-c11c9510-20241120(eslint@9.15.0(jiti@2.4.0))
+        version: 5.1.0-rc-91061073-20241121(eslint@9.15.0(jiti@2.4.0))
       eslint-plugin-react-refresh:
         specifier: 0.4.14
         version: 0.4.14(eslint@9.15.0(jiti@2.4.0))
@@ -116,8 +116,8 @@ importers:
         specifier: 5.4.11
         version: 5.4.11(@types/node@20.17.6)
       vite-tsconfig-paths:
-        specifier: 5.1.2
-        version: 5.1.2(typescript@5.6.3)(vite@5.4.11(@types/node@20.17.6))
+        specifier: 5.1.3
+        version: 5.1.3(typescript@5.6.3)(vite@5.4.11(@types/node@20.17.6))
 
 packages:
 
@@ -1976,8 +1976,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@5.1.0-rc-c11c9510-20241120:
-    resolution: {integrity: sha512-QAvJBZiL26Wpn4gWzkpOoDXqi2jg3W0xGZeq5TLR4utG2xqB33kxs4zntH26ZHAOsURxBLpB/pwVqGoEqHefSw==}
+  eslint-plugin-react-hooks@5.1.0-rc-91061073-20241121:
+    resolution: {integrity: sha512-XYjf4/xqEAa7xT70+QN9sakponZ+lYe3lurzliOLHmZmByRWkkfbytg9Zv5G+q3XUyQTTyfl9Y08ukOtx/H04g==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^9.10.0
@@ -2750,8 +2750,8 @@ packages:
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
-  vite-tsconfig-paths@5.1.2:
-    resolution: {integrity: sha512-gEIbKfJzSEv0yR3XS2QEocKetONoWkbROj6hGx0FHM18qKUojhvcokQsxQx5nMkelZq2n37zbSGCJn+FSODSjA==}
+  vite-tsconfig-paths@5.1.3:
+    resolution: {integrity: sha512-0bz+PDlLpGfP2CigeSKL9NFTF1KtXkeHGZSSaGQSuPZH77GhoiQaA8IjYgOaynSuwlDTolSUEU0ErVvju3NURg==}
     peerDependencies:
       vite: '*'
     peerDependenciesMeta:
@@ -5550,7 +5550,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@5.1.0-rc-c11c9510-20241120(eslint@9.15.0(jiti@2.4.0)):
+  eslint-plugin-react-hooks@5.1.0-rc-91061073-20241121(eslint@9.15.0(jiti@2.4.0)):
     dependencies:
       eslint: 9.15.0(jiti@2.4.0)
 
@@ -6321,7 +6321,7 @@ snapshots:
 
   util-deprecate@1.0.2: {}
 
-  vite-tsconfig-paths@5.1.2(typescript@5.6.3)(vite@5.4.11(@types/node@20.17.6)):
+  vite-tsconfig-paths@5.1.3(typescript@5.6.3)(vite@5.4.11(@types/node@20.17.6)):
     dependencies:
       debug: 4.3.7
       globrex: 0.1.2
