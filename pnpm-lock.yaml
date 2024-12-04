@@ -90,13 +90,13 @@ importers:
         version: 9.1.0(eslint@9.16.0(jiti@2.4.1))
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 5.1.0-rc-1b1283ad-20241203(eslint@9.16.0(jiti@2.4.1))
+        version: 5.1.0-rc-de68d2f4-20241204(eslint@9.16.0(jiti@2.4.1))
       eslint-plugin-react-refresh:
         specifier: 0.4.14
         version: 0.4.14(eslint@9.16.0(jiti@2.4.1))
       globals:
-        specifier: 15.12.0
-        version: 15.12.0
+        specifier: 15.13.0
+        version: 15.13.0
       jiti:
         specifier: 2.4.1
         version: 2.4.1
@@ -1976,8 +1976,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@5.1.0-rc-1b1283ad-20241203:
-    resolution: {integrity: sha512-pDtOFNfNRLQfhpnojHg1svIija4FBNA4yfly22JBfoPZ5fWiQy4jxU1heDaq8FV5qYCEG+lSJ7adDhmU4GLLdQ==}
+  eslint-plugin-react-hooks@5.1.0-rc-de68d2f4-20241204:
+    resolution: {integrity: sha512-/3L1B94tUj9ie1ZmYXnZ5608Bjj1678xvbNVszWRX4bm42hKUWxpvzA+BdiJFtQlA9NvkER6BRrkf7KLtPapWQ==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^9.10.0
@@ -2147,8 +2147,8 @@ packages:
     resolution: {integrity: sha512-oahGvuMGQlPw/ivIYBjVSrWAfWLBeku5tpPE2fOPLi+WHffIWbuh2tCjhyQhTBPMf5E9jDEH4FOmTYgYwbKwtQ==}
     engines: {node: '>=18'}
 
-  globals@15.12.0:
-    resolution: {integrity: sha512-1+gLErljJFhbOVyaetcwJiJ4+eLe45S2E7P5UiZ9xGfeq3ATQf5DOv9G7MH3gGbKQLkzmNh2DxfZwLdw+j6oTQ==}
+  globals@15.13.0:
+    resolution: {integrity: sha512-49TewVEz0UxZjr1WYYsWpPrhyC/B/pA8Bq0fUmet2n+eR7yn0IvNzNaoBwnK6mdkzcN+se7Ez9zUgULTz2QH4g==}
     engines: {node: '>=18'}
 
   globrex@0.1.2:
@@ -5569,7 +5569,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@5.1.0-rc-1b1283ad-20241203(eslint@9.16.0(jiti@2.4.1)):
+  eslint-plugin-react-hooks@5.1.0-rc-de68d2f4-20241204(eslint@9.16.0(jiti@2.4.1)):
     dependencies:
       eslint: 9.16.0(jiti@2.4.1)
 
@@ -5786,7 +5786,7 @@ snapshots:
 
   globals@14.0.0: {}
 
-  globals@15.12.0: {}
+  globals@15.13.0: {}
 
   globrex@0.1.2: {}
 
