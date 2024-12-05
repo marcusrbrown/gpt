@@ -41,7 +41,7 @@
     "eslint": "9.16.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-react-hooks": "canary",
-    "eslint-plugin-react-refresh": "0.4.15",
+    "eslint-plugin-react-refresh": "0.4.16",
     "globals": "15.13.0",
     "jiti": "2.4.1",
     "postcss": "8.4.49",
