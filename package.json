@@ -34,7 +34,7 @@
     "@tsconfig/strictest": "2.0.5",
     "@types/eslint__js": "8.42.3",
     "@types/node": "22.10.2",
-    "@types/react": "18.3.17",
+    "@types/react": "18.3.18",
     "@types/react-dom": "18.3.5",
     "@vitejs/plugin-react-swc": "3.7.2",
     "autoprefixer": "10.4.20",
