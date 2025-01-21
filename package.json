@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "lint": "eslint --flag unstable_ts_config .",
+    "lint": "eslint .",
     "check-format": "prettier --check .",
     "format": "prettier --write .",
     "preview": "vite preview"
@@ -50,11 +50,5 @@
     "typescript": "5.7.3",
     "vite": "5.4.11",
     "vite-tsconfig-paths": "5.1.4"
-  },
-  "pnpm": {
-    "overrides": {
-      "@eslint/js": "9.18.0",
-      "eslint": "^9.10.0"
-    }
   }
 }
