@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "lint": "eslint --flag unstable_ts_config .",
+    "lint": "eslint .",
     "check-format": "prettier --check .",
     "format": "prettier --write .",
     "preview": "vite preview"
