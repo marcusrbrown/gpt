@@ -21,8 +21,8 @@ importers:
         specifier: 11.18.2
         version: 11.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       lucide-react:
-        specifier: 0.469.0
-        version: 0.469.0(react@18.3.1)
+        specifier: 0.474.0
+        version: 0.474.0(react@18.3.1)
       next-themes:
         specifier: 0.4.4
         version: 0.4.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -83,7 +83,7 @@ importers:
         version: 10.0.1(eslint@9.19.0(jiti@2.4.2))
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 5.2.0-canary-bb9a24d9-20250130(eslint@9.19.0(jiti@2.4.2))
+        version: 5.2.0-canary-9ff42a87-20250130(eslint@9.19.0(jiti@2.4.2))
       eslint-plugin-react-refresh:
         specifier: 0.4.18
         version: 0.4.18(eslint@9.19.0(jiti@2.4.2))
@@ -2068,8 +2068,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@5.2.0-canary-bb9a24d9-20250130:
-    resolution: {integrity: sha512-M03gk4YkX8hNSIgL69UTPqODO3+VbNZrOi/VSPqNIBuVX/P8nXtc8KD5pmDbMTzqAzb9p0sgTfpmKMx3kct0MQ==}
+  eslint-plugin-react-hooks@5.2.0-canary-9ff42a87-20250130:
+    resolution: {integrity: sha512-//s4iEoGEOVeb5dhB9a5newUhP5185NfmO2GOYv+mbM9y7ao5CD15CYPmfil5ZLmXcDvzCPrBoebOlvz3VeDYA==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
@@ -2368,8 +2368,8 @@ packages:
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
 
-  lucide-react@0.469.0:
-    resolution: {integrity: sha512-28vvUnnKQ/dBwiCQtwJw7QauYnE7yd2Cyp4tTTJpvglX4EMpbflcdBgrgToX2j71B3YvugK/NH3BGUk+E/p/Fw==}
+  lucide-react@0.474.0:
+    resolution: {integrity: sha512-CmghgHkh0OJNmxGKWc0qfPJCYHASPMVSyGY8fj3xgk4v84ItqDg64JNKFZn5hC6E0vHi6gxnbCgwhyVB09wQtA==}
     peerDependencies:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -5698,7 +5698,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@5.2.0-canary-bb9a24d9-20250130(eslint@9.19.0(jiti@2.4.2)):
+  eslint-plugin-react-hooks@5.2.0-canary-9ff42a87-20250130(eslint@9.19.0(jiti@2.4.2)):
     dependencies:
       eslint: 9.19.0(jiti@2.4.2)
 
@@ -6027,7 +6027,7 @@ snapshots:
 
   lru-cache@10.4.3: {}
 
-  lucide-react@0.469.0(react@18.3.1):
+  lucide-react@0.474.0(react@18.3.1):
     dependencies:
       react: 18.3.1
 
