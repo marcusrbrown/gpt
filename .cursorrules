@@ -1,0 +1,228 @@
+## Project Overview
+This document defines AI model behavior and development standards for the GPT project, a React-based web application using TypeScript and Vite.
+
+## Base Layer (Universal Constants)
+
+### Quality Fundamentals
+
+#### Type Safety Requirements
+- Enforce strict TypeScript configuration as defined in `@tsconfig/strictest`
+- Maintain strict type checking with `noImplicitAny` and other strict flags
+- Use explicit type annotations for public APIs and interfaces
+
+#### Code Style
+- Follow Prettier configuration for consistent formatting
+- Adhere to ESLint rules with React-specific plugins
+- Maintain consistent import ordering and module organization
+- Use ES2021 features as configured in tsconfig
+
+#### Documentation Standards
+- JSDoc comments for public APIs and components
+- README files for each major feature directory
+- Inline comments for complex logic or business rules
+- Type documentation for shared interfaces and types
+
+#### Testing Expectations
+- Unit tests for utility functions and hooks
+- Component testing with React testing patterns
+- E2E testing for critical user flows
+- Maintain high test coverage for core functionality
+
+#### Security Baselines
+- Follow React security best practices
+- Implement proper CORS and CSP policies
+- Sanitize user inputs and validate data
+- Keep dependencies updated and secure
+
+### Process Standards
+
+#### Version Control
+- Follow conventional commit message format
+- Create focused, single-purpose commits
+- Maintain clean git history
+- Branch naming: `feature/*`, `fix/*`, `chore/*`
+
+#### Code Review Requirements
+- Required reviews for all PRs
+- Automated checks must pass
+- Documentation updates included
+- Performance impact considered
+
+#### CI/CD Integration
+- GitHub Actions workflow validation
+- Automated builds and deployments
+- Cache optimization for pnpm
+- GitHub Pages deployment pipeline
+
+#### Dependency Management
+- Use pnpm as package manager
+- Maintain locked versions
+- Regular dependency updates
+- Security audit compliance
+
+## Flexible Layer (Project-Specific)
+
+### Architecture Rules
+```typescript
+interface ArchitectureRules {
+  patterns: [
+    "component-based",
+    "atomic-design",
+    "client-side-routing"
+  ];
+  boundaries: [
+    "feature-based-organization",
+    "shared-components",
+    "utility-functions"
+  ];
+  constraints: [
+    "browser-compatibility",
+    "performance-metrics",
+    "accessibility"
+  ];
+}
+```
+
+### Technology Stack
+```typescript
+interface TechnologyStack {
+  frontend: {
+    framework: "react@18.3.1";
+    buildTool: "vite@5.4.14";
+    styling: ["tailwindcss", "@nextui-org/react"];
+    stateManagement: "react-hooks";
+  };
+  infrastructure: {
+    hosting: "github-pages";
+    ci: "github-actions";
+    packageManager: "pnpm@9.15.4";
+  };
+}
+```
+
+## Implementation Guidelines
+
+### Component Architecture
+1. **Structure**
+   - Atomic design principles
+   - Feature-based organization
+   - Shared component library
+
+2. **State Management**
+   - React hooks for local state
+   - Context for global state
+   - Proper prop drilling avoidance
+
+3. **Performance**
+   - Code splitting
+   - Lazy loading
+   - Memoization patterns
+
+### Development Workflow
+1. **Local Development**
+   ```bash
+   pnpm dev        # Development server
+   pnpm build      # Production build
+   pnpm preview    # Preview build
+   pnpm fix        # Fix linting/formatting
+   ```
+
+2. **Quality Checks**
+   ```bash
+   pnpm lint           # ESLint check
+   pnpm check-format   # Prettier check
+   pnpm format         # Fix formatting
+   ```
+
+## Validation Strategies
+
+### Code Quality Gates
+1. **Static Analysis**
+   - ESLint validation
+   - TypeScript compilation
+   - Prettier formatting
+
+2. **Build Process**
+   - Clean build completion
+   - Bundle size optimization
+   - Asset optimization
+
+3. **Deployment Checks**
+   - GitHub Actions pipeline
+   - Environment validation
+   - Cache verification
+
+## AI Assistant Behavior
+
+### Code Generation
+1. **Standards**
+   - Follow TypeScript strict mode
+   - Implement error boundaries
+   - Use React best practices
+   - Follow project structure
+
+2. **Patterns**
+   - Functional components
+   - Custom hooks
+   - Proper type exports
+   - NextUI component usage
+
+3. **Documentation**
+   - Component props documentation
+   - Usage examples
+   - Type definitions
+   - Implementation notes
+
+### Review Guidelines
+1. **Focus Areas**
+   - Type safety
+   - Performance impact
+   - Accessibility
+   - Code organization
+
+2. **Suggestions**
+   - Performance optimizations
+   - Better patterns
+   - Security improvements
+   - Best practices
+
+## Adaptation Protocol
+
+### Rule Flexibility
+```typescript
+enum RuleFlexibility {
+  STRICT,      // TypeScript configuration
+  ADAPTABLE,   // Component structure
+  SUGGESTED,   // File organization
+  CUSTOM       // Project-specific patterns
+}
+```
+
+### Context Awareness
+1. **Project Structure**
+   - src/ directory organization
+   - Component hierarchy
+   - Utility functions
+   - Asset management
+
+2. **Technology Constraints**
+   - Browser compatibility
+   - Build optimization
+   - Package versions
+   - Development tools
+
+## Maintenance and Updates
+
+### Version Control
+- Regular updates to rules
+- Compatibility checks
+- Documentation updates
+- Team feedback integration
+
+### Quality Metrics
+- Code coverage
+- Build performance
+- Development velocity
+- Technical debt
+
+This document should be reviewed and updated as the project evolves.
