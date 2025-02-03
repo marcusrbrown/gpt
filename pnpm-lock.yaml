@@ -43,8 +43,8 @@ importers:
         specifier: 7.5.0
         version: 7.5.0
       '@eslint/compat':
-        specifier: 1.2.5
-        version: 1.2.5(eslint@9.19.0(jiti@2.4.2))
+        specifier: 1.2.6
+        version: 1.2.6(eslint@9.19.0(jiti@2.4.2))
       '@eslint/eslintrc':
         specifier: 3.2.0
         version: 3.2.0
@@ -83,7 +83,7 @@ importers:
         version: 10.0.1(eslint@9.19.0(jiti@2.4.2))
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 5.2.0-canary-9ff42a87-20250130(eslint@9.19.0(jiti@2.4.2))
+        version: 5.2.0-canary-a4b2d0d5-20250203(eslint@9.19.0(jiti@2.4.2))
       eslint-plugin-react-refresh:
         specifier: 0.4.18
         version: 0.4.18(eslint@9.19.0(jiti@2.4.2))
@@ -313,8 +313,8 @@ packages:
   '@eslint-types/typescript-eslint@7.5.0':
     resolution: {integrity: sha512-zKvsPBDq6o0L4p2sRtq8fxOtGc+mm37aZSXLsiD4DIRl2kYUxKNO9CKDTAgmuMYUzih9J7lbLxAomreLrdAiVQ==}
 
-  '@eslint/compat@1.2.5':
-    resolution: {integrity: sha512-5iuG/StT+7OfvhoBHPlmxkPA9om6aDUFgmD4+mWKAGsYt4vCe8rypneG03AuseyRHBmcCLXQtIH5S26tIoggLg==}
+  '@eslint/compat@1.2.6':
+    resolution: {integrity: sha512-k7HNCqApoDHM6XzT30zGoETj+D+uUcZUb+IVAJmar3u6bvHf7hhHJcWx09QHj4/a2qrKZMWU0E16tvkiAdv06Q==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
     peerDependencies:
       eslint: ^9.10.0
@@ -2068,8 +2068,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@5.2.0-canary-9ff42a87-20250130:
-    resolution: {integrity: sha512-//s4iEoGEOVeb5dhB9a5newUhP5185NfmO2GOYv+mbM9y7ao5CD15CYPmfil5ZLmXcDvzCPrBoebOlvz3VeDYA==}
+  eslint-plugin-react-hooks@5.2.0-canary-a4b2d0d5-20250203:
+    resolution: {integrity: sha512-NsZKa3mtmgjRyCI7q4QJIS+s6Js5blVYXUOIjspz6dYL15zupSfbn1MGLfQf5KOjBHcqVDHPLrjNctSlbz+wbQ==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
@@ -3025,7 +3025,7 @@ snapshots:
 
   '@eslint-types/typescript-eslint@7.5.0': {}
 
-  '@eslint/compat@1.2.5(eslint@9.19.0(jiti@2.4.2))':
+  '@eslint/compat@1.2.6(eslint@9.19.0(jiti@2.4.2))':
     optionalDependencies:
       eslint: 9.19.0(jiti@2.4.2)
 
@@ -5698,7 +5698,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@5.2.0-canary-9ff42a87-20250130(eslint@9.19.0(jiti@2.4.2)):
+  eslint-plugin-react-hooks@5.2.0-canary-a4b2d0d5-20250203(eslint@9.19.0(jiti@2.4.2)):
     dependencies:
       eslint: 9.19.0(jiti@2.4.2)
 
