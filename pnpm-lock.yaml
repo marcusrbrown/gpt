@@ -83,7 +83,7 @@ importers:
         version: 10.0.1(eslint@9.19.0(jiti@2.4.2))
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 5.2.0-canary-a4b2d0d5-20250203(eslint@9.19.0(jiti@2.4.2))
+        version: 5.2.0-canary-d85cf3e5-20250205(eslint@9.19.0(jiti@2.4.2))
       eslint-plugin-react-refresh:
         specifier: 0.4.18
         version: 0.4.18(eslint@9.19.0(jiti@2.4.2))
@@ -2068,8 +2068,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@5.2.0-canary-a4b2d0d5-20250203:
-    resolution: {integrity: sha512-NsZKa3mtmgjRyCI7q4QJIS+s6Js5blVYXUOIjspz6dYL15zupSfbn1MGLfQf5KOjBHcqVDHPLrjNctSlbz+wbQ==}
+  eslint-plugin-react-hooks@5.2.0-canary-d85cf3e5-20250205:
+    resolution: {integrity: sha512-WVeGW6IeJFY6VIJKHgemqSMpI4PXU+TpZHMmhYCCqgm2x5ty5aNUS5DscFVyPlzYpTllRzQzPcjXESDrxbhmaQ==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
@@ -5698,7 +5698,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@5.2.0-canary-a4b2d0d5-20250203(eslint@9.19.0(jiti@2.4.2)):
+  eslint-plugin-react-hooks@5.2.0-canary-d85cf3e5-20250205(eslint@9.19.0(jiti@2.4.2)):
     dependencies:
       eslint: 9.19.0(jiti@2.4.2)
 
