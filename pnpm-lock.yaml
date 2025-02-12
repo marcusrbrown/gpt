@@ -70,8 +70,8 @@ importers:
         specifier: 18.3.5
         version: 18.3.5(@types/react@18.3.18)
       '@vitejs/plugin-react-swc':
-        specifier: 3.7.2
-        version: 3.7.2(@swc/helpers@0.5.15)(vite@5.4.14(@types/node@22.12.0))
+        specifier: 3.8.0
+        version: 3.8.0(@swc/helpers@0.5.15)(vite@5.4.14(@types/node@22.12.0))
       autoprefixer:
         specifier: 10.4.20
         version: 10.4.20(postcss@8.5.1)
@@ -83,7 +83,7 @@ importers:
         version: 10.0.1(eslint@9.20.0(jiti@2.4.2))
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 5.2.0-canary-93b58361-20250209(eslint@9.20.0(jiti@2.4.2))
+        version: 5.2.0-canary-cd90a4d8-20250210(eslint@9.20.0(jiti@2.4.2))
       eslint-plugin-react-refresh:
         specifier: 0.4.18
         version: 0.4.18(eslint@9.20.0(jiti@2.4.2))
@@ -1838,8 +1838,8 @@ packages:
     resolution: {integrity: sha512-oWWhcWDLwDfu++BGTZcmXWqpwtkwb5o7fxUIGksMQQDSdPW9prsSnfIOZMlsj4vBOSrcnjIUZMiIjODgGosFhQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@vitejs/plugin-react-swc@3.7.2':
-    resolution: {integrity: sha512-y0byko2b2tSVVf5Gpng1eEhX1OvPC7x8yns1Fx8jDzlJp4LS6CMkCPfLw47cjyoMrshQDoQw4qcgjsU9VvlCew==}
+  '@vitejs/plugin-react-swc@3.8.0':
+    resolution: {integrity: sha512-T4sHPvS+DIqDP51ifPqa9XIRAz/kIvIi8oXcnOZZgHmMotgmmdxe/DD5tMFlt5nuIRzT0/QuiwmKlH0503Aapw==}
     peerDependencies:
       vite: ^4 || ^5 || ^6
 
@@ -2072,8 +2072,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@5.2.0-canary-93b58361-20250209:
-    resolution: {integrity: sha512-IH0LPQA6vuHNfbbBy4uMX5XRSfDhH07LBNKrkEwunDLTMIjVri0lwnIYfxFGe0unv+1gibuSoCn+7RUT+r50yQ==}
+  eslint-plugin-react-hooks@5.2.0-canary-cd90a4d8-20250210:
+    resolution: {integrity: sha512-P0NxDxsGOag/hcLdr5cY3bF/1iOqd3SRI+vWPxB544cVcksyfpfNja+R0l0AELH4/A3MKAF0N0m/tSCYr531hQ==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
@@ -5450,7 +5450,7 @@ snapshots:
       '@typescript-eslint/types': 8.23.0
       eslint-visitor-keys: 4.2.0
 
-  '@vitejs/plugin-react-swc@3.7.2(@swc/helpers@0.5.15)(vite@5.4.14(@types/node@22.12.0))':
+  '@vitejs/plugin-react-swc@3.8.0(@swc/helpers@0.5.15)(vite@5.4.14(@types/node@22.12.0))':
     dependencies:
       '@swc/core': 1.10.15(@swc/helpers@0.5.15)
       vite: 5.4.14(@types/node@22.12.0)
@@ -5706,7 +5706,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@5.2.0-canary-93b58361-20250209(eslint@9.20.0(jiti@2.4.2)):
+  eslint-plugin-react-hooks@5.2.0-canary-cd90a4d8-20250210(eslint@9.20.0(jiti@2.4.2)):
     dependencies:
       eslint: 9.20.0(jiti@2.4.2)
 
