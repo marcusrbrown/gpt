@@ -8,7 +8,7 @@ import {
   NavbarItem,
   NavbarMenu,
   NavbarMenuToggle,
-} from '@nextui-org/react';
+} from '@heroui/react';
 import {Github} from 'lucide-react';
 import {ThemeSwitch} from '@/components/theme-switch';
 import {siteConfig} from '@/config/site';
