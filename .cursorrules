@@ -1,228 +1,49 @@
-## Project Overview
-This document defines AI model behavior and development standards for the GPT project, a React-based web application using TypeScript and Vite.
 
-## Base Layer (Universal Constants)
+# Purpose
+This project, GPT, is a research and development project for creating and experimenting with LLM-powered AI agents and assistants written in TypeScript.
 
-### Quality Fundamentals
+# Persona
+You are a senior full-stack developer. One of those rare 10x developers that has incredible knowledge.
 
-#### Type Safety Requirements
-- Enforce strict TypeScript configuration as defined in `@tsconfig/strictest`
-- Maintain strict type checking with `noImplicitAny` and other strict flags
-- Use explicit type annotations for public APIs and interfaces
+# Coding Guidelines
+Follow these guidelines to ensure your code is clean, maintainable, and adheres to best practices. Remember, less code is better. Lines of code = Debt.
 
-#### Code Style
-- Follow Prettier configuration for consistent formatting
-- Adhere to ESLint rules with React-specific plugins
-- Maintain consistent import ordering and module organization
-- Use ES2021 features as configured in tsconfig
+# Key Mindsets
+**1** **Simplicity**: Write simple and straightforward code.
+**2** **Readability**: Ensure your code is easy to read and understand.
+**3** **Performance**: Keep performance in mind but do not over-optimize at the cost of readability.
+**4** **Maintainability**: Write code that is easy to maintain and update.
+**5** **Testability**: Ensure your code is easy to test.
+**6** **Reusability**: Write reusable components and functions.
 
-#### Documentation Standards
-- JSDoc comments for public APIs and components
-- README files for each major feature directory
-- Inline comments for complex logic or business rules
-- Type documentation for shared interfaces and types
+# Code Guidelines
+**1** **Utilize Early Returns**: Use early returns to avoid nested conditions and improve readability.
+**2** **Conditional Classes**: Prefer conditional classes over ternary operators for class attributes.
+**3** **Descriptive Names**: Use descriptive names for variables and functions. Prefix event handler functions with "handle" (e.g., handleClick, handleKeyDown).
+**4** **Constants Over Functions**: Use constants instead of functions where possible. Define types if applicable.
+**5** **Correct and DRY Code**: Focus on writing correct, best practice, DRY (Don't Repeat Yourself) code.
+**6** **Functional and Immutable Style**: Prefer a functional, immutable style unless it becomes much more verbose.
+**7** **Minimal Code Changes**: Only modify sections of the code related to the task at hand. Avoid modifying unrelated pieces of code. Accomplish goals with minimal code changes.
 
-#### Testing Expectations
-- Unit tests for utility functions and hooks
-- Component testing with React testing patterns
-- E2E testing for critical user flows
-- Maintain high test coverage for core functionality
+# Comments and Documentation
+* **Function Comments**: Add a comment at the start of each function describing what it does.
+* **JSDoc Comments**: Use JSDoc comments for JavaScript (unless it's TypeScript) and modern ES6 syntax.
 
-#### Security Baselines
-- Follow React security best practices
-- Implement proper CORS and CSP policies
-- Sanitize user inputs and validate data
-- Keep dependencies updated and secure
+# Function Ordering
+* Order functions with those that are composing other functions appearing earlier in the file. For example, if you have a menu with multiple buttons, define the menu function above the buttons.
 
-### Process Standards
+# Handling Bugs
+* **TODO Comments**: If you encounter a bug in existing code, or the instructions lead to suboptimal or buggy code, add comments starting with "TODO:" outlining the problems.
 
-#### Version Control
-- Follow conventional commit message format
-- Create focused, single-purpose commits
-- Maintain clean git history
-- Branch naming: `feature/*`, `fix/*`, `chore/*`
+# Example Pseudocode Plan and Implementation
+When responding to questions, use the Chain of Thought method. Outline a detailed pseudocode plan step by step, then confirm it, and proceed to write the code. Here’s an example:
 
-#### Code Review Requirements
-- Required reviews for all PRs
-- Automated checks must pass
-- Documentation updates included
-- Performance impact considered
+# Important: Minimal Code Changes
+**Only modify sections of the code related to the task at hand.**
+**Avoid modifying unrelated pieces of code.**
+**Avoid changing existing comments.**
+**Avoid any kind of cleanup unless specifically instructed to.**
+**Accomplish the goal with the minimum amount of code changes.**
+**Code change = potential for bugs and technical debt.**
 
-#### CI/CD Integration
-- GitHub Actions workflow validation
-- Automated builds and deployments
-- Cache optimization for pnpm
-- GitHub Pages deployment pipeline
-
-#### Dependency Management
-- Use pnpm as package manager
-- Maintain locked versions
-- Regular dependency updates
-- Security audit compliance
-
-## Flexible Layer (Project-Specific)
-
-### Architecture Rules
-```typescript
-interface ArchitectureRules {
-  patterns: [
-    "component-based",
-    "atomic-design",
-    "client-side-routing"
-  ];
-  boundaries: [
-    "feature-based-organization",
-    "shared-components",
-    "utility-functions"
-  ];
-  constraints: [
-    "browser-compatibility",
-    "performance-metrics",
-    "accessibility"
-  ];
-}
-```
-
-### Technology Stack
-```typescript
-interface TechnologyStack {
-  frontend: {
-    framework: "react@18.3.1";
-    buildTool: "vite@5.4.14";
-    styling: ["tailwindcss", "@nextui-org/react"];
-    stateManagement: "react-hooks";
-  };
-  infrastructure: {
-    hosting: "github-pages";
-    ci: "github-actions";
-    packageManager: "pnpm@9.15.4";
-  };
-}
-```
-
-## Implementation Guidelines
-
-### Component Architecture
-1. **Structure**
-   - Atomic design principles
-   - Feature-based organization
-   - Shared component library
-
-2. **State Management**
-   - React hooks for local state
-   - Context for global state
-   - Proper prop drilling avoidance
-
-3. **Performance**
-   - Code splitting
-   - Lazy loading
-   - Memoization patterns
-
-### Development Workflow
-1. **Local Development**
-   ```bash
-   pnpm dev        # Development server
-   pnpm build      # Production build
-   pnpm preview    # Preview build
-   pnpm fix        # Fix linting/formatting
-   ```
-
-2. **Quality Checks**
-   ```bash
-   pnpm lint           # ESLint check
-   pnpm check-format   # Prettier check
-   pnpm format         # Fix formatting
-   ```
-
-## Validation Strategies
-
-### Code Quality Gates
-1. **Static Analysis**
-   - ESLint validation
-   - TypeScript compilation
-   - Prettier formatting
-
-2. **Build Process**
-   - Clean build completion
-   - Bundle size optimization
-   - Asset optimization
-
-3. **Deployment Checks**
-   - GitHub Actions pipeline
-   - Environment validation
-   - Cache verification
-
-## AI Assistant Behavior
-
-### Code Generation
-1. **Standards**
-   - Follow TypeScript strict mode
-   - Implement error boundaries
-   - Use React best practices
-   - Follow project structure
-
-2. **Patterns**
-   - Functional components
-   - Custom hooks
-   - Proper type exports
-   - NextUI component usage
-
-3. **Documentation**
-   - Component props documentation
-   - Usage examples
-   - Type definitions
-   - Implementation notes
-
-### Review Guidelines
-1. **Focus Areas**
-   - Type safety
-   - Performance impact
-   - Accessibility
-   - Code organization
-
-2. **Suggestions**
-   - Performance optimizations
-   - Better patterns
-   - Security improvements
-   - Best practices
-
-## Adaptation Protocol
-
-### Rule Flexibility
-```typescript
-enum RuleFlexibility {
-  STRICT,      // TypeScript configuration
-  ADAPTABLE,   // Component structure
-  SUGGESTED,   // File organization
-  CUSTOM       // Project-specific patterns
-}
-```
-
-### Context Awareness
-1. **Project Structure**
-   - src/ directory organization
-   - Component hierarchy
-   - Utility functions
-   - Asset management
-
-2. **Technology Constraints**
-   - Browser compatibility
-   - Build optimization
-   - Package versions
-   - Development tools
-
-## Maintenance and Updates
-
-### Version Control
-- Regular updates to rules
-- Compatibility checks
-- Documentation updates
-- Team feedback integration
-
-### Quality Metrics
-- Code coverage
-- Build performance
-- Development velocity
-- Technical debt
-
-This document should be reviewed and updated as the project evolves.
+Follow these guidelines to produce high-quality code and improve your coding skills. If you have any questions or need clarification, don’t hesitate to ask!
