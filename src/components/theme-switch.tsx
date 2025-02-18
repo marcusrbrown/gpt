@@ -1,5 +1,5 @@
 import {FC} from 'react';
-import {SwitchProps, useSwitch, VisuallyHidden} from '@nextui-org/react';
+import {SwitchProps, useSwitch, VisuallyHidden} from '@heroui/react';
 import {useTheme} from 'next-themes';
 import {useIsSSR} from '@react-aria/ssr';
 import {Moon, Sun} from 'lucide-react';

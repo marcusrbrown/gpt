@@ -1,4 +1,4 @@
-import {NextUIProvider} from '@nextui-org/react';
+import {HeroUIProvider} from '@heroui/react';
 import {ThemeProvider as NextThemesProvider} from 'next-themes';
 
 export interface ProvidersProps {
@@ -7,10 +7,10 @@ export interface ProvidersProps {
 
 export const Providers = ({children}: ProvidersProps): JSX.Element => {
   return (
-    <NextUIProvider>
+    <HeroUIProvider>
       <NextThemesProvider attribute='class' defaultTheme='dark'>
         {children}
       </NextThemesProvider>
-    </NextUIProvider>
+    </HeroUIProvider>
   );
 };

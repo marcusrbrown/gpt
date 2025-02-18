@@ -1,5 +1,5 @@
 import {FC, useRef} from 'react';
-import {Avatar, Card as NextUICard, CardBody, CardFooter, CardHeader, Divider, Link} from '@nextui-org/react';
+import {Avatar, Card as NextUICard, CardBody, CardFooter, CardHeader, Divider, Link} from '@heroui/react';
 
 export interface CardProps {
   title: string;
