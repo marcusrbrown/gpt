@@ -17,6 +17,7 @@ Research and development of LLM-powered AI agents and assistants.
 GPT is a research project for creating and experimenting with LLM-powered AI agents and assistants. Inspired by ChatGPT's GPT feature and the OpenAI Assistant API, the project supports multiple AI platforms including Ollama, Anthropic, and Azure OpenAI Service.
 
 Key focus areas:
+
 - Development and testing of AI agents and assistants
 - Experimentation with LLM architectures and capabilities
 - Research into advanced AI interaction patterns
@@ -43,21 +44,23 @@ The project combines modern AI frameworks with web technologies to create a flex
    ```
 
 For production builds:
+
 ```bash
 pnpm build
 ```
 
 ## Notebooks
 
-| Notebook | Title | Description |
-|----------|--------|-------------|
-| `notebooks/agents/01-repo-ranger.ipynb` | Repo Ranger | Code analysis and security checking agent |
+| Notebook                                      | Title         | Description                                 |
+| --------------------------------------------- | ------------- | ------------------------------------------- |
+| `notebooks/agents/01-repo-ranger.ipynb`       | Repo Ranger   | Code analysis and security checking agent   |
 | `notebooks/assistants/01-gpt-architect.ipynb` | GPT Architect | Assistant development and optimization tool |
 | `notebooks/assistants/01-baroque-bitch.ipynb` | Baroque Bitch | Art generation and style transfer assistant |
 
 ## References
 
 ### Technologies
+
 - [OpenAI GPT Platform](https://openai.com/index/introducing-gpts/)
 - [Ollama](https://ollama.com/)
 - [HeroUI Components](https://www.heroui.com/blog/introducing-heroui)
