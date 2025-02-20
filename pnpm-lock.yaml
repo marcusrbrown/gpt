@@ -32,6 +32,9 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
+      zod:
+        specifier: 3.24.2
+        version: 3.24.2
     devDependencies:
       '@eslint-react/eslint-plugin':
         specifier: 1.26.2
@@ -83,7 +86,7 @@ importers:
         version: 10.0.1(eslint@9.20.1(jiti@2.4.2))
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 5.2.0-canary-e670e72f-20250214(eslint@9.20.1(jiti@2.4.2))
+        version: 5.2.0-canary-4632e36a-20250216(eslint@9.20.1(jiti@2.4.2))
       eslint-plugin-react-refresh:
         specifier: 0.4.19
         version: 0.4.19(eslint@9.20.1(jiti@2.4.2))
@@ -2027,8 +2030,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@5.2.0-canary-e670e72f-20250214:
-    resolution: {integrity: sha512-Dyhc2kyIZl84h/CPLtwmXxj+Gm2wS3kJiQX35k7AAtSYiQtAMceZyQIhZSMpl9XjwQBwrSb9lJuP1+kY1rto4w==}
+  eslint-plugin-react-hooks@5.2.0-canary-4632e36a-20250216:
+    resolution: {integrity: sha512-GcreH1frTv7aa0mFwHxjXQYeFoE5/qnDp/bjNKkO4fdw27XQuQG0ShBrjCfPHMOKyGqwUSCVtGe3UQljjr48cQ==}
     engines: {node: '>=10'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
@@ -2802,6 +2805,9 @@ packages:
   yocto-queue@0.1.0:
     resolution: {integrity: sha512-rVksvsnNCdJ/ohGc6xgPwyN8eheCxsiLM8mxuE/t/mOVqJewPuO1miLpTHQiRgTKCLexL4MeAFVagts7HmNZ2Q==}
     engines: {node: '>=10'}
+
+  zod@3.24.2:
+    resolution: {integrity: sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==}
 
 snapshots:
 
@@ -5661,7 +5667,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@5.2.0-canary-e670e72f-20250214(eslint@9.20.1(jiti@2.4.2)):
+  eslint-plugin-react-hooks@5.2.0-canary-4632e36a-20250216(eslint@9.20.1(jiti@2.4.2)):
     dependencies:
       eslint: 9.20.1(jiti@2.4.2)
 
@@ -6426,3 +6432,5 @@ snapshots:
   yaml@2.7.0: {}
 
   yocto-queue@0.1.0: {}
+
+  zod@3.24.2: {}
