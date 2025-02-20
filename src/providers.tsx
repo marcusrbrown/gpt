@@ -5,7 +5,7 @@ export interface ProvidersProps {
   children: React.ReactNode;
 }
 
-export const Providers = ({children}: ProvidersProps): JSX.Element => {
+export const Providers = ({children}: ProvidersProps): React.ReactElement => {
   return (
     <HeroUIProvider>
       <NextThemesProvider attribute='class' defaultTheme='dark'>
