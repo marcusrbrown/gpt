@@ -1043,6 +1043,304 @@ class ResilientAgent {
 }
 ```
 
+## Testing Framework
+
+The project includes a comprehensive testing framework for evaluating AI agents across multiple dimensions [^14]. The framework supports:
+
+- Behavioral testing to validate agent responses and behaviors
+- Performance testing to measure latency, token usage, and success rates
+- Cross-platform comparison to evaluate metrics across different LLM platforms
+
+### Test Case Definition
+
+Define test cases using the `AgentTestCase` interface:
+
+```typescript
+interface AgentTestCase {
+  name: string;
+  input: string;
+  expectedOutput?: string;
+  expectedBehavior?: (response: AgentResponse) => boolean;
+  setup?: () => Promise<void>;
+  teardown?: () => Promise<void>;
+  timeout?: number;
+  retries?: number;
+}
+```
+
+### Framework Configuration
+
+Configure the test framework with type-safe options [^15]:
+
+```typescript
+const testFramework = new AgentTestFramework({
+  concurrency: 1,
+  timeoutMs: 30000,
+  retries: 2,
+  warmup: true,
+  collectMetrics: true,
+  compareBaseline: true,
+  baselineResults: {
+    latency: {mean: 500, p50: 450, p95: 750, p99: 1000},
+    tokenUsage: {prompt: 100, completion: 50, total: 150},
+    success: {rate: 0.95, total: 100, failed: 5},
+  },
+  metricThresholds: {
+    maxLatencyMs: 1000,
+    minSuccessRate: 0.9,
+    maxTokenUsage: 200,
+  },
+});
+```
+
+### Running Tests
+
+#### Behavioral Tests
+
+Test agent responses and behaviors [^16]:
+
+```typescript
+const behavioralTests: AgentTestCase[] = [
+  {
+    name: "Basic question answering",
+    input: "What is the capital of France?",
+    expectedOutput: "The capital of France is Paris.",
+  },
+  {
+    name: "Code analysis",
+    input: "Analyze this code: function add(a, b) { return a + b; }",
+    expectedBehavior: (response) => {
+      const content = response.output.content;
+      return typeof content === "string" && content.includes("function") && content.includes("parameters");
+    },
+  },
+];
+
+const results = await testFramework.runBehavioralTests(agentConfig, behavioralTests);
+```
+
+#### Performance Tests
+
+Measure agent performance metrics [^17]:
+
+```typescript
+const performanceTests = [
+  {
+    input: "What is 2 + 2?",
+    iterations: 10,
+  },
+  {
+    input: "Write a function to calculate fibonacci numbers.",
+    iterations: 5,
+  },
+];
+
+const metrics = await testFramework.runPerformanceTests(agentConfig, performanceTests);
+```
+
+### Metrics Collection
+
+The framework collects comprehensive metrics [^18]:
+
+- Latency: mean, p50, p95, p99
+- Token usage: prompt, completion, total
+- Memory usage: heap used/total
+- Success rates and cache hits
+- Cross-platform comparisons
+
+### Best Practices
+
+1. **Test Coverage**
+
+   - Write tests for both success and failure cases
+   - Include edge cases and error conditions
+   - Test across different LLM platforms
+
+2. **Performance Testing**
+
+   - Use realistic inputs and workloads
+   - Set appropriate thresholds
+   - Compare against baselines
+
+3. **Metrics and Monitoring**
+   - Track key performance indicators
+   - Monitor resource usage
+   - Set up alerts for regressions
+
+### Example Test Suite
+
+Here's a complete example of a test suite [^19]:
+
+```typescript
+import {AgentTestFramework, type AgentTestCase} from "../agent-test-framework";
+import {type AgentConfig, type AgentResponse} from "../types/agent";
+import {AIMessage} from "@langchain/core/messages";
+
+// Define behavioral test cases
+const behavioralTests: AgentTestCase[] = [
+  {
+    name: "Basic question answering",
+    input: "What is the capital of France?",
+    expectedOutput: "The capital of France is Paris.",
+  },
+  {
+    name: "Code analysis",
+    input: "Analyze this code: function add(a, b) { return a + b; }",
+    expectedBehavior: (response: AgentResponse) => {
+      const content = response.output.content;
+      if (typeof content !== "string") return false;
+      return content.includes("function") && content.includes("parameters") && content.includes("return");
+    },
+  },
+  {
+    name: "Error handling",
+    input: "",
+    expectedBehavior: (response: AgentResponse) => {
+      const content = response.output.content;
+      return typeof content === "string" && content.includes("error");
+    },
+  },
+];
+
+// Define performance test cases
+const performanceTests = [
+  {
+    input: "What is 2 + 2?",
+    iterations: 10,
+  },
+  {
+    input: "Write a function to calculate fibonacci numbers.",
+    iterations: 5,
+  },
+];
+
+// Define baseline metrics for comparison
+const baselineMetrics = {
+  latency: {mean: 500, p50: 450, p95: 750, p99: 1000},
+  tokenUsage: {prompt: 100, completion: 50, total: 150},
+  memoryUsage: {heapUsed: 50000000, heapTotal: 100000000},
+  success: {rate: 0.95, total: 100, failed: 5},
+};
+
+async function runTests() {
+  // Initialize test framework with comprehensive configuration
+  const testFramework = new AgentTestFramework({
+    concurrency: 1,
+    timeoutMs: 30000,
+    retries: 2,
+    warmup: true,
+    collectMetrics: true,
+    compareBaseline: true,
+    baselineResults: baselineMetrics,
+    metricThresholds: {
+      maxLatencyMs: 1000,
+      minSuccessRate: 0.9,
+      maxTokenUsage: 200,
+    },
+  });
+
+  // Define agent configurations for testing
+  const baseConfig: AgentConfig = {
+    model: "gpt-4",
+    temperature: 0,
+    maxTokens: 1000,
+    apiKey: process.env.OPENAI_API_KEY,
+    cacheConfig: {
+      maxSize: 1000,
+      ttl: 3600000,
+    },
+    capabilities: {
+      tools: [],
+      streaming: false,
+      humanInTheLoop: false,
+    },
+  };
+
+  try {
+    // Run behavioral tests
+    console.log("\nRunning behavioral tests...");
+    const behavioralResults = await testFramework.runBehavioralTests(baseConfig, behavioralTests);
+    console.log("Behavioral test results:", {
+      passed: behavioralResults.passed.length,
+      failed: behavioralResults.failed.length,
+      metrics: behavioralResults.metrics,
+    });
+
+    // Run performance tests
+    console.log("\nRunning performance tests...");
+    const performanceMetrics = await testFramework.runPerformanceTests(baseConfig, performanceTests);
+    console.log("Performance metrics:", performanceMetrics);
+
+    // Compare different platforms
+    console.log("\nComparing platforms...");
+    const platformConfigs: AgentConfig[] = [
+      baseConfig,
+      {...baseConfig, model: "gpt-3.5-turbo"},
+      {...baseConfig, model: "claude-3-opus-20240229"},
+    ];
+
+    const platformComparison = await testFramework.comparePlatforms(platformConfigs, behavioralTests);
+    console.log("Platform comparison results:", platformComparison);
+
+    // Validate results against thresholds
+    validateResults(behavioralResults, performanceMetrics, platformComparison);
+  } catch (error) {
+    console.error("Error during testing:", error);
+    process.exit(1);
+  }
+}
+
+function validateResults(
+  behavioralResults: {
+    passed: AgentTestCase[];
+    failed: Array<{test: AgentTestCase; error: Error}>;
+    metrics?: AgentPerformanceMetrics;
+  },
+  performanceMetrics: AgentPerformanceMetrics,
+  platformComparison: Record<string, AgentPerformanceMetrics>,
+) {
+  // Validate behavioral test results
+  const successRate =
+    behavioralResults.passed.length / (behavioralResults.passed.length + behavioralResults.failed.length);
+
+  if (successRate < 0.9) {
+    throw new Error(`Success rate ${successRate} below threshold 0.9`);
+  }
+
+  // Validate performance metrics
+  if (performanceMetrics.latency.mean > 1000) {
+    throw new Error(`Mean latency ${performanceMetrics.latency.mean}ms exceeds threshold 1000ms`);
+  }
+
+  // Compare platform metrics
+  for (const [platform, metrics] of Object.entries(platformComparison)) {
+    if (metrics.success.rate < 0.8) {
+      console.warn(`Platform ${platform} success rate ${metrics.success.rate} below 0.8`);
+    }
+  }
+}
+
+// Run the tests if this file is executed directly
+if (require.main === module) {
+  runTests().catch((error) => {
+    console.error("Unhandled error:", error);
+    process.exit(1);
+  });
+}
+```
+
+[^14]: ["Writing Agent Tests"](https://volttron.readthedocs.io/en/stable/developing-volttron/developing-agents/writing-agent-tests.html), VOLTTRON Documentation, 2024
+
+[^15]: ["Test Examples"](https://github.com/valyakin/aa-testkit), AA-TestKit Documentation, 2024
+
+[^16]: ["Writing Unit Tests"](https://volttron.readthedocs.io/en/stable/developing-volttron/developing-agents/writing-agent-tests.html), VOLTTRON Documentation, 2024
+
+[^17]: ["Writing Integration Tests"](https://volttron.readthedocs.io/en/stable/developing-volttron/developing-agents/writing-agent-tests.html), VOLTTRON Documentation, 2024
+
+[^18]: ["Performance Testing Best Practices"](https://volttron.readthedocs.io/en/stable/developing-volttron/developing-agents/writing-agent-tests.html), VOLTTRON Documentation, 2024
+
+[^19]: ["Test Examples with Mocha"](https://github.com/valyakin/aa-testkit), AA-TestKit Documentation, 2024
+
 ## Key Takeaways
 
 1. **Modular Architecture**: The agent framework provides a flexible, type-safe foundation for building complex AI systems
@@ -1067,21 +1365,3 @@ class ResilientAgent {
    - Develop advanced memory management
    - Implement citation tracking and validation
    - Add source credibility assessment
-
-[^1]: [Building AI Agents: A Practical Guide](https://www.james-gardner.dev/posts/fastify-with-zod/), James Gardner, 2024
-
-[^2]: [Fastify Type Provider Zod Documentation](https://github.com/turkerdev/fastify-type-provider-zod), turkerdev, 2024
-
-[^3]: [LangChain.js Documentation](https://js.langchain.com/docs/get_started/introduction), LangChain, 2024
-
-[^4]: [LangGraph.js State Management](https://js.langchain.com/docs/modules/agents/agent_types/), LangChain, 2024
-
-[^5]: [LangChain.js Tools Guide](https://js.langchain.com/docs/modules/agents/tools/), LangChain, 2024
-
-[^6]: [LangChain.js Agent Executors](https://js.langchain.com/docs/modules/agents/agent_types/), LangChain, 2024
-
-[^7]: [LangChain.js Memory and Storage](https://js.langchain.com/docs/modules/memory/), LangChain, 2024
-
-[^8]: [LangChain.js Callbacks and Tracing](https://js.langchain.com/docs/modules/callbacks/), LangChain, 2024
-
-[^9]: [Fastify with Zod Type Provider Guide](https://www.james-gardner.dev/posts/fastify-with-zod/), James Gardner, 2024
