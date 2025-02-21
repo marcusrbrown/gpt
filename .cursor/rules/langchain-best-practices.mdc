@@ -1,0 +1,13 @@
+---
+description: Best practices for using LangChain for building language model applications
+globs: **/*.{ts,tsx,js,jsx}
+---
+- Use LangChain's modular components to build flexible LLM applications
+- Utilize LangChain's built-in tools and integrations when possible
+- Use the appropriate chain type for your specific use case
+- Implement proper error handling and retries for LLM calls
+- Utilize LangChain's caching mechanisms to optimize performance
+- Implement rate limiting and cost management for AI API usage
+- Optimize prompt templates for better model performance
+- Follow LangChain's best practices for prompt engineering and chaining
+- Regularly update LangChain to benefit from the latest features and improvements
