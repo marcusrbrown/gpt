@@ -1,5 +1,5 @@
-import {NavLink} from 'react-router-dom';
-import {useState, useCallback} from 'react';
+import {NavLink, useLocation, type NavLinkProps} from 'react-router-dom';
+import {useState, useCallback, useEffect} from 'react';
 import {ChevronDown} from 'lucide-react';
 
 interface NavItem {
@@ -8,23 +8,36 @@ interface NavItem {
   items?: NavItem[];
 }
 
+type SidebarLinkProps = {
+  to: string;
+  children: React.ReactNode;
+  className?: string | ((props: {isActive: boolean}) => string);
+  onClick?: (e: React.MouseEvent) => void;
+} & Omit<NavLinkProps, keyof {to: string; className: string | ((props: {isActive: boolean}) => string)}>;
+
+const SidebarLink = ({to, children, className, ...props}: SidebarLinkProps) => (
+  <NavLink to={to} className={typeof className === 'function' ? className : `${className ?? ''}`} {...props}>
+    {children}
+  </NavLink>
+);
+
 const NAV_ITEMS: NavItem[] = [
   {
-    title: 'Getting Started',
+    title: 'Get started',
     path: '/docs/getting-started',
     items: [
-      {title: 'Introduction', path: '/docs/getting-started'},
+      {title: 'Learn the basics', path: '/docs/getting-started'},
       {title: 'Installation', path: '/docs/getting-started/installation'},
       {title: 'Quick Start', path: '/docs/getting-started/quick-start'},
     ],
   },
   {
-    title: 'Tutorials',
-    path: '/docs/tutorials',
+    title: 'Guides',
+    path: '/docs/guides',
     items: [
-      {title: 'Your First Agent', path: '/docs/tutorials/first-agent'},
-      {title: 'Advanced Agents', path: '/docs/tutorials/advanced-agents'},
-      {title: 'Custom Capabilities', path: '/docs/tutorials/custom-capabilities'},
+      {title: 'How-to Guides', path: '/docs/guides/how-to'},
+      {title: 'Concepts', path: '/docs/guides/concepts'},
+      {title: 'Tutorials', path: '/docs/guides/tutorials'},
     ],
   },
   {
@@ -37,18 +50,26 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    title: 'Research',
-    path: '/docs/research',
+    title: 'Resources',
+    path: '/docs/resources',
     items: [
-      {title: 'Papers', path: '/docs/research/papers'},
-      {title: 'Experiments', path: '/docs/research/experiments'},
-      {title: 'Contribute', path: '/docs/research/contribute'},
+      {title: 'Examples', path: '/docs/resources/examples'},
+      {title: 'FAQ', path: '/docs/resources/faq'},
+      {title: 'Troubleshooting', path: '/docs/resources/troubleshooting'},
     ],
   },
 ];
 
 function NavItemComponent({item}: {item: NavItem}) {
+  const {pathname} = useLocation();
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Auto-expand the section that contains the current page
+  useEffect(() => {
+    if (pathname.startsWith(item.path) || item.items?.some((subItem) => pathname.startsWith(subItem.path))) {
+      setIsExpanded(true);
+    }
+  }, [pathname, item.path, item.items]);
 
   const toggleExpand = useCallback(
     (e: React.MouseEvent) => {
@@ -60,45 +81,57 @@ function NavItemComponent({item}: {item: NavItem}) {
     [item.items],
   );
 
+  const isActive = pathname === item.path;
+  const hasActiveChild = item.items?.some((subItem) => pathname === subItem.path);
+
   return (
-    <div>
+    <div className='mb-2'>
       <div className='flex items-center'>
-        <NavLink
+        <SidebarLink
           to={item.path}
-          className={({isActive}) =>
-            `flex-1 block py-2 px-4 text-sm transition-colors ${
-              isActive ? 'text-blue-500 bg-blue-50 dark:bg-blue-900/20' : 'text-gray-600 dark:text-gray-300'
+          className={({isActive: linkActive}) =>
+            `flex-1 flex items-center py-1.5 px-3 text-sm rounded-md transition-colors ${
+              linkActive || hasActiveChild
+                ? 'text-[var(--accent-color)] bg-[var(--background-secondary)]'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
             }`
           }
           onClick={toggleExpand}
         >
-          <div className='flex items-center justify-between'>
-            <span>{item.title}</span>
-            {item.items && (
-              <ChevronDown size={16} className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
-            )}
-          </div>
-        </NavLink>
+          <span className='flex-1'>{item.title}</span>
+          {item.items && (
+            <ChevronDown
+              size={16}
+              className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''} ${
+                isActive || hasActiveChild ? 'text-[var(--accent-color)]' : 'text-[var(--text-tertiary)]'
+              }`}
+            />
+          )}
+        </SidebarLink>
       </div>
       {item.items && (
         <div
-          className={`ml-4 border-l border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-200 ${
-            isExpanded ? 'max-h-96' : 'max-h-0'
+          className={`overflow-hidden transition-all duration-200 ${
+            isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
-          {item.items.map((subItem) => (
-            <NavLink
-              key={subItem.path}
-              to={subItem.path}
-              className={({isActive}) =>
-                `block py-1 px-4 text-sm transition-colors ${
-                  isActive ? 'text-blue-500' : 'text-gray-500 dark:text-gray-400'
-                }`
-              }
-            >
-              {subItem.title}
-            </NavLink>
-          ))}
+          <div className='ml-3 pl-3 border-l border-[var(--border-color)] mt-1'>
+            {item.items.map((subItem) => (
+              <SidebarLink
+                key={subItem.path}
+                to={subItem.path}
+                className={({isActive}) =>
+                  `block py-1 px-3 text-sm rounded-md transition-colors ${
+                    isActive
+                      ? 'text-[var(--accent-color)] bg-[var(--background-secondary)]'
+                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                  }`
+                }
+              >
+                {subItem.title}
+              </SidebarLink>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -107,7 +140,7 @@ function NavItemComponent({item}: {item: NavItem}) {
 
 export function DocsSidebar() {
   return (
-    <nav className='py-4 space-y-2' role='navigation' aria-label='Documentation navigation'>
+    <nav className='py-4' role='navigation' aria-label='Documentation navigation'>
       {NAV_ITEMS.map((item) => (
         <NavItemComponent key={item.path} item={item} />
       ))}

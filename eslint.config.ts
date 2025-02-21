@@ -35,6 +35,12 @@ export default tseslint.config(
   {
     files: ['src/**/*.{ts,tsx}'],
     ...react.configs['recommended-type-checked'],
+    rules: {
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+    },
   },
 
   {

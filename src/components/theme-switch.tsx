@@ -1,54 +1,19 @@
 import {FC} from 'react';
-import {SwitchProps, useSwitch, VisuallyHidden} from '@heroui/react';
 import {useTheme} from 'next-themes';
-import {useIsSSR} from '@react-aria/ssr';
 import {Moon, Sun} from 'lucide-react';
-import clsx from 'clsx';
+import {Button} from '@heroui/react';
 
-export interface ThemeSwitchProps {
-  className?: string;
-  classNames?: SwitchProps['classNames'];
-}
-
-export const ThemeSwitch: FC<ThemeSwitchProps> = ({className, classNames}) => {
+export const ThemeSwitch: FC = () => {
   const {theme, setTheme} = useTheme();
-  const onChange = (): void => (theme === 'light' ? setTheme('dark') : setTheme('light'));
-  const {Component, slots, isSelected, getBaseProps, getInputProps, getWrapperProps} = useSwitch({
-    isSelected: theme === 'light',
-    'aria-label': `Switch to ${theme === 'light' ? 'dark' : 'light'} mode`,
-    onChange,
-  });
-  const isSSR = useIsSSR();
+
   return (
-    <Component
-      {...getBaseProps({
-        className: clsx('px-px transition-opacity hover:opacity-80 cursor-pointer', className, classNames?.base),
-      })}
+    <Button
+      onPress={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      isIconOnly
+      variant='light'
+      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
     >
-      <VisuallyHidden>
-        <input {...getInputProps()} />
-      </VisuallyHidden>
-      <div
-        {...getWrapperProps()}
-        className={slots.wrapper({
-          class: clsx(
-            [
-              'w-auto h-auto',
-              'bg-transparent',
-              'rounded-lg',
-              'flex items-center justify-center',
-              'group-data-[selected=true]:bg-transparent',
-              '!text-default-500',
-              'pt-px',
-              'px-0',
-              'mx-0',
-            ],
-            classNames?.wrapper,
-          ),
-        })}
-      >
-        {!isSelected || isSSR ? <Sun /> : <Moon />}
-      </div>
-    </Component>
+      {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+    </Button>
   );
 };

@@ -1,19 +1,28 @@
 import {HeroUIProvider} from '@heroui/react';
 import {ThemeProvider as NextThemesProvider} from 'next-themes';
-import {BrowserRouter} from 'react-router-dom';
+import {useEffect} from 'react';
 
 export interface ProvidersProps {
   children: React.ReactNode;
 }
 
+function ThemeScript() {
+  useEffect(() => {
+    // Apply the theme on initial load
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  }, []);
+
+  return null;
+}
+
 export const Providers = ({children}: ProvidersProps): React.ReactElement => {
   return (
-    <BrowserRouter>
+    <NextThemesProvider attribute='data-theme' defaultTheme='system' enableSystem={true} disableTransitionOnChange>
       <HeroUIProvider>
-        <NextThemesProvider attribute='class' defaultTheme='dark'>
-          {children}
-        </NextThemesProvider>
+        <ThemeScript />
+        {children}
       </HeroUIProvider>
-    </BrowserRouter>
+    </NextThemesProvider>
   );
 };

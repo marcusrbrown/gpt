@@ -1,5 +1,6 @@
 import {useState, useCallback} from 'react';
 import Editor from '@monaco-editor/react';
+import {Button} from '@heroui/react';
 
 interface NotebookCell {
   id: string;
@@ -55,12 +56,9 @@ export function InteractiveNotebook({initialCells = [], onExecute}: InteractiveN
           <div className='flex justify-between mb-2'>
             <span className='text-sm text-gray-500'>{cell.type}</span>
             {cell.type === 'code' && (
-              <button
-                onClick={() => void handleExecute(cell.id)}
-                className='px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600'
-              >
+              <Button onPress={() => void handleExecute(cell.id)} color='primary' size='sm'>
                 Run
-              </button>
+              </Button>
             )}
           </div>
 
@@ -87,18 +85,12 @@ export function InteractiveNotebook({initialCells = [], onExecute}: InteractiveN
       ))}
 
       <div className='flex gap-2'>
-        <button
-          onClick={() => addCell('code')}
-          className='px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600'
-        >
+        <Button onPress={() => addCell('code')} color='success'>
           Add Code Cell
-        </button>
-        <button
-          onClick={() => addCell('markdown')}
-          className='px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600'
-        >
+        </Button>
+        <Button onPress={() => addCell('markdown')} color='secondary'>
           Add Markdown Cell
-        </button>
+        </Button>
       </div>
     </div>
   );
