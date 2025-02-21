@@ -1,51 +1,124 @@
-import {FC} from 'react';
-import {
-  Image,
-  Link,
-  Navbar as NextUINavbar,
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  NavbarMenu,
-  NavbarMenuToggle,
-} from '@heroui/react';
-import {Github} from 'lucide-react';
+import {Button, Input, type ButtonProps} from '@heroui/react';
 import {ThemeSwitch} from '@/components/theme-switch';
-import {siteConfig} from '@/config/site';
-import logo from '@/assets/logo.png';
+import {Link as RouterLink, type LinkProps} from 'react-router-dom';
+import {BookOpen, Github, Menu, Search, X} from 'lucide-react';
+import {useState, ElementType} from 'react';
 
-export const Navbar: FC = () => {
+type ButtonLinkProps = ButtonProps & {
+  to: string;
+} & Omit<LinkProps, keyof {to: string; className: string}>;
+
+const ButtonLink = ({to, children, ...props}: ButtonLinkProps) => (
+  <Button as={RouterLink as ElementType} to={to} {...props}>
+    {children}
+  </Button>
+);
+
+export const Navbar = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
   return (
-    <NextUINavbar maxWidth='full' position='sticky'>
-      <NavbarContent className='basis-1/5 sm:basis-full' justify='start'>
-        <NavbarBrand as='li' className='gap-3 max-w-fit'>
-          <Link className='flex justify-start items-center gap-1 font-bold text-xl' href='/'>
-            <Image alt='logo' src={logo} width={24} height={24} />
-            gpt.mrbro.dev
-          </Link>
-        </NavbarBrand>
-      </NavbarContent>
+    <header className='fixed top-0 left-0 right-0 h-[var(--header-height)] border-b border-[var(--border-color)] bg-[var(--background-primary)] z-50'>
+      <div className='flex items-center justify-between h-full px-4 mx-auto container'>
+        {/* Left section - Logo */}
+        <div className='flex items-center gap-2'>
+          <Button
+            isIconOnly
+            variant='light'
+            className='lg:hidden'
+            onPress={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+          >
+            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </Button>
+          <RouterLink to='/' className='flex items-center gap-2'>
+            <span className='font-bold text-xl'>GPT</span>
+            <span className='font-medium text-[var(--text-secondary)] hidden sm:inline'>Agent Framework</span>
+          </RouterLink>
+        </div>
 
-      <NavbarContent className='hidden sm:flex basis-1/5 sm:basis-full' justify='end'>
-        <NavbarItem className='hidden sm:flex gap-2'>
-          <Link aria-label='GitHub' href={siteConfig.links.repository} isExternal>
-            <Github className='text-default-500' size={24} />
-          </Link>
+        {/* Center section - Search */}
+        <div className='flex-1 max-w-2xl mx-4'>
+          <div className='relative w-full'>
+            <Input
+              type='search'
+              placeholder='Search documentation...'
+              startContent={<Search className='text-[var(--text-tertiary)]' />}
+              size='sm'
+              variant='bordered'
+              classNames={{
+                input: 'text-sm',
+                inputWrapper: 'bg-[var(--background-secondary)]',
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Right section - Navigation */}
+        <nav className='flex items-center gap-2'>
+          <ButtonLink to='/docs' isIconOnly variant='light' aria-label='Documentation'>
+            <BookOpen size={20} />
+          </ButtonLink>
+          <Button
+            as='a'
+            href='https://github.com/marcusrbrown/gpt'
+            target='_blank'
+            rel='noopener noreferrer'
+            isIconOnly
+            variant='light'
+            aria-label='GitHub repository'
+          >
+            <Github size={20} />
+          </Button>
           <ThemeSwitch />
-        </NavbarItem>
-      </NavbarContent>
+        </nav>
+      </div>
 
-      <NavbarContent className='sm:hidden basis-1 pl-4' justify='end'>
-        <Link aria-label='GitHub' href={siteConfig.links.repository} isExternal>
-          <Github className='text-default-500' size={24} />
-        </Link>
-        <ThemeSwitch />
-        <NavbarMenuToggle />
-      </NavbarContent>
-
-      <NavbarMenu>
-        <div className='mx-4 mt-2 flex flex-col gap-2'></div>
-      </NavbarMenu>
-    </NextUINavbar>
+      {/* Mobile menu */}
+      {isMobileMenuOpen && (
+        <>
+          <div
+            className='fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden'
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-hidden='true'
+          />
+          <div className='fixed top-[var(--header-height)] left-0 right-0 bottom-0 z-50 bg-[var(--background-primary)] lg:hidden'>
+            <nav className='container mx-auto p-4 flex flex-col gap-4'>
+              <Input
+                type='search'
+                placeholder='Search documentation...'
+                startContent={<Search className='text-[var(--text-tertiary)]' />}
+                size='sm'
+                variant='bordered'
+                classNames={{
+                  input: 'text-sm',
+                  inputWrapper: 'bg-[var(--background-secondary)]',
+                }}
+              />
+              <ButtonLink
+                to='/docs'
+                variant='light'
+                className='justify-start'
+                onPress={() => setIsMobileMenuOpen(false)}
+              >
+                <BookOpen size={20} className='mr-2' />
+                Documentation
+              </ButtonLink>
+              <Button
+                as='a'
+                href='https://github.com/marcusrbrown/gpt'
+                target='_blank'
+                rel='noopener noreferrer'
+                variant='light'
+                className='justify-start'
+              >
+                <Github size={20} className='mr-2' />
+                GitHub
+              </Button>
+            </nav>
+          </div>
+        </>
+      )}
+    </header>
   );
 };
