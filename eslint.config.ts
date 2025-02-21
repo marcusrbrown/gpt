@@ -16,7 +16,7 @@ export default tseslint.config(
   ...tseslint.configs.recommendedTypeChecked,
 
   {
-    ignores: ['**/dist', 'eslint.config.ts', 'postcss.config.js'],
+    ignores: ['**/dist', 'eslint.config.ts', 'postcss.config.js', 'coverage'],
   },
 
   {
