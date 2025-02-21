@@ -1,0 +1,11 @@
+---
+description: TypeScript coding standards and type safety guidelines
+globs: **/*.{ts,tsx}
+---
+- Enable `strict` mode in your `tsconfig.json` for enhanced type checking.
+- Use type inference where possible, but provide explicit types for complex scenarios.
+- Use `readonly` arrays and properties to prevent unintended mutations.
+- Leverage utility types like `Partial<T>`, `Readonly<T>`, and `Pick<T, K>` for more flexible type definitions.
+- Leverage union types and type guards for better type safety.
+- Use generics for reusable components and functions.
+- Implement custom type guards for runtime type checking and narrowing.

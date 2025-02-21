@@ -1,0 +1,9 @@
+---
+description: Guidelines for using OpenAI's API in your application
+globs: **/*.{ts,tsx}
+---
+- Implement rate limiting to manage API usage and costs.
+- Use streaming responses for better performance in real-time applications.
+- Cache API responses where appropriate to reduce costs and improve performance.
+- Leverage OpenAI's fine-tuning capabilities for domain-specific tasks.
+- Implement error handling and retries for robust API interactions.

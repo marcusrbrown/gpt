@@ -1,0 +1,13 @@
+---
+description: Best practices for React development
+globs: **/*.{tsx,jsx}
+---
+- Favor functional components over class components
+- Use hooks like `useState`, `useEffect`, and `useContext` for state management
+- Implement memoization with `useMemo` and `useCallback` for performance optimization
+- Use `React.lazy` and `Suspense` for code-splitting and lazy loading
+- Implement proper prop type validation using TypeScript or PropTypes
+- Use React 19's new `use` hook for managing asynchronous operations in components.
+- Implement error boundaries to gracefully handle and recover from errors.
+- Utilize React's concurrent rendering features for smoother UI updates.
+- Utilize context API for global state management to avoid prop drilling

@@ -1,0 +1,9 @@
+---
+description: Best practices for Vite configuration and optimization
+globs: vite.config.ts
+---
+- Utilize code splitting for better performance
+- Implement tree-shaking to reduce bundle size
+- Use lazy loading where appropriate for improved initial load times
+- Configure proper source maps for development and production
+- Optimize build settings for faster builds and smaller bundles
