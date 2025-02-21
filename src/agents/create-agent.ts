@@ -1,8 +1,8 @@
-import { MessagesAnnotation, StateGraph, MemorySaver } from "@langchain/langgraph";
-import { ChatOpenAI } from "@langchain/openai";
-import { type AIMessage } from "@langchain/core/messages";
-import { ToolNode } from "@langchain/langgraph/prebuilt";
-import { type AgentConfig } from '../types/agent';
+import {MessagesAnnotation, StateGraph, MemorySaver} from '@langchain/langgraph';
+import {ChatOpenAI} from '@langchain/openai';
+import {type AIMessage} from '@langchain/core/messages';
+import {ToolNode} from '@langchain/langgraph/prebuilt';
+import {type AgentConfig} from '../types/agent';
 
 /**
  * Creates a new agent with the specified configuration.
@@ -59,36 +59,32 @@ export function createAgent(config: AgentConfig) {
 
   async function callModel(state: typeof MessagesAnnotation.State) {
     const response = await model.invoke(state.messages);
-    return { messages: response };
+    return {messages: response};
   }
 
   function routeModelOutput(state: typeof MessagesAnnotation.State) {
     const messages = state.messages;
     const lastMessage = messages[messages.length - 1];
-    if (!lastMessage) return "__end__";
+    if (!lastMessage) return '__end__';
 
     // If the LLM is invoking tools, route there.
     if ((lastMessage as AIMessage)?.tool_calls?.length ?? 0 > 0) {
-      return "tools";
+      return 'tools';
     }
     // Otherwise end the graph.
-    return "__end__";
+    return '__end__';
   }
 
   const workflow = new StateGraph(MessagesAnnotation)
-    .addNode("agent", callModel)
-    .addNode("tools", new ToolNode(tools))
-    .addEdge("__start__", "agent")
-    .addConditionalEdges(
-      "agent",
-      routeModelOutput,
-      ["tools", "__end__"]
-    )
-    .addEdge("tools", "agent");
+    .addNode('agent', callModel)
+    .addNode('tools', new ToolNode(tools))
+    .addEdge('__start__', 'agent')
+    .addConditionalEdges('agent', routeModelOutput, ['tools', '__end__'])
+    .addEdge('tools', 'agent');
 
   // Compile with options from capabilities
   return workflow.compile({
-    name: "agent-execution",
-    ...(config.capabilities?.humanInTheLoop ? { checkpointer: new MemorySaver() } : {})
+    name: 'agent-execution',
+    ...(config.capabilities?.humanInTheLoop ? {checkpointer: new MemorySaver()} : {}),
   });
 }
