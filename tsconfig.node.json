@@ -1,14 +1,12 @@
 {
-  "extends": ["@tsconfig/strictest/tsconfig.json", "@tsconfig/node20/tsconfig.json"],
   "compilerOptions": {
-    "incremental": false,
-    "esModuleInterop": true,
+    "allowJs": true,
+    "composite": true,
     "skipLibCheck": true,
     "module": "ESNext",
-    "moduleDetection": "force",
     "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "types": ["node"]
   },
-  "exclude": ["node_modules", "dist", "src"],
-  "include": ["."]
+  "include": ["tailwind.config.ts", "vite.config.ts", "vitest.config.ts"]
 }
