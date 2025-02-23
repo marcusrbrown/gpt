@@ -8,4 +8,4 @@ export default {
   },
   darkMode: 'class',
   plugins: [heroui()],
-} satisfies Config;
+} as Config;
