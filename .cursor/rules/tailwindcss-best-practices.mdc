@@ -1,6 +1,6 @@
 ---
 description: Best practices for using Tailwind CSS for styling
-globs: **/*.{ts,tsx,js,jsx,css}
+globs: *.css, *.jsx, *.tsx
 ---
 - Use utility-first approach for consistent and maintainable styles, but create custom components for reusability
 - Implement responsive design using Tailwind's responsive modifiers

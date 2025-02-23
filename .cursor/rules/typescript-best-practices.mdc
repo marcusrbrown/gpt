@@ -1,6 +1,6 @@
 ---
 description: TypeScript coding standards and type safety guidelines
-globs: **/*.{ts,tsx}
+globs: **/*.{ts,tsx}, **/tsconfig.json, tsconfig.json
 ---
 - Enable `strict` mode in your `tsconfig.json` for enhanced type checking.
 - Use type inference where possible, but provide explicit types for complex scenarios.
