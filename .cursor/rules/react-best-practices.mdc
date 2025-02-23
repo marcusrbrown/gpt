@@ -1,6 +1,6 @@
 ---
 description: Best practices for React development
-globs: **/*.{tsx,jsx}
+globs: **/*.{ts,tsx,js,jsx}
 ---
 - Favor functional components over class components
 - Use hooks like `useState`, `useEffect`, and `useContext` for state management
