@@ -15,8 +15,8 @@ importers:
         specifier: 0.3.13
         version: 0.3.13(@langchain/core@0.3.40(openai@4.85.2(ws@8.18.0)(zod@3.24.2)))
       '@langchain/community':
-        specifier: 0.3.31
-        version: 0.3.31(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.12.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.85.2(ws@8.18.0)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.0(@langchain/core@0.3.40(openai@4.85.2(ws@8.18.0)(zod@3.24.2))))(@langchain/anthropic@0.3.13(@langchain/core@0.3.40(openai@4.85.2(ws@8.18.0)(zod@3.24.2))))(@langchain/core@0.3.40(openai@4.85.2(ws@8.18.0)(zod@3.24.2)))(axios@1.7.9)(fast-xml-parser@4.5.2)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(jsonwebtoken@9.0.2)(openai@4.85.2(ws@8.18.0)(zod@3.24.2))(playwright@1.50.1)(ws@8.18.0)
+        specifier: 0.3.32
+        version: 0.3.32(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.12.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.85.2(ws@8.18.0)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.0(@langchain/core@0.3.40(openai@4.85.2(ws@8.18.0)(zod@3.24.2))))(@langchain/anthropic@0.3.13(@langchain/core@0.3.40(openai@4.85.2(ws@8.18.0)(zod@3.24.2))))(@langchain/core@0.3.40(openai@4.85.2(ws@8.18.0)(zod@3.24.2)))(axios@1.7.9)(fast-xml-parser@4.5.2)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(jsonwebtoken@9.0.2)(openai@4.85.2(ws@8.18.0)(zod@3.24.2))(playwright@1.50.1)(ws@8.18.0)
       '@langchain/core':
         specifier: 0.3.40
         version: 0.3.40(openai@4.85.2(ws@8.18.0)(zod@3.24.2))
@@ -1063,21 +1063,22 @@ packages:
     peerDependencies:
       '@langchain/core': '>=0.2.21 <0.4.0'
 
-  '@langchain/community@0.3.31':
-    resolution: {integrity: sha512-VsqZBQdJqJ8LeBjmVAAujpGQaSYjSXItb8uyWzoq/+fQkpq7UjWGnKWDkY65kBYPNDf6ShwjUdGiLm2yuyefzQ==}
+  '@langchain/community@0.3.32':
+    resolution: {integrity: sha512-5AvGyjIFheXdBUSiIWNwc40rI8fXYiHV0UA3ncbBVu5fTwWur+mAQvl2ZsgyxBBKm4VuoCcuh6U6I7b1kiOYBQ==}
     engines: {node: '>=18'}
     peerDependencies:
       '@arcjet/redact': ^v1.0.0-alpha.23
       '@aws-crypto/sha256-js': ^5.0.0
-      '@aws-sdk/client-bedrock-agent-runtime': ^3.583.0
-      '@aws-sdk/client-bedrock-runtime': ^3.422.0
-      '@aws-sdk/client-dynamodb': ^3.310.0
-      '@aws-sdk/client-kendra': ^3.352.0
-      '@aws-sdk/client-lambda': ^3.310.0
-      '@aws-sdk/client-s3': ^3.310.0
-      '@aws-sdk/client-sagemaker-runtime': ^3.310.0
-      '@aws-sdk/client-sfn': ^3.310.0
+      '@aws-sdk/client-bedrock-agent-runtime': ^3.749.0
+      '@aws-sdk/client-bedrock-runtime': ^3.749.0
+      '@aws-sdk/client-dynamodb': ^3.749.0
+      '@aws-sdk/client-kendra': ^3.749.0
+      '@aws-sdk/client-lambda': ^3.749.0
+      '@aws-sdk/client-s3': ^3.749.0
+      '@aws-sdk/client-sagemaker-runtime': ^3.749.0
+      '@aws-sdk/client-sfn': ^3.749.0
       '@aws-sdk/credential-provider-node': ^3.388.0
+      '@aws-sdk/dsql-signer': '*'
       '@azure/search-documents': ^12.0.0
       '@azure/storage-blob': ^12.15.0
       '@browserbasehq/sdk': '*'
@@ -1214,6 +1215,8 @@ packages:
       '@aws-sdk/client-sfn':
         optional: true
       '@aws-sdk/credential-provider-node':
+        optional: true
+      '@aws-sdk/dsql-signer':
         optional: true
       '@azure/search-documents':
         optional: true
@@ -5458,7 +5461,7 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@langchain/community@0.3.31(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.12.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.85.2(ws@8.18.0)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.0(@langchain/core@0.3.40(openai@4.85.2(ws@8.18.0)(zod@3.24.2))))(@langchain/anthropic@0.3.13(@langchain/core@0.3.40(openai@4.85.2(ws@8.18.0)(zod@3.24.2))))(@langchain/core@0.3.40(openai@4.85.2(ws@8.18.0)(zod@3.24.2)))(axios@1.7.9)(fast-xml-parser@4.5.2)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(jsonwebtoken@9.0.2)(openai@4.85.2(ws@8.18.0)(zod@3.24.2))(playwright@1.50.1)(ws@8.18.0)':
+  '@langchain/community@0.3.32(@browserbasehq/sdk@2.3.0)(@browserbasehq/stagehand@1.12.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.85.2(ws@8.18.0)(zod@3.24.2))(zod@3.24.2))(@ibm-cloud/watsonx-ai@1.5.0(@langchain/core@0.3.40(openai@4.85.2(ws@8.18.0)(zod@3.24.2))))(@langchain/anthropic@0.3.13(@langchain/core@0.3.40(openai@4.85.2(ws@8.18.0)(zod@3.24.2))))(@langchain/core@0.3.40(openai@4.85.2(ws@8.18.0)(zod@3.24.2)))(axios@1.7.9)(fast-xml-parser@4.5.2)(ibm-cloud-sdk-core@5.1.3)(ignore@5.3.2)(jsonwebtoken@9.0.2)(openai@4.85.2(ws@8.18.0)(zod@3.24.2))(playwright@1.50.1)(ws@8.18.0)':
     dependencies:
       '@browserbasehq/stagehand': 1.12.0(@playwright/test@1.50.1)(deepmerge@4.3.1)(dotenv@16.4.7)(openai@4.85.2(ws@8.18.0)(zod@3.24.2))(zod@3.24.2)
       '@ibm-cloud/watsonx-ai': 1.5.0(@langchain/core@0.3.40(openai@4.85.2(ws@8.18.0)(zod@3.24.2)))
