@@ -21,7 +21,7 @@
     "@langchain/anthropic": "0.3.13",
     "@langchain/community": "0.3.32",
     "@langchain/core": "0.3.40",
-    "@langchain/langgraph": "0.2.48",
+    "@langchain/langgraph": "0.2.49",
     "@langchain/openai": "0.4.4",
     "@monaco-editor/react": "4.7.0",
     "@react-aria/ssr": "3.9.7",
