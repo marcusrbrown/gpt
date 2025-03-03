@@ -21,8 +21,8 @@ importers:
         specifier: 0.3.41
         version: 0.3.41(openai@4.86.1(ws@8.18.1)(zod@3.24.2))
       '@langchain/langgraph':
-        specifier: 0.2.50
-        version: 0.2.50(@langchain/core@0.3.41(openai@4.86.1(ws@8.18.1)(zod@3.24.2)))(react@19.0.0)
+        specifier: 0.2.51
+        version: 0.2.51(@langchain/core@0.3.41(openai@4.86.1(ws@8.18.1)(zod@3.24.2)))(react@19.0.0)
       '@langchain/openai':
         specifier: 0.4.4
         version: 0.4.4(@langchain/core@0.3.41(openai@4.86.1(ws@8.18.1)(zod@3.24.2)))(ws@8.18.1)
@@ -122,7 +122,7 @@ importers:
         version: 10.0.2(eslint@9.21.0(jiti@2.4.2))
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 5.2.0-canary-d55cc79b-20250228(eslint@9.21.0(jiti@2.4.2))
+        version: 5.2.0-canary-2980f277-20250301(eslint@9.21.0(jiti@2.4.2))
       eslint-plugin-react-refresh:
         specifier: 0.4.19
         version: 0.4.19(eslint@9.21.0(jiti@2.4.2))
@@ -1454,8 +1454,8 @@ packages:
       react:
         optional: true
 
-  '@langchain/langgraph@0.2.50':
-    resolution: {integrity: sha512-Q1NI6+IC7HQiGTQXGFzUtmorOOiYp0o7SNSzg2oP9M49jzn1qMz9z10VJ0jjhTwXjqUezKuaEtUtd/cIyh2Wcg==}
+  '@langchain/langgraph@0.2.51':
+    resolution: {integrity: sha512-/ODuZIoaUhWeTGM8L524KB0v0pmIqPVW3SIu8WFDksaw7KcD9QWxS3ZKM2PkbE3yTlHsXNmJAjzoBOyE29H4oQ==}
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/core': '>=0.2.36 <0.3.0 || >=0.3.40 < 0.4.0'
@@ -2693,8 +2693,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@5.2.0-canary-d55cc79b-20250228:
-    resolution: {integrity: sha512-JvRvmGXpim8CrRO17j9EC/V5zZtyQ4fyZLgFaBShiRyTfTfHot1b5tI0HUtQ3yhNz4Tuetiv6Ge5zUsDhrHoag==}
+  eslint-plugin-react-hooks@5.2.0-canary-2980f277-20250301:
+    resolution: {integrity: sha512-qpl2ldnuO0NP1V+/9iUzbx2bY2sCPFX5SdDRcHMXW8RU2UAoP0aRPz4JeRPsgPgxXixsUWJtNPDp1PsKjeyH4Q==}
     engines: {node: '>=18'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
@@ -5521,7 +5521,7 @@ snapshots:
       '@langchain/core': 0.3.41(openai@4.86.1(ws@8.18.1)(zod@3.24.2))
       react: 19.0.0
 
-  '@langchain/langgraph@0.2.50(@langchain/core@0.3.41(openai@4.86.1(ws@8.18.1)(zod@3.24.2)))(react@19.0.0)':
+  '@langchain/langgraph@0.2.51(@langchain/core@0.3.41(openai@4.86.1(ws@8.18.1)(zod@3.24.2)))(react@19.0.0)':
     dependencies:
       '@langchain/core': 0.3.41(openai@4.86.1(ws@8.18.1)(zod@3.24.2))
       '@langchain/langgraph-checkpoint': 0.0.15(@langchain/core@0.3.41(openai@4.86.1(ws@8.18.1)(zod@3.24.2)))
@@ -7087,7 +7087,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@5.2.0-canary-d55cc79b-20250228(eslint@9.21.0(jiti@2.4.2)):
+  eslint-plugin-react-hooks@5.2.0-canary-2980f277-20250301(eslint@9.21.0(jiti@2.4.2)):
     dependencies:
       eslint: 9.21.0(jiti@2.4.2)
 
