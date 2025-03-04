@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@heroui/react": "2.7.4",
-    "@langchain/anthropic": "0.3.14",
+    "@langchain/anthropic": "0.3.15",
     "@langchain/community": "0.3.33",
     "@langchain/core": "0.3.42",
     "@langchain/langgraph": "0.2.51",
