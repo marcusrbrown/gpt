@@ -122,7 +122,7 @@ importers:
         version: 10.0.2(eslint@9.21.0(jiti@2.4.2))
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 5.2.0-canary-2980f277-20250301(eslint@9.21.0(jiti@2.4.2))
+        version: 5.2.0-canary-e03ac20f-20250305(eslint@9.21.0(jiti@2.4.2))
       eslint-plugin-react-refresh:
         specifier: 0.4.19
         version: 0.4.19(eslint@9.21.0(jiti@2.4.2))
@@ -133,8 +133,8 @@ importers:
         specifier: 2.4.2
         version: 2.4.2
       prettier:
-        specifier: 3.5.2
-        version: 3.5.2
+        specifier: 3.5.3
+        version: 3.5.3
       tailwindcss:
         specifier: 4.0.9
         version: 4.0.9
@@ -2693,8 +2693,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@5.2.0-canary-2980f277-20250301:
-    resolution: {integrity: sha512-qpl2ldnuO0NP1V+/9iUzbx2bY2sCPFX5SdDRcHMXW8RU2UAoP0aRPz4JeRPsgPgxXixsUWJtNPDp1PsKjeyH4Q==}
+  eslint-plugin-react-hooks@5.2.0-canary-e03ac20f-20250305:
+    resolution: {integrity: sha512-OkRwePsrP0jGgXBRRWowbx/JZ5zrLBPI7oZN6O3a3Wl8nV9WQaX5vvUxTbUtre33kCK/yQyjxEJcaKiSWH2NrA==}
     engines: {node: '>=18'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
@@ -3470,8 +3470,8 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  prettier@3.5.2:
-    resolution: {integrity: sha512-lc6npv5PH7hVqozBR7lkBNOGXV9vMwROAPlumdBkX0wTbbzPu/U1hk5yL8p2pt4Xoc+2mkT8t/sow2YrV/M5qg==}
+  prettier@3.5.3:
+    resolution: {integrity: sha512-QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -7087,7 +7087,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@5.2.0-canary-2980f277-20250301(eslint@9.21.0(jiti@2.4.2)):
+  eslint-plugin-react-hooks@5.2.0-canary-e03ac20f-20250305(eslint@9.21.0(jiti@2.4.2)):
     dependencies:
       eslint: 9.21.0(jiti@2.4.2)
 
@@ -7419,7 +7419,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.7.9)
+      retry-axios: 2.6.0(axios@1.7.9(debug@4.4.0))
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -7837,7 +7837,7 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier@3.5.2: {}
+  prettier@3.5.3: {}
 
   process@0.11.10: {}
 
@@ -7903,7 +7903,7 @@ snapshots:
 
   resolve-from@4.0.0: {}
 
-  retry-axios@2.6.0(axios@1.7.9):
+  retry-axios@2.6.0(axios@1.7.9(debug@4.4.0)):
     dependencies:
       axios: 1.7.9(debug@4.4.0)
 
