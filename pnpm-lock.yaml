@@ -21,8 +21,8 @@ importers:
         specifier: 0.3.42
         version: 0.3.42(openai@4.86.1(ws@8.18.1)(zod@3.24.2))
       '@langchain/langgraph':
-        specifier: 0.2.51
-        version: 0.2.51(@langchain/core@0.3.42(openai@4.86.1(ws@8.18.1)(zod@3.24.2)))(react@19.0.0)
+        specifier: 0.2.52
+        version: 0.2.52(@langchain/core@0.3.42(openai@4.86.1(ws@8.18.1)(zod@3.24.2)))(react@19.0.0)
       '@langchain/openai':
         specifier: 0.4.4
         version: 0.4.4(@langchain/core@0.3.42(openai@4.86.1(ws@8.18.1)(zod@3.24.2)))(ws@8.18.1)
@@ -1454,8 +1454,8 @@ packages:
       react:
         optional: true
 
-  '@langchain/langgraph@0.2.51':
-    resolution: {integrity: sha512-/ODuZIoaUhWeTGM8L524KB0v0pmIqPVW3SIu8WFDksaw7KcD9QWxS3ZKM2PkbE3yTlHsXNmJAjzoBOyE29H4oQ==}
+  '@langchain/langgraph@0.2.52':
+    resolution: {integrity: sha512-MUcAwA7sJaa7ZR0LZypE2iEg7PcZKBIwnTb4GnS2FED8HSAt0rAgGV7pNSPx78NgD56fQQNniPEhuyk9U11m7g==}
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/core': '>=0.2.36 <0.3.0 || >=0.3.40 < 0.4.0'
@@ -5506,7 +5506,7 @@ snapshots:
       '@langchain/core': 0.3.42(openai@4.86.1(ws@8.18.1)(zod@3.24.2))
       react: 19.0.0
 
-  '@langchain/langgraph@0.2.51(@langchain/core@0.3.42(openai@4.86.1(ws@8.18.1)(zod@3.24.2)))(react@19.0.0)':
+  '@langchain/langgraph@0.2.52(@langchain/core@0.3.42(openai@4.86.1(ws@8.18.1)(zod@3.24.2)))(react@19.0.0)':
     dependencies:
       '@langchain/core': 0.3.42(openai@4.86.1(ws@8.18.1)(zod@3.24.2))
       '@langchain/langgraph-checkpoint': 0.0.15(@langchain/core@0.3.42(openai@4.86.1(ws@8.18.1)(zod@3.24.2)))
