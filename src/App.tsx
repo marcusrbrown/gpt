@@ -2,10 +2,12 @@ import {Providers} from './providers';
 import {Routes, Route} from 'react-router-dom';
 import {lazy, Suspense} from 'react';
 import {StorageProvider} from './contexts/storage-provider';
-import {GPTEditor} from './components/gpt-editor';
+import {GPTEditorPage} from './pages/gpt-editor-page';
+import {GPTTestPage} from './pages/gpt-test-page';
 import {Navbar} from './components/navbar';
 import {Footer} from './components/footer';
 import {CardGroup} from './components/card-group';
+import {OpenAIProvider} from './contexts/openai-provider';
 
 // Lazy load documentation components for better initial load performance
 const DocLayout = lazy(() => import('@/components/docs/doc-layout').then((m) => ({default: m.DocLayout})));
@@ -19,70 +21,55 @@ const ApiReference = lazy(() => import('@/components/docs/api-reference').then((
 
 function App() {
   return (
-    <StorageProvider>
-      <Providers>
-        <div className='relative flex flex-col min-h-screen'>
-          <Navbar />
-          <div className='flex-grow pt-[var(--header-height)]'>
-            <Routes>
-              {/* Home page */}
-              <Route
-                path='/'
-                element={
-                  <main className='container mx-auto px-12'>
-                    <h1 className='text-3xl text-center font-bold py-20'>Custom GPTs</h1>
-                    <CardGroup />
-                  </main>
-                }
-              />
+    <OpenAIProvider>
+      <StorageProvider>
+        <Providers>
+          <div className='relative flex flex-col min-h-screen'>
+            <Navbar />
+            <div className='flex-grow pt-[var(--header-height)]'>
+              <Routes>
+                {/* Home page */}
+                <Route
+                  path='/'
+                  element={
+                    <main className='container mx-auto px-12'>
+                      <h1 className='text-3xl text-center font-bold py-20'>Custom GPTs</h1>
+                      <CardGroup />
+                    </main>
+                  }
+                />
 
-              {/* GPT Editor routes */}
-              <Route
-                path='/gpt/new'
-                element={
-                  <main className='container mx-auto px-12'>
-                    <h1 className='text-3xl font-bold py-8'>Create New GPT</h1>
-                    <div className='bg-white rounded-lg shadow p-6'>
-                      <GPTEditor />
-                    </div>
-                  </main>
-                }
-              />
-              <Route
-                path='/gpt/edit/:id'
-                element={
-                  <main className='container mx-auto px-12'>
-                    <h1 className='text-3xl font-bold py-8'>Edit GPT</h1>
-                    <div className='bg-white rounded-lg shadow p-6'>
-                      <GPTEditor />
-                    </div>
-                  </main>
-                }
-              />
+                {/* GPT Editor routes */}
+                <Route path='/gpt/new' element={<GPTEditorPage />} />
+                <Route path='/gpt/edit/:gptId' element={<GPTEditorPage />} />
 
-              {/* Documentation routes */}
-              <Route
-                path='/docs/*'
-                element={
-                  <Suspense fallback={<div className='flex-grow flex items-center justify-center'>Loading...</div>}>
-                    <DocLayout sidebar={<DocsSidebar />}>
-                      <Routes>
-                        <Route index element={<DocsIndex />} />
-                        <Route path='getting-started' element={<GettingStarted />} />
-                        <Route path='api' element={<ApiReference />} />
-                        <Route path='tutorials/first-agent' element={<AgentTutorial />} />
-                        {/* Add more doc routes as needed */}
-                      </Routes>
-                    </DocLayout>
-                  </Suspense>
-                }
-              />
-            </Routes>
+                {/* GPT Test route */}
+                <Route path='/gpt/test/:gptId' element={<GPTTestPage />} />
+
+                {/* Documentation routes */}
+                <Route
+                  path='/docs/*'
+                  element={
+                    <Suspense fallback={<div className='flex-grow flex items-center justify-center'>Loading...</div>}>
+                      <DocLayout sidebar={<DocsSidebar />}>
+                        <Routes>
+                          <Route index element={<DocsIndex />} />
+                          <Route path='getting-started' element={<GettingStarted />} />
+                          <Route path='api' element={<ApiReference />} />
+                          <Route path='tutorials/first-agent' element={<AgentTutorial />} />
+                          {/* Add more doc routes as needed */}
+                        </Routes>
+                      </DocLayout>
+                    </Suspense>
+                  }
+                />
+              </Routes>
+            </div>
+            <Footer />
           </div>
-          <Footer />
-        </div>
-      </Providers>
-    </StorageProvider>
+        </Providers>
+      </StorageProvider>
+    </OpenAIProvider>
   );
 }
 
