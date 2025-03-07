@@ -38,37 +38,48 @@ export class LocalStorageService {
     try {
       const storedGpts = localStorage.getItem(STORAGE_KEYS.GPTS);
       if (storedGpts) {
-        const gpts = JSON.parse(storedGpts) as Record<string, GPTConfiguration>;
-        Object.entries(gpts).forEach(([id, gpt]) => {
-          const validatedGpt = GPTConfigurationSchema.parse({
-            ...gpt,
-            createdAt: new Date(gpt.createdAt),
-            updatedAt: new Date(gpt.updatedAt),
+        try {
+          const gpts = JSON.parse(storedGpts) as Record<string, GPTConfiguration>;
+          Object.entries(gpts).forEach(([id, gpt]) => {
+            const validatedGpt = GPTConfigurationSchema.parse({
+              ...gpt,
+              createdAt: new Date(gpt.createdAt),
+              updatedAt: new Date(gpt.updatedAt),
+            });
+            this.gptsCache.set(id, validatedGpt);
           });
-          this.gptsCache.set(id, validatedGpt);
-        });
+        } catch (error) {
+          console.error('Error parsing GPTs from storage:', error);
+          localStorage.removeItem(STORAGE_KEYS.GPTS);
+        }
       }
 
       const storedConversations = localStorage.getItem(STORAGE_KEYS.CONVERSATIONS);
       if (storedConversations) {
-        const conversations = JSON.parse(storedConversations) as Record<string, Conversation>;
-        Object.entries(conversations).forEach(([id, conversation]) => {
-          const validatedConversation = ConversationSchema.parse({
-            ...conversation,
-            createdAt: new Date(conversation.createdAt),
-            updatedAt: new Date(conversation.updatedAt),
-            messages: conversation.messages.map((msg) => ({
-              ...msg,
-              timestamp: new Date(msg.timestamp),
-            })),
+        try {
+          const conversations = JSON.parse(storedConversations) as Record<string, Conversation>;
+          Object.entries(conversations).forEach(([id, conversation]) => {
+            const validatedConversation = ConversationSchema.parse({
+              ...conversation,
+              createdAt: new Date(conversation.createdAt),
+              updatedAt: new Date(conversation.updatedAt),
+              messages: conversation.messages.map((msg) => ({
+                ...msg,
+                timestamp: new Date(msg.timestamp),
+              })),
+            });
+            this.conversationsCache.set(id, validatedConversation);
           });
-          this.conversationsCache.set(id, validatedConversation);
-        });
+        } catch (error) {
+          console.error('Error parsing conversations from storage:', error);
+          localStorage.removeItem(STORAGE_KEYS.CONVERSATIONS);
+        }
       }
     } catch (error) {
       console.error('Error initializing from storage:', error);
       // Clear potentially corrupted data
       localStorage.clear();
+      throw error;
     }
   }
 
@@ -90,6 +101,7 @@ export class LocalStorageService {
       localStorage.setItem(STORAGE_KEYS.CONVERSATIONS, JSON.stringify(Object.fromEntries(conversationsMap)));
     } catch (error) {
       console.error('Error persisting to storage:', error);
+      throw error;
     }
   }
 
@@ -111,17 +123,27 @@ export class LocalStorageService {
    * Save a GPT configuration
    */
   saveGPT(gpt: GPTConfiguration): void {
-    const validatedGpt = GPTConfigurationSchema.parse(gpt);
-    this.gptsCache.set(gpt.id, validatedGpt);
-    this.persistToStorage();
+    try {
+      const validatedGpt = GPTConfigurationSchema.parse(gpt);
+      this.gptsCache.set(gpt.id, validatedGpt);
+      this.persistToStorage();
+    } catch (error) {
+      console.error('Error saving GPT:', error);
+      throw error;
+    }
   }
 
   /**
    * Delete a GPT configuration
    */
   deleteGPT(id: string): void {
-    this.gptsCache.delete(id);
-    this.persistToStorage();
+    try {
+      this.gptsCache.delete(id);
+      this.persistToStorage();
+    } catch (error) {
+      console.error('Error deleting GPT:', error);
+      throw error;
+    }
   }
 
   /**
@@ -142,25 +164,40 @@ export class LocalStorageService {
    * Save a conversation
    */
   saveConversation(conversation: Conversation): void {
-    const validatedConversation = ConversationSchema.parse(conversation);
-    this.conversationsCache.set(conversation.id, validatedConversation);
-    this.persistToStorage();
+    try {
+      const validatedConversation = ConversationSchema.parse(conversation);
+      this.conversationsCache.set(conversation.id, validatedConversation);
+      this.persistToStorage();
+    } catch (error) {
+      console.error('Error saving conversation:', error);
+      throw error;
+    }
   }
 
   /**
    * Delete a conversation
    */
   deleteConversation(id: string): void {
-    this.conversationsCache.delete(id);
-    this.persistToStorage();
+    try {
+      this.conversationsCache.delete(id);
+      this.persistToStorage();
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      throw error;
+    }
   }
 
   /**
    * Clear all data from storage
    */
   clearAll(): void {
-    this.gptsCache.clear();
-    this.conversationsCache.clear();
-    localStorage.clear();
+    try {
+      this.gptsCache.clear();
+      this.conversationsCache.clear();
+      localStorage.clear();
+    } catch (error) {
+      console.error('Error clearing storage:', error);
+      throw error;
+    }
   }
 }

@@ -5,7 +5,7 @@ import {useStorage} from '../../hooks/use-storage';
 import {GPTConfiguration} from '../../types/gpt';
 import {v4 as uuidv4} from 'uuid';
 import {vi} from 'vitest';
-import {userEvent} from '@testing-library/user-event';
+import userEvent from '@testing-library/user-event';
 
 // Test component that uses the storage context
 function TestComponent() {
@@ -71,6 +71,7 @@ describe('StorageContext', () => {
   });
 
   test('should handle state updates', async () => {
+    const user = userEvent.setup();
     render(
       <StorageProvider>
         <TestComponent />
@@ -80,13 +81,13 @@ describe('StorageContext', () => {
     expect(screen.getByTestId('gpt-count')).toHaveTextContent('0');
 
     // Click the button to add a new GPT
-    const button = screen.getByRole('button', {name: 'Add GPT'});
-    await userEvent.click(button);
+    await user.click(screen.getByRole('button', {name: 'Add GPT'}));
 
     expect(screen.getByTestId('gpt-count')).toHaveTextContent('1');
   });
 
   test('should persist state across renders', async () => {
+    const user = userEvent.setup();
     const {unmount} = render(
       <StorageProvider>
         <TestComponent />
@@ -94,8 +95,7 @@ describe('StorageContext', () => {
     );
 
     // Add a GPT
-    const button = screen.getByRole('button', {name: 'Add GPT'});
-    await userEvent.click(button);
+    await user.click(screen.getByRole('button', {name: 'Add GPT'}));
 
     // Unmount and remount to test persistence
     unmount();
