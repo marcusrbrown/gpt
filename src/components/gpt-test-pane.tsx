@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useCallback, useRef} from 'react';
 import {Input, Button, Spinner} from '@heroui/react';
 import {ConversationMessage, GPTConfiguration} from '../types/gpt';
-import {openAIService} from '../services/openai-service';
+import {useOpenAIService} from '../hooks/use-openai-service';
 
 interface GPTTestPaneProps {
   gptConfig?: GPTConfiguration | undefined;
@@ -22,22 +22,25 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
   const [runId, setRunId] = useState<string | null>(null);
 
   // Used for polling the run status
-  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const pollingCount = useRef(0);
   const MAX_POLLING_ATTEMPTS = 60; // 1 minute at 1 poll per second
+
+  // Get an instance of the OpenAI service
+  const openAIService = useOpenAIService();
 
   // Initialize API key
   useEffect(() => {
     if (apiKey) {
       openAIService.setApiKey(apiKey);
     }
-  }, [apiKey]);
+  }, [apiKey, openAIService]);
 
   // Cleanup function for polling
   const clearPollingInterval = useCallback(() => {
-    if (pollingIntervalRef.current) {
-      clearInterval(pollingIntervalRef.current);
-      pollingIntervalRef.current = null;
+    if (pollingRef.current) {
+      clearInterval(pollingRef.current);
+      pollingRef.current = null;
       pollingCount.current = 0;
     }
   }, []);
@@ -47,220 +50,193 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
     return clearPollingInterval;
   }, [clearPollingInterval]);
 
-  // Initialize Assistant
-  useEffect(() => {
-    const initializeAssistant = async () => {
-      if (gptConfig && apiKey) {
-        try {
-          setIsLoading(true);
-          setProcessingMessage('Creating assistant...');
+  // Initialize the assistant and thread
+  const initializeAssistant = useCallback(async () => {
+    if (!gptConfig || !apiKey) {
+      setError('Missing GPT configuration or API key');
+      return;
+    }
 
-          // Apply the API key before creating the assistant
-          openAIService.setApiKey(apiKey);
+    try {
+      setIsLoading(true);
+      setProcessingMessage('Creating assistant...');
 
-          // Create the assistant without direct type casting
-          const assistant = await openAIService.createAssistant(gptConfig);
-          setAssistantId(assistant.id);
+      // Create the assistant without direct type casting
+      const assistant = await openAIService.createAssistant(gptConfig);
+      setAssistantId(assistant.id);
 
-          setProcessingMessage('Creating thread...');
-          const thread = await openAIService.createThread();
-          setThreadId(thread.id);
+      setProcessingMessage('Creating thread...');
+      const thread = await openAIService.createThread();
+      setThreadId(thread.id);
 
-          setProcessingMessage('Ready');
-          setIsLoading(false);
-        } catch (err) {
-          setError(err instanceof Error ? err.message : 'Failed to initialize assistant');
-          console.error('Error initializing assistant:', err);
-          setIsLoading(false);
-        }
-      }
-    };
-
-    void initializeAssistant();
-  }, [gptConfig, apiKey]);
+      setProcessingMessage('Ready');
+      setIsLoading(false);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to initialize assistant');
+      setIsLoading(false);
+    }
+  }, [gptConfig, apiKey, openAIService, setError, setIsLoading, setProcessingMessage]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserInput(e.target.value);
   };
 
-  // Handle tool calls from the OpenAI API
+  // Tool call handling
+  interface ToolCall {
+    id: string;
+    function: {
+      name: string;
+      arguments: string;
+    };
+    type: string;
+  }
+
   const handleToolCalls = useCallback(
-    async (
-      toolCalls: Array<{
-        id: string;
-        function: {
-          name: string;
-          arguments: string;
-        };
-        type: string;
-      }>,
-      currentThreadId: string,
-      currentRunId: string,
-    ) => {
+    async (toolCalls: ToolCall[], currentThreadId: string | null, currentRunId: string | null) => {
+      if (!toolCalls || toolCalls.length === 0) return null;
+
       try {
-        // Process tool calls and prepare outputs
+        // Build tool outputs
         const toolOutputs = toolCalls.map((toolCall) => {
-          // This is where you would implement custom tool functionality
-          // For now, we'll return mock responses based on the function name
-          let result: string;
-
-          switch (toolCall.function.name) {
-            case 'get_weather':
-              result = JSON.stringify({temperature: 72, condition: 'sunny'});
-              break;
-            case 'search_web':
-              result = JSON.stringify({results: ['Mock search result 1', 'Mock search result 2']});
-              break;
-            default:
-              result = JSON.stringify({message: 'Function not implemented'});
-          }
-
           return {
             tool_call_id: toolCall.id,
-            output: result,
+            output: JSON.stringify({result: 'This is a mock result for ' + toolCall.function.name}),
           };
         });
 
-        // Submit all tool outputs at once
+        // Submit tool outputs
         if (currentThreadId && currentRunId) {
           setProcessingMessage('Processing tool calls...');
           return openAIService.submitToolOutputs(currentThreadId, currentRunId, toolOutputs);
         }
 
-        // Return a resolved promise if no tool outputs were submitted
-        return Promise.resolve();
-      } catch (err) {
-        console.error('Error handling tool calls:', err);
-        setError('Failed to process tool calls');
-        // Return a resolved promise to ensure all paths return a value
-        return Promise.resolve();
+        // If we don't have thread ID or run ID, return null
+        return null;
+      } catch (error) {
+        setError(error instanceof Error ? error.message : 'Error processing tool calls');
+        return null; // Return null on error
       }
     },
-    [setProcessingMessage, setError],
+    [setProcessingMessage, setError, openAIService],
   );
 
-  // Fix the checkRunStatus function to avoid type casting
+  // Define types for API responses
+  interface ApiMessage {
+    id: string;
+    role: string;
+    content: Array<{
+      type?: string;
+      text?: {
+        value: string;
+      };
+    }>;
+    created_at: number;
+  }
+
+  // Use streamRun for real-time updates
+  const processMessages = (messageResponse: {data: ApiMessage[]}) => {
+    const newMessages = messageResponse.data
+      .filter((msg: ApiMessage) => msg.role && msg.content && Array.isArray(msg.content) && msg.content.length > 0)
+      .map((msg: ApiMessage) => {
+        // Find the first text content if available
+        // Use a more type-safe approach for handling the content
+        const textContent = msg.content.find((content: {type?: string; text?: {value: string}}) => {
+          if (typeof content === 'object' && content !== null && 'type' in content) {
+            const typedContent = content as {type: string; text?: {value: string}};
+            return typedContent.type === 'text' && typedContent.text?.value !== undefined;
+          }
+          return false;
+        });
+
+        return {
+          id: msg.id,
+          role: msg.role as 'user' | 'assistant' | 'system',
+          content: textContent?.text?.value || '',
+          timestamp: new Date(msg.created_at * 1000),
+        };
+      })
+      .reverse();
+
+    return newMessages;
+  };
+
+  // For state setters, use type assertion for IDs when we know they're valid strings
   const checkRunStatus = useCallback(async () => {
     if (!threadId || !runId) return;
 
+    pollingCount.current += 1;
+
+    if (pollingCount.current > MAX_POLLING_ATTEMPTS) {
+      clearPollingInterval();
+      setError('Timeout waiting for response');
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      pollingCount.current += 1;
-
-      // Update the processing message periodically to show progress
-      if (pollingCount.current % 5 === 0) {
-        setProcessingMessage(`Waiting for response${'.'.repeat(pollingCount.current % 4)}`);
-      }
-
-      if (pollingCount.current > MAX_POLLING_ATTEMPTS) {
-        clearPollingInterval();
-        setError('Request timed out. Please try again.');
-        setIsLoading(false);
-        return;
-      }
-
       // Use the run without type casting
       const runStatus = await openAIService.checkRunStatus(threadId, runId);
       let messageResponse;
       let newMessages;
-      let toolCalls;
 
-      switch (runStatus.status) {
-        case 'completed':
-          // Run is complete, get the messages
-          setProcessingMessage('Receiving response...');
-          messageResponse = await openAIService.getMessages(threadId);
+      // Check status
+      if (runStatus.status === 'completed') {
+        // Run is complete, get the messages
+        setProcessingMessage('Receiving response...');
+        messageResponse = await openAIService.getMessages(threadId);
 
-          // Convert API message format to our ConversationMessage format
-          // Safely extract and transform the data without direct type assertions
-          newMessages = messageResponse.data
-            .filter((msg) => msg.role && msg.content && Array.isArray(msg.content) && msg.content.length > 0)
-            .map((msg) => {
-              // Find the first text content if available
-              // Use a more type-safe approach for handling the content
-              const textContent = msg.content.find((content) => {
-                if (typeof content === 'object' && content !== null && 'type' in content) {
-                  const typedContent = content as {type: string; text?: {value: string}};
-                  return typedContent.type === 'text' && typedContent.text?.value !== undefined;
-                }
-                return false;
-              });
+        // Convert API message format to our ConversationMessage format
+        newMessages = processMessages(messageResponse);
 
-              // Use optional chaining and nullish coalescing to safely access nested properties
-              // Use a properly typed approach instead of any
-              type TextContent = {type: 'text'; text: {value: string}};
-              const typedContent = textContent as TextContent | undefined;
-              const messageText = typedContent?.text?.value || '';
+        setMessages(newMessages);
+        setIsLoading(false);
 
-              return {
-                id: msg.id || `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                role: msg.role as 'user' | 'assistant' | 'system',
-                content: messageText,
-                timestamp: new Date(msg.created_at * 1000),
-              };
-            })
-            .reverse();
+        // Clear the polling interval
+        clearPollingInterval();
+      } else if (runStatus.status === 'requires_action') {
+        // Handle tool calls
+        setProcessingMessage('Executing tools...');
+        const {required_action} = runStatus;
+        const toolCalls = required_action?.submit_tool_outputs?.tool_calls as ToolCall[];
 
-          setMessages(newMessages);
-          setIsLoading(false);
+        // Process tool calls and submit outputs
+        await handleToolCalls(toolCalls, threadId, runId);
 
-          // Clear the polling interval
-          clearPollingInterval();
-          setRunId(null);
-          break;
-
-        case 'requires_action':
-          // Handle tool calls
-          if (runStatus.required_action?.submit_tool_outputs?.tool_calls) {
-            toolCalls = runStatus.required_action.submit_tool_outputs.tool_calls;
-
-            // Process tool calls and submit outputs
-            await handleToolCalls(toolCalls, threadId, runId);
-
-            // Continue polling after submitting tool outputs
-          }
-          break;
-
-        case 'failed':
-        case 'cancelled':
-        case 'expired':
-          // Handle failure cases
-          setError(`Run ${runStatus.status}: ${runStatus.last_error?.message || 'Unknown error'}`);
-          setIsLoading(false);
-          clearPollingInterval();
-          setRunId(null);
-          break;
-
-        default:
-          // Still in progress, continue polling
-          break;
+        // Continue polling after submitting tool outputs
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to check run status');
-      console.error('Error checking run status:', err);
-      setIsLoading(false);
+    } catch (error) {
       clearPollingInterval();
-      setRunId(null);
+      setError(error instanceof Error ? error.message : 'Error checking run status');
+      setIsLoading(false);
     }
-  }, [threadId, runId, clearPollingInterval, handleToolCalls]);
+  }, [threadId, runId, clearPollingInterval, handleToolCalls, openAIService]);
 
+  // Handle sending a message
   const handleSendMessage = async () => {
-    if (!userInput.trim() || !threadId || !assistantId) return;
+    if (!userInput.trim() || !gptConfig || !apiKey || isLoading) return;
+
+    setIsLoading(true);
+    setError(null);
+
+    // Add the user message to the local messages
+    const userMessage: ConversationMessage = {
+      id: `user-${Date.now()}`,
+      role: 'user',
+      content: userInput,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setUserInput('');
 
     try {
-      setIsLoading(true);
-      setError(null);
-      setProcessingMessage('Sending message...');
-
-      // Add the user message to our state
-      const newUserMessage: ConversationMessage = {
-        id: 'user-' + Date.now(),
-        role: 'user',
-        content: userInput,
-        timestamp: new Date(),
-      };
-
-      setMessages((prev) => [...prev, newUserMessage]);
-      setUserInput('');
+      // If we don't have a thread and assistant yet, create them
+      if (!threadId || !assistantId) {
+        await initializeAssistant();
+        if (!threadId || !assistantId) {
+          throw new Error('Failed to initialize assistant');
+        }
+      }
 
       // Add the message to the thread
       await openAIService.addMessage(threadId, userInput);
@@ -268,20 +244,20 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
       // Create a run
       setProcessingMessage('Starting assistant...');
       const run = await openAIService.createRun(threadId, assistantId);
+      // Use a type assertion when we know the ID is a valid string
       setRunId(run.id);
 
       // Reset polling counter
       pollingCount.current = 0;
 
-      // Start polling for run status
+      // Start polling for status
       setProcessingMessage('Processing...');
       clearPollingInterval(); // Clear any existing interval
-      pollingIntervalRef.current = setInterval(() => {
+      pollingRef.current = setInterval(() => {
         void checkRunStatus();
       }, 1000);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send message');
-      console.error('Error sending message:', err);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Error sending message');
       setIsLoading(false);
     }
   };

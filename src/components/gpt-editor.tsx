@@ -2,8 +2,8 @@ import {useState, useEffect, useRef} from 'react';
 import {useStorage} from '../hooks/use-storage';
 import {GPTConfiguration, GPTCapabilities, MCPTool, LocalFile, ConversationMessage} from '../types/gpt';
 import {v4 as uuidv4} from 'uuid';
-import {Button, Input, Select, SelectItem, Tabs, Tab} from '@heroui/react';
-import {openAIService} from '../services/openai-service';
+import {Button, Input, Select, SelectItem, Tabs, Tab, Spinner} from '@heroui/react';
+import {useOpenAIService} from '../hooks/use-openai-service';
 
 interface GPTEditorProps {
   gptId?: string | undefined;
@@ -93,6 +93,12 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
   const [testMessage, setTestMessage] = useState('');
   const [testMessages, setTestMessages] = useState<ConversationMessage[]>([]);
   const [isTesting, setIsTesting] = useState(false);
+  const [files, setFiles] = useState<LocalFile[]>([]);
+  const [testResponse, setTestResponse] = useState<string | null>(null);
+  const [isTestLoading, setIsTestLoading] = useState(false);
+  const [testError, setTestError] = useState<string | null>(null);
+
+  const openAIService = useOpenAIService();
 
   useEffect(() => {
     if (gptId) {
@@ -209,29 +215,52 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
+    if (e.target.files) {
+      const newFiles: LocalFile[] = [];
 
-    void (async () => {
-      const newFiles: LocalFile[] = await Promise.all(
-        Array.from(files).map(async (file) => ({
-          name: file.name,
-          content: await file.text(),
-          type: file.type,
-          size: file.size,
-          lastModified: file.lastModified,
-        })),
-      );
+      Array.from(e.target.files).forEach((file) => {
+        const reader = new FileReader();
 
-      setGpt((prev) => ({
-        ...prev,
-        knowledge: {
-          ...prev.knowledge,
-          files: [...prev.knowledge.files, ...newFiles],
-        },
-        updatedAt: new Date(),
-      }));
-    })();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            // Ensure we're getting a string result
+            const fileContent =
+              typeof event.target.result === 'string'
+                ? event.target.result
+                : new TextDecoder().decode(event.target.result);
+
+            // Create a valid LocalFile object
+            const localFile: LocalFile = {
+              name: file.name,
+              content: fileContent,
+              type: file.type,
+              size: file.size,
+              lastModified: file.lastModified,
+            };
+
+            newFiles.push(localFile);
+
+            // After all files are processed, update both state variables
+            if (newFiles.length === e.target.files!.length) {
+              // Update temporary files state for test display
+              setFiles((prev) => [...prev, ...newFiles]);
+
+              // Also update the actual GPT configuration
+              setGpt((prev) => ({
+                ...prev,
+                knowledge: {
+                  ...prev.knowledge,
+                  files: [...prev.knowledge.files, ...newFiles],
+                },
+                updatedAt: new Date(),
+              }));
+            }
+          }
+        };
+
+        reader.readAsText(file);
+      });
+    }
   };
 
   const handleRemoveFile = (index: number) => {
@@ -298,21 +327,24 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
 
   const handleTestMessage = (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!testMessage.trim()) return;
 
+    setIsTestLoading(true);
+    setTestError(null);
+
+    // Add the user message to the test messages
     setTestMessages((prev) => [
       ...prev,
       {
-        id: 'user-' + Date.now(),
+        id: `user-${Date.now()}`,
         role: 'user',
         content: testMessage,
         timestamp: new Date(),
       },
     ]);
-    setTestMessage('');
-    setIsTesting(true);
 
-    void (async () => {
+    const testGPT = async () => {
       try {
         // Create an assistant with the current GPT configuration
         const assistant = await openAIService.createAssistant(gpt);
@@ -347,38 +379,28 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
 
                 // Add the message to the test messages
                 setTestMessages((prev) => [...prev, response!]);
+
+                // Store the response text for display
+                setTestResponse(response.content);
               }
             }
             setIsTesting(false);
           } else if (typedUpdate.type === 'error') {
-            console.error('Error during assistant run:', typedUpdate.error);
-            setTestMessages((prev) => [
-              ...prev,
-              {
-                id: 'error-' + Date.now(),
-                role: 'system',
-                content: `Error: ${typedUpdate.error || 'Unknown error occurred'}`,
-                timestamp: new Date(),
-              },
-            ]);
-            setIsTesting(false);
+            // Handle error updates
+            setTestError(typedUpdate.error || 'An error occurred during testing');
           }
         });
       } catch (error) {
-        console.error('Error testing GPT:', error);
-        // Add error message to the test messages
-        setTestMessages((prev) => [
-          ...prev,
-          {
-            id: 'error-' + Date.now(),
-            role: 'system',
-            content: `Error: ${error instanceof Error ? error.message : 'Unknown error occurred'}`,
-            timestamp: new Date(),
-          },
-        ]);
-        setIsTesting(false);
+        // Handle errors
+        setTestError(error instanceof Error ? error.message : 'Failed to test GPT');
+        console.error('Test GPT error:', error);
+      } finally {
+        setIsTestLoading(false);
       }
-    })();
+    };
+
+    // Use void operator to explicitly ignore the promise
+    void testGPT();
   };
 
   return (
@@ -551,35 +573,34 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
               <div className='flex items-center justify-between'>
                 <label className='block text-sm font-medium text-gray-700'>Knowledge Base</label>
                 <div className='flex gap-2'>
-                  <button
-                    type='button'
-                    onClick={() => fileInputRef.current?.click()}
-                    className='inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
-                  >
-                    Upload Files
-                  </button>
-                  <input ref={fileInputRef} type='file' multiple onChange={handleFileUpload} className='hidden' />
+                  <div className='mb-4'>
+                    <h3 className='text-sm font-medium mb-2'>Knowledge Files</h3>
+                    <div className='space-y-2'>
+                      {gpt.knowledge.files.map((file, index) => (
+                        <div
+                          key={`${file.name}-${index}`}
+                          className='flex items-center justify-between p-2 bg-gray-50 rounded'
+                        >
+                          <span className='text-sm'>{file.name}</span>
+                          <Button
+                            variant='ghost'
+                            size='sm'
+                            onClick={() => handleRemoveFile(index)}
+                            aria-label='Remove file'
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className='mt-2'>
+                      <Button onClick={() => fileInputRef.current?.click()}>Add File</Button>
+                      <input type='file' ref={fileInputRef} className='hidden' onChange={handleFileUpload} multiple />
+                    </div>
+                  </div>
                   <Button onPress={handleAddUrl} size='sm' color='primary' variant='flat'>
                     Add URL
                   </Button>
-                </div>
-              </div>
-
-              {/* Files Section */}
-              <div className='mt-4'>
-                <h4 className='text-sm font-medium text-gray-700 mb-2'>Files</h4>
-                <div className='space-y-2'>
-                  {gpt.knowledge.files.map((file, index) => (
-                    <div key={index} className='flex items-center justify-between p-2 bg-gray-50 rounded'>
-                      <div className='flex items-center gap-2'>
-                        <span className='text-sm text-gray-600'>{file.name}</span>
-                        <span className='text-xs text-gray-500'>({file.type})</span>
-                      </div>
-                      <Button onPress={() => handleRemoveFile(index)} size='sm' color='danger' variant='light'>
-                        Remove
-                      </Button>
-                    </div>
-                  ))}
                 </div>
               </div>
 
@@ -663,6 +684,47 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
           </div>
         </Tab>
       </Tabs>
+
+      {/* Add indicators for loading and errors in the test tab */}
+      {activeTab === 'test' && (
+        <>
+          {/* Show loading indicator */}
+          {isTestLoading && (
+            <div className='flex items-center justify-center p-4'>
+              <Spinner size='md' />
+              <span className='ml-2'>Testing GPT...</span>
+            </div>
+          )}
+
+          {/* Show error if any */}
+          {testError && <div className='text-red-500 p-4 rounded bg-red-50 my-2'>Error: {testError}</div>}
+
+          {/* Display file list */}
+          {files.length > 0 && (
+            <div className='mt-4'>
+              <h3 className='text-sm font-medium mb-2'>Uploaded Files:</h3>
+              <ul className='text-sm'>
+                {files.map((file, index) => (
+                  <li key={`${file.name}-${index}`} className='flex items-center justify-between py-1'>
+                    <span>{file.name}</span>
+                    <Button size='sm' variant='ghost' onClick={() => handleRemoveFile(index)} aria-label='Remove file'>
+                      Remove
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Show test response if any */}
+          {testResponse && !isTestLoading && !testError && (
+            <div className='mt-4 p-4 bg-gray-50 rounded'>
+              <h3 className='text-sm font-medium mb-2'>Response:</h3>
+              <div className='whitespace-pre-wrap'>{testResponse}</div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
