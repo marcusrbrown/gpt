@@ -1,6 +1,10 @@
 import {createContext} from 'react';
 import {GPTConfiguration, Conversation} from '../types/gpt';
 
+/**
+ * Interface for the storage context
+ * Provides methods for managing GPT configurations and conversations
+ */
 export interface StorageContextType {
   getGPT: (id: string) => GPTConfiguration | undefined;
   getAllGPTs: () => GPTConfiguration[];
@@ -12,6 +16,7 @@ export interface StorageContextType {
   deleteConversation: (id: string) => void;
   clearAll: () => void;
   isLoading: boolean;
+  error: Error | null;
 }
 
 export const StorageContext = createContext<StorageContextType | undefined>(undefined);

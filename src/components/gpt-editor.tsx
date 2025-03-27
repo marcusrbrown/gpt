@@ -1,11 +1,32 @@
-import {useState, useEffect} from 'react';
+import {useState, useEffect, useRef} from 'react';
 import {useStorage} from '../hooks/use-storage';
-import {GPTConfiguration, GPTCapabilities} from '../types/gpt';
+import {GPTConfiguration, GPTCapabilities, MCPTool, LocalFile, ConversationMessage} from '../types/gpt';
 import {v4 as uuidv4} from 'uuid';
+import {Button, Input, Select, SelectItem, Tabs, Tab, Spinner} from '@heroui/react';
+import {useOpenAIService} from '../hooks/use-openai-service';
 
 interface GPTEditorProps {
-  gptId?: string;
+  gptId?: string | undefined;
   onSave?: (gpt: GPTConfiguration) => void;
+}
+
+interface FormErrors {
+  name?: string;
+  description?: string;
+  systemPrompt?: string;
+  tools: {
+    [key: number]: {
+      name?: string;
+      description?: string;
+      endpoint?: string;
+      authentication?: string;
+    };
+  };
+  knowledge: {
+    urls: {
+      [key: number]: string;
+    };
+  };
 }
 
 const DEFAULT_GPT: Omit<GPTConfiguration, 'id'> = {
@@ -27,8 +48,38 @@ const DEFAULT_GPT: Omit<GPTConfiguration, 'id'> = {
   version: 1,
 };
 
+const AUTH_TYPES = [
+  {label: 'Bearer Token', value: 'bearer'},
+  {label: 'API Key', value: 'api_key'},
+];
+
+const DEFAULT_ERRORS: FormErrors = {
+  tools: {},
+  knowledge: {
+    urls: {},
+  },
+};
+
+// Define update type for streamRun
+interface AssistantRunUpdate {
+  type: 'complete' | 'requires_action' | 'error';
+  messages?: Array<{
+    id: string;
+    role: string;
+    content: Array<{
+      text?: {
+        value: string;
+      };
+    }>;
+    created_at: number;
+  }>;
+  error?: string;
+  required_action?: unknown;
+}
+
 export function GPTEditor({gptId, onSave}: GPTEditorProps) {
   const {getGPT, saveGPT} = useStorage();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [gpt, setGpt] = useState<GPTConfiguration>(() => {
     if (gptId) {
       const existing = getGPT(gptId);
@@ -36,6 +87,18 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
     }
     return {...DEFAULT_GPT, id: uuidv4()};
   });
+  const [errors, setErrors] = useState<FormErrors>(DEFAULT_ERRORS);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeTab, setActiveTab] = useState('edit');
+  const [testMessage, setTestMessage] = useState('');
+  const [testMessages, setTestMessages] = useState<ConversationMessage[]>([]);
+  const [isTesting, setIsTesting] = useState(false);
+  const [files, setFiles] = useState<LocalFile[]>([]);
+  const [testResponse, setTestResponse] = useState<string | null>(null);
+  const [isTestLoading, setIsTestLoading] = useState(false);
+  const [testError, setTestError] = useState<string | null>(null);
+
+  const openAIService = useOpenAIService();
 
   useEffect(() => {
     if (gptId) {
@@ -46,6 +109,56 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
     }
   }, [gptId, getGPT]);
 
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {
+      tools: {},
+      knowledge: {
+        urls: {},
+      },
+    };
+
+    // Basic validation
+    if (!gpt.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+    if (!gpt.description.trim()) {
+      newErrors.description = 'Description is required';
+    }
+    if (!gpt.systemPrompt.trim()) {
+      newErrors.systemPrompt = 'System prompt is required';
+    }
+
+    // Tool validation
+    gpt.tools.forEach((tool, index) => {
+      const toolErrors: FormErrors['tools'][number] = {};
+      if (!tool.name.trim()) {
+        toolErrors.name = 'Tool name is required';
+      }
+      if (!tool.description.trim()) {
+        toolErrors.description = 'Tool description is required';
+      }
+      if (!tool.endpoint.trim()) {
+        toolErrors.endpoint = 'Tool endpoint is required';
+      }
+      if (tool.authentication?.type && !tool.authentication.value) {
+        toolErrors.authentication = 'Authentication value is required';
+      }
+      if (Object.keys(toolErrors).length > 0) {
+        newErrors.tools[index] = toolErrors;
+      }
+    });
+
+    // URL validation
+    gpt.knowledge.urls.forEach((url, index) => {
+      if (url && !url.match(/^https?:\/\/.+/)) {
+        newErrors.knowledge.urls[index] = 'Please enter a valid URL starting with http:// or https://';
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const {name, value} = e.target;
     setGpt((prev) => ({
@@ -53,6 +166,10 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
       [name]: value,
       updatedAt: new Date(),
     }));
+    // Clear error when user starts typing
+    if (errors[name as keyof FormErrors]) {
+      setErrors((prev) => ({...prev, [name]: undefined}));
+    }
   };
 
   const handleCapabilityChange = (capability: keyof GPTCapabilities) => {
@@ -66,87 +183,548 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
     }));
   };
 
+  const handleAddTool = () => {
+    const newTool: MCPTool = {
+      name: '',
+      description: '',
+      schema: {},
+      endpoint: '',
+    };
+
+    setGpt((prev) => ({
+      ...prev,
+      tools: [...prev.tools, newTool],
+      updatedAt: new Date(),
+    }));
+  };
+
+  const handleRemoveTool = (index: number) => {
+    setGpt((prev) => ({
+      ...prev,
+      tools: prev.tools.filter((_, i) => i !== index),
+      updatedAt: new Date(),
+    }));
+  };
+
+  const handleToolChange = (index: number, field: keyof MCPTool, value: MCPTool[keyof MCPTool]) => {
+    setGpt((prev) => ({
+      ...prev,
+      tools: prev.tools.map((tool, i) => (i === index ? {...tool, [field]: value} : tool)),
+      updatedAt: new Date(),
+    }));
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles: LocalFile[] = [];
+
+      Array.from(e.target.files).forEach((file) => {
+        const reader = new FileReader();
+
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            // Ensure we're getting a string result
+            const fileContent =
+              typeof event.target.result === 'string'
+                ? event.target.result
+                : new TextDecoder().decode(event.target.result);
+
+            // Create a valid LocalFile object
+            const localFile: LocalFile = {
+              name: file.name,
+              content: fileContent,
+              type: file.type,
+              size: file.size,
+              lastModified: file.lastModified,
+            };
+
+            newFiles.push(localFile);
+
+            // After all files are processed, update both state variables
+            if (newFiles.length === e.target.files!.length) {
+              // Update temporary files state for test display
+              setFiles((prev) => [...prev, ...newFiles]);
+
+              // Also update the actual GPT configuration
+              setGpt((prev) => ({
+                ...prev,
+                knowledge: {
+                  ...prev.knowledge,
+                  files: [...prev.knowledge.files, ...newFiles],
+                },
+                updatedAt: new Date(),
+              }));
+            }
+          }
+        };
+
+        reader.readAsText(file);
+      });
+    }
+  };
+
+  const handleRemoveFile = (index: number) => {
+    setGpt((prev) => ({
+      ...prev,
+      knowledge: {
+        ...prev.knowledge,
+        files: prev.knowledge.files.filter((_, i) => i !== index),
+      },
+      updatedAt: new Date(),
+    }));
+  };
+
+  const handleAddUrl = () => {
+    setGpt((prev) => ({
+      ...prev,
+      knowledge: {
+        ...prev.knowledge,
+        urls: [...prev.knowledge.urls, ''],
+      },
+      updatedAt: new Date(),
+    }));
+  };
+
+  const handleRemoveUrl = (index: number) => {
+    setGpt((prev) => ({
+      ...prev,
+      knowledge: {
+        ...prev.knowledge,
+        urls: prev.knowledge.urls.filter((_, i) => i !== index),
+      },
+      updatedAt: new Date(),
+    }));
+  };
+
+  const handleUrlChange = (index: number, value: string) => {
+    setGpt((prev) => ({
+      ...prev,
+      knowledge: {
+        ...prev.knowledge,
+        urls: prev.knowledge.urls.map((url, i) => (i === index ? value : url)),
+      },
+      updatedAt: new Date(),
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    saveGPT(gpt);
-    onSave?.(gpt);
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      saveGPT(gpt);
+      onSave?.(gpt);
+    } catch (error: unknown) {
+      console.error('Failed to save GPT:', error);
+      // You might want to show an error toast here
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleTestMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!testMessage.trim()) return;
+
+    setIsTestLoading(true);
+    setTestError(null);
+
+    // Add the user message to the test messages
+    setTestMessages((prev) => [
+      ...prev,
+      {
+        id: `user-${Date.now()}`,
+        role: 'user',
+        content: testMessage,
+        timestamp: new Date(),
+      },
+    ]);
+
+    const testGPT = async () => {
+      try {
+        // Create an assistant with the current GPT configuration
+        const assistant = await openAIService.createAssistant(gpt);
+
+        // Create a thread for this test conversation
+        const thread = await openAIService.createThread();
+
+        // Add the user's message to the thread
+        await openAIService.addMessage(thread.id, testMessage);
+
+        // Run the assistant on the thread to generate a response
+        let response: ConversationMessage | null = null;
+
+        // Use streamRun for real-time updates
+        await openAIService.streamRun(thread.id, assistant.id, (update: unknown) => {
+          // Type cast the update to AssistantRunUpdate
+          const typedUpdate = update as AssistantRunUpdate;
+          if (typedUpdate.type === 'complete' && typedUpdate.messages) {
+            // Find the assistant message in the messages
+            const assistantMessages = typedUpdate.messages.filter((msg) => msg.role === 'assistant');
+
+            if (assistantMessages.length > 0) {
+              const latestMessage = assistantMessages[0];
+              if (latestMessage) {
+                // Create a ConversationMessage from the assistant message
+                response = {
+                  id: latestMessage.id,
+                  role: 'assistant',
+                  content: latestMessage.content[0]?.text?.value || 'No response content',
+                  timestamp: new Date(latestMessage.created_at * 1000),
+                };
+
+                // Add the message to the test messages
+                setTestMessages((prev) => [...prev, response!]);
+
+                // Store the response text for display
+                setTestResponse(response.content);
+              }
+            }
+            setIsTesting(false);
+          } else if (typedUpdate.type === 'error') {
+            // Handle error updates
+            setTestError(typedUpdate.error || 'An error occurred during testing');
+          }
+        });
+      } catch (error) {
+        // Handle errors
+        setTestError(error instanceof Error ? error.message : 'Failed to test GPT');
+        console.error('Test GPT error:', error);
+      } finally {
+        setIsTestLoading(false);
+      }
+    };
+
+    // Use void operator to explicitly ignore the promise
+    void testGPT();
   };
 
   return (
-    <form onSubmit={handleSubmit} className='space-y-6'>
-      <div>
-        <label htmlFor='name' className='block text-sm font-medium text-gray-700'>
-          Name
-        </label>
-        <input
-          type='text'
-          name='name'
-          id='name'
-          value={gpt.name}
-          onChange={handleInputChange}
-          className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
-          required
-        />
-      </div>
-
-      <div>
-        <label htmlFor='description' className='block text-sm font-medium text-gray-700'>
-          Description
-        </label>
-        <textarea
-          name='description'
-          id='description'
-          value={gpt.description}
-          onChange={handleInputChange}
-          rows={3}
-          className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
-          required
-        />
-      </div>
-
-      <div>
-        <label htmlFor='systemPrompt' className='block text-sm font-medium text-gray-700'>
-          System Prompt
-        </label>
-        <textarea
-          name='systemPrompt'
-          id='systemPrompt'
-          value={gpt.systemPrompt}
-          onChange={handleInputChange}
-          rows={5}
-          className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm'
-          required
-        />
-      </div>
-
-      <div>
-        <label className='block text-sm font-medium text-gray-700'>Capabilities</label>
-        <div className='mt-2 space-y-2'>
-          {Object.entries(gpt.capabilities).map(([key, value]) => (
-            <div key={key} className='flex items-center'>
-              <input
-                type='checkbox'
-                id={key}
-                checked={value}
-                onChange={() => handleCapabilityChange(key as keyof GPTCapabilities)}
-                className='h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500'
-              />
-              <label htmlFor={key} className='ml-2 block text-sm text-gray-900'>
-                {key.replace(/([A-Z])/g, ' $1').trim()}
+    <div className='space-y-6'>
+      <Tabs selectedKey={activeTab} onSelectionChange={(key) => setActiveTab(key as string)}>
+        <Tab key='edit' title='Edit GPT'>
+          <form onSubmit={handleSubmit} className='space-y-6'>
+            <div>
+              <label htmlFor='name' className='block text-sm font-medium text-gray-700'>
+                Name
               </label>
+              <input
+                type='text'
+                name='name'
+                id='name'
+                value={gpt.name}
+                onChange={handleInputChange}
+                className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
+                  errors.name
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
+                }`}
+                required
+              />
+              {errors.name && <p className='mt-1 text-sm text-red-600'>{errors.name}</p>}
             </div>
-          ))}
-        </div>
-      </div>
 
-      <div className='flex justify-end'>
-        <button
-          type='submit'
-          className='ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
-        >
-          Save GPT
-        </button>
-      </div>
-    </form>
+            <div>
+              <label htmlFor='description' className='block text-sm font-medium text-gray-700'>
+                Description
+              </label>
+              <textarea
+                name='description'
+                id='description'
+                value={gpt.description}
+                onChange={handleInputChange}
+                rows={3}
+                className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
+                  errors.description
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
+                }`}
+                required
+              />
+              {errors.description && <p className='mt-1 text-sm text-red-600'>{errors.description}</p>}
+            </div>
+
+            <div>
+              <label htmlFor='systemPrompt' className='block text-sm font-medium text-gray-700'>
+                System Prompt
+              </label>
+              <textarea
+                name='systemPrompt'
+                id='systemPrompt'
+                value={gpt.systemPrompt}
+                onChange={handleInputChange}
+                rows={5}
+                className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
+                  errors.systemPrompt
+                    ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
+                    : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
+                }`}
+                required
+              />
+              {errors.systemPrompt && <p className='mt-1 text-sm text-red-600'>{errors.systemPrompt}</p>}
+            </div>
+
+            <div>
+              <div className='flex items-center justify-between'>
+                <label className='block text-sm font-medium text-gray-700'>Tools</label>
+                <Button onPress={handleAddTool} size='sm' color='primary'>
+                  Add Tool
+                </Button>
+              </div>
+              <div className='mt-4 space-y-4'>
+                {gpt.tools.map((tool, index) => (
+                  <div key={index} className='p-4 border rounded-lg space-y-4'>
+                    <div className='flex justify-between items-start'>
+                      <h4 className='text-sm font-medium text-gray-700'>Tool {index + 1}</h4>
+                      <Button onPress={() => handleRemoveTool(index)} size='sm' color='danger' variant='light'>
+                        Remove
+                      </Button>
+                    </div>
+                    <div className='grid grid-cols-1 gap-4 sm:grid-cols-2'>
+                      <div>
+                        <label className='block text-sm font-medium text-gray-700'>Name</label>
+                        <Input
+                          value={tool.name}
+                          onChange={(e) => handleToolChange(index, 'name', e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className='block text-sm font-medium text-gray-700'>Description</label>
+                        <Input
+                          value={tool.description}
+                          onChange={(e) => handleToolChange(index, 'description', e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className='block text-sm font-medium text-gray-700'>Endpoint</label>
+                        <Input
+                          value={tool.endpoint}
+                          onChange={(e) => handleToolChange(index, 'endpoint', e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className='block text-sm font-medium text-gray-700'>Authentication Type</label>
+                        <Select
+                          value={tool.authentication?.type}
+                          onChange={(e) =>
+                            handleToolChange(index, 'authentication', {
+                              type: e.target.value,
+                              value: '',
+                            })
+                          }
+                        >
+                          {AUTH_TYPES.map((type) => (
+                            <SelectItem key={type.value} textValue={type.label}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </Select>
+                      </div>
+                      {tool.authentication && (
+                        <div className='sm:col-span-2'>
+                          <label className='block text-sm font-medium text-gray-700'>Authentication Value</label>
+                          <Input
+                            type='password'
+                            value={tool.authentication.value}
+                            onChange={(e) =>
+                              handleToolChange(index, 'authentication', {
+                                ...tool.authentication,
+                                value: e.target.value,
+                              })
+                            }
+                            required
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className='block text-sm font-medium text-gray-700'>Capabilities</label>
+              <div className='mt-2 space-y-2'>
+                {Object.entries(gpt.capabilities).map(([key, value]) => (
+                  <div key={key} className='flex items-center'>
+                    <input
+                      type='checkbox'
+                      id={key}
+                      checked={value}
+                      onChange={() => handleCapabilityChange(key as keyof GPTCapabilities)}
+                      className='h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500'
+                    />
+                    <label htmlFor={key} className='ml-2 block text-sm text-gray-900'>
+                      {key.replace(/([A-Z])/g, ' $1').trim()}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div className='flex items-center justify-between'>
+                <label className='block text-sm font-medium text-gray-700'>Knowledge Base</label>
+                <div className='flex gap-2'>
+                  <div className='mb-4'>
+                    <h3 className='text-sm font-medium mb-2'>Knowledge Files</h3>
+                    <div className='space-y-2'>
+                      {gpt.knowledge.files.map((file, index) => (
+                        <div
+                          key={`${file.name}-${index}`}
+                          className='flex items-center justify-between p-2 bg-gray-50 rounded'
+                        >
+                          <span className='text-sm'>{file.name}</span>
+                          <Button
+                            variant='ghost'
+                            size='sm'
+                            onClick={() => handleRemoveFile(index)}
+                            aria-label='Remove file'
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    <div className='mt-2'>
+                      <Button onClick={() => fileInputRef.current?.click()}>Add File</Button>
+                      <input type='file' ref={fileInputRef} className='hidden' onChange={handleFileUpload} multiple />
+                    </div>
+                  </div>
+                  <Button onPress={handleAddUrl} size='sm' color='primary' variant='flat'>
+                    Add URL
+                  </Button>
+                </div>
+              </div>
+
+              {/* URLs Section */}
+              <div className='mt-4'>
+                <h4 className='text-sm font-medium text-gray-700 mb-2'>URLs</h4>
+                <div className='space-y-2'>
+                  {gpt.knowledge.urls.map((url, index) => (
+                    <div key={index} className='flex items-center gap-2'>
+                      <Input
+                        type='url'
+                        value={url}
+                        onChange={(e) => handleUrlChange(index, e.target.value)}
+                        placeholder='https://example.com'
+                        className='flex-1'
+                      />
+                      <Button onPress={() => handleRemoveUrl(index)} size='sm' color='danger' variant='light'>
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className='flex justify-end'>
+              <button
+                type='submit'
+                disabled={isSubmitting}
+                className={`ml-3 inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                  isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+              >
+                {isSubmitting ? 'Saving...' : 'Save GPT'}
+              </button>
+            </div>
+          </form>
+        </Tab>
+        <Tab key='test' title='Test GPT'>
+          <div className='space-y-4'>
+            <div className='bg-gray-50 rounded-lg p-4'>
+              <h3 className='text-sm font-medium text-gray-700 mb-2'>System Prompt</h3>
+              <p className='text-sm text-gray-600 whitespace-pre-wrap'>{gpt.systemPrompt}</p>
+            </div>
+
+            <div className='space-y-4'>
+              <h3 className='text-sm font-medium text-gray-700'>Conversation</h3>
+              <div className='space-y-4 max-h-[400px] overflow-y-auto'>
+                {testMessages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`p-3 rounded-lg ${
+                      message.role === 'user' ? 'bg-indigo-50 text-indigo-900' : 'bg-gray-50 text-gray-900'
+                    }`}
+                  >
+                    <div className='text-xs font-medium mb-1'>{message.role === 'user' ? 'You' : 'Assistant'}</div>
+                    <div className='text-sm whitespace-pre-wrap'>{message.content}</div>
+                  </div>
+                ))}
+                {isTesting && (
+                  <div className='p-3 rounded-lg bg-gray-50 text-gray-900'>
+                    <div className='text-xs font-medium mb-1'>Assistant</div>
+                    <div className='text-sm'>Thinking...</div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <form onSubmit={handleTestMessage} className='flex gap-2'>
+              <Input
+                value={testMessage}
+                onChange={(e) => setTestMessage(e.target.value)}
+                placeholder='Type your message...'
+                disabled={isTesting}
+                className='flex-1'
+              />
+              <Button type='submit' color='primary' isLoading={isTesting} disabled={!testMessage.trim() || isTesting}>
+                Send
+              </Button>
+            </form>
+          </div>
+        </Tab>
+      </Tabs>
+
+      {/* Add indicators for loading and errors in the test tab */}
+      {activeTab === 'test' && (
+        <>
+          {/* Show loading indicator */}
+          {isTestLoading && (
+            <div className='flex items-center justify-center p-4'>
+              <Spinner size='md' />
+              <span className='ml-2'>Testing GPT...</span>
+            </div>
+          )}
+
+          {/* Show error if any */}
+          {testError && <div className='text-red-500 p-4 rounded bg-red-50 my-2'>Error: {testError}</div>}
+
+          {/* Display file list */}
+          {files.length > 0 && (
+            <div className='mt-4'>
+              <h3 className='text-sm font-medium mb-2'>Uploaded Files:</h3>
+              <ul className='text-sm'>
+                {files.map((file, index) => (
+                  <li key={`${file.name}-${index}`} className='flex items-center justify-between py-1'>
+                    <span>{file.name}</span>
+                    <Button size='sm' variant='ghost' onClick={() => handleRemoveFile(index)} aria-label='Remove file'>
+                      Remove
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Show test response if any */}
+          {testResponse && !isTestLoading && !testError && (
+            <div className='mt-4 p-4 bg-gray-50 rounded'>
+              <h3 className='text-sm font-medium mb-2'>Response:</h3>
+              <div className='whitespace-pre-wrap'>{testResponse}</div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
   );
 }

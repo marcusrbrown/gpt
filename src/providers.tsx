@@ -1,6 +1,8 @@
 import {HeroUIProvider} from '@heroui/react';
 import {ThemeProvider as NextThemesProvider} from 'next-themes';
 import {useEffect} from 'react';
+import {StorageProvider} from './contexts/storage-provider';
+import {ConversationProvider} from './contexts/conversation-provider';
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -21,7 +23,9 @@ export const Providers = ({children}: ProvidersProps): React.ReactElement => {
     <NextThemesProvider attribute='data-theme' defaultTheme='system' enableSystem={true} disableTransitionOnChange>
       <HeroUIProvider>
         <ThemeScript />
-        {children}
+        <StorageProvider>
+          <ConversationProvider>{children}</ConversationProvider>
+        </StorageProvider>
       </HeroUIProvider>
     </NextThemesProvider>
   );
