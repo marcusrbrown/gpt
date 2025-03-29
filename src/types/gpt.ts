@@ -8,6 +8,18 @@ export const GPTCapabilitiesSchema = z.object({
   codeInterpreter: z.boolean().default(false),
   webBrowsing: z.boolean().default(false),
   imageGeneration: z.boolean().default(false),
+  fileSearch: z.object({
+    enabled: z.boolean().default(false),
+    maxChunkSizeTokens: z.number().optional(),
+    chunkOverlapTokens: z.number().optional(),
+    maxNumResults: z.number().optional(),
+    ranking: z
+      .object({
+        ranker: z.enum(['auto', 'default_2024_08_21']),
+        scoreThreshold: z.number(),
+      })
+      .optional(),
+  }),
 });
 
 export type GPTCapabilities = z.infer<typeof GPTCapabilitiesSchema>;
@@ -37,16 +49,31 @@ export const MCPToolSchema = z.object({
 
 export type MCPTool = z.infer<typeof MCPToolSchema>;
 
+export const VectorStoreSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  fileIds: z.array(z.string()),
+  expiresAfter: z
+    .object({
+      anchor: z.literal('last_active_at'),
+      days: z.number(),
+    })
+    .optional(),
+});
+
+export const GPTKnowledgeSchema = z.object({
+  files: z.array(LocalFileSchema),
+  urls: z.array(z.string()),
+  vectorStores: z.array(VectorStoreSchema).optional(),
+});
+
 export const GPTConfigurationSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
   description: z.string(),
   systemPrompt: z.string(),
   tools: z.array(MCPToolSchema),
-  knowledge: z.object({
-    files: z.array(LocalFileSchema),
-    urls: z.array(z.string().url()),
-  }),
+  knowledge: GPTKnowledgeSchema,
   capabilities: GPTCapabilitiesSchema,
   createdAt: z.date(),
   updatedAt: z.date(),

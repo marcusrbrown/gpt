@@ -31,6 +31,9 @@ function TestComponent() {
               codeInterpreter: false,
               webBrowsing: false,
               imageGeneration: false,
+              fileSearch: {
+                enabled: false,
+              },
             },
             createdAt: new Date(),
             updatedAt: new Date(),

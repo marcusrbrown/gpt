@@ -181,17 +181,88 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     if (!client) initClient();
 
     // Build tools configuration
-    // We're using a simple array as per the OpenAI documentation
-    // The TypeScript types in the SDK are more specific, but the API accepts this format
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const tools: any[] = [];
+    const tools: Array<{
+      type: 'code_interpreter' | 'retrieval' | 'file_search' | 'function';
+      file_search?: {
+        max_chunk_size_tokens?: number;
+        chunk_overlap_tokens?: number;
+        max_num_results?: number;
+        ranking_options?: {
+          ranker: 'auto' | 'default_2024_08_21';
+          scoreThreshold: number;
+        };
+      };
+      function?: {
+        name: string;
+        description: string;
+        parameters: Record<string, unknown>;
+      };
+    }> = [];
+
+    const toolResources: {
+      code_interpreter?: {
+        file_ids: string[];
+      };
+      file_search?: {
+        vector_store_ids: string[];
+      };
+    } = {};
 
     // Add capabilities
     if (config.capabilities.codeInterpreter) {
       tools.push({type: 'code_interpreter'});
+      const fileIds = config.knowledge.files
+        .filter((file) => file.type === 'file' && file.content)
+        .map((file) => file.content);
+      if (fileIds.length > 0) {
+        toolResources.code_interpreter = {
+          file_ids: fileIds,
+        };
+      }
     }
+
     if (config.capabilities.webBrowsing) {
       tools.push({type: 'retrieval'});
+    }
+
+    if (config.capabilities.fileSearch?.enabled) {
+      const fileSearchTool = {
+        type: 'file_search' as const,
+        file_search: {} as {
+          max_chunk_size_tokens?: number;
+          chunk_overlap_tokens?: number;
+          max_num_results?: number;
+          ranking_options?: {
+            ranker: 'auto' | 'default_2024_08_21';
+            scoreThreshold: number;
+          };
+        },
+      };
+
+      if (config.capabilities.fileSearch.maxChunkSizeTokens) {
+        fileSearchTool.file_search.max_chunk_size_tokens = config.capabilities.fileSearch.maxChunkSizeTokens;
+      }
+
+      if (config.capabilities.fileSearch.chunkOverlapTokens) {
+        fileSearchTool.file_search.chunk_overlap_tokens = config.capabilities.fileSearch.chunkOverlapTokens;
+      }
+
+      if (config.capabilities.fileSearch.maxNumResults) {
+        fileSearchTool.file_search.max_num_results = config.capabilities.fileSearch.maxNumResults;
+      }
+
+      if (config.capabilities.fileSearch.ranking) {
+        fileSearchTool.file_search.ranking_options = config.capabilities.fileSearch.ranking;
+      }
+
+      tools.push(fileSearchTool);
+
+      const vectorStores = config.knowledge.vectorStores || [];
+      if (vectorStores.length > 0) {
+        toolResources.file_search = {
+          vector_store_ids: vectorStores.map((vs) => vs.id),
+        };
+      }
     }
 
     // Add custom tools
@@ -209,15 +280,14 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     }
 
     try {
-      // The TypeScript definitions in the OpenAI SDK don't perfectly match our usage,
-      // but the API accepts this structure as documented in the OpenAI API documentation
       const assistant = await withRetry(() =>
         client!.beta.assistants.create({
           name: config.name,
           description: config.description,
           instructions: config.systemPrompt,
           model: 'gpt-4o',
-          tools,
+          tools: tools as OpenAI.Beta.Assistants.AssistantTool[],
+          tool_resources: toolResources,
         }),
       );
 
