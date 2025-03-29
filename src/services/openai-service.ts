@@ -436,11 +436,11 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
       // Note: this is a beta feature, so we need to use the beta API
 
       const vectorStore = await withRetry(() =>
-        client!.beta.vectorStores.create({
+        client!.vectorStores.create({
           name: options.name,
           file_ids: options.fileIds,
           expires_after: options.expiresAfter,
-        } as OpenAI.Beta.VectorStoreCreateParams),
+        } as OpenAI.VectorStores.VectorStoreCreateParams),
       );
 
       return vectorStore;
@@ -459,7 +459,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
       // Note: this is a beta feature, so we need to use the beta API
 
       const fileBatch = await withRetry(() =>
-        client!.beta.vectorStores.fileBatches.create(vectorStoreId, {file_ids: fileIds}),
+        client!.vectorStores.fileBatches.create(vectorStoreId, {file_ids: fileIds}),
       );
 
       return fileBatch;
