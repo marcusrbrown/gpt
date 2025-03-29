@@ -2,7 +2,7 @@
   "name": "gpt",
   "private": true,
   "version": "0.0.0",
-  "packageManager": "pnpm@10.6.5",
+  "packageManager": "pnpm@10.7.0",
   "type": "module",
   "scripts": {
     "bootstrap": "pnpm install --prefer-offline --loglevel error",
