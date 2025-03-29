@@ -16,16 +16,22 @@ describe('GPT Type Schemas', () => {
         codeInterpreter: true,
         webBrowsing: false,
         imageGeneration: true,
+        fileSearch: {
+          enabled: false,
+        },
       };
       expect(() => GPTCapabilitiesSchema.parse(validCapabilities)).not.toThrow();
     });
 
     test('should provide default values for missing fields', () => {
-      const result = GPTCapabilitiesSchema.parse({});
+      const result = GPTCapabilitiesSchema.parse({fileSearch: {enabled: false}});
       expect(result).toEqual({
         codeInterpreter: false,
         webBrowsing: false,
         imageGeneration: false,
+        fileSearch: {
+          enabled: false,
+        },
       });
     });
 
@@ -127,6 +133,9 @@ describe('GPT Type Schemas', () => {
           codeInterpreter: false,
           webBrowsing: false,
           imageGeneration: false,
+          fileSearch: {
+            enabled: false,
+          },
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -165,6 +174,9 @@ describe('GPT Type Schemas', () => {
           codeInterpreter: true,
           webBrowsing: true,
           imageGeneration: false,
+          fileSearch: {
+            enabled: false,
+          },
         },
         createdAt: new Date(),
         updatedAt: new Date(),

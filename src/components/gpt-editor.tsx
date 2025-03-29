@@ -42,6 +42,9 @@ const DEFAULT_GPT: Omit<GPTConfiguration, 'id'> = {
     codeInterpreter: false,
     webBrowsing: false,
     imageGeneration: false,
+    fileSearch: {
+      enabled: false,
+    },
   },
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -557,7 +560,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                     <input
                       type='checkbox'
                       id={key}
-                      checked={value}
+                      checked={typeof value === 'boolean' ? value : value.enabled}
                       onChange={() => handleCapabilityChange(key as keyof GPTCapabilities)}
                       className='h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500'
                     />

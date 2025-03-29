@@ -36,6 +36,9 @@ describe('LocalStorageService', () => {
           codeInterpreter: false,
           webBrowsing: false,
           imageGeneration: false,
+          fileSearch: {
+            enabled: false,
+          },
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -71,6 +74,9 @@ describe('LocalStorageService', () => {
         codeInterpreter: false,
         webBrowsing: false,
         imageGeneration: false,
+        fileSearch: {
+          enabled: false,
+        },
       },
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -150,6 +156,9 @@ describe('LocalStorageService', () => {
           codeInterpreter: false,
           webBrowsing: false,
           imageGeneration: false,
+          fileSearch: {
+            enabled: false,
+          },
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -178,6 +187,9 @@ describe('LocalStorageService', () => {
           codeInterpreter: false,
           webBrowsing: false,
           imageGeneration: false,
+          fileSearch: {
+            enabled: false,
+          },
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -222,6 +234,9 @@ describe('LocalStorageService', () => {
           codeInterpreter: false,
           webBrowsing: false,
           imageGeneration: false,
+          fileSearch: {
+            enabled: false,
+          },
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -250,6 +265,9 @@ describe('LocalStorageService', () => {
           codeInterpreter: false,
           webBrowsing: false,
           imageGeneration: false,
+          fileSearch: {
+            enabled: false,
+          },
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -285,6 +303,9 @@ describe('LocalStorageService', () => {
           codeInterpreter: false,
           webBrowsing: false,
           imageGeneration: false,
+          fileSearch: {
+            enabled: false,
+          },
         },
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -335,6 +356,9 @@ describe('LocalStorageService', () => {
           codeInterpreter: false,
           webBrowsing: false,
           imageGeneration: false,
+          fileSearch: {
+            enabled: false,
+          },
         },
         createdAt: new Date(),
         updatedAt: new Date(),
