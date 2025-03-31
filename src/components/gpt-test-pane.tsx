@@ -1,7 +1,10 @@
 import React, {useState, useEffect, useCallback, useRef} from 'react';
-import {Input, Button, Spinner} from '@heroui/react';
+import {Input, Button, Spinner, Tooltip} from '@heroui/react';
 import {ConversationMessage, GPTConfiguration} from '../types/gpt';
 import {useOpenAIService} from '../hooks/use-openai-service';
+import {Send, AlertCircle, Save, Download, Trash} from 'lucide-react';
+import {v4 as uuidv4} from 'uuid';
+import {useStorage} from '../hooks/use-storage';
 
 interface GPTTestPaneProps {
   gptConfig?: GPTConfiguration | undefined;
@@ -15,6 +18,9 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [processingMessage, setProcessingMessage] = useState('Starting...');
+  const [conversationName, setConversationName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
 
   // Thread and Assistant state
   const [threadId, setThreadId] = useState<string | null>(null);
@@ -25,9 +31,23 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
   const pollingRef = useRef<NodeJS.Timeout | null>(null);
   const pollingCount = useRef(0);
   const MAX_POLLING_ATTEMPTS = 60; // 1 minute at 1 poll per second
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Storage service for saving conversations
+  const {saveConversation} = useStorage();
 
   // Get an instance of the OpenAI service
   const openAIService = useOpenAIService();
+
+  // Scroll to bottom of messages
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({behavior: 'smooth'});
+  };
+
+  // Effect to scroll to bottom when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   // Initialize API key
   useEffect(() => {
@@ -69,6 +89,10 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
       const thread = await openAIService.createThread();
       setThreadId(thread.id);
 
+      // Set default conversation name based on current date
+      const now = new Date();
+      setConversationName(`Conversation ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`);
+
       setProcessingMessage('Ready');
       setIsLoading(false);
     } catch (error) {
@@ -79,6 +103,91 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUserInput(e.target.value);
+  };
+
+  const handleConversationNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setConversationName(e.target.value);
+    setIsSaved(false);
+  };
+
+  // Handle saving the conversation
+  const handleSaveConversation = () => {
+    if (!gptConfig || messages.length === 0) return;
+
+    setIsSaving(true);
+
+    try {
+      const conversation = {
+        id: uuidv4(),
+        gptId: gptConfig.id,
+        messages,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      saveConversation(conversation);
+      setIsSaved(true);
+
+      // Reset isSaved after 3 seconds
+      setTimeout(() => {
+        setIsSaved(false);
+      }, 3000);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to save conversation');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Handle clearing the conversation
+  const handleClearConversation = () => {
+    if (window.confirm('Are you sure you want to clear this conversation?')) {
+      setMessages([]);
+      setThreadId(null);
+      setAssistantId(null);
+      setRunId(null);
+      setError(null);
+      setProcessingMessage('Starting...');
+
+      // Reset the conversation name
+      const now = new Date();
+      setConversationName(`Conversation ${now.toLocaleDateString()} ${now.toLocaleTimeString()}`);
+
+      // Reset isSaved flag
+      setIsSaved(false);
+    }
+  };
+
+  // Export conversation to JSON
+  const handleExportConversation = () => {
+    if (messages.length === 0) return;
+
+    try {
+      const conversation = {
+        name: conversationName,
+        messages,
+        gptConfig: {
+          name: gptConfig?.name,
+          description: gptConfig?.description,
+          systemPrompt: gptConfig?.systemPrompt,
+        },
+        exportedAt: new Date(),
+      };
+
+      const json = JSON.stringify(conversation, null, 2);
+      const blob = new Blob([json], {type: 'application/json'});
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${conversationName.replace(/\s+/g, '-').toLowerCase()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to export conversation');
+    }
   };
 
   // Tool call handling
@@ -270,54 +379,142 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
   };
 
   return (
-    <div className='flex flex-col h-full p-4 space-y-4 bg-white'>
-      {error && <div className='p-3 text-sm text-red-700 bg-red-100 rounded-md'>{error}</div>}
+    <div className='flex flex-col h-full'>
+      <div className='p-3 border-b flex justify-between items-center gap-2'>
+        <div className='flex-1'>
+          <Input
+            label='Conversation Name'
+            value={conversationName}
+            onChange={handleConversationNameChange}
+            className='w-full'
+            aria-label='Conversation Name'
+          />
+        </div>
+        <div className='flex gap-2'>
+          <Tooltip content='Save conversation'>
+            <Button
+              isIconOnly
+              aria-label='Save conversation'
+              color={isSaved ? 'success' : 'primary'}
+              isDisabled={isLoading || messages.length === 0 || isSaving}
+              onPress={handleSaveConversation}
+            >
+              {isSaving ? <Spinner size='sm' /> : <Save size={18} />}
+            </Button>
+          </Tooltip>
+          <Tooltip content='Export as JSON'>
+            <Button
+              isIconOnly
+              aria-label='Export as JSON'
+              color='secondary'
+              isDisabled={messages.length === 0}
+              onPress={handleExportConversation}
+            >
+              <Download size={18} />
+            </Button>
+          </Tooltip>
+          <Tooltip content='Clear conversation'>
+            <Button
+              isIconOnly
+              aria-label='Clear conversation'
+              color='danger'
+              isDisabled={messages.length === 0 || isLoading}
+              onPress={handleClearConversation}
+            >
+              <Trash size={18} />
+            </Button>
+          </Tooltip>
+        </div>
+      </div>
 
-      <div className='flex-1 overflow-y-auto bg-gray-100 p-4 rounded-lg'>
+      {/* Messages Area */}
+      <div className='flex-1 overflow-y-auto p-4 space-y-4' style={{maxHeight: 'calc(100vh - 210px)'}}>
+        {error && (
+          <div className='bg-red-50 p-4 rounded-md border border-red-200 flex items-start space-x-3'>
+            <AlertCircle className='text-red-500 mt-0.5' size={18} />
+            <div className='flex-1'>
+              <h3 className='text-sm font-medium text-red-800'>Error</h3>
+              <p className='text-sm text-red-700 mt-1'>{error}</p>
+              {apiKey ? (
+                <button
+                  onClick={() => {
+                    setError(null);
+                    void initializeAssistant();
+                  }}
+                  className='mt-3 text-sm text-red-600 hover:text-red-500 font-medium'
+                >
+                  Try again
+                </button>
+              ) : (
+                <p className='mt-2 text-sm text-red-700'>Please set your OpenAI API key in settings.</p>
+              )}
+            </div>
+          </div>
+        )}
+
         {messages.length === 0 ? (
-          <div className='flex items-center justify-center h-full text-gray-500'>
-            Start a conversation with your GPT
+          <div className='text-center py-10'>
+            <p className='text-gray-500'>Start testing your GPT by sending a message below</p>
           </div>
         ) : (
           messages.map((message) => (
             <div
               key={message.id}
-              className={`p-3 my-2 rounded-lg ${
-                message.role === 'user' ? 'bg-blue-100 text-blue-900 ml-10' : 'bg-gray-200 text-gray-900 mr-10'
+              className={`p-3 rounded-lg max-w-[85%] ${
+                message.role === 'user' ? 'ml-auto bg-blue-100 text-blue-900' : 'bg-gray-100 text-gray-900'
               }`}
             >
-              <div className='text-xs font-medium mb-1'>{message.role === 'user' ? 'You' : 'Assistant'}</div>
-              <div className='text-sm whitespace-pre-wrap'>{message.content}</div>
+              <p className='text-sm font-medium mb-1'>
+                {message.role === 'user' ? 'You' : gptConfig?.name || 'Assistant'}
+              </p>
+              <p className='whitespace-pre-wrap'>{message.content}</p>
+              <p className='text-xs text-gray-500 mt-1 text-right'>{message.timestamp.toLocaleTimeString()}</p>
             </div>
           ))
         )}
 
         {isLoading && (
-          <div className='flex justify-center items-center my-4'>
-            <Spinner className='w-6 h-6 text-blue-600' />
-            <span className='ml-2 text-sm text-gray-600'>{processingMessage}</span>
+          <div className='flex items-center space-x-2 p-3 bg-gray-50 rounded-lg'>
+            <Spinner size='sm' />
+            <span className='text-sm text-gray-600'>{processingMessage}</span>
           </div>
         )}
+
+        {/* This div is used for scrolling to the bottom of messages */}
+        <div ref={messagesEndRef} />
       </div>
 
-      <div className='flex items-center space-x-2'>
-        <Input
-          value={userInput}
-          onChange={handleInputChange}
-          onKeyPress={handleKeyPress}
-          placeholder='Type your message...'
-          className='flex-1'
-          disabled={isLoading || !threadId || !assistantId}
-        />
-        <Button
-          onPress={() => {
-            void handleSendMessage();
+      {/* Input Area */}
+      <div className='p-3 border-t'>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (userInput.trim() && !isLoading) {
+              void handleSendMessage();
+            }
           }}
-          color='primary'
-          isDisabled={isLoading || !threadId || !assistantId || !userInput.trim()}
+          className='flex space-x-2'
         >
-          {isLoading ? <Spinner className='w-4 h-4' /> : 'Send'}
-        </Button>
+          <Input
+            type='text'
+            value={userInput}
+            onChange={handleInputChange}
+            placeholder='Type your message...'
+            className='flex-1'
+            disabled={isLoading}
+            onKeyDown={handleKeyPress}
+            aria-label='Message input'
+          />
+          <Button
+            type='submit'
+            color='primary'
+            isDisabled={!userInput.trim() || isLoading}
+            isIconOnly
+            aria-label='Send message'
+          >
+            <Send size={18} />
+          </Button>
+        </form>
       </div>
     </div>
   );

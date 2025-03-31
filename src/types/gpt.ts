@@ -61,6 +61,8 @@ export const VectorStoreSchema = z.object({
     .optional(),
 });
 
+export type VectorStore = z.infer<typeof VectorStoreSchema>;
+
 export const GPTKnowledgeSchema = z.object({
   files: z.array(LocalFileSchema),
   urls: z.array(z.string()),
