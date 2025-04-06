@@ -42,8 +42,8 @@ importers:
         specifier: 12.6.3
         version: 12.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       langchain:
-        specifier: 0.3.19
-        version: 0.3.19(@langchain/anthropic@0.3.16(@langchain/core@0.3.43(openai@4.91.1(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.43(openai@4.91.1(ws@8.18.1)(zod@3.24.2)))(axios@1.8.4)(openai@4.91.1(ws@8.18.1)(zod@3.24.2))(ws@8.18.1)
+        specifier: 0.3.20
+        version: 0.3.20(@langchain/anthropic@0.3.16(@langchain/core@0.3.43(openai@4.91.1(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.43(openai@4.91.1(ws@8.18.1)(zod@3.24.2)))(axios@1.8.4)(openai@4.91.1(ws@8.18.1)(zod@3.24.2))(ws@8.18.1)
       lru-cache:
         specifier: 11.1.0
         version: 11.1.0
@@ -3462,8 +3462,8 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  langchain@0.3.19:
-    resolution: {integrity: sha512-aGhoTvTBS5ulatA67RHbJ4bcV5zcYRYdm5IH+hpX99RYSFXG24XF3ghSjhYi6sxW+SUnEQ99fJhA5kroVpKNhw==}
+  langchain@0.3.20:
+    resolution: {integrity: sha512-BFCsJqKu5yJMG7AKWfTkku3rRnTGxnvi3tQXBceQt406moJ8VfZqMWrl7FC1WPkdNKinepPON2q5sb62IPoKwQ==}
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/anthropic': '*'
@@ -6131,7 +6131,7 @@ snapshots:
       flat: 5.0.2
       ibm-cloud-sdk-core: 5.3.2
       js-yaml: 4.1.0
-      langchain: 0.3.19(@langchain/anthropic@0.3.16(@langchain/core@0.3.43(openai@4.91.1(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.43(openai@4.91.1(ws@8.18.1)(zod@3.24.2)))(axios@1.8.4)(openai@4.91.1(ws@8.18.1)(zod@3.24.2))(ws@8.18.1)
+      langchain: 0.3.20(@langchain/anthropic@0.3.16(@langchain/core@0.3.43(openai@4.91.1(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.43(openai@4.91.1(ws@8.18.1)(zod@3.24.2)))(axios@1.8.4)(openai@4.91.1(ws@8.18.1)(zod@3.24.2))(ws@8.18.1)
       langsmith: 0.3.15(openai@4.91.1(ws@8.18.1)(zod@3.24.2))
       openai: 4.91.1(ws@8.18.1)(zod@3.24.2)
       uuid: 10.0.0
@@ -8534,7 +8534,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  langchain@0.3.19(@langchain/anthropic@0.3.16(@langchain/core@0.3.43(openai@4.91.1(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.43(openai@4.91.1(ws@8.18.1)(zod@3.24.2)))(axios@1.8.4)(openai@4.91.1(ws@8.18.1)(zod@3.24.2))(ws@8.18.1):
+  langchain@0.3.20(@langchain/anthropic@0.3.16(@langchain/core@0.3.43(openai@4.91.1(ws@8.18.1)(zod@3.24.2))))(@langchain/core@0.3.43(openai@4.91.1(ws@8.18.1)(zod@3.24.2)))(axios@1.8.4)(openai@4.91.1(ws@8.18.1)(zod@3.24.2))(ws@8.18.1):
     dependencies:
       '@langchain/core': 0.3.43(openai@4.91.1(ws@8.18.1)(zod@3.24.2))
       '@langchain/openai': 0.4.9(@langchain/core@0.3.43(openai@4.91.1(ws@8.18.1)(zod@3.24.2)))(ws@8.18.1)
