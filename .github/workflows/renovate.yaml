@@ -47,12 +47,3 @@ jobs:
     with:
       log_level: ${{ inputs.log-level || github.event_name == 'pull_request' && 'debug' || 'info' }}
       print_config: ${{ inputs.print-config || false }}
-
-  debug:
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - env:
-          github: ${{ toJSON(github) }}
-        run: |
-          echo "github: ${{ env.github }}"
