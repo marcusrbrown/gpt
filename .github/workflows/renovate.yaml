@@ -8,7 +8,7 @@ on:
   pull_request:
     types: [edited]
   push:
-    branches: ['**']
+    branches-ignore: [main]
   workflow_dispatch:
     inputs:
       log-level:
