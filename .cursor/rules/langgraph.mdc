@@ -1,0 +1,263 @@
+---
+description: This rule outlines best practices and coding standards for developing with the lobe-chat library. It covers code organization, performance, security, and testing considerations.
+globs: **/*.{ts,tsx,js,jsx}
+alwaysApply: False
+---
+# lobe-chat Best Practices
+
+This document provides a comprehensive guide to best practices and coding standards when developing with the lobe-chat library. Following these guidelines will help you create robust, maintainable, and performant applications.
+
+## 1. Code Organization and Structure
+
+- **Directory Structure:**
+    - Organize your project into logical modules or features.
+    - Use a `src` directory as the root for all application code.
+    - Separate components, services, utils, and types into distinct directories.
+    - Consider feature-based folders (e.g., `features/chat`, `features/settings`) for larger applications.
+
+  Example:
+
+  
+  lobe-chat-app/
+  ├── src/
+  │   ├── components/
+  │   │   ├── ChatInput.tsx
+  │   │   ├── ChatMessage.tsx
+  │   │   └── ...
+  │   ├── services/
+  │   │   ├── api.ts
+  │   │   ├── chatService.ts
+  │   │   └── ...
+  │   ├── utils/
+  │   │   ├── dateUtils.ts
+  │   │   ├── stringUtils.ts
+  │   │   └── ...
+  │   ├── types/
+  │   │   ├── ChatMessage.ts
+  │   │   ├── User.ts
+  │   │   └── ...
+  │   ├── features/
+  │   │   ├── chat/
+  │   │   │   ├── ChatContainer.tsx
+  │   │   │   ├── ChatSlice.ts
+  │   │   │   └── ...
+  │   │   ├── settings/
+  │   │   │   ├── SettingsPage.tsx
+  │   │   │   ├── SettingsSlice.ts
+  │   │   │   └── ...
+  │   ├── App.tsx
+  │   └── index.tsx
+  ├── public/
+  ├── .eslintrc.js
+  ├── package.json
+  └── ...
+  
+
+- **File Naming Conventions:**
+    - Use descriptive names for files and directories.
+    - Prefer camelCase for JavaScript/TypeScript filenames (e.g., `chatService.ts`, `ChatMessage.tsx`).
+    - Use PascalCase for component filenames (e.g., `ChatInput.tsx`).
+    - Index files (e.g. `index.ts`) should be used to re-export members from within a directory.
+
+- **Module Organization:**
+    - Break down large components into smaller, reusable modules.
+    - Organize modules based on functionality or feature.
+    - Use `import` and `export` statements to manage dependencies between modules.
+
+- **Component Architecture:**
+    - Consider using a component-based architecture (e.g., React, Vue.js, Angular) when building UIs with lobe-chat.
+    - Separate concerns by creating presentational (UI-focused) and container (data-fetching, logic) components.
+    - Use functional components and hooks where appropriate (especially in React).
+
+- **Code Splitting:**
+    - Implement code splitting to reduce the initial bundle size and improve load times.
+    - Use dynamic imports (`import()`) for lazy loading components or modules.
+    - Configure your bundler (Webpack, Parcel, Rollup) to create separate chunks for different parts of your application.
+
+## 2. Common Patterns and Anti-patterns
+
+- **Design Patterns:**
+    - **Singleton:** For managing global application state or configuration.
+    - **Observer:** For subscribing to events and reacting to changes in real-time.
+    - **Factory:** For creating instances of chat agents or other objects with complex initialization logic.
+    - **Strategy:** Allow different AI providers using a Strategy pattern. Easy change of models should be facilitated.
+
+- **Recommended Approaches:**
+    - Utilize lobe-chat's plugin system to extend its functionality.
+    - Use environment variables for configuration (API keys, URLs, etc.).
+    - Implement proper error handling and logging.
+    - Favor immutable data structures to prevent unexpected side effects.
+
+- **Anti-patterns:**
+    - Avoid directly manipulating the DOM.
+    - Don't hardcode API keys or sensitive information in your code.
+    - Over-complicating the architecture with unnecessary abstractions. Keep it simple.
+    - Ignoring accessibility considerations.
+
+- **State Management:**
+    - For simple applications, React's `useState` and `useContext` hooks might suffice.
+    - For more complex applications, consider using state management libraries like Redux, Zustand, or Recoil.
+    - Ensure that state updates are predictable and efficient.
+
+- **Error Handling:**
+    - Use `try...catch` blocks to handle potential errors.
+    - Display user-friendly error messages.
+    - Implement logging to track errors and debug issues.
+    - Centralize error handling logic for consistency.
+
+## 3. Performance Considerations
+
+- **Optimization Techniques:**
+    - Optimize image sizes and formats.
+    - Use memoization techniques (e.g., `React.memo`, `useMemo`) to prevent unnecessary re-renders.
+    - Debounce or throttle user input to reduce API calls.
+    - Virtualize long lists to improve rendering performance.
+    - Prefer using functional updates on state variables.
+
+- **Memory Management:**
+    - Avoid memory leaks by properly cleaning up event listeners and subscriptions.
+    - Use the `WeakMap` and `WeakSet` to prevent memory leaks when dealing with DOM elements.
+    - Profile your application to identify memory usage bottlenecks.
+
+- **Rendering Optimization:**
+    - If using React, use the React Profiler to identify rendering performance issues.
+    - Minimize the number of DOM updates.
+    - Avoid unnecessary re-renders by using `shouldComponentUpdate` (for class components) or `React.memo` (for functional components).
+
+- **Bundle Size Optimization:**
+    - Use tree shaking to remove unused code from your bundle.
+    - Minify your code using tools like Terser or UglifyJS.
+    - Analyze your bundle size using tools like Webpack Bundle Analyzer.
+    - Code splitting is crucial.
+
+- **Lazy Loading:**
+    - Use dynamic imports (`import()`) to lazy load components or modules that are not immediately needed.
+    - Implement a loading indicator while components are being loaded.
+    - Consider using libraries like `react-lazy-load` to simplify lazy loading images and other assets.
+
+## 4. Security Best Practices
+
+- **Common Vulnerabilities:**
+    - Cross-Site Scripting (XSS):
+      - Sanitize user input to prevent malicious scripts from being injected into your application.
+      - Use a templating engine that automatically escapes HTML entities.
+    - Cross-Site Request Forgery (CSRF):
+      - Implement CSRF protection by using anti-CSRF tokens.
+      - Ensure that sensitive operations require user confirmation.
+    - Injection Attacks:
+      - Validate and sanitize all user inputs to prevent SQL injection, command injection, and other injection attacks.
+      - Use parameterized queries or prepared statements when interacting with databases.
+    - Man-in-the-Middle attacks: Ensure that HTTPS is enabled.
+
+- **Input Validation:**
+    - Validate all user inputs on both the client-side and server-side.
+    - Use regular expressions to enforce input formats.
+    - Sanitize user inputs to remove potentially harmful characters.
+    - Limit the length of input fields to prevent buffer overflows.
+
+- **Authentication and Authorization:**
+    - Use a secure authentication protocol (e.g., OAuth 2.0, OpenID Connect).
+    - Store passwords securely using bcrypt or Argon2.
+    - Implement role-based access control (RBAC) to restrict access to sensitive resources.
+    - Use JWT (JSON Web Tokens) for stateless authentication.
+
+- **Data Protection:**
+    - Encrypt sensitive data at rest and in transit.
+    - Use HTTPS to secure communication between the client and server.
+    - Implement data masking to protect sensitive information from unauthorized users.
+    - Regularly back up your data to prevent data loss.
+    - Consider data residency regulations.
+
+- **Secure API Communication:**
+    - Use HTTPS for all API requests.
+    - Authenticate and authorize API requests using API keys, tokens, or OAuth 2.0.
+    - Implement rate limiting to prevent abuse of your API.
+    - Validate API responses to prevent unexpected data from being processed.
+
+## 5. Testing Approaches
+
+- **Unit Testing:**
+    - Write unit tests for individual components, functions, and modules.
+    - Use testing frameworks like Jest or Mocha.
+    - Mock dependencies to isolate units under test.
+    - Aim for high code coverage.
+
+- **Integration Testing:**
+    - Write integration tests to verify the interaction between different parts of your application.
+    - Test the integration between your components and the lobe-chat library.
+    - Use testing frameworks like Cypress or Playwright.
+
+- **End-to-End Testing:**
+    - Write end-to-end tests to verify the entire application workflow.
+    - Simulate user interactions to test the application from a user's perspective.
+    - Use testing frameworks like Cypress or Playwright.
+
+- **Test Organization:**
+    - Organize your tests in a directory structure that mirrors your source code.
+    - Use descriptive names for test files and test cases.
+    - Group related tests together using describe blocks.
+
+- **Mocking and Stubbing:**
+    - Use mocking libraries like Jest or Sinon to mock dependencies.
+    - Stub API calls to prevent actual network requests during testing.
+    - Mock lobe-chat's internal functions to isolate components under test.
+
+## 6. Common Pitfalls and Gotchas
+
+- **Frequent Mistakes:**
+    - Not handling errors properly.
+    - Neglecting performance optimization.
+    - Ignoring security best practices.
+    - Over-engineering the application architecture.
+    - Inconsistent coding style.
+
+- **Edge Cases:**
+    - Handling unexpected API responses.
+    - Dealing with network connectivity issues.
+    - Supporting different browsers and devices.
+
+- **Version-Specific Issues:**
+    - Be aware of breaking changes between different versions of lobe-chat.
+    - Consult the release notes for migration instructions.
+
+- **Compatibility Concerns:**
+    - Ensure that lobe-chat is compatible with other libraries and frameworks you are using.
+    - Test your application on different browsers and devices to ensure compatibility.
+
+- **Debugging Strategies:**
+    - Use browser developer tools to inspect the DOM, network requests, and console output.
+    - Use debugging tools like `console.log` or `debugger` to step through your code.
+    - Use error tracking tools like Sentry or Rollbar to monitor errors in production.
+    - Learn to use TypeScript effectively for bug prevention.
+
+## 7. Tooling and Environment
+
+- **Recommended Tools:**
+    - VS Code with extensions for TypeScript, ESLint, and Prettier.
+    - A modern web browser (Chrome, Firefox, Safari).
+    - Node.js and npm or yarn.
+    - Git for version control.
+
+- **Build Configuration:**
+    - Use a build tool like Webpack, Parcel, or Rollup.
+    - Configure your build tool to optimize your code for production.
+    - Use environment variables to configure your build process.
+
+- **Linting and Formatting:**
+    - Use ESLint and Prettier to enforce consistent coding styles.
+    - Configure your editor to automatically format your code on save.
+    - Use a pre-commit hook to run linters and formatters before committing code.
+
+- **Deployment:**
+    - Deploy your application to a hosting platform like Vercel, Netlify, or AWS.
+    - Use environment variables to configure your deployment environment.
+    - Automate your deployment process using CI/CD.
+    - Follow the official documentation for deployment.
+
+- **CI/CD Integration:**
+    - Use a CI/CD platform like GitHub Actions, CircleCI, or Travis CI.
+    - Configure your CI/CD pipeline to run tests, linters, and formatters.
+    - Automate your deployment process using CI/CD.
+    - Consider using Docker for consistent deployments.
+
+By adhering to these best practices, you can create high-quality applications that leverage the power of lobe-chat efficiently and effectively. Remember to stay updated with the latest releases and documentation from LobeHub to take advantage of new features and improvements.
