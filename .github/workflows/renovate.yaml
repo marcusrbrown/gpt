@@ -52,5 +52,7 @@ jobs:
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo "github: ${{ toJSON(github) }}"
+      - env:
+          github: ${{ toJSON(github) }}
+        run: |
+          echo "github: ${{ env.github }}"
