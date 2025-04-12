@@ -101,7 +101,7 @@ importers:
         version: 6.6.3
       '@testing-library/react':
         specifier: 16.3.0
-        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        version: 16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.2(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@testing-library/user-event':
         specifier: 14.6.1
         version: 14.6.1(@testing-library/dom@10.4.0)
@@ -121,8 +121,8 @@ importers:
         specifier: 19.1.0
         version: 19.1.0
       '@types/react-dom':
-        specifier: 19.1.1
-        version: 19.1.1(@types/react@19.1.0)
+        specifier: 19.1.2
+        version: 19.1.2(@types/react@19.1.0)
       '@vitejs/plugin-react-swc':
         specifier: 3.8.1
         version: 3.8.1(@swc/helpers@0.5.15)(vite@6.2.6(@types/node@22.13.14)(jiti@2.4.2)(lightningcss@1.29.2)(yaml@2.7.1))
@@ -2473,8 +2473,8 @@ packages:
   '@types/node@22.13.14':
     resolution: {integrity: sha512-Zs/Ollc1SJ8nKUAgc7ivOEdIBM8JAKgrqqUYi2J997JuKO7/tpQC+WCetQ1sypiKCQWHdvdg9wBNpUPEWZae7w==}
 
-  '@types/react-dom@19.1.1':
-    resolution: {integrity: sha512-jFf/woGTVTjUJsl2O7hcopJ1r0upqoq/vIOoCj0yLh3RIXxWcljlpuZ+vEBRXsymD1jhfeJrlyTy/S1UW+4y1w==}
+  '@types/react-dom@19.1.2':
+    resolution: {integrity: sha512-XGJkWF41Qq305SKWEILa1O8vzhb3aOo3ogBlSmiqNko/WmRb6QIaweuZCXjKygVDXpzXb5wyxKTSOsmkuqj+Qw==}
     peerDependencies:
       '@types/react': ^19.0.0
 
@@ -7187,7 +7187,7 @@ snapshots:
       lodash: 4.17.21
       redent: 3.0.0
 
-  '@testing-library/react@16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+  '@testing-library/react@16.3.0(@testing-library/dom@10.4.0)(@types/react-dom@19.1.2(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@babel/runtime': 7.27.0
       '@testing-library/dom': 10.4.0
@@ -7195,7 +7195,7 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
     optionalDependencies:
       '@types/react': 19.1.0
-      '@types/react-dom': 19.1.1(@types/react@19.1.0)
+      '@types/react-dom': 19.1.2(@types/react@19.1.0)
 
   '@testing-library/user-event@14.6.1(@testing-library/dom@10.4.0)':
     dependencies:
@@ -7249,7 +7249,7 @@ snapshots:
     dependencies:
       undici-types: 6.20.0
 
-  '@types/react-dom@19.1.1(@types/react@19.1.0)':
+  '@types/react-dom@19.1.2(@types/react@19.1.0)':
     dependencies:
       '@types/react': 19.1.0
 
