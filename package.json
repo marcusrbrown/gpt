@@ -24,7 +24,7 @@
     "@langchain/langgraph": "0.2.63",
     "@langchain/openai": "0.4.9",
     "@monaco-editor/react": "4.7.0",
-    "@react-aria/ssr": "3.9.7",
+    "@react-aria/ssr": "3.9.8",
     "@types/uuid": "10.0.0",
     "clsx": "2.1.1",
     "framer-motion": "12.6.5",
