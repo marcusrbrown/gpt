@@ -21,8 +21,8 @@ importers:
         specifier: 0.3.43
         version: 0.3.43(openai@4.96.0(ws@8.18.1)(zod@3.24.3))
       '@langchain/langgraph':
-        specifier: 0.2.66
-        version: 0.2.66(@langchain/core@0.3.43(openai@4.96.0(ws@8.18.1)(zod@3.24.3)))(react@19.1.0)(zod-to-json-schema@3.24.5(zod@3.24.3))
+        specifier: 0.2.67
+        version: 0.2.67(@langchain/core@0.3.43(openai@4.96.0(ws@8.18.1)(zod@3.24.3)))(react@19.1.0)(zod-to-json-schema@3.24.5(zod@3.24.3))
       '@langchain/openai':
         specifier: 0.4.9
         version: 0.4.9(@langchain/core@0.3.43(openai@4.96.0(ws@8.18.1)(zod@3.24.3)))(ws@8.18.1)
@@ -1611,8 +1611,8 @@ packages:
       react:
         optional: true
 
-  '@langchain/langgraph@0.2.66':
-    resolution: {integrity: sha512-TZIzR04pFbwuRBKZj3qMb2ArNhFYQf9UT9s+j0v3XR2/+8yYLiqEvljInSTI9+r0LPMQY8AaRrZNas0eZhtv5g==}
+  '@langchain/langgraph@0.2.67':
+    resolution: {integrity: sha512-tu/ewNIvhIPzeW5GxGzqjmGHinnU/qbNAoLM9czdpci0PCbMysbEJ2pbJrZs7ZjaReWSnr/THkeLPQwqGOM9xw==}
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/core': '>=0.2.36 <0.3.0 || >=0.3.40 < 0.4.0'
@@ -6299,7 +6299,7 @@ snapshots:
       '@langchain/core': 0.3.43(openai@4.96.0(ws@8.18.1)(zod@3.24.3))
       react: 19.1.0
 
-  '@langchain/langgraph@0.2.66(@langchain/core@0.3.43(openai@4.96.0(ws@8.18.1)(zod@3.24.3)))(react@19.1.0)(zod-to-json-schema@3.24.5(zod@3.24.3))':
+  '@langchain/langgraph@0.2.67(@langchain/core@0.3.43(openai@4.96.0(ws@8.18.1)(zod@3.24.3)))(react@19.1.0)(zod-to-json-schema@3.24.5(zod@3.24.3))':
     dependencies:
       '@langchain/core': 0.3.43(openai@4.96.0(ws@8.18.1)(zod@3.24.3))
       '@langchain/langgraph-checkpoint': 0.0.17(@langchain/core@0.3.43(openai@4.96.0(ws@8.18.1)(zod@3.24.3)))
@@ -8588,7 +8588,7 @@ snapshots:
       isstream: 0.1.2
       jsonwebtoken: 9.0.2
       mime-types: 2.1.35
-      retry-axios: 2.6.0(axios@1.8.4)
+      retry-axios: 2.6.0(axios@1.8.4(debug@4.4.0))
       tough-cookie: 4.1.4
     transitivePeerDependencies:
       - supports-color
@@ -9137,7 +9137,7 @@ snapshots:
 
   resolve-from@4.0.0: {}
 
-  retry-axios@2.6.0(axios@1.8.4):
+  retry-axios@2.6.0(axios@1.8.4(debug@4.4.0)):
     dependencies:
       axios: 1.8.4(debug@4.4.0)
 
