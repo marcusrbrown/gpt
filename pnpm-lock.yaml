@@ -136,11 +136,11 @@ importers:
         specifier: 9.26.0
         version: 9.26.0(jiti@2.4.2)
       eslint-config-prettier:
-        specifier: 10.1.2
-        version: 10.1.2(eslint@9.26.0(jiti@2.4.2))
+        specifier: 10.1.3
+        version: 10.1.3(eslint@9.26.0(jiti@2.4.2))
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 6.1.0-canary-38ef6550-20250508(eslint@9.26.0(jiti@2.4.2))
+        version: 6.1.0-canary-21fdf308-20250508(eslint@9.26.0(jiti@2.4.2))
       eslint-plugin-react-refresh:
         specifier: 0.4.20
         version: 0.4.20(eslint@9.26.0(jiti@2.4.2))
@@ -2999,8 +2999,8 @@ packages:
     resolution: {integrity: sha512-TtpcNJ3XAzx3Gq8sWRzJaVajRs0uVxA2YAkdb1jm2YkPz4G6egUFAyA3n5vtEIZefPk5Wa4UXbKuS5fKkJWdgA==}
     engines: {node: '>=10'}
 
-  eslint-config-prettier@10.1.2:
-    resolution: {integrity: sha512-Epgp/EofAUeEpIdZkW60MHKvPyru1ruQJxPL+WIycnaPApuseK0Zpkrh/FwL9oIpQvIhJwV7ptOy0DWUjTlCiA==}
+  eslint-config-prettier@10.1.3:
+    resolution: {integrity: sha512-vDo4d9yQE+cS2tdIT4J02H/16veRvkHgiLDRpej+WL67oCfbOb97itZXn8wMPJ/GsiEBVjrjs//AVNw2Cp1EcA==}
     hasBin: true
     peerDependencies:
       eslint: '>=7.0.0'
@@ -3035,8 +3035,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@6.1.0-canary-38ef6550-20250508:
-    resolution: {integrity: sha512-p/Ms1HS9KQr+LaaK3N342yVXntnb02amx+Owob6iemQKdu4xEY/8Gpqsv+nKH6vP33JfjPIB+TPxz4XmymDMuA==}
+  eslint-plugin-react-hooks@6.1.0-canary-21fdf308-20250508:
+    resolution: {integrity: sha512-TbTgFWo4t+SpLeQSVyl9o2MTI9jRdfl8mITFzZlWUDQucbyvpDCdzqVLSGhyxv3kOIWnqEWInBCzxlN4DWl9Gg==}
     engines: {node: '>=18'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
@@ -8074,7 +8074,7 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
-  eslint-config-prettier@10.1.2(eslint@9.26.0(jiti@2.4.2)):
+  eslint-config-prettier@10.1.3(eslint@9.26.0(jiti@2.4.2)):
     dependencies:
       eslint: 9.26.0(jiti@2.4.2)
 
@@ -8138,7 +8138,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@6.1.0-canary-38ef6550-20250508(eslint@9.26.0(jiti@2.4.2)):
+  eslint-plugin-react-hooks@6.1.0-canary-21fdf308-20250508(eslint@9.26.0(jiti@2.4.2)):
     dependencies:
       '@babel/core': 7.26.10
       '@babel/parser': 7.27.0
