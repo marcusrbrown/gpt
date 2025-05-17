@@ -42,8 +42,8 @@ importers:
         specifier: 12.11.0
         version: 12.11.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       langchain:
-        specifier: 0.3.24
-        version: 0.3.24(@langchain/anthropic@0.3.20(@langchain/core@0.3.43(openai@4.98.0(ws@8.18.1)(zod@3.24.4))))(@langchain/core@0.3.43(openai@4.98.0(ws@8.18.1)(zod@3.24.4)))(axios@1.8.4)(openai@4.98.0(ws@8.18.1)(zod@3.24.4))(ws@8.18.1)
+        specifier: 0.3.25
+        version: 0.3.25(@langchain/anthropic@0.3.20(@langchain/core@0.3.43(openai@4.98.0(ws@8.18.1)(zod@3.24.4))))(@langchain/core@0.3.43(openai@4.98.0(ws@8.18.1)(zod@3.24.4)))(axios@1.8.4)(openai@4.98.0(ws@8.18.1)(zod@3.24.4))(ws@8.18.1)
       lru-cache:
         specifier: 11.1.0
         version: 11.1.0
@@ -140,7 +140,7 @@ importers:
         version: 10.1.5(eslint@9.26.0(jiti@2.4.2))
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 6.1.0-canary-4a45ba92-20250515(eslint@9.26.0(jiti@2.4.2))
+        version: 6.1.0-canary-4448b187-20250515(eslint@9.26.0(jiti@2.4.2))
       eslint-plugin-react-refresh:
         specifier: 0.4.20
         version: 0.4.20(eslint@9.26.0(jiti@2.4.2))
@@ -3005,8 +3005,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@6.1.0-canary-4a45ba92-20250515:
-    resolution: {integrity: sha512-HBdVCvo5/dKfHVMH64msZlOzmdLwjOJJwzF0cU3cxIt23wYZLGHiABTFKYKzHj5EysB9oAfifNs4DBKXSWm9Fg==}
+  eslint-plugin-react-hooks@6.1.0-canary-4448b187-20250515:
+    resolution: {integrity: sha512-fcT4BzwtljOOPXP4p6SGE4T/Wcb7lQnZ91hzNDjcg1UYJOqq+XvP6YDx8n2spPtAvHAKvv+Wpcg0JErpuGR/7w==}
     engines: {node: '>=18'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
@@ -3517,8 +3517,8 @@ packages:
   keyv@4.5.4:
     resolution: {integrity: sha512-oxVHkHR/EJf2CNXnWxRLW6mg7JyCCUcG0DtEGmL2ctUo1PNTin1PUil+r/+4r5MpVgC/fn1kjsx7mjSujKqIpw==}
 
-  langchain@0.3.24:
-    resolution: {integrity: sha512-BTjiYkUCpWFAmufK8J5zMqc5aUs4eEnAXPWtPe2+R4ZPP+U7bXJSBHAcrB40rQ3VeTdRgMvgDjekOOgCMWut6Q==}
+  langchain@0.3.25:
+    resolution: {integrity: sha512-ADUE7zfW4C72YJ+jdDU2xtHly8oigPaRMzP40GBU24vRUtDY1tHxWjKuAVkzXvrciV3GNeMZVRYBYWPt5EoZ5Q==}
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/anthropic': '*'
@@ -6302,7 +6302,7 @@ snapshots:
       flat: 5.0.2
       ibm-cloud-sdk-core: 5.3.2
       js-yaml: 4.1.0
-      langchain: 0.3.24(@langchain/anthropic@0.3.20(@langchain/core@0.3.43(openai@4.98.0(ws@8.18.1)(zod@3.24.4))))(@langchain/core@0.3.43(openai@4.98.0(ws@8.18.1)(zod@3.24.4)))(axios@1.8.4)(openai@4.98.0(ws@8.18.1)(zod@3.24.4))(ws@8.18.1)
+      langchain: 0.3.25(@langchain/anthropic@0.3.20(@langchain/core@0.3.43(openai@4.98.0(ws@8.18.1)(zod@3.24.4))))(@langchain/core@0.3.43(openai@4.98.0(ws@8.18.1)(zod@3.24.4)))(axios@1.8.4)(openai@4.98.0(ws@8.18.1)(zod@3.24.4))(ws@8.18.1)
       langsmith: 0.3.20(openai@4.98.0(ws@8.18.1)(zod@3.24.4))
       openai: 4.98.0(ws@8.18.1)(zod@3.24.4)
       uuid: 10.0.0
@@ -8085,7 +8085,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@6.1.0-canary-4a45ba92-20250515(eslint@9.26.0(jiti@2.4.2)):
+  eslint-plugin-react-hooks@6.1.0-canary-4448b187-20250515(eslint@9.26.0(jiti@2.4.2)):
     dependencies:
       '@babel/core': 7.26.10
       '@babel/parser': 7.27.0
@@ -8703,7 +8703,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  langchain@0.3.24(@langchain/anthropic@0.3.20(@langchain/core@0.3.43(openai@4.98.0(ws@8.18.1)(zod@3.24.4))))(@langchain/core@0.3.43(openai@4.98.0(ws@8.18.1)(zod@3.24.4)))(axios@1.8.4)(openai@4.98.0(ws@8.18.1)(zod@3.24.4))(ws@8.18.1):
+  langchain@0.3.25(@langchain/anthropic@0.3.20(@langchain/core@0.3.43(openai@4.98.0(ws@8.18.1)(zod@3.24.4))))(@langchain/core@0.3.43(openai@4.98.0(ws@8.18.1)(zod@3.24.4)))(axios@1.8.4)(openai@4.98.0(ws@8.18.1)(zod@3.24.4))(ws@8.18.1):
     dependencies:
       '@langchain/core': 0.3.43(openai@4.98.0(ws@8.18.1)(zod@3.24.4))
       '@langchain/openai': 0.4.9(@langchain/core@0.3.43(openai@4.98.0(ws@8.18.1)(zod@3.24.4)))(ws@8.18.1)

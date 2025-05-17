@@ -28,7 +28,7 @@
     "@types/uuid": "10.0.0",
     "clsx": "2.1.1",
     "framer-motion": "12.11.0",
-    "langchain": "0.3.24",
+    "langchain": "0.3.25",
     "lru-cache": "11.1.0",
     "lucide-react": "0.503.0",
     "next-themes": "0.4.6",
