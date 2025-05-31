@@ -20,7 +20,7 @@
     "@heroui/react": "2.7.8",
     "@langchain/anthropic": "0.3.21",
     "@langchain/community": "0.3.45",
-    "@langchain/core": "0.3.43",
+    "@langchain/core": "0.3.57",
     "@langchain/langgraph": "0.2.74",
     "@langchain/openai": "0.4.9",
     "@monaco-editor/react": "4.7.0",
