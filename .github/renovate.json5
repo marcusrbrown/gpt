@@ -24,4 +24,5 @@
     executionMode: 'branch',
   },
   prCreation: 'not-pending',
+  rebaseWhen: 'behind-base-branch',
 }
