@@ -24,8 +24,8 @@ importers:
         specifier: 0.2.74
         version: 0.2.74(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51)))(react@19.1.0)(zod-to-json-schema@3.24.5(zod@3.25.51))
       '@langchain/openai':
-        specifier: 0.5.11
-        version: 0.5.11(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51)))(ws@8.18.1)
+        specifier: 0.5.12
+        version: 0.5.12(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51)))(ws@8.18.1)
       '@monaco-editor/react':
         specifier: 4.7.0
         version: 4.7.0(monaco-editor@0.52.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -1639,8 +1639,8 @@ packages:
       zod-to-json-schema:
         optional: true
 
-  '@langchain/openai@0.5.11':
-    resolution: {integrity: sha512-DAp7x+NfjSqDvKVMle8yb85nzz+3ctP7zGJaeRS0vLmvkY9qf/jRkowsM0mcsIiEUKhG/AHzWqvxbhktb/jJ6Q==}
+  '@langchain/openai@0.5.12':
+    resolution: {integrity: sha512-k7rxBY3ed/HIiMLd6HBqFibsfB0+L6c82H8JgXDqKeyUoACJIi1JaKHXmofmCeF2SBXBU9dog4gEGpHfcUDGUA==}
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/core': '>=0.3.48 <0.4.0'
@@ -6234,7 +6234,7 @@ snapshots:
       '@browserbasehq/stagehand': 1.14.0(@playwright/test@1.52.0)(deepmerge@4.3.1)(dotenv@16.5.0)(openai@4.104.0(ws@8.18.1)(zod@3.25.51))(zod@3.25.51)
       '@ibm-cloud/watsonx-ai': 1.6.4(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51)))
       '@langchain/core': 0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51))
-      '@langchain/openai': 0.5.11(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51)))(ws@8.18.1)
+      '@langchain/openai': 0.5.12(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51)))(ws@8.18.1)
       '@langchain/weaviate': 0.2.0(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51)))
       binary-extensions: 2.3.0
       expr-eval: 2.0.2
@@ -6319,7 +6319,7 @@ snapshots:
     transitivePeerDependencies:
       - react
 
-  '@langchain/openai@0.5.11(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51)))(ws@8.18.1)':
+  '@langchain/openai@0.5.12(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51)))(ws@8.18.1)':
     dependencies:
       '@langchain/core': 0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51))
       js-tiktoken: 1.0.19
@@ -8592,7 +8592,7 @@ snapshots:
   langchain@0.3.27(@langchain/anthropic@0.3.21(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51))))(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51)))(axios@1.8.4)(openai@4.104.0(ws@8.18.1)(zod@3.25.51))(ws@8.18.1):
     dependencies:
       '@langchain/core': 0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51))
-      '@langchain/openai': 0.5.11(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51)))(ws@8.18.1)
+      '@langchain/openai': 0.5.12(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51)))(ws@8.18.1)
       '@langchain/textsplitters': 0.1.0(@langchain/core@0.3.57(openai@4.104.0(ws@8.18.1)(zod@3.25.51)))
       js-tiktoken: 1.0.19
       js-yaml: 4.1.0
