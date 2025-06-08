@@ -30,8 +30,8 @@ importers:
         specifier: 4.7.0
         version: 4.7.0(monaco-editor@0.52.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/ssr':
-        specifier: 3.9.8
-        version: 3.9.8(react@19.1.0)
+        specifier: 3.9.9
+        version: 3.9.9(react@19.1.0)
       '@types/uuid':
         specifier: 10.0.0
         version: 10.0.0
@@ -1867,6 +1867,12 @@ packages:
 
   '@react-aria/ssr@3.9.8':
     resolution: {integrity: sha512-lQDE/c9uTfBSDOjaZUJS8xP2jCKVk4zjQeIlCH90xaLhHDgbpCdns3xvFpJJujfj3nI4Ll9K7A+ONUBDCASOuw==}
+    engines: {node: '>= 12'}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
+
+  '@react-aria/ssr@3.9.9':
+    resolution: {integrity: sha512-2P5thfjfPy/np18e5wD4WPt8ydNXhij1jwA8oehxZTFqlgVMGXzcWKxTb4RtJrLFsqPO7RUQTiY8QJk0M4Vy2g==}
     engines: {node: '>= 12'}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0-rc.1 || ^18.0.0 || ^19.0.0-rc.1
@@ -6549,7 +6555,7 @@ snapshots:
       '@internationalized/message': 3.1.7
       '@internationalized/number': 3.6.2
       '@internationalized/string': 3.2.6
-      '@react-aria/ssr': 3.9.8(react@19.1.0)
+      '@react-aria/ssr': 3.9.9(react@19.1.0)
       '@react-aria/utils': 3.29.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-types/shared': 3.29.1(react@19.1.0)
       '@swc/helpers': 0.5.17
@@ -6558,7 +6564,7 @@ snapshots:
 
   '@react-aria/interactions@3.25.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/ssr': 3.9.8(react@19.1.0)
+      '@react-aria/ssr': 3.9.9(react@19.1.0)
       '@react-aria/utils': 3.29.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/flags': 3.1.1
       '@react-types/shared': 3.29.1(react@19.1.0)
@@ -6651,7 +6657,7 @@ snapshots:
       '@react-aria/focus': 3.20.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/i18n': 3.12.9(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/interactions': 3.25.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
-      '@react-aria/ssr': 3.9.8(react@19.1.0)
+      '@react-aria/ssr': 3.9.9(react@19.1.0)
       '@react-aria/utils': 3.29.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-aria/visually-hidden': 3.8.23(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@react-stately/overlays': 3.6.16(react@19.1.0)
@@ -6725,6 +6731,11 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
 
   '@react-aria/ssr@3.9.8(react@19.1.0)':
+    dependencies:
+      '@swc/helpers': 0.5.17
+      react: 19.1.0
+
+  '@react-aria/ssr@3.9.9(react@19.1.0)':
     dependencies:
       '@swc/helpers': 0.5.17
       react: 19.1.0
@@ -6833,7 +6844,7 @@ snapshots:
 
   '@react-aria/utils@3.29.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
-      '@react-aria/ssr': 3.9.8(react@19.1.0)
+      '@react-aria/ssr': 3.9.9(react@19.1.0)
       '@react-stately/flags': 3.1.1
       '@react-stately/utils': 3.10.6(react@19.1.0)
       '@react-types/shared': 3.29.1(react@19.1.0)
