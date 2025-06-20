@@ -363,7 +363,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     if (!client) initClient();
 
     try {
-      const run = await withRetry(() => client!.beta.threads.runs.retrieve(threadId, runId));
+      const run = await withRetry(() => client!.beta.threads.runs.retrieve(runId, {thread_id: threadId}));
       return run;
     } catch (error) {
       throw handleApiError(error, 'Failed to check run status');
@@ -392,9 +392,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
 
     try {
       const run = await withRetry(() =>
-        client!.beta.threads.runs.submitToolOutputs(threadId, runId, {
-          tool_outputs: toolCalls,
-        }),
+        client!.beta.threads.runs.submitToolOutputs(runId, {thread_id: threadId, tool_outputs: toolCalls}),
       );
       return run;
     } catch (error) {
@@ -568,7 +566,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     if (!client) initClient();
 
     try {
-      const run = await withRetry(() => client!.beta.threads.runs.cancel(threadId, runId));
+      const run = await withRetry(() => client!.beta.threads.runs.cancel(runId, {thread_id: threadId}));
       return run;
     } catch (error) {
       throw handleApiError(error, 'Failed to cancel run');
