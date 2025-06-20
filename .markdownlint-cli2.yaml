@@ -1,3 +1,8 @@
 ---
 globs:
+  - '**/*.md'
   - '!.cursorrules'
+  - '!.cursor/rules/**'
+  - '!**/node_modules'
+  - '!.specstory/**'
+  - '!.ai/**'

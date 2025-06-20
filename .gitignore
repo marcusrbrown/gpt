@@ -27,6 +27,11 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+
 # SpecStory explanation file
 .specstory/.what-is-this.md
+# SpecStory
 .specstory/
+
+.repomix-*
+.cursor/mcp.json
