@@ -1,4 +1,5 @@
 # Product Requirements Document:
+
 # Local-First GPT Creation Platform
 
 **Document Version:** 1.0  
@@ -8,9 +9,11 @@
 ## 1. Executive Summary
 
 ### 1.1 Vision Statement
+
 Create a powerful, user-friendly platform that enables technical users to create, customize, and use AI assistants (GPTs) with complete data sovereignty. The platform will mirror the capabilities of cloud-based GPT creation tools while keeping all data locally controlled, supporting multiple LLM providers, and providing seamless sharing and export options.
 
 ### 1.2 Primary Goals
+
 - Empower users to create sophisticated AI assistants without sacrificing data privacy
 - Support multiple LLM providers and local models via Ollama
 - Provide an elegant, intuitive interface that matches or exceeds commercial offerings
@@ -18,6 +21,7 @@ Create a powerful, user-friendly platform that enables technical users to create
 - Maintain a local-first architecture with optional sync capabilities
 
 ### 1.3 Key Success Metrics
+
 - Users can successfully create and use custom assistants entirely offline
 - Interface provides an experience on par with commercial platforms
 - Support for all major GPT-like features (knowledge bases, tools, etc.)
@@ -27,7 +31,9 @@ Create a powerful, user-friendly platform that enables technical users to create
 ## 2. Target Audience and User Personas
 
 ### 2.1 Primary User Profile
+
 The platform targets technically comfortable users familiar with AI platforms who:
+
 - Value data privacy and local control
 - Have experience using assistants in platforms like ChatGPT or Claude
 - Are comfortable managing API keys
@@ -36,6 +42,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
 ### 2.2 Key User Personas
 
 **Maya - The Privacy-Conscious Researcher**
+
 - Uses AI assistants daily for research
 - Concerned about data sovereignty
 - Has expertise in multiple domains
@@ -43,6 +50,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
 - Needs: Knowledge base integration, ability to use domain-specific models
 
 **Tomas - The Indie Developer**
+
 - Builds applications and tools
 - Creates assistants to improve workflows
 - Needs to integrate with development environments
@@ -50,6 +58,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
 - Needs: Programmatic access, flexible tool configuration
 
 **Lei - The AI Hobbyist**
+
 - Experiments with prompt engineering
 - Shares assistants with communities
 - Uses multiple platforms and models
@@ -59,11 +68,13 @@ The platform targets technically comfortable users familiar with AI platforms wh
 ## 3. Platform Strategy
 
 ### 3.1 Platform Priorities
+
 1. Web application (primary platform)
 2. Desktop application via Tauri (macOS and Linux priority, Windows later)
 3. Potential future mobile applications
 
 ### 3.2 Technical Architecture
+
 - **Frontend**: Modern web technologies (React, TypeScript)
 - **Backend**: Local-first with Tauri for desktop integration
 - **Storage**: IndexedDB (web), SQLite + filesystem (desktop)
@@ -71,6 +82,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
 - **Sync**: Phased approach from export/import to P2P
 
 ### 3.3 Technical Constraints
+
 - Must function completely offline for core features
 - All user data must remain under user control by default
 - Cross-platform compatibility requirements
@@ -81,6 +93,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
 ### 4.1 GPT Creation and Management
 
 #### 4.1.1 GPT Configuration Interface
+
 - **Description**: A comprehensive interface for creating and configuring GPTs
 - **Key Components**:
   - Name and description fields
@@ -100,6 +113,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
   - Compatible format with OpenAI GPTs
 
 #### 4.1.2 Knowledge Base Management
+
 - **Description**: System for managing files and references used by GPTs
 - **Key Components**:
   - File upload interface
@@ -117,6 +131,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
   - Chunking strategies for context windows
 
 #### 4.1.3 Tool Integration Framework
+
 - **Description**: System for connecting GPTs to external tools and APIs
 - **Key Components**:
   - Tool definition interface
@@ -136,6 +151,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
 ### 4.2 Chat Interface and Interaction
 
 #### 4.2.1 Chat Experience
+
 - **Description**: Interface for interacting with created GPTs
 - **Key Components**:
   - Clean, minimal chat UI
@@ -154,6 +170,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
   - Conversation persistence and search
 
 #### 4.2.2 Interactive Notebook Integration
+
 - **Description**: Jupyter-like notebook interface for code execution and data analysis
 - **Key Components**:
   - Code cell creation and execution
@@ -173,6 +190,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
 ### 4.3 Multi-Model Support and Integration
 
 #### 4.3.1 LLM Provider Integration
+
 - **Description**: Support for multiple commercial LLM providers
 - **Key Components**:
   - API key management
@@ -190,6 +208,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
   - Authentication management
 
 #### 4.3.2 Ollama Integration
+
 - **Description**: Support for local models via Ollama
 - **Key Components**:
   - Ollama connection configuration
@@ -209,6 +228,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
 ### 4.4 Data Portability and Sharing
 
 #### 4.4.1 Export and Import
+
 - **Description**: Comprehensive system for GPT portability
 - **Key Components**:
   - Format-preserving export
@@ -226,6 +246,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
   - Knowledge base packaging
 
 #### 4.4.2 Sync Capabilities
+
 - **Description**: Optional synchronization for multi-device usage
 - **Key Components**:
   - Cloud storage provider integration
@@ -245,6 +266,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
 ## 5. User Experience and Interface Design
 
 ### 5.1 Design Principles
+
 - Clean, minimal interface inspired by ChatGPT and Claude
 - Focus on content and interaction rather than UI elements
 - Consistent patterns throughout the application
@@ -254,6 +276,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
 ### 5.2 Key Workflows
 
 #### 5.2.1 GPT Creation Workflow
+
 1. User initiates GPT creation
 2. User inputs basic info (name, description)
 3. User configures system prompt
@@ -264,6 +287,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
 8. User saves and publishes GPT
 
 #### 5.2.2 Chat Interaction Workflow
+
 1. User selects GPT from library
 2. User enters chat interface
 3. User composes message (with optional attachments)
@@ -272,6 +296,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
 6. User can continue conversation or export
 
 #### 5.2.3 Onboarding Workflow
+
 1. User sets up application
 2. User provides necessary API keys
 3. User creates first GPT with guidance
@@ -281,18 +306,21 @@ The platform targets technically comfortable users familiar with AI platforms wh
 ### 5.3 Interface Components
 
 #### 5.3.1 Navigation Structure
+
 - Sidebar for GPT library and navigation
 - Main content area for active interface
 - Context-sensitive panels
 - Quick actions and shortcuts
 
 #### 5.3.2 Editor Interfaces
+
 - Rich text editors for prompts
 - Code editors with syntax highlighting
 - Knowledge base management interface
 - Tool configuration panels
 
 #### 5.3.3 Chat Components
+
 - Message composition with formatting
 - Interactive message display
 - File attachment interface
@@ -304,6 +332,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
 ### 6.1 Data Storage Strategy
 
 #### 6.1.1 Web Platform Storage
+
 - Primary: IndexedDB for structured data
   - GPT configurations
   - Conversation histories
@@ -314,6 +343,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
   - Exported configurations
 
 #### 6.1.2 Desktop Platform Storage
+
 - Primary: SQLite for structured data
   - All IndexedDB content plus extended metadata
   - Indexing for search and organization
@@ -325,6 +355,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
 ### 6.2 Data Models
 
 #### 6.2.1 GPT Configuration Model
+
 ```typescript
 interface GPTConfiguration {
   id: string;
@@ -356,10 +387,11 @@ interface GPTConfiguration {
 ```
 
 #### 6.2.2 Knowledge Base Model
+
 ```typescript
 interface KnowledgeItem {
   id: string;
-  type: 'file' | 'url' | 'text';
+  type: "file" | "url" | "text";
   name: string;
   content?: string; // For text snippets
   fileReference?: string; // For files
@@ -375,16 +407,17 @@ interface KnowledgeItem {
 ```
 
 #### 6.2.3 Tool Model
+
 ```typescript
 interface Tool {
   id: string;
   name: string;
   description: string;
-  type: 'function' | 'mcp' | 'builtin';
+  type: "function" | "mcp" | "builtin";
   schema: JSONSchema;
   endpoint?: string; // For MCP tools
   authentication?: {
-    type: 'bearer' | 'api_key';
+    type: "bearer" | "api_key";
     value: string; // Encrypted
   };
   settings: Record<string, any>;
@@ -393,6 +426,7 @@ interface Tool {
 ```
 
 #### 6.2.4 Conversation Model
+
 ```typescript
 interface Conversation {
   id: string;
@@ -411,23 +445,25 @@ interface Conversation {
 
 interface Message {
   id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: MessageContent[];
   timestamp: Date;
   metadata: Record<string, any>;
 }
 
-type MessageContent = 
-  | { type: 'text', text: string }
-  | { type: 'image', url: string, alt?: string }
-  | { type: 'file', reference: string, name: string }
-  | { type: 'tool_call', tool: string, args: Record<string, any>, result?: any };
+type MessageContent =
+  | {type: "text"; text: string}
+  | {type: "image"; url: string; alt?: string}
+  | {type: "file"; reference: string; name: string}
+  | {type: "tool_call"; tool: string; args: Record<string, any>; result?: any};
 ```
 
 ### 6.3 Security Considerations
 
 #### 6.3.1 API Key Management
+
 - **Web Platform**:
+
   - Encrypt API keys in IndexedDB using a user-provided passphrase
   - Option for session-only storage
   - Clear security warnings about browser storage limitations
@@ -438,12 +474,14 @@ type MessageContent =
   - Provide secure configuration options
 
 #### 6.3.2 Data Protection
+
 - End-to-end encryption for any sync functionality
 - Local encryption for sensitive data
 - No sharing of user data with providers beyond API calls
 - Clear data lifecycle management
 
 #### 6.3.3 Tool Execution Security
+
 - Sandboxed execution environment for code
 - Permission system for tool access
 - Transparent logging of all tool executions
@@ -452,23 +490,27 @@ type MessageContent =
 ## 7. Technical Stack Recommendations
 
 ### 7.1 Frontend Technologies
+
 - **Framework**: React with TypeScript
 - **State Management**: Redux Toolkit or Zustand
 - **UI Components**: Custom components with inspiration from HeroUI
 - **Styling**: Tailwind CSS for utility-first styling
 
 ### 7.2 Storage and Data Management
+
 - **Web Storage**: IndexedDB with Dexie.js wrapper
 - **Desktop Storage**: SQLite via Tauri plugin
 - **State Persistence**: Combination of memory and persistent storage
 
 ### 7.3 Backend and Integration
+
 - **Desktop Runtime**: Tauri (Rust-based)
 - **API Integration**: Custom clients for each provider
 - **MCP Integration**: SSE-based client with fallback options
 - **Sync**: WebRTC for P2P, provider SDKs for cloud storage
 
 ### 7.4 Development Tools
+
 - **Build**: Vite for fast development
 - **Testing**: Jest, Testing Library, Playwright
 - **CI/CD**: GitHub Actions
@@ -477,6 +519,7 @@ type MessageContent =
 ## 8. Development Phases and Milestones
 
 ### 8.1 Phase 1: Core Infrastructure (2-3 months)
+
 - Establish application architecture
 - Implement storage layer
 - Create basic UI framework
@@ -485,12 +528,14 @@ type MessageContent =
 - Build simple chat interface
 
 **Milestone 1: Basic GPT Creation**
+
 - Create and edit GPT configurations
 - Store configurations locally
 - Basic chat functionality
 - OpenAI integration working
 
 ### 8.2 Phase 2: Enhanced Features (2-3 months)
+
 - Develop knowledge base functionality
 - Implement basic tool framework
 - Add support for additional API providers
@@ -499,6 +544,7 @@ type MessageContent =
 - Improve UI/UX
 
 **Milestone 2: Functional Platform**
+
 - Full GPT creation capabilities
 - Knowledge base support
 - Basic tool integration
@@ -506,6 +552,7 @@ type MessageContent =
 - Import/export functionality
 
 ### 8.3 Phase 3: Advanced Capabilities (2-3 months)
+
 - Implement Ollama integration
 - Develop full MCP support
 - Create interactive notebook feature
@@ -514,6 +561,7 @@ type MessageContent =
 - Optimize performance
 
 **Milestone 3: Complete Web Platform**
+
 - Local model support via Ollama
 - Complete MCP integration
 - Interactive notebook functionality
@@ -521,6 +569,7 @@ type MessageContent =
 - Performance optimizations
 
 ### 8.4 Phase 4: Desktop and Sync (2-3 months)
+
 - Create Tauri desktop application
 - Implement sync capabilities
 - Add OS-specific enhancements
@@ -528,6 +577,7 @@ type MessageContent =
 - Create comprehensive documentation
 
 **Milestone 4: Full Platform Release**
+
 - Web and desktop applications
 - Sync functionality
 - Complete documentation
@@ -537,40 +587,50 @@ type MessageContent =
 ## 9. Technical Challenges and Solutions
 
 ### 9.1 Local Storage Limitations
+
 **Challenge**: Browser storage limits may restrict knowledge base size
 **Solutions**:
+
 - Implement chunking and compression strategies
 - Provide clear guidance on storage limitations
 - Utilize filesystem access when available
 - Implement cloud storage options for large files
 
 ### 9.2 API Key Security
+
 **Challenge**: Securing API keys in a local-first application
 **Solutions**:
+
 - Encryption-at-rest for all sensitive data
 - OS keychain integration for desktop
 - Optional session-only storage
 - Clear security documentation
 
 ### 9.3 Cross-Platform Consistency
+
 **Challenge**: Maintaining consistent experience across platforms
 **Solutions**:
+
 - Feature detection and graceful degradation
 - Adaptive UI based on platform capabilities
 - Shared core logic with platform-specific adaptations
 - Comprehensive testing across environments
 
 ### 9.4 Tool Execution Security
+
 **Challenge**: Secure execution of third-party tools
 **Solutions**:
+
 - Sandboxed execution environment
 - Permission system for tool access
 - Transparent logging and monitoring
 - Security review process for built-in tools
 
 ### 9.5 Sync Complexity
+
 **Challenge**: Complex data synchronization across devices
 **Solutions**:
+
 - Phased approach starting with export/import
 - Conflict resolution strategies
 - Selective sync options
@@ -579,24 +639,28 @@ type MessageContent =
 ## 10. Future Expansion Possibilities
 
 ### 10.1 Enhanced Collaboration
+
 - Team spaces for shared GPTs
 - Collaborative editing features
 - Permission systems for enterprise use
 - Integration with version control systems
 
 ### 10.2 Advanced AI Capabilities
+
 - Fine-tuning interface for models
 - Multi-agent orchestration
 - Advanced tool creation framework
 - AI agent marketplaces
 
 ### 10.3 Platform Expansion
+
 - Mobile applications
 - Extended desktop capabilities
 - Headless operation for servers
 - API for external integration
 
 ### 10.4 Additional Integrations
+
 - Local vector database options
 - Additional model providers
 - Enterprise authentication systems
@@ -605,6 +669,7 @@ type MessageContent =
 ## 11. Appendix
 
 ### 11.1 Glossary
+
 - **GPT**: Generative Pre-trained Transformer, used here to refer to custom AI assistants
 - **MCP**: Model Context Protocol, a standard for tool integration with LLMs
 - **Local-first**: Design philosophy prioritizing local data storage and processing
@@ -612,6 +677,7 @@ type MessageContent =
 - **SSE**: Server-Sent Events, a technology for server push notifications
 
 ### 11.2 References
+
 - OpenAI GPT Platform documentation
 - Claude Anthropic documentation
 - Ollama API documentation
