@@ -1,4 +1,4 @@
-import React, {createContext, useContext, useEffect, useMemo, useState, type ReactNode} from 'react'
+import React, {createContext, use, useEffect, useMemo, useState, type ReactNode} from 'react'
 import createOpenAIService from '../services/openai-service'
 
 interface OpenAIContextValue {
@@ -57,15 +57,11 @@ export function OpenAIProvider({children}: OpenAIProviderProps) {
     }
   }
 
-  return (
-    <OpenAIContext.Provider value={{apiKey, setApiKey, clearApiKey, isInitialized, service}}>
-      {children}
-    </OpenAIContext.Provider>
-  )
+  return <OpenAIContext value={{apiKey, setApiKey, clearApiKey, isInitialized, service}}>{children}</OpenAIContext>
 }
 
 export function useOpenAI() {
-  const context = useContext(OpenAIContext)
+  const context = use(OpenAIContext)
   if (context === undefined) {
     throw new Error('useOpenAI must be used within an OpenAIProvider')
   }

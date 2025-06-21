@@ -1,4 +1,4 @@
-import {useContext} from 'react'
+import {use} from 'react'
 import {ConversationContext} from '../contexts/conversation-context'
 
 /**
@@ -32,7 +32,7 @@ import {ConversationContext} from '../contexts/conversation-context'
  * @throws Error if used outside of a ConversationProvider
  */
 export function useConversationContext() {
-  const context = useContext(ConversationContext)
+  const context = use(ConversationContext)
 
   if (!context) {
     throw new Error('useConversationContext must be used within a ConversationProvider')

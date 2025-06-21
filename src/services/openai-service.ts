@@ -281,7 +281,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     }
 
     try {
-      const assistant = await withRetry(() =>
+      const assistant = await withRetry(async () =>
         client!.beta.assistants.create({
           name: config.name,
           description: config.description,
@@ -305,7 +305,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     if (!client) initClient()
 
     try {
-      const thread = await withRetry(() => client!.beta.threads.create())
+      const thread = await withRetry(async () => client!.beta.threads.create())
       return thread
     } catch (error) {
       throw handleApiError(error, 'Failed to create thread')
@@ -331,7 +331,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
 
       // Use the OpenAI SDK with the params - TypeScript will allow this
       // because the SDK types are permissive at runtime
-      const message = await withRetry(() => client!.beta.threads.messages.create(threadId, params))
+      const message = await withRetry(async () => client!.beta.threads.messages.create(threadId, params))
 
       return message
     } catch (error) {
@@ -346,7 +346,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     if (!client) initClient()
 
     try {
-      const run = await withRetry(() =>
+      const run = await withRetry(async () =>
         client!.beta.threads.runs.create(threadId, {
           assistant_id: assistantId,
         }),
@@ -364,7 +364,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     if (!client) initClient()
 
     try {
-      const run = await withRetry(() => client!.beta.threads.runs.retrieve(runId, {thread_id: threadId}))
+      const run = await withRetry(async () => client!.beta.threads.runs.retrieve(runId, {thread_id: threadId}))
       return run
     } catch (error) {
       throw handleApiError(error, 'Failed to check run status')
@@ -378,7 +378,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     if (!client) initClient()
 
     try {
-      const messages = await withRetry(() => client!.beta.threads.messages.list(threadId))
+      const messages = await withRetry(async () => client!.beta.threads.messages.list(threadId))
       return messages
     } catch (error) {
       throw handleApiError(error, 'Failed to get messages')
@@ -392,7 +392,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     if (!client) initClient()
 
     try {
-      const run = await withRetry(() =>
+      const run = await withRetry(async () =>
         client!.beta.threads.runs.submitToolOutputs(runId, {thread_id: threadId, tool_outputs: toolCalls}),
       )
       return run
@@ -412,7 +412,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
       form.append('purpose', options.purpose)
       form.append('file', options.file, options.fileName)
 
-      const file = await withRetry(() =>
+      const file = await withRetry(async () =>
         client!.files.create({
           file: options.file,
           purpose: options.purpose,
@@ -434,7 +434,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     try {
       // Note: this is a beta feature, so we need to use the beta API
 
-      const vectorStore = await withRetry(() =>
+      const vectorStore = await withRetry(async () =>
         client!.vectorStores.create({
           name: options.name,
           file_ids: options.fileIds,
@@ -457,7 +457,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     try {
       // Note: this is a beta feature, so we need to use the beta API
 
-      const fileBatch = await withRetry(() =>
+      const fileBatch = await withRetry(async () =>
         client!.vectorStores.fileBatches.create(vectorStoreId, {file_ids: fileIds}),
       )
 
@@ -567,7 +567,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     if (!client) initClient()
 
     try {
-      const run = await withRetry(() => client!.beta.threads.runs.cancel(runId, {thread_id: threadId}))
+      const run = await withRetry(async () => client!.beta.threads.runs.cancel(runId, {thread_id: threadId}))
       return run
     } catch (error) {
       throw handleApiError(error, 'Failed to cancel run')

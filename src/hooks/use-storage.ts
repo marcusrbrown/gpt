@@ -1,4 +1,4 @@
-import {useContext} from 'react'
+import {use} from 'react'
 import {StorageContext, type StorageContextType} from '../contexts/storage-context'
 
 /**
@@ -24,7 +24,7 @@ import {StorageContext, type StorageContextType} from '../contexts/storage-conte
  * @throws Error if used outside of a StorageProvider
  */
 export function useStorage(): StorageContextType {
-  const context = useContext(StorageContext)
+  const context = use(StorageContext)
   if (context === undefined) {
     throw new Error('useStorage must be used within a StorageProvider')
   }

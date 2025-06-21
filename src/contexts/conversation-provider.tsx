@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState, type ReactNode} from 'react'
+import {use, useEffect, useState, type ReactNode} from 'react'
 import {v4 as uuid} from 'uuid'
 import {type Conversation, type ConversationMessage, type GPTConfiguration} from '../types/gpt'
 import {ConversationContext} from './conversation-context'
@@ -9,7 +9,7 @@ interface ConversationProviderProps {
 }
 
 export function ConversationProvider({children}: ConversationProviderProps) {
-  const storageContext = useContext(StorageContext)
+  const storageContext = use(StorageContext)
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [currentConversation, setCurrentConversation] = useState<Conversation | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -206,7 +206,7 @@ export function ConversationProvider({children}: ConversationProviderProps) {
   }
 
   return (
-    <ConversationContext.Provider
+    <ConversationContext
       value={{
         conversations,
         currentConversation,
@@ -221,6 +221,6 @@ export function ConversationProvider({children}: ConversationProviderProps) {
       }}
     >
       {children}
-    </ConversationContext.Provider>
+    </ConversationContext>
   )
 }

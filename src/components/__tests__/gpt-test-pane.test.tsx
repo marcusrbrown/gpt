@@ -81,7 +81,7 @@ describe('GPTTestPane', () => {
 
   // Helper function to render component with context
   const renderWithContext = (ui: React.ReactElement) => {
-    return render(<StorageContext.Provider value={mockStorageContext}>{ui}</StorageContext.Provider>)
+    return render(<StorageContext value={mockStorageContext}>{ui}</StorageContext>)
   }
 
   // Setup mocks before each test

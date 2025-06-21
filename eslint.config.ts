@@ -1,4 +1,4 @@
-// import react from '@eslint-react/eslint-plugin';
+import react from '@eslint-react/eslint-plugin';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import path from 'node:path';
@@ -10,22 +10,24 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default defineConfig(
-
   {
     ignores: ['**/dist', '.triage', 'eslint.config.ts', 'postcss.config.js', 'coverage'],
+    typescript: {
+      tsconfigPath: './tsconfig.json',
+    }
   },
 
-  // {
-  //   ...react.configs['recommended-type-checked'],
-  //   files: ['src/**/*.{ts,tsx}'],
-  //   rules: {
-  //     ...react.configs['recommended-type-checked'].rules,
-  //     '@typescript-eslint/no-unsafe-assignment': 'off',
-  //     '@typescript-eslint/no-unsafe-member-access': 'off',
-  //     '@typescript-eslint/no-unsafe-call': 'off',
-  //     '@typescript-eslint/no-unsafe-return': 'off',
-  //   },
-  // } as unknown as Config,
+  {
+    ...react.configs['recommended-type-checked'],
+    files: ['src/**/*.{ts,tsx}'],
+    rules: {
+      ...react.configs['recommended-type-checked'].rules,
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
+    },
+  } as unknown as Config,
 
   {
     files: ['src/**/*.{ts,tsx}'],

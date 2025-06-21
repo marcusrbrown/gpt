@@ -12,7 +12,7 @@ vi.mock('../../hooks/use-openai-service', () => ({
     createAssistant: vi.fn().mockResolvedValue({id: 'assistant-id'}),
     createThread: vi.fn().mockResolvedValue({id: 'thread-id'}),
     addMessage: vi.fn().mockResolvedValue({}),
-    streamRun: vi.fn().mockImplementation(() => Promise.resolve()),
+    streamRun: vi.fn().mockImplementation(async () => Promise.resolve()),
   }),
 }))
 
@@ -69,7 +69,7 @@ describe('GPTEditor', () => {
 
   // Helper function to render component with context
   const renderWithContext = (component: React.ReactElement) => {
-    return render(<StorageContext.Provider value={mockStorageContext}>{component}</StorageContext.Provider>)
+    return render(<StorageContext value={mockStorageContext}>{component}</StorageContext>)
   }
 
   it('renders the editor with the correct title', () => {

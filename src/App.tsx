@@ -10,12 +10,16 @@ import {GPTTestPage} from './pages/gpt-test-page'
 import {Providers} from './providers'
 
 // Lazy load documentation components for better initial load performance
-const DocLayout = lazy(() => import('@/components/docs/doc-layout').then(m => ({default: m.DocLayout})))
-const DocsSidebar = lazy(() => import('@/components/docs/docs-sidebar').then(m => ({default: m.DocsSidebar})))
-const DocsIndex = lazy(() => import('@/components/docs/docs-index').then(m => ({default: m.DocsIndex})))
-const GettingStarted = lazy(() => import('@/components/docs/getting-started').then(m => ({default: m.GettingStarted})))
-const AgentTutorial = lazy(() => import('@/components/docs/agent-tutorial').then(m => ({default: m.AgentTutorial})))
-const ApiReference = lazy(() => import('@/components/docs/api-reference').then(m => ({default: m.ApiReference})))
+const DocLayout = lazy(async () => import('@/components/docs/doc-layout').then(m => ({default: m.DocLayout})))
+const DocsSidebar = lazy(async () => import('@/components/docs/docs-sidebar').then(m => ({default: m.DocsSidebar})))
+const DocsIndex = lazy(async () => import('@/components/docs/docs-index').then(m => ({default: m.DocsIndex})))
+const GettingStarted = lazy(async () =>
+  import('@/components/docs/getting-started').then(m => ({default: m.GettingStarted})),
+)
+const AgentTutorial = lazy(async () =>
+  import('@/components/docs/agent-tutorial').then(m => ({default: m.AgentTutorial})),
+)
+const ApiReference = lazy(async () => import('@/components/docs/api-reference').then(m => ({default: m.ApiReference})))
 
 function App() {
   return (

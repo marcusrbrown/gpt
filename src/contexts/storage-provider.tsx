@@ -167,5 +167,5 @@ export function StorageProvider({children}: StorageProviderProps) {
     error,
   }
 
-  return <StorageContext.Provider value={value}>{children}</StorageContext.Provider>
+  return <StorageContext value={value}>{children}</StorageContext>
 }

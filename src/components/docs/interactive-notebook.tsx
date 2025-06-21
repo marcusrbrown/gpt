@@ -56,7 +56,7 @@ export function InteractiveNotebook({initialCells = [], onExecute}: InteractiveN
           <div className="flex justify-between mb-2">
             <span className="text-sm text-gray-500">{cell.type}</span>
             {cell.type === 'code' && (
-              <Button onPress={() => handleExecute(cell.id)} color="primary" size="sm">
+              <Button onPress={async () => handleExecute(cell.id)} color="primary" size="sm">
                 Run
               </Button>
             )}
