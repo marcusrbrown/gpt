@@ -10,16 +10,14 @@
     "build": "tsc && vite build",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "fix": "pnpm run format && pnpm run lint --fix",
+    "fix": "pnpm run lint --fix",
     "lint": "eslint .",
-    "check-format": "prettier --check .",
-    "format": "prettier --write .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@bfra.me/prettier-config": "0.15.5",
     "@heroui/react": "2.7.10",
     "@langchain/anthropic": "0.3.22",
-    "@langchain/community": "0.3.46",
     "@langchain/core": "0.3.59",
     "@langchain/langgraph": "0.2.74",
     "@langchain/openai": "0.5.13",
@@ -40,12 +38,8 @@
     "zod": "3.25.67"
   },
   "devDependencies": {
+    "@bfra.me/eslint-config": "0.21.1",
     "@eslint-react/eslint-plugin": "1.52.2",
-    "@eslint-types/import": "2.29.1",
-    "@eslint-types/typescript-eslint": "7.5.0",
-    "@eslint/compat": "1.3.0",
-    "@eslint/eslintrc": "3.3.1",
-    "@eslint/js": "9.29.0",
     "@tailwindcss/typography": "0.5.16",
     "@tailwindcss/vite": "4.1.10",
     "@testing-library/jest-dom": "6.6.3",
@@ -53,26 +47,39 @@
     "@testing-library/user-event": "14.6.1",
     "@tsconfig/node20": "20.1.6",
     "@tsconfig/strictest": "2.0.5",
-    "@types/eslint__js": "8.42.3",
     "@types/node": "22.15.31",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
     "@vitejs/plugin-react-swc": "3.10.2",
     "@vitest/coverage-v8": "3.2.4",
+    "@vitest/eslint-plugin": "1.2.7",
     "autoprefixer": "10.4.21",
     "eslint": "9.29.0",
     "eslint-config-prettier": "10.1.5",
+    "eslint-plugin-no-only-tests": "3.3.0",
+    "eslint-plugin-prettier": "5.5.0",
     "eslint-plugin-react-hooks": "canary",
     "eslint-plugin-react-refresh": "0.4.20",
-    "globals": "15.15.0",
     "jiti": "2.4.2",
     "jsdom": "26.1.0",
     "prettier": "3.5.3",
     "tailwindcss": "4.1.10",
     "typescript": "5.8.3",
-    "typescript-eslint": "8.34.1",
     "vite": "6.3.5",
     "vite-tsconfig-paths": "5.1.4",
     "vitest": "3.2.4"
-  }
+  },
+  "pnpm": {
+    "overrides": {
+      "jiti": "<2.2.0"
+    },
+    "onlyBuiltDependencies": [
+      "@heroui/shared-utils",
+      "@swc/core",
+      "@tailwindcss/oxide",
+      "esbuild",
+      "unrs-resolver"
+    ]
+  },
+  "prettier": "@bfra.me/prettier-config/120-proof"
 }

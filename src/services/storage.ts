@@ -1,5 +1,5 @@
-import {LRUCache} from 'lru-cache';
-import {GPTConfiguration, Conversation, GPTConfigurationSchema, ConversationSchema} from '../types/gpt';
+import {LRUCache} from 'lru-cache'
+import {ConversationSchema, GPTConfigurationSchema, type Conversation, type GPTConfiguration} from '../types/gpt'
 
 /**
  * Storage keys for different data types
@@ -8,7 +8,7 @@ const STORAGE_KEYS = {
   GPTS: 'gpts',
   CONVERSATIONS: 'conversations',
   SETTINGS: 'settings',
-} as const;
+} as const
 
 /**
  * Cache configuration for in-memory storage
@@ -16,7 +16,7 @@ const STORAGE_KEYS = {
 const CACHE_CONFIG = {
   max: 500, // Maximum number of items to store in memory
   ttl: 1000 * 60 * 60, // 1 hour TTL
-} as const;
+} as const
 
 /**
  * Custom error class for storage operations
@@ -24,10 +24,10 @@ const CACHE_CONFIG = {
 export class StorageError extends Error {
   constructor(
     message: string,
-    public readonly cause?: unknown,
+    readonly cause?: unknown,
   ) {
-    super(message);
-    this.name = 'StorageError';
+    super(message)
+    this.name = 'StorageError'
   }
 }
 
@@ -35,52 +35,52 @@ export class StorageError extends Error {
  * Type for raw GPT data from storage
  */
 interface RawGPTData {
-  id: string;
-  name: string;
-  description: string;
-  systemPrompt: string;
-  tools: unknown[];
+  id: string
+  name: string
+  description: string
+  systemPrompt: string
+  tools: unknown[]
   knowledge: {
-    files: unknown[];
-    urls: string[];
-  };
+    files: unknown[]
+    urls: string[]
+  }
   capabilities: {
-    codeInterpreter: boolean;
-    webBrowsing: boolean;
-    imageGeneration: boolean;
-  };
-  createdAt: string | number;
-  updatedAt: string | number;
-  version: number;
+    codeInterpreter: boolean
+    webBrowsing: boolean
+    imageGeneration: boolean
+  }
+  createdAt: string | number
+  updatedAt: string | number
+  version: number
 }
 
 /**
  * Type for raw conversation data from storage
  */
 interface RawConversationData {
-  id: string;
-  gptId: string;
-  messages: Array<{
-    id: string;
-    role: string;
-    content: string;
-    timestamp: string | number;
-  }>;
-  createdAt: string | number;
-  updatedAt: string | number;
+  id: string
+  gptId: string
+  messages: {
+    id: string
+    role: string
+    content: string
+    timestamp: string | number
+  }[]
+  createdAt: string | number
+  updatedAt: string | number
 }
 
 /**
  * Local storage service for managing GPT configurations and conversations
  */
 export class LocalStorageService {
-  private gptsCache: LRUCache<string, GPTConfiguration>;
-  private conversationsCache: LRUCache<string, Conversation>;
+  private gptsCache: LRUCache<string, GPTConfiguration>
+  private conversationsCache: LRUCache<string, Conversation>
 
   constructor() {
-    this.gptsCache = new LRUCache<string, GPTConfiguration>(CACHE_CONFIG);
-    this.conversationsCache = new LRUCache<string, Conversation>(CACHE_CONFIG);
-    this.initializeFromStorage();
+    this.gptsCache = new LRUCache<string, GPTConfiguration>(CACHE_CONFIG)
+    this.conversationsCache = new LRUCache<string, Conversation>(CACHE_CONFIG)
+    this.initializeFromStorage()
   }
 
   /**
@@ -88,13 +88,13 @@ export class LocalStorageService {
    */
   private initializeFromStorage(): void {
     try {
-      this.loadGPTs();
-      this.loadConversations();
+      this.loadGPTs()
+      this.loadConversations()
     } catch (error) {
-      console.error('Error initializing from storage:', error);
+      console.error('Error initializing from storage:', error)
       // Clear potentially corrupted data
-      localStorage.clear();
-      throw new StorageError('Failed to initialize storage', error);
+      localStorage.clear()
+      throw new StorageError('Failed to initialize storage', error)
     }
   }
 
@@ -102,27 +102,27 @@ export class LocalStorageService {
    * Load GPTs from localStorage
    */
   private loadGPTs(): void {
-    const storedGpts = localStorage.getItem(STORAGE_KEYS.GPTS);
-    if (!storedGpts) return;
+    const storedGpts = localStorage.getItem(STORAGE_KEYS.GPTS)
+    if (!storedGpts) return
 
     try {
-      const gpts = JSON.parse(storedGpts) as Record<string, RawGPTData>;
+      const gpts = JSON.parse(storedGpts) as Record<string, RawGPTData>
       Object.entries(gpts).forEach(([id, gpt]) => {
         try {
           const validatedGpt = GPTConfigurationSchema.parse({
             ...gpt,
             createdAt: new Date(gpt.createdAt),
             updatedAt: new Date(gpt.updatedAt),
-          });
-          this.gptsCache.set(id, validatedGpt);
+          })
+          this.gptsCache.set(id, validatedGpt)
         } catch (parseError) {
-          console.error(`Error parsing GPT ${id}:`, parseError);
+          console.error(`Error parsing GPT ${id}:`, parseError)
           // Skip invalid GPT but continue processing others
         }
-      });
+      })
     } catch (error) {
-      console.error('Error parsing GPTs from storage:', error);
-      localStorage.removeItem(STORAGE_KEYS.GPTS);
+      console.error('Error parsing GPTs from storage:', error)
+      localStorage.removeItem(STORAGE_KEYS.GPTS)
     }
   }
 
@@ -130,31 +130,31 @@ export class LocalStorageService {
    * Load conversations from localStorage
    */
   private loadConversations(): void {
-    const storedConversations = localStorage.getItem(STORAGE_KEYS.CONVERSATIONS);
-    if (!storedConversations) return;
+    const storedConversations = localStorage.getItem(STORAGE_KEYS.CONVERSATIONS)
+    if (!storedConversations) return
 
     try {
-      const conversations = JSON.parse(storedConversations) as Record<string, RawConversationData>;
+      const conversations = JSON.parse(storedConversations) as Record<string, RawConversationData>
       Object.entries(conversations).forEach(([id, conversation]) => {
         try {
           const validatedConversation = ConversationSchema.parse({
             ...conversation,
             createdAt: new Date(conversation.createdAt),
             updatedAt: new Date(conversation.updatedAt),
-            messages: conversation.messages.map((msg) => ({
+            messages: conversation.messages.map(msg => ({
               ...msg,
               timestamp: new Date(msg.timestamp),
             })),
-          });
-          this.conversationsCache.set(id, validatedConversation);
+          })
+          this.conversationsCache.set(id, validatedConversation)
         } catch (parseError) {
-          console.error(`Error parsing conversation ${id}:`, parseError);
+          console.error(`Error parsing conversation ${id}:`, parseError)
           // Skip invalid conversation but continue processing others
         }
-      });
+      })
     } catch (error) {
-      console.error('Error parsing conversations from storage:', error);
-      localStorage.removeItem(STORAGE_KEYS.CONVERSATIONS);
+      console.error('Error parsing conversations from storage:', error)
+      localStorage.removeItem(STORAGE_KEYS.CONVERSATIONS)
     }
   }
 
@@ -165,15 +165,15 @@ export class LocalStorageService {
    */
   private persistToStorage(): void {
     try {
-      this.persistGPTs();
-      this.persistConversations();
+      this.persistGPTs()
+      this.persistConversations()
     } catch (error) {
-      console.error('Error persisting to storage:', error);
+      console.error('Error persisting to storage:', error)
       // Re-throw QuotaExceededError directly to maintain test compatibility
       if (error instanceof Error && error.message.includes('QuotaExceededError')) {
-        throw error;
+        throw error
       }
-      throw new StorageError('Failed to persist data to storage', error);
+      throw new StorageError('Failed to persist data to storage', error)
     }
   }
 
@@ -182,11 +182,11 @@ export class LocalStorageService {
    * @throws Error if localStorage operation fails
    */
   private persistGPTs(): void {
-    const gptsMap = new Map<string, GPTConfiguration>();
+    const gptsMap = new Map<string, GPTConfiguration>()
     for (const [key, value] of this.gptsCache.entries()) {
-      gptsMap.set(key, value);
+      gptsMap.set(key, value)
     }
-    localStorage.setItem(STORAGE_KEYS.GPTS, JSON.stringify(Object.fromEntries(gptsMap)));
+    localStorage.setItem(STORAGE_KEYS.GPTS, JSON.stringify(Object.fromEntries(gptsMap)))
   }
 
   /**
@@ -194,11 +194,11 @@ export class LocalStorageService {
    * @throws Error if localStorage operation fails
    */
   private persistConversations(): void {
-    const conversationsMap = new Map<string, Conversation>();
+    const conversationsMap = new Map<string, Conversation>()
     for (const [key, value] of this.conversationsCache.entries()) {
-      conversationsMap.set(key, value);
+      conversationsMap.set(key, value)
     }
-    localStorage.setItem(STORAGE_KEYS.CONVERSATIONS, JSON.stringify(Object.fromEntries(conversationsMap)));
+    localStorage.setItem(STORAGE_KEYS.CONVERSATIONS, JSON.stringify(Object.fromEntries(conversationsMap)))
   }
 
   /**
@@ -207,7 +207,7 @@ export class LocalStorageService {
    * @returns The GPT configuration or undefined if not found
    */
   getGPT(id: string): GPTConfiguration | undefined {
-    return this.gptsCache.get(id);
+    return this.gptsCache.get(id)
   }
 
   /**
@@ -215,7 +215,7 @@ export class LocalStorageService {
    * @returns Array of all GPT configurations
    */
   getAllGPTs(): GPTConfiguration[] {
-    return Array.from(this.gptsCache.values());
+    return Array.from(this.gptsCache.values())
   }
 
   /**
@@ -226,15 +226,15 @@ export class LocalStorageService {
    */
   saveGPT(gpt: GPTConfiguration): void {
     try {
-      const validatedGpt = GPTConfigurationSchema.parse(gpt);
-      this.gptsCache.set(gpt.id, validatedGpt);
-      this.persistToStorage();
+      const validatedGpt = GPTConfigurationSchema.parse(gpt)
+      this.gptsCache.set(gpt.id, validatedGpt)
+      this.persistToStorage()
     } catch (error) {
-      console.error('Error saving GPT:', error);
+      console.error('Error saving GPT:', error)
       if (error instanceof Error && error.message.includes('QuotaExceededError')) {
-        throw error; // Re-throw the original error to maintain the original message
+        throw error // Re-throw the original error to maintain the original message
       }
-      throw new StorageError('Failed to save GPT configuration', error);
+      throw new StorageError('Failed to save GPT configuration', error)
     }
   }
 
@@ -246,14 +246,14 @@ export class LocalStorageService {
    */
   deleteGPT(id: string): void {
     try {
-      this.gptsCache.delete(id);
-      this.persistToStorage();
+      this.gptsCache.delete(id)
+      this.persistToStorage()
     } catch (error) {
-      console.error('Error deleting GPT:', error);
+      console.error('Error deleting GPT:', error)
       if (error instanceof Error && error.message.includes('QuotaExceededError')) {
-        throw error; // Re-throw the original error to maintain the original message
+        throw error // Re-throw the original error to maintain the original message
       }
-      throw new StorageError('Failed to delete GPT configuration', error);
+      throw new StorageError('Failed to delete GPT configuration', error)
     }
   }
 
@@ -263,7 +263,7 @@ export class LocalStorageService {
    * @returns The conversation or undefined if not found
    */
   getConversation(id: string): Conversation | undefined {
-    return this.conversationsCache.get(id);
+    return this.conversationsCache.get(id)
   }
 
   /**
@@ -272,7 +272,7 @@ export class LocalStorageService {
    * @returns Array of conversations for the specified GPT
    */
   getConversationsForGPT(gptId: string): Conversation[] {
-    return Array.from(this.conversationsCache.values()).filter((conversation) => conversation.gptId === gptId);
+    return Array.from(this.conversationsCache.values()).filter(conversation => conversation.gptId === gptId)
   }
 
   /**
@@ -283,15 +283,15 @@ export class LocalStorageService {
    */
   saveConversation(conversation: Conversation): void {
     try {
-      const validatedConversation = ConversationSchema.parse(conversation);
-      this.conversationsCache.set(conversation.id, validatedConversation);
-      this.persistToStorage();
+      const validatedConversation = ConversationSchema.parse(conversation)
+      this.conversationsCache.set(conversation.id, validatedConversation)
+      this.persistToStorage()
     } catch (error) {
-      console.error('Error saving conversation:', error);
+      console.error('Error saving conversation:', error)
       if (error instanceof Error && error.message.includes('QuotaExceededError')) {
-        throw error; // Re-throw the original error to maintain the original message
+        throw error // Re-throw the original error to maintain the original message
       }
-      throw new StorageError('Failed to save conversation', error);
+      throw new StorageError('Failed to save conversation', error)
     }
   }
 
@@ -303,14 +303,14 @@ export class LocalStorageService {
    */
   deleteConversation(id: string): void {
     try {
-      this.conversationsCache.delete(id);
-      this.persistToStorage();
+      this.conversationsCache.delete(id)
+      this.persistToStorage()
     } catch (error) {
-      console.error('Error deleting conversation:', error);
+      console.error('Error deleting conversation:', error)
       if (error instanceof Error && error.message.includes('QuotaExceededError')) {
-        throw error; // Re-throw the original error to maintain the original message
+        throw error // Re-throw the original error to maintain the original message
       }
-      throw new StorageError('Failed to delete conversation', error);
+      throw new StorageError('Failed to delete conversation', error)
     }
   }
 
@@ -321,15 +321,15 @@ export class LocalStorageService {
    */
   clearAll(): void {
     try {
-      this.gptsCache.clear();
-      this.conversationsCache.clear();
-      localStorage.clear();
+      this.gptsCache.clear()
+      this.conversationsCache.clear()
+      localStorage.clear()
     } catch (error) {
-      console.error('Error clearing storage:', error);
+      console.error('Error clearing storage:', error)
       if (error instanceof Error && error.message.includes('QuotaExceededError')) {
-        throw error; // Re-throw the original error to maintain the original message
+        throw error // Re-throw the original error to maintain the original message
       }
-      throw new StorageError('Failed to clear storage', error);
+      throw new StorageError('Failed to clear storage', error)
     }
   }
 }

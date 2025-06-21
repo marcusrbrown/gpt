@@ -1,26 +1,26 @@
-import {HeroUIProvider} from '@heroui/react';
-import {ThemeProvider as NextThemesProvider} from 'next-themes';
-import {useEffect} from 'react';
-import {StorageProvider} from './contexts/storage-provider';
-import {ConversationProvider} from './contexts/conversation-provider';
+import {HeroUIProvider} from '@heroui/react'
+import {ThemeProvider as NextThemesProvider} from 'next-themes'
+import {useEffect} from 'react'
+import {ConversationProvider} from './contexts/conversation-provider'
+import {StorageProvider} from './contexts/storage-provider'
 
 export interface ProvidersProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 function ThemeScript() {
   useEffect(() => {
     // Apply the theme on initial load
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-  }, []);
+    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+    document.documentElement.dataset.theme = isDark ? 'dark' : 'light'
+  }, [])
 
-  return null;
+  return null
 }
 
 export const Providers = ({children}: ProvidersProps): React.ReactElement => {
   return (
-    <NextThemesProvider attribute='data-theme' defaultTheme='system' enableSystem={true} disableTransitionOnChange>
+    <NextThemesProvider attribute="data-theme" defaultTheme="system" enableSystem={true} disableTransitionOnChange>
       <HeroUIProvider>
         <ThemeScript />
         <StorageProvider>
@@ -28,5 +28,5 @@ export const Providers = ({children}: ProvidersProps): React.ReactElement => {
         </StorageProvider>
       </HeroUIProvider>
     </NextThemesProvider>
-  );
-};
+  )
+}

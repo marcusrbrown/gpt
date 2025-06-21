@@ -1,4 +1,4 @@
-import {InteractiveNotebook} from './interactive-notebook';
+import {InteractiveNotebook} from './interactive-notebook'
 
 const INITIAL_CELLS = [
   {
@@ -86,12 +86,12 @@ Agents can be extended with various capabilities:
 - \`search\`: Web search and information retrieval
 - \`tool-use\`: Use of external tools and APIs`,
   },
-];
+]
 
 export function ApiReference() {
   const handleExecute = async () => {
     // In a real implementation, this would execute the code in a sandbox
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise(resolve => setTimeout(resolve, 500))
     return `Analysis Results:
 - Function is simple and well-named
 - Consider adding type annotations
@@ -110,12 +110,12 @@ function add(a: number, b: number): number {
     throw new Error('Arguments must be numbers');
   }
   return a + b;
-}`;
-  };
+}`
+  }
 
   return (
-    <div className='max-w-4xl mx-auto'>
+    <div className="max-w-4xl mx-auto">
       <InteractiveNotebook initialCells={INITIAL_CELLS} onExecute={handleExecute} />
     </div>
-  );
+  )
 }

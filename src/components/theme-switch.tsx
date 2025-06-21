@@ -1,19 +1,19 @@
-import {FC} from 'react';
-import {useTheme} from 'next-themes';
-import {Moon, Sun} from 'lucide-react';
-import {Button} from '@heroui/react';
+import {Button} from '@heroui/react'
+import {Moon, Sun} from 'lucide-react'
+import {useTheme} from 'next-themes'
+import {type FC} from 'react'
 
 export const ThemeSwitch: FC = () => {
-  const {theme, setTheme} = useTheme();
+  const {theme, setTheme} = useTheme()
 
   return (
     <Button
       onPress={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
       isIconOnly
-      variant='light'
+      variant="light"
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
     >
       {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
     </Button>
-  );
-};
+  )
+}

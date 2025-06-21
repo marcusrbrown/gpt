@@ -1,5 +1,5 @@
-import {useMemo} from 'react';
-import createOpenAIService from '../services/openai-service';
+import {useMemo} from 'react'
+import createOpenAIService from '../services/openai-service'
 
 /**
  * Hook to access OpenAI service functionality
@@ -33,7 +33,7 @@ import createOpenAIService from '../services/openai-service';
  */
 export function useOpenAIService() {
   // Create a memoized instance of the service to avoid recreating on each render
-  const openAIService = useMemo(() => createOpenAIService(), []);
+  const openAIService = useMemo(() => createOpenAIService(), [])
 
-  return openAIService;
+  return openAIService
 }

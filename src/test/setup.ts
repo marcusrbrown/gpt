@@ -1,59 +1,59 @@
-import {vi, beforeAll, beforeEach, afterEach, afterAll} from 'vitest';
-import '@testing-library/jest-dom';
-import {cleanup} from '@testing-library/react';
+import {cleanup} from '@testing-library/react'
+import {afterAll, afterEach, beforeAll, beforeEach, vi} from 'vitest'
+import '@testing-library/jest-dom'
 
 // Mock console methods to avoid noise in test output
-const originalConsole = {...console};
+const originalConsole = {...console}
 
 // Create a storage object to persist data between tests
-const storage = new Map<string, string>();
+const storage = new Map<string, string>()
 
 // Create a simple localStorage mock
 const localStorageMock = {
   getItem: vi.fn((key: string) => {
-    const value = storage.get(key);
-    return value !== undefined ? value : null;
+    const value = storage.get(key)
+    return value === undefined ? null : value
   }),
   setItem: vi.fn((key: string, value: string) => {
-    storage.set(key, value);
+    storage.set(key, value)
   }),
   clear: vi.fn(() => {
-    storage.clear();
+    storage.clear()
   }),
   removeItem: vi.fn((key: string) => {
-    storage.delete(key);
+    storage.delete(key)
   }),
   length: 0,
   key: vi.fn((index: number) => {
-    const keys = Array.from(storage.keys());
-    return index < keys.length ? keys[index] : null;
+    const keys = Array.from(storage.keys())
+    return index < keys.length ? keys[index] : null
   }),
-};
+}
 
 // Configure global test environment
 beforeAll(() => {
   // Setup localStorage mock
-  global.localStorage = localStorageMock as unknown as Storage;
-});
+  globalThis.localStorage = localStorageMock as unknown as Storage
+})
 
 beforeEach(() => {
-  console.log = vi.fn();
-  console.error = vi.fn();
-  console.warn = vi.fn();
-  console.info = vi.fn();
-});
+  console.log = vi.fn()
+  console.error = vi.fn()
+  console.warn = vi.fn()
+  console.info = vi.fn()
+})
 
 afterEach(() => {
-  console.log = originalConsole.log.bind(console);
-  console.error = originalConsole.error.bind(console);
-  console.warn = originalConsole.warn.bind(console);
-  console.info = originalConsole.info.bind(console);
-  vi.clearAllMocks();
-  cleanup();
-  localStorage.clear();
-});
+  console.log = originalConsole.log.bind(console)
+  console.error = originalConsole.error.bind(console)
+  console.warn = originalConsole.warn.bind(console)
+  console.info = originalConsole.info.bind(console)
+  vi.clearAllMocks()
+  cleanup()
+  localStorage.clear()
+})
 
 afterAll(() => {
   // Cleanup global mocks
-  vi.restoreAllMocks();
-});
+  vi.restoreAllMocks()
+})

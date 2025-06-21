@@ -1,47 +1,37 @@
 import react from '@eslint-react/eslint-plugin';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
-import globals from 'globals';
-import tseslint from 'typescript-eslint';
-import js from '@eslint/js';
-import type {Linter} from 'eslint';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {defineConfig, type Config} from '@bfra.me/eslint-config'
+import {ESLint} from 'eslint';
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-export default tseslint.config(
-  js.configs.recommended,
-  ...tseslint.configs.recommendedTypeChecked,
-
+export default defineConfig(
   {
-    ignores: ['**/dist', 'eslint.config.ts', 'postcss.config.js', 'coverage'],
-  },
-
-  {
-    languageOptions: {
-      globals: {
-        ...globals.browser,
-      },
-
-      parserOptions: {
-        projectService: true,
-        tsconfigRootDir: __dirname,
-      },
+    name: 'gpt',
+    ignores: ['**/dist', '.triage', 'eslint.config.ts', 'postcss.config.js', 'coverage'],
+    typescript: {
+      tsconfigPath: './tsconfig.json',
     },
+    vitest: true,
   },
 
   {
     files: ['src/**/*.{ts,tsx}'],
-    ...react.configs['recommended-type-checked'],
+    plugins: react.configs['recommended-type-checked'].plugins as Record<string, unknown>,
     rules: {
+      ...react.configs['recommended-type-checked'].rules,
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
     },
-  },
+    settings: react.configs['recommended-type-checked'].settings,
+  } as Config,
 
   {
     files: ['src/**/*.{ts,tsx}'],
@@ -88,4 +78,4 @@ export default tseslint.config(
       },
     },
   },
-) as Linter.Config[];
+);

@@ -11,7 +11,10 @@
         "source.fixAll.eslint": "explicit",
         "source.organizeImports": "never"
     },
+    "editor.formatOnSave": false,
+    "editor.formatOnType": false,
 
+    "eslint.format.enable": true,
     // Silent the stylistic rules in you IDE, but still auto fix them
     "eslint.rules.customizations": [
         {"rule": "prettier/prettier", "severity": "off", "fixable": true},
@@ -26,6 +29,22 @@
         {"rule": "*semi", "severity": "off", "fixable": true}
     ],
     "eslint.runtime": "node",
+    // Enable eslint for all supported languages
+    "eslint.validate": [
+        "javascript",
+        "javascriptreact",
+        "typescript",
+        "typescriptreact",
+        "vue",
+        "html",
+        "markdown",
+        "json",
+        "json5",
+        "jsonc",
+        "yaml",
+        "toml",
+        "xml"
+    ],
 
     "files.associations": {
         "*.css": "tailwindcss"
