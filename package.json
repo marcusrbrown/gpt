@@ -10,10 +10,8 @@
     "build": "tsc && vite build",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "fix": "pnpm run format && pnpm run lint --fix",
+    "fix": "pnpm run lint --fix",
     "lint": "eslint .",
-    "check-format": "prettier --check .",
-    "format": "prettier --write .",
     "preview": "vite preview"
   },
   "dependencies": {
