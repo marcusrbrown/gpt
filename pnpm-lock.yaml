@@ -11,6 +11,9 @@ importers:
 
   .:
     dependencies:
+      '@bfra.me/prettier-config':
+        specifier: 0.15.5
+        version: 0.15.5(prettier@3.5.3)
       '@heroui/react':
         specifier: 2.7.10
         version: 2.7.10(@types/react@19.1.8)(framer-motion@12.18.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(tailwindcss@4.1.10)
@@ -298,6 +301,11 @@ packages:
         optional: true
       eslint-plugin-prettier:
         optional: true
+
+  '@bfra.me/prettier-config@0.15.5':
+    resolution: {integrity: sha512-Ww8Bn/SnaZVfuURO2SmFg4PEpZKnJa2xuOdSSD+O6N4tPQO6IuXTLZ1Rne5NQNwfivdeNaT32Kt6JxIiGVnwhQ==}
+    peerDependencies:
+      prettier: ^3.0.0
 
   '@cfworker/json-schema@4.1.1':
     resolution: {integrity: sha512-gAmrUZSGtKc3AiBL71iNWxDsyUC5uMaKKGdvzYsBoTW/xi42JQHl7eKV2OYzCUqvc+D2RCcf7EXY2iCyFIk6og==}
@@ -4798,6 +4806,10 @@ snapshots:
       - eslint-import-resolver-node
       - supports-color
       - typescript
+
+  '@bfra.me/prettier-config@0.15.5(prettier@3.5.3)':
+    dependencies:
+      prettier: 3.5.3
 
   '@cfworker/json-schema@4.1.1': {}
 

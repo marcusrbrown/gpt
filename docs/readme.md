@@ -71,7 +71,7 @@ Interactive notebooks are React components that combine markdown and executable 
 
 Example:
 
-```typescript
+```tsx
 import { InteractiveNotebook } from '@/components/docs/interactive-notebook';
 
 const CELLS = [

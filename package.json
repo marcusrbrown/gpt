@@ -15,6 +15,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@bfra.me/prettier-config": "0.15.5",
     "@heroui/react": "2.7.10",
     "@langchain/anthropic": "0.3.22",
     "@langchain/core": "0.3.59",
@@ -77,5 +78,6 @@
       "esbuild",
       "unrs-resolver"
     ]
-  }
+  },
+  "prettier": "@bfra.me/prettier-config/120-proof"
 }

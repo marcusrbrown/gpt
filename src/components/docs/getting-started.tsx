@@ -1,4 +1,4 @@
-import {InteractiveNotebook} from './interactive-notebook';
+import {InteractiveNotebook} from './interactive-notebook'
 
 const INITIAL_CELLS = [
   {
@@ -53,18 +53,18 @@ const agent = createAgent(config);
 const response = await agent.chat('Hello! Can you help me learn about AI agents?');
 console.log(response);`,
   },
-];
+]
 
 export function GettingStarted() {
   const handleExecute = async () => {
     // In a real implementation, this would execute the code in a sandbox
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    return "Hello! I'd be happy to help you learn about AI agents. What specific aspects would you like to explore?";
-  };
+    await new Promise(resolve => setTimeout(resolve, 500))
+    return "Hello! I'd be happy to help you learn about AI agents. What specific aspects would you like to explore?"
+  }
 
   return (
-    <div className='max-w-4xl mx-auto'>
+    <div className="max-w-4xl mx-auto">
       <InteractiveNotebook initialCells={INITIAL_CELLS} onExecute={handleExecute} />
     </div>
-  );
+  )
 }

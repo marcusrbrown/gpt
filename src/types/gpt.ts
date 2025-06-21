@@ -1,4 +1,4 @@
-import {z} from 'zod';
+import {z} from 'zod'
 
 /**
  * Core types for GPT configurations and related entities
@@ -20,9 +20,9 @@ export const GPTCapabilitiesSchema = z.object({
       })
       .optional(),
   }),
-});
+})
 
-export type GPTCapabilities = z.infer<typeof GPTCapabilitiesSchema>;
+export type GPTCapabilities = z.infer<typeof GPTCapabilitiesSchema>
 
 export const LocalFileSchema = z.object({
   name: z.string(),
@@ -30,9 +30,9 @@ export const LocalFileSchema = z.object({
   type: z.string(),
   size: z.number(),
   lastModified: z.number(),
-});
+})
 
-export type LocalFile = z.infer<typeof LocalFileSchema>;
+export type LocalFile = z.infer<typeof LocalFileSchema>
 
 export const MCPToolSchema = z.object({
   name: z.string(),
@@ -45,9 +45,9 @@ export const MCPToolSchema = z.object({
       value: z.string(),
     })
     .optional(),
-});
+})
 
-export type MCPTool = z.infer<typeof MCPToolSchema>;
+export type MCPTool = z.infer<typeof MCPToolSchema>
 
 export const VectorStoreSchema = z.object({
   id: z.string(),
@@ -59,15 +59,15 @@ export const VectorStoreSchema = z.object({
       days: z.number(),
     })
     .optional(),
-});
+})
 
-export type VectorStore = z.infer<typeof VectorStoreSchema>;
+export type VectorStore = z.infer<typeof VectorStoreSchema>
 
 export const GPTKnowledgeSchema = z.object({
   files: z.array(LocalFileSchema),
   urls: z.array(z.string()),
   vectorStores: z.array(VectorStoreSchema).optional(),
-});
+})
 
 export const GPTConfigurationSchema = z.object({
   id: z.string().uuid(),
@@ -80,18 +80,18 @@ export const GPTConfigurationSchema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
   version: z.number().default(1),
-});
+})
 
-export type GPTConfiguration = z.infer<typeof GPTConfigurationSchema>;
+export type GPTConfiguration = z.infer<typeof GPTConfigurationSchema>
 
 export const ConversationMessageSchema = z.object({
   id: z.string().uuid(),
   role: z.enum(['user', 'assistant', 'system']),
   content: z.string(),
   timestamp: z.date(),
-});
+})
 
-export type ConversationMessage = z.infer<typeof ConversationMessageSchema>;
+export type ConversationMessage = z.infer<typeof ConversationMessageSchema>
 
 export const ConversationSchema = z.object({
   id: z.string().uuid(),
@@ -99,6 +99,6 @@ export const ConversationSchema = z.object({
   messages: z.array(ConversationMessageSchema),
   createdAt: z.date(),
   updatedAt: z.date(),
-});
+})
 
-export type Conversation = z.infer<typeof ConversationSchema>;
+export type Conversation = z.infer<typeof ConversationSchema>

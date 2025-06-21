@@ -12,7 +12,7 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(
 
   {
-    ignores: ['**/dist', 'eslint.config.ts', 'postcss.config.js', 'coverage'],
+    ignores: ['**/dist', '.triage', 'eslint.config.ts', 'postcss.config.js', 'coverage'],
   },
 
   // {

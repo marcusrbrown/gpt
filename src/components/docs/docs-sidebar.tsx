@@ -1,25 +1,25 @@
-import {NavLink, useLocation, type NavLinkProps} from 'react-router-dom';
-import {useState, useCallback, useEffect} from 'react';
-import {ChevronDown} from 'lucide-react';
+import {ChevronDown} from 'lucide-react'
+import {useCallback, useEffect, useState} from 'react'
+import {NavLink, useLocation, type NavLinkProps} from 'react-router-dom'
 
 interface NavItem {
-  title: string;
-  path: string;
-  items?: NavItem[];
+  title: string
+  path: string
+  items?: NavItem[]
 }
 
 type SidebarLinkProps = {
-  to: string;
-  children: React.ReactNode;
-  className?: string | ((props: {isActive: boolean}) => string);
-  onClick?: (e: React.MouseEvent) => void;
-} & Omit<NavLinkProps, keyof {to: string; className: string | ((props: {isActive: boolean}) => string)}>;
+  to: string
+  children: React.ReactNode
+  className?: string | ((props: {isActive: boolean}) => string)
+  onClick?: (e: React.MouseEvent) => void
+} & Omit<NavLinkProps, keyof {to: string; className: string | ((props: {isActive: boolean}) => string)}>
 
 const SidebarLink = ({to, children, className, ...props}: SidebarLinkProps) => (
   <NavLink to={to} className={typeof className === 'function' ? className : `${className ?? ''}`} {...props}>
     {children}
   </NavLink>
-);
+)
 
 const NAV_ITEMS: NavItem[] = [
   {
@@ -58,35 +58,35 @@ const NAV_ITEMS: NavItem[] = [
       {title: 'Troubleshooting', path: '/docs/resources/troubleshooting'},
     ],
   },
-];
+]
 
 function NavItemComponent({item}: {item: NavItem}) {
-  const {pathname} = useLocation();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const {pathname} = useLocation()
+  const [isExpanded, setIsExpanded] = useState(false)
 
   // Auto-expand the section that contains the current page
   useEffect(() => {
-    if (pathname.startsWith(item.path) || item.items?.some((subItem) => pathname.startsWith(subItem.path))) {
-      setIsExpanded(true);
+    if (pathname.startsWith(item.path) || item.items?.some(subItem => pathname.startsWith(subItem.path))) {
+      setIsExpanded(true)
     }
-  }, [pathname, item.path, item.items]);
+  }, [pathname, item.path, item.items])
 
   const toggleExpand = useCallback(
     (e: React.MouseEvent) => {
       if (item.items) {
-        e.preventDefault();
-        setIsExpanded((prev) => !prev);
+        e.preventDefault()
+        setIsExpanded(prev => !prev)
       }
     },
     [item.items],
-  );
+  )
 
-  const isActive = pathname === item.path;
-  const hasActiveChild = item.items?.some((subItem) => pathname === subItem.path);
+  const isActive = pathname === item.path
+  const hasActiveChild = item.items?.some(subItem => pathname === subItem.path)
 
   return (
-    <div className='mb-2'>
-      <div className='flex items-center'>
+    <div className="mb-2">
+      <div className="flex items-center">
         <SidebarLink
           to={item.path}
           className={({isActive: linkActive}) =>
@@ -98,7 +98,7 @@ function NavItemComponent({item}: {item: NavItem}) {
           }
           onClick={toggleExpand}
         >
-          <span className='flex-1'>{item.title}</span>
+          <span className="flex-1">{item.title}</span>
           {item.items && (
             <ChevronDown
               size={16}
@@ -115,8 +115,8 @@ function NavItemComponent({item}: {item: NavItem}) {
             isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
-          <div className='ml-3 pl-3 border-l border-[var(--border-color)] mt-1'>
-            {item.items.map((subItem) => (
+          <div className="ml-3 pl-3 border-l border-[var(--border-color)] mt-1">
+            {item.items.map(subItem => (
               <SidebarLink
                 key={subItem.path}
                 to={subItem.path}
@@ -135,15 +135,15 @@ function NavItemComponent({item}: {item: NavItem}) {
         </div>
       )}
     </div>
-  );
+  )
 }
 
 export function DocsSidebar() {
   return (
-    <nav className='py-4' role='navigation' aria-label='Documentation navigation'>
-      {NAV_ITEMS.map((item) => (
+    <nav className="py-4" role="navigation" aria-label="Documentation navigation">
+      {NAV_ITEMS.map(item => (
         <NavItemComponent key={item.path} item={item} />
       ))}
     </nav>
-  );
+  )
 }

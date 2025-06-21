@@ -38,11 +38,12 @@ pnpm add @langchain/core @langchain/langgraph @langchain/openai @langchain/commu
 LangGraph uses state channels for managing agent state [^4]:
 
 ```typescript
-import {StateGraph, Channel, type NodeType} from "@langchain/langgraph";
-import {BaseMessage, HumanMessage, AIMessage} from "@langchain/core/messages";
+import process from 'node:process';
+import {AIMessage, HumanMessage, type BaseMessage} from "@langchain/core/messages";
 import {ChatPromptTemplate, MessagesPlaceholder} from "@langchain/core/prompts";
-import {ChatOpenAI} from "@langchain/openai";
+import {Channel, StateGraph, type NodeType} from "@langchain/langgraph";
 import {ToolNode} from "@langchain/langgraph/prebuilt";
+import {ChatOpenAI} from "@langchain/openai";
 import {z} from "zod";
 
 // Define agent state
@@ -80,9 +81,9 @@ const graph = new StateGraph({
 Create platform-agnostic tools using LangGraph's ToolNode [^5]:
 
 ```typescript
+import type {Tool} from "@langchain/core/tools";
 import {ToolNode} from "@langchain/langgraph/prebuilt";
 import {z} from "zod";
-import type {Tool} from "@langchain/core/tools";
 
 // Define tool schema
 const CodeAnalysisSchema = z.object({
@@ -118,10 +119,10 @@ const createAnalysisTools = () => {
 Define the agent's reasoning process using LangGraph's workflow system [^6]:
 
 ```typescript
-import {StateGraph, type NodeType} from "@langchain/langgraph";
-import {ChatOpenAI} from "@langchain/openai";
 import {ChatPromptTemplate, MessagesPlaceholder} from "@langchain/core/prompts";
 import {RunnableSequence} from "@langchain/core/runnables";
+import {StateGraph, type NodeType} from "@langchain/langgraph";
+import {ChatOpenAI} from "@langchain/openai";
 
 // Create model with tool binding
 const model = new ChatOpenAI({
@@ -151,7 +152,7 @@ const workflow = new StateGraph()
   .addNode("tools", toolNode)
   .addEdge("agent", "tools")
   .addConditionalEdges("agent", (state) => {
-    const lastMessage = state.messages[state.messages.length - 1];
+    const lastMessage = state.messages.at(-1);
     return lastMessage.additional_kwargs?.tool_calls ? "tools" : "__end__";
   });
 ```
@@ -161,9 +162,10 @@ const workflow = new StateGraph()
 Implement durable state management using Postgres [^7]:
 
 ```typescript
-import {Pool} from "pg";
-import {PostgresCheckpointer} from "@langchain/langgraph-checkpoint-postgres";
 import type {CheckpointerConfig} from "@langchain/core/checkpointers";
+import process from 'node:process'
+import {PostgresCheckpointer} from "@langchain/langgraph-checkpoint-postgres";
+import {Pool} from "pg";
 
 // Create Postgres connection pool
 const pool = new Pool({
@@ -187,8 +189,9 @@ const persistentWorkflow = workflow.withCheckpointer(checkpointer);
 Implement comprehensive monitoring [^8]:
 
 ```typescript
-import {LangSmithTracer} from "@langchain/core/tracers/langsmith";
 import type {BaseCallbackConfig} from "@langchain/core/callbacks/manager";
+import process from 'node:process'
+import {LangSmithTracer} from "@langchain/core/tracers/langsmith";
 
 // Create tracer
 const tracer = new LangSmithTracer({
@@ -218,10 +221,9 @@ const monitoredAgent = await persistentWorkflow.compile({
 Create a type-safe API interface using Fastify with Zod [^9]:
 
 ```typescript
-import {FastifyInstance} from "fastify";
+import {withTypeProvider, type FastifyZod} from "@fastify/type-provider-zod";
+import {type FastifyInstance} from "fastify";
 import {z} from "zod";
-import {withTypeProvider} from "@fastify/type-provider-zod";
-import type {FastifyZod} from "@fastify/type-provider-zod";
 
 // Define API schema
 const AnalysisRequestSchema = z.object({
@@ -286,13 +288,13 @@ Supporting fallback mechanisms ensures your agent remains operational even when 
 Here's an example of a platform-agnostic agent implementation [^10]:
 
 ```typescript
-import {ChatOpenAI} from "@langchain/openai";
 import {ChatAnthropic} from "@langchain/anthropic";
 import {ChatOllama} from "@langchain/community/chat_models/ollama";
-import {StateGraph, type NodeType} from "@langchain/langgraph";
-import {BaseMessage} from "@langchain/core/messages";
+import {type BaseChatModel} from "@langchain/core/language_models/chat_models";
+import {type BaseMessage} from "@langchain/core/messages";
 import {ChatPromptTemplate} from "@langchain/core/prompts";
-import {BaseChatModel} from "@langchain/core/language_models/chat_models";
+import {StateGraph, type NodeType} from "@langchain/langgraph";
+import {ChatOpenAI} from "@langchain/openai";
 
 interface ModelConfig {
   provider: "openai" | "anthropic" | "ollama";
@@ -345,7 +347,7 @@ class PlatformAgnosticAgent {
 
           const response = await model.invoke(state.messages);
           return {messages: [...state.messages, response]};
-        } catch (error) {
+        } catch {
           console.warn(`Provider ${provider} failed, trying next...`);
           continue;
         }
@@ -384,12 +386,12 @@ Runtime validation becomes especially important when dealing with external input
 Here's an example demonstrating comprehensive type safety in an agent [^11]:
 
 ```typescript
-import {z} from "zod";
-import {StateGraph, type NodeType} from "@langchain/langgraph";
-import {BaseMessage, HumanMessage, AIMessage} from "@langchain/core/messages";
+import {AIMessage, HumanMessage, type BaseMessage} from "@langchain/core/messages";
 import {ChatPromptTemplate} from "@langchain/core/prompts";
-import {ChatOpenAI} from "@langchain/openai";
 import {RunnableSequence} from "@langchain/core/runnables";
+import {StateGraph, type NodeType} from "@langchain/langgraph";
+import {ChatOpenAI} from "@langchain/openai";
+import {z} from "zod";
 
 // Define strict types for agent configuration
 interface AgentConfig {
@@ -521,13 +523,13 @@ Testing AI agents presents unique challenges due to the non-deterministic nature
 Here's an example demonstrating comprehensive testing approaches [^12]:
 
 ```typescript
-import {expect, test, vi} from "vitest";
-import {StateGraph} from "@langchain/langgraph";
-import {ChatOpenAI} from "@langchain/openai";
-import {HumanMessage, AIMessage} from "@langchain/core/messages";
+import {AIMessage, HumanMessage} from "@langchain/core/messages";
 import {ChatPromptTemplate} from "@langchain/core/prompts";
 import {Tool} from "@langchain/core/tools";
+import {StateGraph} from "@langchain/langgraph";
 import {ToolNode} from "@langchain/langgraph/prebuilt";
+import {ChatOpenAI} from "@langchain/openai";
+import {expect, test, vi} from "vitest";
 import {z} from "zod";
 
 // Mock tool for testing
@@ -678,14 +680,15 @@ Token optimization is particularly important when working with LLMs, as it direc
 Here's an example demonstrating performance optimization techniques [^13]:
 
 ```typescript
-import {StateGraph, type NodeType} from "@langchain/langgraph";
-import {ChatOpenAI} from "@langchain/openai";
-import {BaseMessage, HumanMessage, AIMessage} from "@langchain/core/messages";
+import process from 'node:process'
+import {CallbackManager} from "@langchain/core/callbacks/manager";
+import {AIMessage, HumanMessage, type BaseMessage} from "@langchain/core/messages";
 import {ChatPromptTemplate} from "@langchain/core/prompts";
 import {RunnableSequence} from "@langchain/core/runnables";
-import {LRUCache} from "lru-cache";
+import {StateGraph, type NodeType} from "@langchain/langgraph";
+import {ChatOpenAI} from "@langchain/openai";
 import {TokenTextSplitter} from "@langchain/text-splitter";
-import {CallbackManager} from "@langchain/core/callbacks/manager";
+import {LRUCache} from "lru-cache";
 
 interface CacheConfig {
   maxSize: number;
@@ -699,7 +702,7 @@ class OptimizedAgent {
   private tokenSplitter: TokenTextSplitter;
   private graph: StateGraph;
 
-  constructor(modelName: string = "gpt-3.5-turbo", cacheConfig: CacheConfig = {maxSize: 1000, ttl: 3600000}) {
+  constructor(modelName = "gpt-3.5-turbo", cacheConfig: CacheConfig = {maxSize: 1000, ttl: 3600000}) {
     // Initialize caches
     this.promptCache = new LRUCache({
       max: cacheConfig.maxSize,
@@ -865,10 +868,10 @@ Using LangChain.js for agent development provides additional capabilities and to
 
 ```typescript
 import {AgentExecutor, ChatAgentOutputParser} from "langchain/agents";
+import {OpenAIAgentTokenBufferMemory} from "langchain/agents/toolkits";
 import {OpenAI} from "langchain/llms/openai";
 import {ChatPromptTemplate} from "langchain/prompts";
 import {RunnableSequence} from "langchain/schema/runnable";
-import {OpenAIAgentTokenBufferMemory} from "langchain/agents/toolkits";
 import {Tool} from "langchain/tools";
 
 // Define custom tool
@@ -911,10 +914,10 @@ const createAnalysisAgent = async () => {
 LangGraph provides a more flexible way to build agent workflows:
 
 ```typescript
-import {StateGraph, MessagesAnnotation} from "@langchain/langgraph";
-import {ChatOpenAI} from "@langchain/openai";
-import {ToolNode} from "@langchain/langgraph/prebuilt";
 import {HumanMessage} from "@langchain/core/messages";
+import {MessagesAnnotation, StateGraph} from "@langchain/langgraph";
+import {ToolNode} from "@langchain/langgraph/prebuilt";
+import {ChatOpenAI} from "@langchain/openai";
 
 // Define tools and nodes
 const tools = [new CustomAnalysisTool()];
@@ -928,7 +931,7 @@ const model = new ChatOpenAI({
 
 // Define workflow logic
 function shouldContinue({messages}: typeof MessagesAnnotation.State) {
-  const lastMessage = messages[messages.length - 1];
+  const lastMessage = messages.at(-1);
   return lastMessage.additional_kwargs.tool_calls ? "tools" : "__end__";
 }
 
@@ -958,7 +961,7 @@ Implement persistent memory for long-running agents:
 
 ```typescript
 import {ChatMessageHistory} from "langchain/memory";
-import {HumanMessage, AIMessage} from "langchain/schema";
+import {AIMessage, HumanMessage} from "langchain/schema";
 
 // Initialize with existing chat history
 const initializeMemory = async () => {
@@ -997,8 +1000,9 @@ streamingAgent.invoke({
 #### Tool Composition
 
 ```typescript
+import process from 'node:process'
 import {createOpenApiAgent, OpenApiToolkit} from "langchain/agents";
-import {JsonSpec} from "langchain/tools";
+import {type JsonSpec} from "langchain/tools";
 
 // Create API-aware agent
 const createApiAgent = async (spec: JsonSpec) => {
@@ -1172,9 +1176,10 @@ The framework collects comprehensive metrics [^18]:
 Here's a complete example of a test suite [^19]:
 
 ```typescript
+import process from 'node:process'
+import {AIMessage} from "@langchain/core/messages";
 import {AgentTestFramework, type AgentTestCase} from "../agent-test-framework";
 import {type AgentConfig, type AgentResponse} from "../types/agent";
-import {AIMessage} from "@langchain/core/messages";
 
 // Define behavioral test cases
 const behavioralTests: AgentTestCase[] = [
@@ -1293,7 +1298,7 @@ async function runTests() {
 function validateResults(
   behavioralResults: {
     passed: AgentTestCase[];
-    failed: Array<{test: AgentTestCase; error: Error}>;
+    failed: {test: AgentTestCase; error: Error}[];
     metrics?: AgentPerformanceMetrics;
   },
   performanceMetrics: AgentPerformanceMetrics,

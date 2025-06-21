@@ -1,9 +1,9 @@
-import {z} from 'zod';
-import {StateGraph} from '@langchain/langgraph';
-import {BaseMessage} from '@langchain/core/messages';
-import {BaseChatModel} from '@langchain/core/language_models/chat_models';
-import {Tool} from '@langchain/core/tools';
-import {Callbacks} from '@langchain/core/callbacks/manager';
+import {type Callbacks} from '@langchain/core/callbacks/manager'
+import {type BaseChatModel} from '@langchain/core/language_models/chat_models'
+import {type BaseMessage} from '@langchain/core/messages'
+import {type Tool} from '@langchain/core/tools'
+import {type StateGraph} from '@langchain/langgraph'
+import {z} from 'zod'
 
 /**
  * Configuration interface for caching behavior in agents.
@@ -11,9 +11,9 @@ import {Callbacks} from '@langchain/core/callbacks/manager';
  */
 export interface CacheConfig {
   /** Maximum number of items to store in the cache */
-  maxSize: number;
+  maxSize: number
   /** Time-to-live in milliseconds for cache entries */
-  ttl: number;
+  ttl: number
 }
 
 /**
@@ -45,9 +45,9 @@ export const AgentConfigSchema = z.object({
       callbacks: z.custom<Callbacks>().optional(),
     })
     .optional(),
-});
+})
 
-export type AgentConfig = z.infer<typeof AgentConfigSchema>;
+export type AgentConfig = z.infer<typeof AgentConfigSchema>
 
 /**
  * Memory interface for agent state management.
@@ -55,11 +55,11 @@ export type AgentConfig = z.infer<typeof AgentConfigSchema>;
  */
 export interface AgentMemory {
   /** Retrieve a value from memory */
-  get(key: string): Promise<unknown>;
+  get(key: string): Promise<unknown>
   /** Store a value in memory */
-  set(key: string, value: unknown): Promise<void>;
+  set(key: string, value: unknown): Promise<void>
   /** Clear all stored values */
-  clear(): Promise<void>;
+  clear(): Promise<void>
 }
 
 /**
@@ -68,13 +68,13 @@ export interface AgentMemory {
  */
 export interface AgentState {
   /** Message history for the agent */
-  messages: BaseMessage[];
+  messages: BaseMessage[]
   /** Current input being processed */
-  input: string;
+  input: string
   /** Available tools for the agent */
-  tools: Tool[];
+  tools: Tool[]
   /** Additional context and metadata */
-  context?: Record<string, unknown>;
+  context?: Record<string, unknown>
 }
 
 /**
@@ -83,14 +83,14 @@ export interface AgentState {
  */
 export interface AgentResponse {
   /** The operation result */
-  output: BaseMessage;
+  output: BaseMessage
   /** Intermediate steps taken by the agent */
-  intermediateSteps?: Array<{
-    action: string;
-    observation: string;
-  }>;
+  intermediateSteps?: {
+    action: string
+    observation: string
+  }[]
   /** Optional metadata about the operation */
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, unknown>
 }
 
 /**
@@ -99,13 +99,13 @@ export interface AgentResponse {
  */
 export interface AgentCapabilities {
   /** List of tools available to the agent */
-  tools: Tool[];
+  tools: Tool[]
   /** Whether to enable streaming responses */
-  streaming?: boolean;
+  streaming?: boolean
   /** Whether to enable human-in-the-loop workflows */
-  humanInTheLoop?: boolean;
+  humanInTheLoop?: boolean
   /** Optional callbacks for monitoring and logging */
-  callbacks?: Callbacks;
+  callbacks?: Callbacks
 }
 
 /**
@@ -114,11 +114,11 @@ export interface AgentCapabilities {
  */
 export interface Agent {
   /** The underlying language model */
-  model: BaseChatModel;
+  model: BaseChatModel
   /** The agent's capabilities */
-  capabilities: AgentCapabilities;
+  capabilities: AgentCapabilities
   /** The agent's workflow graph */
-  graph?: StateGraph<AgentState, AgentState>;
+  graph?: StateGraph<AgentState, AgentState>
 
   /**
    * Process an input and return a response
@@ -128,30 +128,30 @@ export interface Agent {
   invoke(
     input: string,
     options?: {
-      stream?: boolean;
-      callbacks?: Callbacks;
+      stream?: boolean
+      callbacks?: Callbacks
     },
-  ): Promise<AgentResponse>;
+  ): Promise<AgentResponse>
 
   /**
    * Initialize the agent with necessary setup
    */
-  initialize(): Promise<void>;
+  initialize(): Promise<void>
 
   /**
    * Clean up resources used by the agent
    */
-  cleanup(): Promise<void>;
+  cleanup(): Promise<void>
 
   /**
    * Get current token usage statistics
    */
-  getTokenUsage(): {cached: number; total: number};
+  getTokenUsage(): {cached: number; total: number}
 
   /**
    * Clear all caches
    */
-  clearCaches(): void;
+  clearCaches(): void
 }
 
 /**
@@ -160,9 +160,9 @@ export interface Agent {
  */
 export interface ToolConfig {
   /** Name of the tool */
-  name: string;
+  name: string
   /** Whether the tool is enabled */
-  enabled: boolean;
+  enabled: boolean
   /** Optional tool parameters */
-  parameters?: Record<string, unknown>;
+  parameters?: Record<string, unknown>
 }

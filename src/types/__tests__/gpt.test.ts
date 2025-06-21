@@ -1,13 +1,13 @@
-import {describe, test, expect} from 'vitest';
+import {v4 as uuidv4} from 'uuid'
+import {describe, expect, test} from 'vitest'
 import {
-  GPTCapabilitiesSchema,
-  LocalFileSchema,
-  MCPToolSchema,
-  GPTConfigurationSchema,
   ConversationMessageSchema,
   ConversationSchema,
-} from '../gpt';
-import {v4 as uuidv4} from 'uuid';
+  GPTCapabilitiesSchema,
+  GPTConfigurationSchema,
+  LocalFileSchema,
+  MCPToolSchema,
+} from '../gpt'
 
 describe('GPT Type Schemas', () => {
   describe('GPTCapabilitiesSchema', () => {
@@ -19,12 +19,12 @@ describe('GPT Type Schemas', () => {
         fileSearch: {
           enabled: false,
         },
-      };
-      expect(() => GPTCapabilitiesSchema.parse(validCapabilities)).not.toThrow();
-    });
+      }
+      expect(() => GPTCapabilitiesSchema.parse(validCapabilities)).not.toThrow()
+    })
 
     test('should provide default values for missing fields', () => {
-      const result = GPTCapabilitiesSchema.parse({fileSearch: {enabled: false}});
+      const result = GPTCapabilitiesSchema.parse({fileSearch: {enabled: false}})
       expect(result).toEqual({
         codeInterpreter: false,
         webBrowsing: false,
@@ -32,18 +32,18 @@ describe('GPT Type Schemas', () => {
         fileSearch: {
           enabled: false,
         },
-      });
-    });
+      })
+    })
 
     test('should reject invalid boolean values', () => {
       const invalidCapabilities = {
         codeInterpreter: 'true',
         webBrowsing: 1,
         imageGeneration: null,
-      };
-      expect(() => GPTCapabilitiesSchema.parse(invalidCapabilities)).toThrow();
-    });
-  });
+      }
+      expect(() => GPTCapabilitiesSchema.parse(invalidCapabilities)).toThrow()
+    })
+  })
 
   describe('LocalFileSchema', () => {
     test('should validate valid file data', () => {
@@ -53,17 +53,17 @@ describe('GPT Type Schemas', () => {
         type: 'text/plain',
         size: 1024,
         lastModified: Date.now(),
-      };
-      expect(() => LocalFileSchema.parse(validFile)).not.toThrow();
-    });
+      }
+      expect(() => LocalFileSchema.parse(validFile)).not.toThrow()
+    })
 
     test('should reject missing required fields', () => {
       const invalidFile = {
         name: 'test.txt',
         content: 'Hello, World!',
-      };
-      expect(() => LocalFileSchema.parse(invalidFile)).toThrow();
-    });
+      }
+      expect(() => LocalFileSchema.parse(invalidFile)).toThrow()
+    })
 
     test('should reject invalid types', () => {
       const invalidFile = {
@@ -72,10 +72,10 @@ describe('GPT Type Schemas', () => {
         type: {},
         size: '1024',
         lastModified: 'now',
-      };
-      expect(() => LocalFileSchema.parse(invalidFile)).toThrow();
-    });
-  });
+      }
+      expect(() => LocalFileSchema.parse(invalidFile)).toThrow()
+    })
+  })
 
   describe('MCPToolSchema', () => {
     test('should validate valid tool configuration', () => {
@@ -88,9 +88,9 @@ describe('GPT Type Schemas', () => {
           type: 'bearer',
           value: 'token123',
         },
-      };
-      expect(() => MCPToolSchema.parse(validTool)).not.toThrow();
-    });
+      }
+      expect(() => MCPToolSchema.parse(validTool)).not.toThrow()
+    })
 
     test('should allow missing authentication', () => {
       const validTool = {
@@ -98,9 +98,9 @@ describe('GPT Type Schemas', () => {
         description: 'A test tool',
         schema: {type: 'object'},
         endpoint: 'https://api.test.com',
-      };
-      expect(() => MCPToolSchema.parse(validTool)).not.toThrow();
-    });
+      }
+      expect(() => MCPToolSchema.parse(validTool)).not.toThrow()
+    })
 
     test('should reject invalid authentication type', () => {
       const invalidTool = {
@@ -112,10 +112,10 @@ describe('GPT Type Schemas', () => {
           type: 'invalid',
           value: 'token123',
         },
-      };
-      expect(() => MCPToolSchema.parse(invalidTool)).toThrow();
-    });
-  });
+      }
+      expect(() => MCPToolSchema.parse(invalidTool)).toThrow()
+    })
+  })
 
   describe('GPTConfigurationSchema', () => {
     test('should validate valid GPT configuration', () => {
@@ -140,9 +140,9 @@ describe('GPT Type Schemas', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         version: 1,
-      };
-      expect(() => GPTConfigurationSchema.parse(validConfig)).not.toThrow();
-    });
+      }
+      expect(() => GPTConfigurationSchema.parse(validConfig)).not.toThrow()
+    })
 
     test('should validate configuration with tools and knowledge', () => {
       const validConfig = {
@@ -181,9 +181,9 @@ describe('GPT Type Schemas', () => {
         createdAt: new Date(),
         updatedAt: new Date(),
         version: 1,
-      };
-      expect(() => GPTConfigurationSchema.parse(validConfig)).not.toThrow();
-    });
+      }
+      expect(() => GPTConfigurationSchema.parse(validConfig)).not.toThrow()
+    })
 
     test('should reject invalid dates', () => {
       const invalidConfig = {
@@ -204,10 +204,10 @@ describe('GPT Type Schemas', () => {
         createdAt: 'invalid date',
         updatedAt: 'invalid date',
         version: 1,
-      };
-      expect(() => GPTConfigurationSchema.parse(invalidConfig)).toThrow();
-    });
-  });
+      }
+      expect(() => GPTConfigurationSchema.parse(invalidConfig)).toThrow()
+    })
+  })
 
   describe('ConversationMessageSchema', () => {
     test('should validate valid message', () => {
@@ -216,9 +216,9 @@ describe('GPT Type Schemas', () => {
         role: 'user',
         content: 'Hello, GPT!',
         timestamp: new Date(),
-      };
-      expect(() => ConversationMessageSchema.parse(validMessage)).not.toThrow();
-    });
+      }
+      expect(() => ConversationMessageSchema.parse(validMessage)).not.toThrow()
+    })
 
     test('should reject invalid role', () => {
       const invalidMessage = {
@@ -226,23 +226,23 @@ describe('GPT Type Schemas', () => {
         role: 'invalid',
         content: 'Hello, GPT!',
         timestamp: new Date(),
-      };
-      expect(() => ConversationMessageSchema.parse(invalidMessage)).toThrow();
-    });
+      }
+      expect(() => ConversationMessageSchema.parse(invalidMessage)).toThrow()
+    })
 
     test('should validate all valid roles', () => {
-      const roles = ['user', 'assistant', 'system'];
-      roles.forEach((role) => {
+      const roles = ['user', 'assistant', 'system']
+      roles.forEach(role => {
         const message = {
           id: uuidv4(),
           role,
           content: 'Test message',
           timestamp: new Date(),
-        };
-        expect(() => ConversationMessageSchema.parse(message)).not.toThrow();
-      });
-    });
-  });
+        }
+        expect(() => ConversationMessageSchema.parse(message)).not.toThrow()
+      })
+    })
+  })
 
   describe('ConversationSchema', () => {
     test('should validate valid conversation', () => {
@@ -271,9 +271,9 @@ describe('GPT Type Schemas', () => {
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
-      };
-      expect(() => ConversationSchema.parse(validConversation)).not.toThrow();
-    });
+      }
+      expect(() => ConversationSchema.parse(validConversation)).not.toThrow()
+    })
 
     test('should reject invalid UUIDs', () => {
       const invalidConversation = {
@@ -282,9 +282,9 @@ describe('GPT Type Schemas', () => {
         messages: [],
         createdAt: new Date(),
         updatedAt: new Date(),
-      };
-      expect(() => ConversationSchema.parse(invalidConversation)).toThrow();
-    });
+      }
+      expect(() => ConversationSchema.parse(invalidConversation)).toThrow()
+    })
 
     test('should reject invalid message array', () => {
       const invalidConversation = {
@@ -293,8 +293,8 @@ describe('GPT Type Schemas', () => {
         messages: 'not an array',
         createdAt: new Date(),
         updatedAt: new Date(),
-      };
-      expect(() => ConversationSchema.parse(invalidConversation)).toThrow();
-    });
-  });
-});
+      }
+      expect(() => ConversationSchema.parse(invalidConversation)).toThrow()
+    })
+  })
+})
