@@ -4,6 +4,7 @@ import reactRefresh from 'eslint-plugin-react-refresh';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {defineConfig, type Config} from '@bfra.me/eslint-config'
+import {ESLint} from 'eslint';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,15 +12,17 @@ const __dirname = path.dirname(__filename);
 
 export default defineConfig(
   {
+    name: 'gpt',
     ignores: ['**/dist', '.triage', 'eslint.config.ts', 'postcss.config.js', 'coverage'],
     typescript: {
       tsconfigPath: './tsconfig.json',
-    }
+    },
+    vitest: true,
   },
 
   {
-    ...react.configs['recommended-type-checked'],
     files: ['src/**/*.{ts,tsx}'],
+    plugins: react.configs['recommended-type-checked'].plugins as Record<string, unknown>,
     rules: {
       ...react.configs['recommended-type-checked'].rules,
       '@typescript-eslint/no-unsafe-assignment': 'off',
@@ -27,7 +30,8 @@ export default defineConfig(
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
     },
-  } as unknown as Config,
+    settings: react.configs['recommended-type-checked'].settings,
+  } as Config,
 
   {
     files: ['src/**/*.{ts,tsx}'],
