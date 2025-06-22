@@ -38,7 +38,7 @@
     "zod": "3.25.67"
   },
   "devDependencies": {
-    "@bfra.me/eslint-config": "0.21.1",
+    "@bfra.me/eslint-config": "0.22.0",
     "@eslint-react/eslint-plugin": "1.52.2",
     "@tailwindcss/typography": "0.5.16",
     "@tailwindcss/vite": "4.1.10",
