@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@bfra.me/prettier-config": "0.15.5",
-    "@heroui/react": "2.7.10",
+    "@heroui/react": "2.7.11",
     "@langchain/anthropic": "0.3.23",
     "@langchain/core": "0.3.60",
     "@langchain/langgraph": "0.3.4",
