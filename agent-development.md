@@ -1155,13 +1155,11 @@ The framework collects comprehensive metrics [^18]:
 ### Best Practices
 
 1. **Test Coverage**
-
    - Write tests for both success and failure cases
    - Include edge cases and error conditions
    - Test across different LLM platforms
 
 2. **Performance Testing**
-
    - Use realistic inputs and workloads
    - Set appropriate thresholds
    - Compare against baselines
@@ -1355,13 +1353,11 @@ if (require.main === module) {
 ## Advanced Agent Ideas
 
 1. **Distributed Multi-Agent System**
-
    - Implement agent collaboration protocols
    - Add peer-to-peer communication
    - Develop consensus mechanisms
 
 2. **Self-Improving Code Generator**
-
    - Create agents that learn from code review feedback
    - Implement automated testing and validation
    - Add continuous improvement mechanisms
