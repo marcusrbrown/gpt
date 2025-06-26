@@ -463,7 +463,6 @@ type MessageContent =
 #### 6.3.1 API Key Management
 
 - **Web Platform**:
-
   - Encrypt API keys in IndexedDB using a user-provided passphrase
   - Option for session-only storage
   - Clear security warnings about browser storage limitations
