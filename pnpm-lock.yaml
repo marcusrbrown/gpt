@@ -18,8 +18,8 @@ importers:
         specifier: 2.7.11
         version: 2.7.11(@types/react@19.1.8)(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(tailwindcss@4.1.11)
       '@langchain/anthropic':
-        specifier: 0.3.23
-        version: 0.3.23(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))
+        specifier: 0.3.24
+        version: 0.3.24(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))
       '@langchain/core':
         specifier: 0.3.61
         version: 0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
@@ -46,7 +46,7 @@ importers:
         version: 12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       langchain:
         specifier: 0.3.29
-        version: 0.3.29(@langchain/anthropic@0.3.23(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))))(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(openai@5.8.2(ws@8.18.3)(zod@3.25.71))(ws@8.18.3)
+        version: 0.3.29(@langchain/anthropic@0.3.24(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))))(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(openai@5.8.2(ws@8.18.3)(zod@3.25.71))(ws@8.18.3)
       lru-cache:
         specifier: 11.1.0
         version: 11.1.0
@@ -175,8 +175,8 @@ packages:
     resolution: {integrity: sha512-30iZtAPgz+LTIYoeivqYo853f02jBYSd5uGnGpkFV0M3xOt9aN73erkgYAmZU43x4VfqcnLxW9Kpg3R5LC4YYw==}
     engines: {node: '>=6.0.0'}
 
-  '@anthropic-ai/sdk@0.52.0':
-    resolution: {integrity: sha512-d4c+fg+xy9e46c8+YnrrgIQR45CZlAi7PwdzIfDXDM6ACxEZli1/fxhURsq30ZpMZy6LvSkr41jGq5aF5TD7rQ==}
+  '@anthropic-ai/sdk@0.56.0':
+    resolution: {integrity: sha512-SLCB8M8+VMg1cpCucnA1XWHGWqVSZtIWzmOdDOEu3eTFZMB+A0sGZ1ESO5MHDnqrNTXz3safMrWx9x4rMZSOqA==}
     hasBin: true
 
   '@asamuzakjp/css-color@3.2.0':
@@ -1227,8 +1227,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.27':
     resolution: {integrity: sha512-VO95AxtSFMelbg3ouljAYnfvTEwSWVt/2YLf+U5Ejd8iT5mXE2Sa/1LGyvySMne2CGsepGLI7KpF3EzE3Aq9Mg==}
 
-  '@langchain/anthropic@0.3.23':
-    resolution: {integrity: sha512-lwp43HUcCM0bJqJEwBwutskvV85G3R3rQDW5XNCntPDzelW+fCmlsm40P7dg7uG/3uOtDGhj4eDMapKpbPvtlA==}
+  '@langchain/anthropic@0.3.24':
+    resolution: {integrity: sha512-Gi1TwXu5vkCxUMToiXaiwTTWq9v3WMyU3ldB/VEWjzbkr3nKF5kcp+HLqhvV7WWOFVTTNgG+pzfq8JALecq5MA==}
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/core': '>=0.3.58 <0.4.0'
@@ -4424,7 +4424,7 @@ snapshots:
       '@jridgewell/gen-mapping': 0.3.10
       '@jridgewell/trace-mapping': 0.3.27
 
-  '@anthropic-ai/sdk@0.52.0': {}
+  '@anthropic-ai/sdk@0.56.0': {}
 
   '@asamuzakjp/css-color@3.2.0':
     dependencies:
@@ -6049,9 +6049,9 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.2
 
-  '@langchain/anthropic@0.3.23(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))':
+  '@langchain/anthropic@0.3.24(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))':
     dependencies:
-      '@anthropic-ai/sdk': 0.52.0
+      '@anthropic-ai/sdk': 0.56.0
       '@langchain/core': 0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
       fast-xml-parser: 4.5.3
 
@@ -8485,7 +8485,7 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  langchain@0.3.29(@langchain/anthropic@0.3.23(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))))(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(openai@5.8.2(ws@8.18.3)(zod@3.25.71))(ws@8.18.3):
+  langchain@0.3.29(@langchain/anthropic@0.3.24(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))))(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(openai@5.8.2(ws@8.18.3)(zod@3.25.71))(ws@8.18.3):
     dependencies:
       '@langchain/core': 0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
       '@langchain/openai': 0.5.16(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(ws@8.18.3)
@@ -8500,7 +8500,7 @@ snapshots:
       yaml: 2.8.0
       zod: 3.25.71
     optionalDependencies:
-      '@langchain/anthropic': 0.3.23(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))
+      '@langchain/anthropic': 0.3.24(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))
     transitivePeerDependencies:
       - openai
       - ws
