@@ -19,16 +19,16 @@ importers:
         version: 2.7.11(@types/react@19.1.8)(framer-motion@12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(tailwindcss@4.1.11)
       '@langchain/anthropic':
         specifier: 0.3.24
-        version: 0.3.24(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))
+        version: 0.3.24(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))
       '@langchain/core':
-        specifier: 0.3.61
-        version: 0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
+        specifier: 0.3.62
+        version: 0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
       '@langchain/langgraph':
         specifier: 0.3.6
-        version: 0.3.6(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.25.71))
+        version: 0.3.6(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.25.71))
       '@langchain/openai':
         specifier: 0.5.16
-        version: 0.5.16(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(ws@8.18.3)
+        version: 0.5.16(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(ws@8.18.3)
       '@monaco-editor/react':
         specifier: 4.7.0
         version: 4.7.0(monaco-editor@0.52.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -46,7 +46,7 @@ importers:
         version: 12.23.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       langchain:
         specifier: 0.3.29
-        version: 0.3.29(@langchain/anthropic@0.3.24(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))))(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(openai@5.8.2(ws@8.18.3)(zod@3.25.71))(ws@8.18.3)
+        version: 0.3.29(@langchain/anthropic@0.3.24(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71))))(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(openai@5.8.2(ws@8.18.3)(zod@3.25.71))(ws@8.18.3)
       lru-cache:
         specifier: 11.1.0
         version: 11.1.0
@@ -1233,8 +1233,8 @@ packages:
     peerDependencies:
       '@langchain/core': '>=0.3.58 <0.4.0'
 
-  '@langchain/core@0.3.61':
-    resolution: {integrity: sha512-4O7fw5SXNSE+uBnathLQrhm3t+7dZGagt/5kt37A+pXw0AkudxEBvveg73sSnpBd9SIz3/Vc7F4k8rCKXGbEDA==}
+  '@langchain/core@0.3.62':
+    resolution: {integrity: sha512-GqRTcoUPnozGRMUcA6QkP7LHL/OvanGdB51Jgb0w7IIPDI3wFugxMHZ4gphnGDtxsD1tQY5ykyEpYNxFK8kl1w==}
     engines: {node: '>=18'}
 
   '@langchain/langgraph-checkpoint@0.0.18':
@@ -6045,13 +6045,13 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.2
 
-  '@langchain/anthropic@0.3.24(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))':
+  '@langchain/anthropic@0.3.24(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))':
     dependencies:
       '@anthropic-ai/sdk': 0.56.0
-      '@langchain/core': 0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
+      '@langchain/core': 0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
       fast-xml-parser: 4.5.3
 
-  '@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))':
+  '@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71))':
     dependencies:
       '@cfworker/json-schema': 4.1.1
       ansi-styles: 5.2.0
@@ -6068,26 +6068,26 @@ snapshots:
     transitivePeerDependencies:
       - openai
 
-  '@langchain/langgraph-checkpoint@0.0.18(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))':
+  '@langchain/langgraph-checkpoint@0.0.18(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))':
     dependencies:
-      '@langchain/core': 0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
+      '@langchain/core': 0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
       uuid: 10.0.0
 
-  '@langchain/langgraph-sdk@0.0.87(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(react@19.1.0)':
+  '@langchain/langgraph-sdk@0.0.87(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(react@19.1.0)':
     dependencies:
       '@types/json-schema': 7.0.15
       p-queue: 6.6.2
       p-retry: 4.6.2
       uuid: 9.0.1
     optionalDependencies:
-      '@langchain/core': 0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
+      '@langchain/core': 0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
       react: 19.1.0
 
-  '@langchain/langgraph@0.3.6(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.25.71))':
+  '@langchain/langgraph@0.3.6(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.25.71))':
     dependencies:
-      '@langchain/core': 0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
-      '@langchain/langgraph-checkpoint': 0.0.18(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))
-      '@langchain/langgraph-sdk': 0.0.87(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(react@19.1.0)
+      '@langchain/core': 0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
+      '@langchain/langgraph-checkpoint': 0.0.18(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))
+      '@langchain/langgraph-sdk': 0.0.87(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(react@19.1.0)
       uuid: 10.0.0
       zod: 3.25.71
     optionalDependencies:
@@ -6095,18 +6095,18 @@ snapshots:
     transitivePeerDependencies:
       - react
 
-  '@langchain/openai@0.5.16(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(ws@8.18.3)':
+  '@langchain/openai@0.5.16(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(ws@8.18.3)':
     dependencies:
-      '@langchain/core': 0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
+      '@langchain/core': 0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
       js-tiktoken: 1.0.20
       openai: 5.8.2(ws@8.18.3)(zod@3.25.71)
       zod: 3.25.71
     transitivePeerDependencies:
       - ws
 
-  '@langchain/textsplitters@0.1.0(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))':
+  '@langchain/textsplitters@0.1.0(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))':
     dependencies:
-      '@langchain/core': 0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
+      '@langchain/core': 0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
       js-tiktoken: 1.0.20
 
   '@monaco-editor/loader@1.5.0':
@@ -8481,11 +8481,11 @@ snapshots:
     dependencies:
       json-buffer: 3.0.1
 
-  langchain@0.3.29(@langchain/anthropic@0.3.24(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))))(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(openai@5.8.2(ws@8.18.3)(zod@3.25.71))(ws@8.18.3):
+  langchain@0.3.29(@langchain/anthropic@0.3.24(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71))))(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(openai@5.8.2(ws@8.18.3)(zod@3.25.71))(ws@8.18.3):
     dependencies:
-      '@langchain/core': 0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
-      '@langchain/openai': 0.5.16(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(ws@8.18.3)
-      '@langchain/textsplitters': 0.1.0(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))
+      '@langchain/core': 0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71))
+      '@langchain/openai': 0.5.16(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))(ws@8.18.3)
+      '@langchain/textsplitters': 0.1.0(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))
       js-tiktoken: 1.0.20
       js-yaml: 4.1.0
       jsonpointer: 5.0.1
@@ -8496,7 +8496,7 @@ snapshots:
       yaml: 2.8.0
       zod: 3.25.71
     optionalDependencies:
-      '@langchain/anthropic': 0.3.24(@langchain/core@0.3.61(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))
+      '@langchain/anthropic': 0.3.24(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.71)))
     transitivePeerDependencies:
       - openai
       - ws
