@@ -27,8 +27,8 @@ importers:
         specifier: 0.3.6
         version: 0.3.6(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.74)))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.25.74))
       '@langchain/openai':
-        specifier: 0.5.16
-        version: 0.5.16(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.74)))(ws@8.18.3)
+        specifier: 0.5.18
+        version: 0.5.18(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.74)))(ws@8.18.3)
       '@monaco-editor/react':
         specifier: 4.7.0
         version: 4.7.0(monaco-editor@0.52.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -1268,8 +1268,8 @@ packages:
       zod-to-json-schema:
         optional: true
 
-  '@langchain/openai@0.5.16':
-    resolution: {integrity: sha512-TqzPE3PM0bMkQi53qs8vCFkwaEp3VgwGw+s1e8Nas5ICCZZtc2XqcDPz4hf2gpo1k7/AZd6HuPlAsDy6wye9Qw==}
+  '@langchain/openai@0.5.18':
+    resolution: {integrity: sha512-CX1kOTbT5xVFNdtLjnM0GIYNf+P7oMSu+dGCFxxWRa3dZwWiuyuBXCm+dToUGxDLnsHuV1bKBtIzrY1mLq/A1Q==}
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/core': '>=0.3.58 <0.4.0'
@@ -6109,7 +6109,7 @@ snapshots:
     transitivePeerDependencies:
       - react
 
-  '@langchain/openai@0.5.16(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.74)))(ws@8.18.3)':
+  '@langchain/openai@0.5.18(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.74)))(ws@8.18.3)':
     dependencies:
       '@langchain/core': 0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.74))
       js-tiktoken: 1.0.20
@@ -8496,7 +8496,7 @@ snapshots:
   langchain@0.3.29(@langchain/anthropic@0.3.24(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.74))))(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.74)))(openai@5.8.2(ws@8.18.3)(zod@3.25.74))(ws@8.18.3):
     dependencies:
       '@langchain/core': 0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.74))
-      '@langchain/openai': 0.5.16(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.74)))(ws@8.18.3)
+      '@langchain/openai': 0.5.18(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.74)))(ws@8.18.3)
       '@langchain/textsplitters': 0.1.0(@langchain/core@0.3.62(openai@5.8.2(ws@8.18.3)(zod@3.25.74)))
       js-tiktoken: 1.0.20
       js-yaml: 4.1.0
