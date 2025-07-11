@@ -24,8 +24,8 @@ importers:
         specifier: 0.3.62
         version: 0.3.62(openai@5.8.3(ws@8.18.3)(zod@3.25.76))
       '@langchain/langgraph':
-        specifier: 0.3.6
-        version: 0.3.6(@langchain/core@0.3.62(openai@5.8.3(ws@8.18.3)(zod@3.25.76)))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.25.76))
+        specifier: 0.3.7
+        version: 0.3.7(@langchain/core@0.3.62(openai@5.8.3(ws@8.18.3)(zod@3.25.76)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.25.76))
       '@langchain/openai':
         specifier: 0.5.18
         version: 0.5.18(@langchain/core@0.3.62(openai@5.8.3(ws@8.18.3)(zod@3.25.76)))(ws@8.18.3)
@@ -137,7 +137,7 @@ importers:
         version: 5.5.1(eslint-config-prettier@10.1.5(eslint@9.30.1(jiti@2.1.2)))(eslint@9.30.1(jiti@2.1.2))(prettier@3.6.2)
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 6.1.0-canary-96c61b7f-20250709(eslint@9.30.1(jiti@2.1.2))
+        version: 6.1.0-canary-97cdd5d3-20250710(eslint@9.30.1(jiti@2.1.2))
       eslint-plugin-react-refresh:
         specifier: 0.4.20
         version: 0.4.20(eslint@9.30.1(jiti@2.1.2))
@@ -1247,19 +1247,22 @@ packages:
     peerDependencies:
       '@langchain/core': '>=0.2.31 <0.4.0'
 
-  '@langchain/langgraph-sdk@0.0.89':
-    resolution: {integrity: sha512-TFNFfhVxAljV4dFJa53otnT3Ox0uN24ZdW7AfV1rTPe4QTnonxlRGEUl3SSky1CaaVxYaHN9dJyn9zyhxr2jVQ==}
+  '@langchain/langgraph-sdk@0.0.92':
+    resolution: {integrity: sha512-YL3uPo4At0q96Jk1v7uPctpf/NuKYlbHuQzuS03lQDvvzkLNBmw6ZRKr8SFmgZwmiHz2CNMfBP21kmb9aq/9Ug==}
     peerDependencies:
       '@langchain/core': '>=0.2.31 <0.4.0'
       react: ^18 || ^19
+      react-dom: ^18 || ^19
     peerDependenciesMeta:
       '@langchain/core':
         optional: true
       react:
         optional: true
+      react-dom:
+        optional: true
 
-  '@langchain/langgraph@0.3.6':
-    resolution: {integrity: sha512-TMRUEPb/eC5mS8XdY6gwLGX2druwFDxSWUQDXHHNsbrqhIrL3BPlw+UumjcKBQ8wvhk3gEspg4aHXGq8mAqbRA==}
+  '@langchain/langgraph@0.3.7':
+    resolution: {integrity: sha512-Cc0VUtuwFziCNqTNvD1QUNpMzhe9r8tTDIxFgpCwbF8oTNXxZ1tcd/iY9wr7gV5WhZm8DHEpZf3h4z3gFNeNMA==}
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/core': '>=0.3.58 < 0.4.0'
@@ -2815,8 +2818,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@6.1.0-canary-96c61b7f-20250709:
-    resolution: {integrity: sha512-A5cx3Yqtb9A3dchJwAsMggD6aOA3s9dKi2vw/iD9W/4Te9cVUFKPDzlIi3xXbhvGvjcp5YxKVBVkxsBO92lT/w==}
+  eslint-plugin-react-hooks@6.1.0-canary-97cdd5d3-20250710:
+    resolution: {integrity: sha512-Gn9yHEDxDSBd4hrUltaX5gNBiwo5ea0QbCXu6g7QGb/Y28bIaRIG0WESgd2ztkQ9xBThcNxdINem4X2Dlt+naA==}
     engines: {node: '>=18'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
@@ -6087,7 +6090,7 @@ snapshots:
       '@langchain/core': 0.3.62(openai@5.8.3(ws@8.18.3)(zod@3.25.76))
       uuid: 10.0.0
 
-  '@langchain/langgraph-sdk@0.0.89(@langchain/core@0.3.62(openai@5.8.3(ws@8.18.3)(zod@3.25.76)))(react@19.1.0)':
+  '@langchain/langgraph-sdk@0.0.92(@langchain/core@0.3.62(openai@5.8.3(ws@8.18.3)(zod@3.25.76)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
     dependencies:
       '@types/json-schema': 7.0.15
       p-queue: 6.6.2
@@ -6096,18 +6099,20 @@ snapshots:
     optionalDependencies:
       '@langchain/core': 0.3.62(openai@5.8.3(ws@8.18.3)(zod@3.25.76))
       react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
 
-  '@langchain/langgraph@0.3.6(@langchain/core@0.3.62(openai@5.8.3(ws@8.18.3)(zod@3.25.76)))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.25.76))':
+  '@langchain/langgraph@0.3.7(@langchain/core@0.3.62(openai@5.8.3(ws@8.18.3)(zod@3.25.76)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.25.76))':
     dependencies:
       '@langchain/core': 0.3.62(openai@5.8.3(ws@8.18.3)(zod@3.25.76))
       '@langchain/langgraph-checkpoint': 0.0.18(@langchain/core@0.3.62(openai@5.8.3(ws@8.18.3)(zod@3.25.76)))
-      '@langchain/langgraph-sdk': 0.0.89(@langchain/core@0.3.62(openai@5.8.3(ws@8.18.3)(zod@3.25.76)))(react@19.1.0)
+      '@langchain/langgraph-sdk': 0.0.92(@langchain/core@0.3.62(openai@5.8.3(ws@8.18.3)(zod@3.25.76)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       uuid: 10.0.0
       zod: 3.25.76
     optionalDependencies:
       zod-to-json-schema: 3.24.6(zod@3.25.76)
     transitivePeerDependencies:
       - react
+      - react-dom
 
   '@langchain/openai@0.5.18(@langchain/core@0.3.62(openai@5.8.3(ws@8.18.3)(zod@3.25.76)))(ws@8.18.3)':
     dependencies:
@@ -7963,7 +7968,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@6.1.0-canary-96c61b7f-20250709(eslint@9.30.1(jiti@2.1.2)):
+  eslint-plugin-react-hooks@6.1.0-canary-97cdd5d3-20250710(eslint@9.30.1(jiti@2.1.2)):
     dependencies:
       '@babel/core': 7.28.0
       '@babel/parser': 7.28.0
