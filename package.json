@@ -25,7 +25,7 @@
     "@react-aria/ssr": "3.9.9",
     "@types/uuid": "10.0.0",
     "clsx": "2.1.1",
-    "framer-motion": "12.23.1",
+    "framer-motion": "12.23.2",
     "langchain": "0.3.29",
     "lru-cache": "11.1.0",
     "lucide-react": "0.525.0",
