@@ -24,8 +24,8 @@ importers:
         specifier: 0.3.62
         version: 0.3.62(openai@5.9.0(ws@8.18.3)(zod@3.25.76))
       '@langchain/langgraph':
-        specifier: 0.3.7
-        version: 0.3.7(@langchain/core@0.3.62(openai@5.9.0(ws@8.18.3)(zod@3.25.76)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.25.76))
+        specifier: 0.3.8
+        version: 0.3.8(@langchain/core@0.3.62(openai@5.9.0(ws@8.18.3)(zod@3.25.76)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.25.76))
       '@langchain/openai':
         specifier: 0.5.18
         version: 0.5.18(@langchain/core@0.3.62(openai@5.9.0(ws@8.18.3)(zod@3.25.76)))(ws@8.18.3)
@@ -1261,8 +1261,8 @@ packages:
       react-dom:
         optional: true
 
-  '@langchain/langgraph@0.3.7':
-    resolution: {integrity: sha512-Cc0VUtuwFziCNqTNvD1QUNpMzhe9r8tTDIxFgpCwbF8oTNXxZ1tcd/iY9wr7gV5WhZm8DHEpZf3h4z3gFNeNMA==}
+  '@langchain/langgraph@0.3.8':
+    resolution: {integrity: sha512-JOtYNMa7BixzXrAtV76x1lS2+Blt4WLcbFUWwtiEqTMzwNg00fSvUQ6FaPeootL66iYamg67AVq12PerqMrelw==}
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/core': '>=0.3.58 < 0.4.0'
@@ -6101,7 +6101,7 @@ snapshots:
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
 
-  '@langchain/langgraph@0.3.7(@langchain/core@0.3.62(openai@5.9.0(ws@8.18.3)(zod@3.25.76)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.25.76))':
+  '@langchain/langgraph@0.3.8(@langchain/core@0.3.62(openai@5.9.0(ws@8.18.3)(zod@3.25.76)))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(zod-to-json-schema@3.24.6(zod@3.25.76))':
     dependencies:
       '@langchain/core': 0.3.62(openai@5.9.0(ws@8.18.3)(zod@3.25.76))
       '@langchain/langgraph-checkpoint': 0.0.18(@langchain/core@0.3.62(openai@5.9.0(ws@8.18.3)(zod@3.25.76)))
