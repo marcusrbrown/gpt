@@ -37,7 +37,7 @@ export type LocalFile = z.infer<typeof LocalFileSchema>
 export const MCPToolSchema = z.object({
   name: z.string(),
   description: z.string(),
-  schema: z.record(z.any()),
+  schema: z.record(z.any(), z.any()),
   endpoint: z.string(),
   authentication: z
     .object({
