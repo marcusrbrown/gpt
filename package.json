@@ -71,7 +71,7 @@
   },
   "pnpm": {
     "overrides": {
-      "jiti": "<2.2.0"
+      "jiti": "<2.5.0"
     },
     "onlyBuiltDependencies": [
       "@heroui/shared-utils",
