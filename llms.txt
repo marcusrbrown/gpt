@@ -1,0 +1,39 @@
+# GPT
+
+> Research and development platform for creating LLM-powered AI agents and assistants with complete data sovereignty, supporting multiple AI platforms including Ollama, Anthropic, and Azure OpenAI Service.
+
+The project combines modern AI frameworks with web technologies to create a flexible development environment for experimentation with LLM architectures and advanced AI interaction patterns. Built with TypeScript, React, and LangChain, it provides both a web interface and Jupyter notebook environment for agent development.
+
+## Documentation
+
+- [Main README](readme.md): Primary project documentation, tech stack overview, and getting started guide
+- [Project Overview](docs/overview.md): Core mission, primary features, and data architecture requirements
+- [Product Requirements Document](docs/prd.md): Comprehensive specification for the local-first GPT creation platform
+- [Agent Development Guide](agent-development.md): Framework for developing AI agents, architecture patterns, and implementation guide
+
+## Configuration
+
+- [Package Configuration](package.json): Project dependencies, scripts, and metadata
+- [Vite Configuration](vite.config.ts): Build tool configuration for development and production
+- [TypeScript Configuration](tsconfig.json): TypeScript compiler settings and project structure
+- [Tailwind Configuration](tailwind.config.ts): CSS framework configuration for styling
+- [ESLint Configuration](eslint.config.ts): Code linting rules and formatting standards
+
+## Notebooks
+
+- [Agent Template](notebooks/templates/agent.ipynb): Template for creating new AI agents
+- [Code Analyzer Agent](notebooks/agents/analysis/code-analyzer.ipynb): Agent for code analysis and security checking
+
+## Source Code
+
+- [Site Configuration](src/config/site.ts): Application configuration and external links
+- [App Component](src/App.tsx): Main React application component
+- [Component Library](src/components/): Reusable UI components including GPT editor and test pane
+- [Context Providers](src/contexts/): React context for conversation, OpenAI, and storage management
+- [Service Layer](src/services/): OpenAI service integration and local storage utilities
+
+## Optional
+
+- [License](license.md): MIT license terms and conditions
+- [Workspace Configuration](pnpm-workspace.yaml): PNPM workspace configuration
+- [Lock File](pnpm-lock.yaml): Dependency version lock file
