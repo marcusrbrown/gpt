@@ -1,8 +1,6 @@
-# GPT Project - AI Coding Agent Instructions
+# GPT AI Coding Instructions
 
-## Project Overview
-
-This is a TypeScript/React research platform for developing LLM-powered AI agents and assistants. It supports multiple AI platforms (OpenAI, Anthropic, Ollama) and provides both a web interface and Jupyter notebook environment for agent development using LangChain/LangGraph.
+This project is a research platform for developing LLM-powered AI agents and assistants with data sovereignty, supporting multiple AI platforms (Ollama, Anthropic, Azure OpenAI). It provides both a web interface and Jupyter notebook environment for agent development using LangChain/LangGraph.
 
 ## Architecture Patterns
 
@@ -37,6 +35,11 @@ Always define Zod schemas first, then infer TypeScript types. Use `.parse()` for
 
 ## Component Architecture
 
+### Key Components
+- **Form Components**: Large forms use controlled components with validation state.
+- **Code Editor**: Monaco Editor integration for code editing.
+- **Error Boundaries**: Error boundaries for graceful failure handling.
+
 ### Lazy Loading Pattern
 Components are lazy-loaded for performance (see `src/App.tsx`):
 ```typescript
@@ -53,14 +56,29 @@ Uses HeroUI components with custom theming via `next-themes`. Prefer HeroUI comp
 - `/gpt/test/:gptId` - Testing interface for GPTs
 - `/docs/*` - Documentation pages
 
+## Key Directories
+
+- `src/components/`: Reusable UI components, notably `gpt-editor.tsx` (1100+ lines)
+- `src/contexts/`: React context providers for global state
+- `src/types/`: Zod schemas and TypeScript type definitions
+- `src/services/`: API integrations and data persistence
+- `notebooks/`: Jupyter notebooks for agent development and research
+- `.cursor/rules/`: Technology-specific coding guidelines
+
 ## Development Workflow
 
 ### Commands
-- `pnpm dev` - Start development server (Vite)
+- `pnpm dev` - Start Vite development server
 - `pnpm build` - Production build (TypeScript + Vite)
-- `pnpm test` - Run Vitest tests
+- `pnpm test` - Run Vitest test suite
 - `pnpm test:coverage` - Generate test coverage
-- `pnpm lint` - ESLint checking
+- `pnpm lint` - ESLint with auto-fix capability
+
+### File Patterns
+- Components: Use HeroUI imports, functional components with hooks
+- Services: Return `Promise<Result>` with proper error handling
+- Types: Define Zod schema first, then infer TypeScript types
+- Tests: Co-located in `__tests__/` directories
 
 ### Testing Pattern
 Uses Vitest with React Testing Library. Test files in `__tests__/` directories alongside source files. Focus on testing context providers and service integrations.
@@ -70,9 +88,13 @@ Follow `.cursorrules` conventions:
 - Prefer early returns over nested conditions
 - Use descriptive names with "handle" prefix for event handlers
 - Minimize code changes, focus on DRY principles
-- Use functional/immutable patterns unless verbose
+- Use functional/immutable patterns unless verbose.
 
 ## AI Integration Patterns
+
+- GPT configurations support capabilities: code interpreter, web browsing, file search
+- Vector stores and file uploads handled through OpenAI service
+- Conversation state persists locally with export/import functionality
 
 ### OpenAI Service Usage
 Access OpenAI functionality through the service layer:
@@ -93,3 +115,5 @@ Jupyter notebooks in `notebooks/` directory use Deno kernel for TypeScript devel
 - `src/services/openai-service.ts` - Core AI integration logic
 - `src/types/gpt.ts` - Type definitions and validation schemas
 - `package.json` - Dependencies and scripts
+
+When adding features, prioritize type safety, follow existing patterns, and maintain the service layer abstraction.
