@@ -58,8 +58,9 @@ Uses HeroUI components with custom theming via `next-themes`. Prefer HeroUI comp
 
 ## Key Directories
 
-- `src/components/`: Reusable UI components, notably `gpt-editor.tsx` (1100+ lines)
+- `src/components/`: Reusable UI components, notably `gpt-editor.tsx` for the main GPT editor
 - `src/contexts/`: React context providers for global state
+- `src/hooks/`: Custom hooks for state management and service access
 - `src/types/`: Zod schemas and TypeScript type definitions
 - `src/services/`: API integrations and data persistence
 - `notebooks/`: Jupyter notebooks for agent development and research
@@ -73,6 +74,7 @@ Uses HeroUI components with custom theming via `next-themes`. Prefer HeroUI comp
 - `pnpm test` - Run Vitest test suite
 - `pnpm test:coverage` - Generate test coverage
 - `pnpm lint` - ESLint with auto-fix capability
+- `pnpm fix` - Apply code fixes using ESLint
 
 ### File Patterns
 - Components: Use HeroUI imports, functional components with hooks
@@ -109,11 +111,5 @@ GPT configs stored in localStorage with Zod validation. Use `useStorage()` hook 
 ### Notebook Integration
 Jupyter notebooks in `notebooks/` directory use Deno kernel for TypeScript development. Templates available in `notebooks/templates/`.
 
-## Key Files for Context
-- `src/App.tsx` - Main app structure and routing
-- `src/contexts/` - State management providers
-- `src/services/openai-service.ts` - Core AI integration logic
-- `src/types/gpt.ts` - Type definitions and validation schemas
-- `package.json` - Dependencies and scripts
-
+---
 When adding features, prioritize type safety, follow existing patterns, and maintain the service layer abstraction.

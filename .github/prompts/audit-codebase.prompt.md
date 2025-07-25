@@ -1,36 +1,215 @@
 ---
 mode: agent
-tools: ['changes', 'codebase', 'editFiles', 'extensions', 'fetch', 'githubRepo', 'openSimpleBrowser', 'problems', 'runTasks', 'search', 'searchResults', 'terminalLastCommand', 'terminalSelection', 'testFailure', 'usages', 'vscodeAPI', 'sequentialthinking']
+description: 'Comprehensive code audit framework for the GPT project, ensuring safety, security, and complete implementation with mandatory quality gates.'
+tools: ['changes', 'codebase', 'editFiles', 'fetch', 'findTestFiles', 'githubRepo', 'openSimpleBrowser', 'problems', 'runCommands', 'runTasks', 'runTests', 'search', 'searchResults', 'terminalLastCommand', 'testFailure', 'usages', 'vscodeAPI', 'sequentialthinking', 'get_current_time', 'microsoft.docs.mcp']
 ---
-Use #sequentialthinking to perform a comprehensive code audit of the GPT project codebase with these specific actions:
 
-1. ANALYZE: Evaluate the entire codebase against the project requirements and goals as defined in the [Overview](../../docs/overview.md) and [PRD](../../docs/prd.md).
-   - Ensure alignment with local-first architecture principles
-   - Verify adherence to TypeScript best practices
-   - Check for consistency in component architecture and usage of HeroUI components
-   - Confirm proper implementation of lazy loading patterns
-   - Assess the integration of AI services and MCP tools
+# Comprehensive Code Audit Framework
 
-2. IDENTIFY:
-   - Code duplication and redundant patterns
-   - Potential bugs and edge cases
-   - TODO comments requiring resolution
-   - Areas misaligned with our TypeScript best practices
+**SAFETY NOTICE**: This audit must consider security, bias, privacy, and responsible AI usage throughout all phases. Never expose sensitive data, credentials, or personally identifiable information in audit outputs.
 
-3. REFACTOR:
-   - Consolidate duplicated functionality
-   - Apply TypeScript best practices (strict typing, functional patterns, proper interfaces)
-   - Ensure code aligns with local-first architecture goals
-   - Maintain backward compatibility with existing functionality
+Use #sequentialthinking to perform a systematic, verifiable code audit of the GPT project codebase. Each phase includes mandatory completion criteria and quality gates that MUST be satisfied before proceeding.
 
-4. VERIFY:
-   - Run existing tests to confirm changes don't break functionality
-   - Document any changes made and reasoning behind them
-   - Suggest additional improvements for future implementation
+## PHASE 1: PREPARATION (Mandatory Baseline)
 
-5. OPTIMIZE:
-   - Improve performance where possible
-   - Enhance code readability and maintainability
-   - Ensure proper error handling throughout
+**Objective**: Establish audit baseline and safety framework
 
-When finished, provide a summary of findings, changes made, and any recommendations for future work. Use the tools available to you to gather information, analyze code, and make edits as necessary. Document your process and decisions clearly for transparency and future reference. Finally, list three key areas, explorations, or experiments for potential future improvements based on your findings as prompts for further development.
+### Required Actions:
+- [ ] **Environment Verification**: Confirm all tools and dependencies are available
+- [ ] **Baseline Metrics Collection**: Record current test coverage, bundle size, performance metrics
+- [ ] **Security Scan Setup**: Initialize vulnerability scanning tools
+- [ ] **Backup Verification**: Ensure current state can be restored if needed
+
+### Quality Gate 1: Environment Ready
+- [ ] All required tools are accessible
+- [ ] Baseline metrics documented
+- [ ] Safety protocols confirmed
+
+## PHASE 2: ANALYSIS (Enhanced Security & Bias Assessment)
+
+**Objective**: Comprehensive evaluation against project requirements with safety considerations
+
+### Required Actions:
+- [ ] **Architecture Alignment**: Evaluate against [Overview](../../docs/overview.md) and [PRD](../../docs/prd.md)
+  - Local-first architecture principles compliance
+  - TypeScript best practices adherence
+  - HeroUI component consistency
+  - Lazy loading pattern implementation
+  - AI services and MCP tools integration
+
+- [ ] **Security Analysis**:
+  - Vulnerability scanning of dependencies
+  - Data flow analysis for privacy compliance
+  - Input validation and sanitization review
+  - Authentication and authorization verification
+
+- [ ] **Bias and Fairness Assessment**:
+  - AI-generated content review for potential bias
+  - Accessibility compliance verification
+  - Inclusive design pattern analysis
+
+### Quality Gate 2: Analysis Complete
+- [ ] All architectural requirements assessed
+- [ ] Security vulnerabilities documented with severity levels
+- [ ] Bias assessment completed with findings documented
+
+## PHASE 3: IDENTIFICATION (Critical Priority Framework)
+
+**Objective**: Categorize issues by impact and priority with clear resolution requirements
+
+### Issue Classification (MANDATORY):
+
+#### **CRITICAL ISSUES** (Must Fix - Blocks Phase 4)
+- [ ] Build-breaking errors
+- [ ] Security vulnerabilities (High/Critical severity)
+- [ ] Data corruption risks
+- [ ] Performance blockers
+
+#### **HIGH PRIORITY** (Must Address)
+- [ ] Functionality-affecting bugs
+- [ ] Type safety violations
+- [ ] Accessibility barriers
+- [ ] Privacy compliance gaps
+
+#### **MEDIUM PRIORITY** (Should Fix)
+- [ ] Code duplication patterns
+- [ ] Maintainability concerns
+- [ ] TODO comments requiring resolution
+- [ ] Documentation gaps
+
+#### **LOW PRIORITY** (Can Defer)
+- [ ] Style inconsistencies
+- [ ] Minor optimization opportunities
+- [ ] Non-critical warnings
+
+### Quality Gate 3: Issues Prioritized
+- [ ] All critical issues identified and documented
+- [ ] Clear resolution plan for each critical and high-priority issue
+- [ ] Impact assessment completed for each issue category
+
+## PHASE 4: REFACTORING (End-to-End Completion Required)
+
+**Objective**: Complete, integrated refactoring with mandatory verification steps
+
+### Critical Requirements (NO PARTIAL COMPLETION):
+- [ ] **Component Extraction**: Extract reusable components
+- [ ] **Import Path Resolution**: Update all import statements
+- [ ] **Parent Component Integration**: Verify integration in all consuming components
+- [ ] **Unused Code Cleanup**: Remove all orphaned code and dependencies
+- [ ] **Type Safety Enhancement**: Resolve all TypeScript errors and warnings
+- [ ] **Error Handling**: Implement comprehensive error boundaries and validation
+
+### Integration Verification (Mandatory for Each Change):
+- [ ] Component renders without errors in all contexts
+- [ ] Props pass correctly to all sub-components
+- [ ] Event handlers function as expected
+- [ ] State management operates correctly
+- [ ] No console errors or warnings
+
+### Quality Gate 4: Refactoring Complete
+- [ ] ALL refactoring tasks completed end-to-end
+- [ ] NO partial implementations remain
+- [ ] Integration verified for every changed component
+- [ ] All new code follows established patterns
+
+## PHASE 5: VERIFICATION (Mandatory Quality Gates)
+
+**Objective**: Comprehensive verification with BLOCKING requirements
+
+### **BLOCKING REQUIREMENTS** (Must Pass 100%):
+
+#### **Build Gate** (MANDATORY)
+- [ ] `pnpm build` succeeds without errors
+- [ ] TypeScript compilation passes with zero errors
+- [ ] No build-time warnings for new code
+
+#### **Test Gate** (MANDATORY)
+- [ ] `pnpm test` achieves 100% pass rate
+- [ ] All existing tests continue to pass
+- [ ] New functionality has corresponding tests
+- [ ] Test coverage maintained or improved
+
+#### **Critical Lint Gate** (MANDATORY)
+- [ ] ZERO critical linting errors
+- [ ] All high-priority warnings resolved
+- [ ] Remaining warnings documented with justification
+
+#### **Integration Gate** (MANDATORY)
+- [ ] Manual verification of all key user workflows
+- [ ] End-to-end functionality testing
+- [ ] No regression in core features
+- [ ] Performance metrics maintained or improved
+
+#### **Security Gate** (MANDATORY)
+- [ ] All critical and high-severity vulnerabilities resolved
+- [ ] Security best practices implemented
+- [ ] No sensitive data exposed in logs or outputs
+
+### Quality Gate 5: Verification Passed
+- [ ] ALL quality gates passed with 100% success
+- [ ] NO blocking issues remain
+- [ ] Comprehensive test results documented
+
+## PHASE 6: OPTIMIZATION (Enhanced Performance & Accessibility)
+
+**Objective**: Performance, accessibility, and security optimization
+
+### Required Actions:
+- [ ] **Performance Enhancement**: Bundle size optimization, code splitting, lazy loading
+- [ ] **Accessibility Improvement**: WCAG compliance, keyboard navigation, screen reader support
+- [ ] **Security Hardening**: Additional security measures, secure coding practices
+- [ ] **Code Quality**: Enhanced readability, maintainability, and documentation
+
+### Quality Gate 6: Optimization Complete
+- [ ] Performance metrics improved or maintained
+- [ ] Accessibility standards met
+- [ ] Security posture enhanced
+- [ ] Code quality metrics improved
+
+## PHASE 7: DOCUMENTATION (Comprehensive Reporting)
+
+**Objective**: Complete documentation of all changes and decisions
+
+### Required Deliverables:
+- [ ] **Technical Changes Report**: Detailed list of all modifications
+- [ ] **Architecture Decision Records**: Rationale for significant changes
+- [ ] **Test Results Summary**: Complete test execution results
+- [ ] **Performance Impact Analysis**: Before/after metrics comparison
+- [ ] **Security Assessment**: Vulnerability resolution and improvements
+- [ ] **Outstanding Issues**: Documented remaining items with priority levels
+- [ ] **Future Recommendations**: Actionable next steps for continued improvement
+
+### Quality Gate 7: Documentation Complete
+- [ ] All deliverables completed with sufficient detail
+- [ ] Changes are clearly explained and justified
+- [ ] Future work is properly prioritized
+
+## FAILURE HANDLING
+
+**If any Quality Gate fails:**
+1. **STOP** progression to next phase
+2. **DOCUMENT** the specific failure
+3. **RESOLVE** the blocking issue completely
+4. **RE-VERIFY** the gate before proceeding
+5. **UPDATE** documentation with resolution details
+
+## SUCCESS CRITERIA
+
+**Audit is complete ONLY when:**
+- [ ] ALL quality gates passed (1-7)
+- [ ] ALL critical and high-priority issues resolved
+- [ ] ALL tests passing at 100% success rate
+- [ ] ALL documentation deliverables completed
+- [ ] NO partial implementations or temporary fixes remain
+
+## FINAL DELIVERABLE
+
+Provide a comprehensive audit report including:
+1. **Executive Summary** with key findings and improvements
+2. **Detailed Technical Report** with all changes documented
+3. **Quality Metrics Comparison** (before/after)
+4. **Security and Bias Assessment Results**
+5. **Outstanding Issues** with clear priority levels
+6. **Three Future Improvement Prompts** for continued development
+
+**Remember**: This audit prioritizes safety, security, and complete implementation over speed. Quality gates are mandatory checkpoints that ensure no partial work is left incomplete.
