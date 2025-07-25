@@ -3,7 +3,7 @@
   extends: ['github>marcusrbrown/renovate-config#4.2.0'],
   packageRules: [
     {
-      description: 'Automerge minor updates of `lucide-react` once a month.',
+      description: ['Automerge unstable minor updates of `lucide-react` once a month.'],
       matchCurrentVersion: '0.x',
       matchPackageNames: ['lucide-react'],
       matchUpdateTypes: ['minor'],
@@ -11,15 +11,22 @@
       schedule: ['before 7am on the first day of the month'],
     },
     {
-      description: 'Group packages from LangChain.js monorepo together.',
+      description: ['Group packages from LangChain.js monorepo together.'],
       matchSourceUrls: ['https://github.com/langchain-ai/langchainjs'],
       matchUpdateTypes: ['digest', 'patch', 'minor', 'major'],
       groupName: 'LangChain.js monorepo',
       groupSlug: 'langchainjs-monorepo',
     },
+    {
+      description: ['Automerge unstable minor updates of `@langchain-ai/langgraph`.'],
+      matchCurrentVersion: '0.x',
+      matchPackageNames: ['@langchain-ai/langgraph'],
+      matchUpdateTypes: ['minor'],
+      automerge: true,
+    },
   ],
   postUpgradeTasks: {
-    commands: ['pnpm run bootstrap', 'pnpm run fix'],
+    commands: ['pnpm run bootstrap', 'pnpm run fix', 'pnpm run build'],
     executionMode: 'branch',
   },
 }
