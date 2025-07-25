@@ -66,6 +66,81 @@ Uses HeroUI components with custom theming via `next-themes`. Prefer HeroUI comp
 - `notebooks/`: Jupyter notebooks for agent development and research
 - `.cursor/rules/`: Technology-specific coding guidelines
 
+## Design System & UI Patterns
+
+The project uses a comprehensive design system built on TailwindCSS and HeroUI. Always follow these patterns:
+
+### Component Architecture
+- **HeroUI First**: Use HeroUI components as the primary building blocks (`Button`, `Card`, `Input`, etc.)
+- **Semantic Tokens**: Use design system color tokens instead of hardcoded values
+- **Consistent Spacing**: Follow the 4px-based spacing scale (1, 2, 3, 4, 6, 8, 12, 16)
+- **Typography Scale**: Use the standardized font sizes and maintain proper hierarchy
+
+### Color Usage
+```tsx
+// ✅ Good - using semantic tokens
+<div className="bg-surface-secondary text-content-primary border-border-default">
+
+// ❌ Avoid - hardcoded colors
+<div className="bg-white text-black border-gray-200">
+```
+
+### Component Patterns
+```tsx
+// Standard card pattern
+<Card className="p-6 shadow-sm hover:shadow-md transition-all">
+  <CardHeader className="pb-4">
+    <h3 className="text-xl font-semibold text-content-primary">{title}</h3>
+  </CardHeader>
+  <CardBody>
+    <p className="text-content-secondary">{description}</p>
+  </CardBody>
+</Card>
+
+// Button hierarchy
+<Button color="primary" variant="solid">Primary Action</Button>
+<Button color="primary" variant="bordered">Secondary</Button>
+<Button color="default" variant="light">Tertiary</Button>
+<Button color="danger" variant="solid">Destructive</Button>
+```
+
+### Responsive Design
+- Use mobile-first approach with `sm:`, `md:`, `lg:`, `xl:` breakpoints
+- Implement responsive grids: `grid-cols-1 md:grid-cols-2 lg:grid-cols-3`
+- Ensure proper spacing on all screen sizes
+
+### Accessibility Requirements
+- Include proper ARIA labels for icon buttons: `aria-label="Close dialog"`
+- Maintain focus management with visible focus rings
+- Use semantic HTML elements and proper heading hierarchy
+- Ensure 4.5:1 color contrast ratio minimum
+
+### Loading & Error States
+```tsx
+// Loading states
+<Button isLoading color="primary">Save Changes</Button>
+<Spinner size="lg" color="primary" />
+
+// Error states
+<Input isInvalid={hasError} errorMessage="This field is required" />
+
+// Empty states
+<div className="text-center py-12">
+  <Icon className="mx-auto h-12 w-12 text-content-tertiary mb-4" />
+  <h3 className="text-lg font-medium text-content-primary mb-2">No items found</h3>
+  <p className="text-content-secondary mb-6">Get started by creating your first item.</p>
+  <Button color="primary">Create Item</Button>
+</div>
+```
+
+### Migration Guidelines
+When updating existing components:
+1. Replace CSS custom properties (`--text-primary`) with semantic tokens (`text-content-primary`)
+2. Migrate custom classes to HeroUI components where possible
+3. Apply consistent spacing using the design system scale
+4. Ensure all states (loading, error, empty) follow the standard patterns
+5. Add proper TypeScript types and Zod validation
+
 ## Development Workflow
 
 ### Commands
