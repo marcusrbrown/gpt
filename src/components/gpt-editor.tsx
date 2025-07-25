@@ -1,6 +1,7 @@
-import {Button, Input, Select, SelectItem, Spinner, Tab, Tabs} from '@heroui/react'
+import {Button, Input, Spinner, Tab, Tabs} from '@heroui/react'
 import {useEffect, useRef, useState} from 'react'
 import {v4 as uuidv4} from 'uuid'
+import {useGPTValidation} from '../hooks/use-gpt-validation'
 import {useOpenAIService} from '../hooks/use-openai-service'
 import {useStorage} from '../hooks/use-storage'
 import {
@@ -12,29 +13,13 @@ import {
   type MCPTool,
   type VectorStore,
 } from '../types/gpt'
+import {CapabilitiesConfiguration} from './capabilities-configuration'
+import {KnowledgeConfiguration} from './knowledge-configuration'
+import {ToolsConfiguration} from './tools-configuration'
 
 interface GPTEditorProps {
   gptId?: string | undefined
   onSave?: (gpt: GPTConfiguration) => void
-}
-
-interface FormErrors {
-  name?: string
-  description?: string
-  systemPrompt?: string
-  tools: {
-    [key: number]: {
-      name?: string
-      description?: string
-      endpoint?: string
-      authentication?: string
-    }
-  }
-  knowledge: {
-    urls: {
-      [key: number]: string
-    }
-  }
 }
 
 const DEFAULT_GPT: Omit<GPTConfiguration, 'id'> = {
@@ -57,18 +42,6 @@ const DEFAULT_GPT: Omit<GPTConfiguration, 'id'> = {
   createdAt: new Date(),
   updatedAt: new Date(),
   version: 1,
-}
-
-const AUTH_TYPES = [
-  {label: 'Bearer Token', value: 'bearer'},
-  {label: 'API Key', value: 'api_key'},
-]
-
-const DEFAULT_ERRORS: FormErrors = {
-  tools: {},
-  knowledge: {
-    urls: {},
-  },
 }
 
 // Define update type for streamRun
@@ -230,7 +203,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
     }
     return {...DEFAULT_GPT, id: uuidv4()}
   })
-  const [errors, setErrors] = useState<FormErrors>(DEFAULT_ERRORS)
+  const {errors, validateForm, clearFieldError} = useGPTValidation()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [activeTab, setActiveTab] = useState('edit')
   const [testMessage, setTestMessage] = useState('')
@@ -270,94 +243,6 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
     setCompletionPercentage(percentage)
   }, [gpt.name, gpt.description, gpt.systemPrompt])
 
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {
-      tools: {},
-      knowledge: {
-        urls: {},
-      },
-    }
-
-    let isValid = true
-
-    // Basic validation with more detailed error messages
-    if (!gpt.name.trim()) {
-      newErrors.name = 'Name is required for your GPT'
-      isValid = false
-    } else if (gpt.name.length > 50) {
-      newErrors.name = 'Name must be 50 characters or less'
-      isValid = false
-    }
-
-    if (!gpt.description.trim()) {
-      newErrors.description = 'Description is required to explain what your GPT does'
-      isValid = false
-    } else if (gpt.description.length > 500) {
-      newErrors.description = 'Description must be 500 characters or less'
-      isValid = false
-    }
-
-    if (!gpt.systemPrompt.trim()) {
-      newErrors.systemPrompt = 'System prompt is required to define your GPT behavior'
-      isValid = false
-    } else if (gpt.systemPrompt.length > 4000) {
-      newErrors.systemPrompt = 'System prompt exceeds the maximum of 4000 characters'
-      isValid = false
-    }
-
-    // Tool validation with specific field requirements
-    gpt.tools.forEach((tool, index) => {
-      const toolErrors: FormErrors['tools'][number] = {}
-
-      if (!tool.name.trim()) {
-        toolErrors.name = 'Tool name is required'
-        isValid = false
-      } else if (tool.name.length > 50) {
-        toolErrors.name = 'Tool name must be 50 characters or less'
-        isValid = false
-      }
-
-      if (!tool.description.trim()) {
-        toolErrors.description = 'Tool description is required'
-        isValid = false
-      } else if (tool.description.length > 200) {
-        toolErrors.description = 'Tool description must be 200 characters or less'
-        isValid = false
-      }
-
-      if (!tool.endpoint.trim()) {
-        toolErrors.endpoint = 'Tool endpoint URL is required'
-        isValid = false
-      } else if (!/^https?:\/\/.+/.test(tool.endpoint)) {
-        toolErrors.endpoint = 'Tool endpoint must be a valid URL starting with http:// or https://'
-        isValid = false
-      }
-
-      if (tool.authentication?.type && !tool.authentication.value) {
-        toolErrors.authentication = 'Authentication value is required when type is selected'
-        isValid = false
-      }
-
-      if (Object.keys(toolErrors).length > 0) {
-        newErrors.tools[index] = toolErrors
-      }
-    })
-
-    // URL validation with proper format checking
-    gpt.knowledge.urls.forEach((url, index) => {
-      if (!url) {
-        newErrors.knowledge.urls[index] = 'URL cannot be empty'
-        isValid = false
-      } else if (!/^https?:\/\/.+/.test(url)) {
-        newErrors.knowledge.urls[index] = 'Please enter a valid URL starting with http:// or https://'
-        isValid = false
-      }
-    })
-
-    setErrors(newErrors)
-    return isValid
-  }
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const {name, value} = e.target
     setGpt(prev => ({
@@ -366,8 +251,8 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
       updatedAt: new Date(),
     }))
     // Clear error when user starts typing
-    if (errors[name as keyof FormErrors]) {
-      setErrors(prev => ({...prev, [name]: undefined}))
+    if (errors[name as keyof typeof errors]) {
+      clearFieldError(name as keyof typeof errors)
     }
   }
 
@@ -487,7 +372,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!validateForm()) {
+    if (!validateForm(gpt)) {
       return
     }
 
@@ -742,7 +627,6 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                 />
                 <FormFieldError error={errors.name!} />
               </div>
-
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                   Description
@@ -762,7 +646,6 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                 />
                 <FormFieldError error={errors.description!} />
               </div>
-
               <div>
                 <label htmlFor="systemPrompt" className="block text-sm font-medium text-gray-700">
                   System Prompt
@@ -782,108 +665,14 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                 />
                 <FormFieldError error={errors.systemPrompt!} />
               </div>
-
-              <div>
-                <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium text-gray-700">Tools</label>
-                  <Button onPress={handleAddTool} size="sm" color="primary">
-                    Add Tool
-                  </Button>
-                </div>
-                <div className="mt-4 space-y-4">
-                  {gpt.tools.map((tool, index) => (
-                    <div key={index} className="p-4 border rounded-lg space-y-4">
-                      <div className="flex justify-between items-start">
-                        <h4 className="text-sm font-medium text-gray-700">Tool {index + 1}</h4>
-                        <Button onPress={() => handleRemoveTool(index)} size="sm" color="danger" variant="light">
-                          Remove
-                        </Button>
-                      </div>
-                      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700">Name</label>
-                          <Input
-                            value={tool.name}
-                            onChange={e => handleToolChange(index, 'name', e.target.value)}
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700">Description</label>
-                          <Input
-                            value={tool.description}
-                            onChange={e => handleToolChange(index, 'description', e.target.value)}
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700">Endpoint</label>
-                          <Input
-                            value={tool.endpoint}
-                            onChange={e => handleToolChange(index, 'endpoint', e.target.value)}
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700">Authentication Type</label>
-                          <Select
-                            value={tool.authentication?.type}
-                            onChange={e =>
-                              handleToolChange(index, 'authentication', {
-                                type: e.target.value,
-                                value: '',
-                              })
-                            }
-                          >
-                            {AUTH_TYPES.map(type => (
-                              <SelectItem key={type.value} textValue={type.label}>
-                                {type.label}
-                              </SelectItem>
-                            ))}
-                          </Select>
-                        </div>
-                        {tool.authentication && (
-                          <div className="sm:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700">Authentication Value</label>
-                            <Input
-                              type="password"
-                              value={tool.authentication.value}
-                              onChange={e =>
-                                handleToolChange(index, 'authentication', {
-                                  ...tool.authentication,
-                                  value: e.target.value,
-                                })
-                              }
-                              required
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Capabilities</label>
-                <div className="mt-2 space-y-2">
-                  {Object.entries(gpt.capabilities).map(([key, value]) => (
-                    <div key={key} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        id={key}
-                        checked={typeof value === 'boolean' ? value : value.enabled}
-                        onChange={() => handleCapabilityChange(key as keyof GPTCapabilities)}
-                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                      />
-                      <label htmlFor={key} className="ml-2 block text-sm text-gray-900">
-                        {key.replaceAll(/([A-Z])/g, ' $1').trim()}
-                      </label>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
+              <ToolsConfiguration
+                tools={gpt.tools}
+                errors={{tools: errors.tools}}
+                onAddTool={handleAddTool}
+                onRemoveTool={handleRemoveTool}
+                onToolChange={handleToolChange}
+              />
+              <CapabilitiesConfiguration capabilities={gpt.capabilities} onCapabilityChange={handleCapabilityChange} />{' '}
               <div>
                 <div className="flex items-center justify-between">
                   <label className="block text-sm font-medium text-gray-700">Knowledge Base</label>
@@ -947,79 +736,16 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
           <div className="p-4 space-y-6 max-w-full overflow-y-auto">
             <h2 className="text-xl font-bold">Knowledge Sources</h2>
 
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Files</h3>
-              <div className="border-dashed border-2 border-gray-300 rounded-md p-6 text-center">
-                <input type="file" ref={fileInputRef} onChange={handleFileUpload} multiple className="hidden" />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="text-blue-600 hover:text-blue-800 focus:outline-none"
-                >
-                  Upload Files
-                </button>
-                <p className="mt-2 text-sm text-gray-600">Upload files to use as knowledge sources for your GPT</p>
-              </div>
-
-              {/* Display uploaded files */}
-              {gpt.knowledge.files.length > 0 && (
-                <div className="mt-4">
-                  <h4 className="text-md font-medium mb-2">Uploaded Files</h4>
-                  <div className="border rounded-md overflow-hidden">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Size</th>
-                          <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {gpt.knowledge.files.map((file, index) => (
-                          <tr key={index}>
-                            <td className="px-3 py-2 text-sm text-gray-900">{file.name}</td>
-                            <td className="px-3 py-2 text-sm text-gray-500">{file.type || 'Unknown'}</td>
-                            <td className="px-3 py-2 text-sm text-gray-500">{Math.round(file.size / 1024)} KB</td>
-                            <td className="px-3 py-2 text-right">
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveFile(index)}
-                                className="text-red-600 hover:text-red-900 text-sm"
-                              >
-                                Remove
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-4 mt-8">
-              <h3 className="text-lg font-medium">Web URLs</h3>
-              <div className="space-y-3">
-                {gpt.knowledge.urls.map((url, index) => (
-                  <div key={index} className="flex space-x-2">
-                    <Input
-                      value={url}
-                      onChange={e => handleUrlChange(index, e.target.value)}
-                      placeholder="https://example.com"
-                      className="flex-1"
-                    />
-                    <Button color="danger" variant="ghost" onPress={() => handleRemoveUrl(index)}>
-                      Remove
-                    </Button>
-                  </div>
-                ))}
-                <Button color="primary" variant="ghost" onPress={handleAddUrl}>
-                  Add URL
-                </Button>
-              </div>
-            </div>
+            <KnowledgeConfiguration
+              files={gpt.knowledge.files}
+              urls={gpt.knowledge.urls}
+              errors={{knowledge: {urls: errors.knowledge?.urls || {}}}}
+              onFileUpload={handleFileUpload}
+              onRemoveFile={handleRemoveFile}
+              onAddUrl={handleAddUrl}
+              onRemoveUrl={handleRemoveUrl}
+              onUrlChange={handleUrlChange}
+            />
 
             <div className="mt-8">
               <VectorKnowledge

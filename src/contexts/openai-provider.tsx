@@ -1,4 +1,4 @@
-import React, {createContext, use, useEffect, useMemo, useState, type ReactNode} from 'react'
+import React, {createContext, use, useCallback, useEffect, useMemo, useState, type ReactNode} from 'react'
 import createOpenAIService from '../services/openai-service'
 
 interface OpenAIContextValue {
@@ -37,17 +37,20 @@ export function OpenAIProvider({children}: OpenAIProviderProps) {
     }
   }, [service])
 
-  const setApiKey = (key: string) => {
-    try {
-      setApiKeyState(key)
-      service.setApiKey(key)
-      localStorage.setItem('openai_api_key', key)
-    } catch (error) {
-      console.error('Error storing API key:', error)
-    }
-  }
+  const setApiKey = useCallback(
+    (key: string) => {
+      try {
+        setApiKeyState(key)
+        service.setApiKey(key)
+        localStorage.setItem('openai_api_key', key)
+      } catch (error) {
+        console.error('Error storing API key:', error)
+      }
+    },
+    [service],
+  )
 
-  const clearApiKey = () => {
+  const clearApiKey = useCallback(() => {
     try {
       setApiKeyState(null)
       service.setApiKey('')
@@ -55,9 +58,20 @@ export function OpenAIProvider({children}: OpenAIProviderProps) {
     } catch (error) {
       console.error('Error clearing API key:', error)
     }
-  }
+  }, [service])
 
-  return <OpenAIContext value={{apiKey, setApiKey, clearApiKey, isInitialized, service}}>{children}</OpenAIContext>
+  const contextValue = useMemo(
+    () => ({
+      apiKey,
+      setApiKey,
+      clearApiKey,
+      isInitialized,
+      service,
+    }),
+    [apiKey, isInitialized, service, setApiKey, clearApiKey],
+  )
+
+  return <OpenAIContext value={contextValue}>{children}</OpenAIContext>
 }
 
 export function useOpenAI() {
