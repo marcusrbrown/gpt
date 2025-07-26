@@ -1,10 +1,12 @@
 import {clsx, type ClassValue} from 'clsx'
+import {twMerge} from 'tailwind-merge'
 
 /**
  * Utility for combining class names with design system consistency
+ * Uses tailwind-merge for proper Tailwind class deduplication
  */
 export function cn(...inputs: ClassValue[]) {
-  return clsx(inputs)
+  return twMerge(clsx(inputs))
 }
 
 /**

@@ -1,6 +1,20 @@
 import type {Config} from 'tailwindcss'
 import {heroui} from '@heroui/react'
 
+const brandColors = {
+  50: '#eff6ff',
+  100: '#dbeafe',
+  200: '#bfdbfe',
+  300: '#93c5fd',
+  400: '#60a5fa',
+  500: '#3b82f6', // Primary brand blue
+  600: '#2563eb',
+  700: '#1d4ed8',
+  800: '#1e40af',
+  900: '#1e3a8a',
+  950: '#172554',
+}
+
 export default {
   content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}', './node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}'],
   theme: {
@@ -8,19 +22,7 @@ export default {
       // GPT Design System - Custom Design Tokens
       colors: {
         // Primary brand colors that work with HeroUI
-        brand: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6', // Primary brand blue
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
-          950: '#172554',
-        },
+        brand: brandColors,
         // Semantic colors
         surface: {
           primary: 'hsl(var(--surface-primary))',
@@ -111,17 +113,8 @@ export default {
         light: {
           colors: {
             primary: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              200: '#bfdbfe',
-              300: '#93c5fd',
-              400: '#60a5fa',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              800: '#1e40af',
-              900: '#1e3a8a',
-              DEFAULT: '#3b82f6',
+              ...brandColors,
+              DEFAULT: brandColors[500],
               foreground: '#ffffff',
             },
           },
@@ -129,17 +122,8 @@ export default {
         dark: {
           colors: {
             primary: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              200: '#bfdbfe',
-              300: '#93c5fd',
-              400: '#60a5fa',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-              800: '#1e40af',
-              900: '#1e3a8a',
-              DEFAULT: '#60a5fa',
+              ...brandColors,
+              DEFAULT: brandColors[400],
               foreground: '#ffffff',
             },
           },
