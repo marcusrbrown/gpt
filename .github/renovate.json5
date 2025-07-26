@@ -18,9 +18,9 @@
       groupSlug: 'langchainjs-monorepo',
     },
     {
-      description: ['Automerge unstable minor updates of `@langchain-ai/langgraph`.'],
+      description: ['Automerge unstable minor updates of `@langchain/langgraph`.'],
       matchCurrentVersion: '0.x',
-      matchPackageNames: ['@langchain-ai/langgraph'],
+      matchPackageNames: ['@langchain/langgraph'],
       matchUpdateTypes: ['minor'],
       automerge: true,
     },
