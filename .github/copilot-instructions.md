@@ -1,6 +1,8 @@
 # GPT AI Coding Instructions
 
-This project is a research platform for developing LLM-powered AI agents and assistants with data sovereignty, supporting multiple AI platforms (Ollama, Anthropic, Azure OpenAI). It provides both a web interface and Jupyter notebook environment for agent development using LangChain/LangGraph.
+This project is a research platform for developing LLM-powered AI agents and assistants with complete data sovereignty, supporting multiple AI platforms (Ollama, Anthropic, Azure OpenAI). It provides both a web interface and Jupyter notebook environment for agent development using LangChain/LangGraph.
+
+Key architectural principle: **Local-first data architecture** - all GPT configurations, conversations, and user data are stored locally in the browser using localStorage with Zod validation. No external data persistence required.
 
 ## Architecture Patterns
 
@@ -68,41 +70,89 @@ Uses HeroUI components with custom theming via `next-themes`. Prefer HeroUI comp
 
 ## Design System & UI Patterns
 
-The project uses a comprehensive design system built on TailwindCSS and HeroUI. Always follow these patterns:
+The project uses a sophisticated design system built on TailwindCSS, HeroUI, and custom utility functions. Always follow these patterns:
+
+### Design System Utilities (`src/lib/design-system.ts`)
+The project provides powerful composition helpers and utility functions:
+- **`cn()`**: Combines class names with deduplication via `tailwind-merge`
+- **`ds` object**: Predefined design tokens for cards, buttons, typography, layout, forms, states, animations, and focus
+- **`responsive` object**: Responsive patterns for grids, typography, and spacing
+- **`compose` helpers**: High-level composition functions for common patterns
+- **`theme` functions**: Theme-aware utilities for surfaces, content, and borders
+
+```tsx
+import {cn, ds, compose, theme} from '@/lib/design-system'
+
+// Use composition helpers for common patterns
+<div className={compose.page()}>
+  <Card className={compose.card('mb-6')}>
+    <h2 className={ds.text.heading.h2}>Title</h2>
+    <p className={ds.text.body.base}>Content</p>
+  </Card>
+</div>
+
+// Use responsive patterns
+<div className={ds.layout.cardGrid}>
+  {/* Cards automatically responsive */}
+</div>
+```
 
 ### Component Architecture
 - **HeroUI First**: Use HeroUI components as the primary building blocks (`Button`, `Card`, `Input`, etc.)
-- **Semantic Tokens**: Use design system color tokens instead of hardcoded values
+- **Design System Layer**: Prefer design system utilities over custom classes
 - **Consistent Spacing**: Follow the 4px-based spacing scale (1, 2, 3, 4, 6, 8, 12, 16)
-- **Typography Scale**: Use the standardized font sizes and maintain proper hierarchy
+- **Typography Scale**: Use `ds.text.heading.*` and `ds.text.body.*` utilities
 
-### Color Usage
+### Color Usage & CSS Custom Properties
+The project uses CSS custom properties for semantic color tokens that support both light and dark themes:
+
 ```tsx
 // ✅ Good - using semantic tokens
 <div className="bg-surface-secondary text-content-primary border-border-default">
+
+// ✅ Also good - using theme utilities
+<div className={cn(theme.surface(1), theme.content('primary'), theme.border())}>
 
 // ❌ Avoid - hardcoded colors
 <div className="bg-white text-black border-gray-200">
 ```
 
+Available semantic tokens:
+- **Surface**: `surface-primary`, `surface-secondary`, `surface-tertiary`, `surface-elevated`
+- **Content**: `content-primary`, `content-secondary`, `content-tertiary`, `content-inverse`
+- **Border**: `border-default`, `border-subtle`, `border-strong`
+
 ### Component Patterns
 ```tsx
-// Standard card pattern
-<Card className="p-6 shadow-sm hover:shadow-md transition-all">
+// Standard card pattern using design system utilities
+<Card className={compose.card()}>
   <CardHeader className="pb-4">
-    <h3 className="text-xl font-semibold text-content-primary">{title}</h3>
+    <h3 className={ds.text.heading.h3}>{title}</h3>
   </CardHeader>
   <CardBody>
-    <p className="text-content-secondary">{description}</p>
+    <p className={ds.text.body.base}>{description}</p>
   </CardBody>
 </Card>
 
-// Button hierarchy
+// Interactive card with state handling
+<Card className={cn(ds.card.base, ds.card.interactive, ds.animation.transition, 'p-6')}>
+  {/* Card content */}
+</Card>
+
+// Button hierarchy with design system
 <Button color="primary" variant="solid">Primary Action</Button>
 <Button color="primary" variant="bordered">Secondary</Button>
 <Button color="default" variant="light">Tertiary</Button>
 <Button color="danger" variant="solid">Destructive</Button>
 ```
+
+### Theme Integration
+The project uses a three-layer theming system:
+1. **HeroUI**: Base component theming with brand color integration
+2. **next-themes**: System/manual theme switching
+3. **CSS Custom Properties**: Semantic tokens that adapt to theme changes
+
+Theme setup in `src/providers.tsx` with automatic theme detection and proper SSR handling.
 
 ### Responsive Design
 - Use mobile-first approach with `sm:`, `md:`, `lg:`, `xl:` breakpoints
@@ -117,29 +167,42 @@ The project uses a comprehensive design system built on TailwindCSS and HeroUI. 
 
 ### Loading & Error States
 ```tsx
-// Loading states
-<Button isLoading color="primary">Save Changes</Button>
-<Spinner size="lg" color="primary" />
+// Loading states with design system
+<Button isLoading color="primary" className={ds.animation.transition}>Save Changes</Button>
+<div className={cn(ds.state.loading, 'flex justify-center p-8')}>
+  <Spinner size="lg" color="primary" />
+</div>
 
-// Error states
-<Input isInvalid={hasError} errorMessage="This field is required" />
+// Error states using state utilities
+<Input isInvalid={hasError} errorMessage="This field is required"
+       className={cn(hasError && ds.state.error)} />
 
-// Empty states
-<div className="text-center py-12">
+// Empty states with composition helper
+<div className={ds.state.empty}>
   <Icon className="mx-auto h-12 w-12 text-content-tertiary mb-4" />
-  <h3 className="text-lg font-medium text-content-primary mb-2">No items found</h3>
-  <p className="text-content-secondary mb-6">Get started by creating your first item.</p>
+  <h3 className={ds.text.heading.h4}>No items found</h3>
+  <p className={cn(ds.text.body.base, 'mb-6')}>Get started by creating your first item.</p>
   <Button color="primary">Create Item</Button>
 </div>
 ```
 
 ### Migration Guidelines
 When updating existing components:
-1. Replace CSS custom properties (`--text-primary`) with semantic tokens (`text-content-primary`)
-2. Migrate custom classes to HeroUI components where possible
-3. Apply consistent spacing using the design system scale
-4. Ensure all states (loading, error, empty) follow the standard patterns
-5. Add proper TypeScript types and Zod validation
+1. **Import Design System**: Add `import {cn, ds, compose, theme} from '@/lib/design-system'`
+2. **Replace Custom Classes**: Use design system utilities instead of hardcoded Tailwind classes
+3. **Apply Semantic Tokens**: Replace CSS custom properties with semantic token classes
+4. **Use Composition Helpers**: Leverage `compose.*` functions for common patterns
+5. **Implement Standard States**: Use `ds.state.*` utilities for loading, error, and empty states
+6. **Add Type Safety**: Ensure proper TypeScript types and Zod validation
+
+Example migration:
+```tsx
+// Before
+<div className="bg-white text-black border-gray-200 p-6 rounded-lg shadow-sm hover:shadow-md transition-all">
+
+// After
+<div className={compose.card('hover:shadow-md')}>
+```
 
 ## Development Workflow
 
@@ -176,15 +239,34 @@ Follow `.cursorrules` conventions:
 ### OpenAI Service Usage
 Access OpenAI functionality through the service layer:
 ```typescript
-const { service } = useOpenAIService()
+const {service} = useOpenAIService()
 const response = await service.createChatCompletion(messages, gptConfig)
 ```
 
 ### GPT Configuration
 GPT configs stored in localStorage with Zod validation. Use `useStorage()` hook for CRUD operations on GPT configurations.
 
+### Conversation Management
+Conversations are managed through the `ConversationProvider` context:
+```typescript
+const {createConversation, addMessage, currentConversation} = useConversationContext()
+// Conversations are automatically persisted to localStorage per GPT
+const conversation = await createConversation(gptId, "Initial message")
+```
+
 ### Notebook Integration
-Jupyter notebooks in `notebooks/` directory use Deno kernel for TypeScript development. Templates available in `notebooks/templates/`.
+Jupyter notebooks in `notebooks/` directory use Deno kernel for TypeScript development. Templates available in `notebooks/templates/`. Notebooks follow this structure:
+- `notebooks/agents/` - Production agent implementations
+- `notebooks/assistants/` - Assistant prototypes
+- `notebooks/experiments/` - Research and testing
+- `notebooks/research/` - Documentation and analysis
+
+### LangChain/LangGraph Integration
+The project leverages LangChain for AI workflows and LangGraph for stateful agent development:
+- Use LangGraph for building stateful agents with conversation memory
+- Model agent interactions as graphs with nodes (states) and edges (transitions)
+- Implement chains using LangChain Expression Language (LCEL) for production deployment
+- Follow `.cursor/rules/langchain.mdc` for comprehensive LangChain best practices
 
 ---
 When adding features, prioritize type safety, follow existing patterns, and maintain the service layer abstraction.

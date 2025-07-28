@@ -11,6 +11,7 @@ The project combines modern AI frameworks with web technologies to create a flex
 - [Product Requirements Document](docs/prd.md): Comprehensive specification for the local-first GPT creation platform
 - [Agent Development Guide](agent-development.md): Framework for developing AI agents, architecture patterns, and implementation guide
 - [GPT AI Coding Instructions](.github/copilot-instructions.md): Architectural patterns, component guidelines, and development workflow for the project
+- [Design System Migration Assessment](.ai/notes/design-system-migration-assessment.md): Migration strategy for unified GPT design system implementation
 
 ## Configuration
 
@@ -19,9 +20,14 @@ The project combines modern AI frameworks with web technologies to create a flex
 - [TypeScript Configuration](tsconfig.json): TypeScript compiler settings and project structure
 - [Tailwind Configuration](tailwind.config.ts): CSS framework configuration for styling
 - [ESLint Configuration](eslint.config.ts): Code linting rules and formatting standards
+- [Design System Guidelines](.cursor/rules/design-system.mdc): Unified design system patterns and utility functions
 - [React Best Practices](.cursor/rules/react-best-practices.mdc): React development guidelines and patterns
 - [TypeScript Best Practices](.cursor/rules/typescript-best-practices.mdc): TypeScript coding standards and type safety practices
 - [HeroUI Guidelines](.cursor/rules/heroui.mdc): Component library usage patterns and best practices
+- [LangChain Best Practices](.cursor/rules/langchain.mdc): Guidelines for LangChain framework usage and patterns
+- [LangGraph Guidelines](.cursor/rules/langgraph.mdc): LangGraph development patterns for stateful agents
+- [OpenAI Best Practices](.cursor/rules/openai-best-practices.mdc): OpenAI API integration and usage guidelines
+- [Zod Best Practices](.cursor/rules/zod-best-practices.mdc): Schema validation and type safety with Zod
 
 ## Notebooks
 
@@ -41,6 +47,10 @@ The project combines modern AI frameworks with web technologies to create a flex
 - [License](license.md): MIT license terms and conditions
 - [Workspace Configuration](pnpm-workspace.yaml): PNPM workspace configuration
 - [Lock File](pnpm-lock.yaml): Dependency version lock file
+- [TailwindCSS Best Practices](.cursor/rules/tailwindcss-best-practices.mdc): Advanced TailwindCSS patterns and utilities
+- [Tailwind Guidelines](.cursor/rules/tailwind.mdc): TailwindCSS configuration and usage patterns
+- [Vite Best Practices](.cursor/rules/vite-best-practices.mdc): Build optimization and Vite configuration guidelines
+- [Vitest Best Practices](.cursor/rules/vitest-best-practices.mdc): Testing patterns and Vitest configuration
 - [AI Coding Frameworks Guide](.ai/compass_artifact_wf-8c9e0619-8195-49a8-b0f5-adbbf15c99e3_text_markdown.md): Comprehensive whitepaper on building autonomous AI coding agents and frameworks
 - [Codebase Audit Prompt](.github/prompts/audit-codebase.prompt.md): Development tool for comprehensive code quality assessment
 - [LangChain Best Practices](.cursor/rules/langchain.mdc): Guidelines for LangChain framework usage and patterns
