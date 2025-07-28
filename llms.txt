@@ -24,7 +24,6 @@ The project combines modern AI frameworks with web technologies to create a flex
 - [React Best Practices](.cursor/rules/react-best-practices.mdc): React development guidelines and patterns
 - [TypeScript Best Practices](.cursor/rules/typescript-best-practices.mdc): TypeScript coding standards and type safety practices
 - [HeroUI Guidelines](.cursor/rules/heroui.mdc): Component library usage patterns and best practices
-- [LangChain Best Practices](.cursor/rules/langchain.mdc): Guidelines for LangChain framework usage and patterns
 - [LangGraph Guidelines](.cursor/rules/langgraph.mdc): LangGraph development patterns for stateful agents
 - [OpenAI Best Practices](.cursor/rules/openai-best-practices.mdc): OpenAI API integration and usage guidelines
 - [Zod Best Practices](.cursor/rules/zod-best-practices.mdc): Schema validation and type safety with Zod
