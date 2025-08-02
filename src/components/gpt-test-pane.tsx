@@ -438,6 +438,7 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
               <p className="text-sm text-red-700 mt-1">{error}</p>
               {apiKey ? (
                 <button
+                  type="button"
                   onClick={() => {
                     setError(null)
                     initializeAssistant()

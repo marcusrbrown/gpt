@@ -2,21 +2,17 @@ import mine from '@/assets/mine.json'
 import {Card} from '@/components/card'
 import {UserGPTCard} from '@/components/user-gpt-card'
 import {useStorage} from '@/hooks/use-storage'
-import {type GPTConfiguration} from '@/types/gpt'
 import {Button} from '@heroui/react'
 import {Plus} from 'lucide-react'
-import {useEffect, useState, type FC} from 'react'
+import {type FC} from 'react'
 import {Link} from 'react-router-dom'
 
 export interface CardGroupProps {}
 
 export const CardGroup: FC<CardGroupProps> = () => {
   const {getAllGPTs} = useStorage()
-  const [userGPTs, setUserGPTs] = useState<GPTConfiguration[]>([])
 
-  useEffect(() => {
-    setUserGPTs(getAllGPTs())
-  }, [getAllGPTs])
+  const userGPTs = getAllGPTs()
 
   return (
     <div className="space-y-8">

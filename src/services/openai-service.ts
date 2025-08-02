@@ -20,27 +20,6 @@ interface OpenAIError extends Error {
 }
 
 /**
- * File upload options
- */
-interface FileUploadOptions {
-  file: File
-  fileName: string
-  purpose: 'assistants' | 'vision' | 'fine-tune'
-}
-
-/**
- * Vector store options
- */
-interface VectorStoreOptions {
-  name: string
-  fileIds?: string[]
-  expiresAfter?: {
-    anchor: 'last_active_at'
-    days: number
-  }
-}
-
-/**
  * Error response types for better handling
  */
 const ErrorType = {
@@ -69,7 +48,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
   }
 
   // OpenAI client instance
-  let client: OpenAI | null = null
+  let _client: OpenAI | null = null
 
   /**
    * Initialize or update the OpenAI client with the API key
@@ -84,7 +63,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
       dangerouslyAllowBrowser: true, // Note: In production, you should use a backend proxy
     }
 
-    client = new OpenAI(options)
+    _client = new OpenAI(options)
   }
 
   /**
@@ -176,11 +155,22 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
   }
 
   /**
+   * Ensure client is initialized and return it
+   */
+  const ensureClient = (): OpenAI => {
+    if (!_client) {
+      initClient()
+    }
+    if (!_client) {
+      throw new Error('Failed to initialize OpenAI client')
+    }
+    return _client
+  }
+
+  /**
    * Create an assistant based on GPT configuration
    */
   const createAssistant = async (config: GPTConfiguration) => {
-    if (!client) initClient()
-
     // Build tools configuration
     const tools: {
       type: 'code_interpreter' | 'retrieval' | 'file_search' | 'function'
@@ -281,8 +271,10 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     }
 
     try {
+      const client = ensureClient()
+
       const assistant = await withRetry(async () =>
-        client!.beta.assistants.create({
+        client.beta.assistants.create({
           name: config.name,
           description: config.description,
           instructions: config.systemPrompt,
@@ -302,10 +294,10 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
    * Create a new thread for conversation
    */
   const createThread = async () => {
-    if (!client) initClient()
+    const client = ensureClient()
 
     try {
-      const thread = await withRetry(async () => client!.beta.threads.create())
+      const thread = await withRetry(async () => client.beta.threads.create())
       return thread
     } catch (error) {
       throw handleApiError(error, 'Failed to create thread')
@@ -316,7 +308,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
    * Add a message to an existing thread
    */
   const addMessage = async (threadId: string, content: string, fileIds?: string[]) => {
-    if (!client) initClient()
+    const client = ensureClient()
 
     try {
       // Since the OpenAI SDK doesn't fully type 'file_ids' in MessageCreateParams,
@@ -331,7 +323,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
 
       // Use the OpenAI SDK with the params - TypeScript will allow this
       // because the SDK types are permissive at runtime
-      const message = await withRetry(async () => client!.beta.threads.messages.create(threadId, params))
+      const message = await withRetry(async () => client.beta.threads.messages.create(threadId, params))
 
       return message
     } catch (error) {
@@ -343,11 +335,11 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
    * Create a run to generate a response from the assistant
    */
   const createRun = async (threadId: string, assistantId: string) => {
-    if (!client) initClient()
+    const client = ensureClient()
 
     try {
       const run = await withRetry(async () =>
-        client!.beta.threads.runs.create(threadId, {
+        client.beta.threads.runs.create(threadId, {
           assistant_id: assistantId,
         }),
       )
@@ -361,10 +353,10 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
    * Check the status of a run
    */
   const checkRunStatus = async (threadId: string, runId: string) => {
-    if (!client) initClient()
+    const client = ensureClient()
 
     try {
-      const run = await withRetry(async () => client!.beta.threads.runs.retrieve(runId, {thread_id: threadId}))
+      const run = await withRetry(async () => client.beta.threads.runs.retrieve(runId, {thread_id: threadId}))
       return run
     } catch (error) {
       throw handleApiError(error, 'Failed to check run status')
@@ -375,10 +367,10 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
    * Get messages from a thread
    */
   const getMessages = async (threadId: string) => {
-    if (!client) initClient()
+    const client = ensureClient()
 
     try {
-      const messages = await withRetry(async () => client!.beta.threads.messages.list(threadId))
+      const messages = await withRetry(async () => client.beta.threads.messages.list(threadId))
       return messages
     } catch (error) {
       throw handleApiError(error, 'Failed to get messages')
@@ -389,11 +381,11 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
    * Submit tool outputs for a run that requires action
    */
   const submitToolOutputs = async (threadId: string, runId: string, toolCalls: ToolCallOutput[]) => {
-    if (!client) initClient()
+    const client = ensureClient()
 
     try {
       const run = await withRetry(async () =>
-        client!.beta.threads.runs.submitToolOutputs(runId, {thread_id: threadId, tool_outputs: toolCalls}),
+        client.beta.threads.runs.submitToolOutputs(runId, {thread_id: threadId, tool_outputs: toolCalls}),
       )
       return run
     } catch (error) {
@@ -402,46 +394,37 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
   }
 
   /**
-   * Upload a file to OpenAI
+   * Upload a file to OpenAI for use with assistants
    */
-  const uploadFile = async (options: FileUploadOptions) => {
-    if (!client) initClient()
+  const uploadFile = async (file: File) => {
+    const client = ensureClient()
 
     try {
-      const form = new FormData()
-      form.append('purpose', options.purpose)
-      form.append('file', options.file, options.fileName)
-
-      const file = await withRetry(async () =>
-        client!.files.create({
-          file: options.file,
-          purpose: options.purpose,
+      const uploadedFile = await withRetry(async () =>
+        client.files.create({
+          file,
+          purpose: 'assistants',
         }),
       )
-
-      return file
+      return uploadedFile
     } catch (error) {
       throw handleApiError(error, 'Failed to upload file')
     }
   }
 
   /**
-   * Create a vector store
+   * Create a vector store for file search
    */
-  const createVectorStore = async (options: VectorStoreOptions) => {
-    if (!client) initClient()
+  const createVectorStore = async (name: string, fileIds: string[]) => {
+    const client = ensureClient()
 
     try {
-      // Note: this is a beta feature, so we need to use the beta API
-
       const vectorStore = await withRetry(async () =>
-        client!.vectorStores.create({
-          name: options.name,
-          file_ids: options.fileIds,
-          expires_after: options.expiresAfter,
-        } as OpenAI.VectorStores.VectorStoreCreateParams),
+        client.vectorStores.create({
+          name,
+          file_ids: fileIds.slice(0, 500), // OpenAI limit
+        }),
       )
-
       return vectorStore
     } catch (error) {
       throw handleApiError(error, 'Failed to create vector store')
@@ -452,16 +435,13 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
    * Add files to a vector store
    */
   const addFilesToVectorStore = async (vectorStoreId: string, fileIds: string[]) => {
-    if (!client) initClient()
+    const client = ensureClient()
 
     try {
-      // Note: this is a beta feature, so we need to use the beta API
-
-      const fileBatch = await withRetry(async () =>
-        client!.vectorStores.fileBatches.create(vectorStoreId, {file_ids: fileIds}),
+      const batch = await withRetry(async () =>
+        client.vectorStores.fileBatches.create(vectorStoreId, {file_ids: fileIds}),
       )
-
-      return fileBatch
+      return batch
     } catch (error) {
       throw handleApiError(error, 'Failed to add files to vector store')
     }
@@ -475,7 +455,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     runId: string,
     {pollIntervalMs = 1000, maxWaitTimeMs = 60000} = {},
   ) => {
-    if (!client) initClient()
+    if (!_client) initClient()
 
     const startTime = Date.now()
     let run = await checkRunStatus(threadId, runId)
@@ -497,7 +477,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
    * Stream a run's progress by polling for status updates
    */
   const streamRun = async (threadId: string, assistantId: string, onUpdate: (message: unknown) => void) => {
-    if (!client) initClient()
+    if (!_client) initClient()
 
     try {
       // Create a run
@@ -564,10 +544,10 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
    * Cancel a run
    */
   const cancelRun = async (threadId: string, runId: string) => {
-    if (!client) initClient()
+    const client = ensureClient()
 
     try {
-      const run = await withRetry(async () => client!.beta.threads.runs.cancel(runId, {thread_id: threadId}))
+      const run = await withRetry(async () => client.beta.threads.runs.cancel(runId, {thread_id: threadId}))
       return run
     } catch (error) {
       throw handleApiError(error, 'Failed to cancel run')
