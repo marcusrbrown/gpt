@@ -1,14 +1,40 @@
 ---
 mode: agent
-description: 'Comprehensive code audit framework for the GPT project, ensuring safety, security, and complete implementation with mandatory quality gates.'
-tools: ['changes', 'codebase', 'editFiles', 'fetch', 'findTestFiles', 'githubRepo', 'openSimpleBrowser', 'problems', 'runCommands', 'runTasks', 'runTests', 'search', 'searchResults', 'terminalLastCommand', 'testFailure', 'usages', 'vscodeAPI', 'sequentialthinking', 'get_current_time', 'microsoft.docs.mcp']
+description: 'Comprehensive code audit framework for any codebase, ensuring safety, security, and complete implementation with mandatory quality gates.'
+tools: ['changes', 'codebase', 'editFiles', 'fetch', 'findTestFiles', 'githubRepo', 'problems', 'runCommands', 'runTasks', 'runTests', 'search', 'testFailure', 'usages', 'sequential-thinking', 'get_current_time', 'microsoft.docs.mcp', 'websearch']
 ---
 
 # Comprehensive Code Audit Framework
 
 **SAFETY NOTICE**: This audit must consider security, bias, privacy, and responsible AI usage throughout all phases. Never expose sensitive data, credentials, or personally identifiable information in audit outputs.
 
-Use #sequentialthinking to perform a systematic, verifiable code audit of the GPT project codebase. Each phase includes mandatory completion criteria and quality gates that MUST be satisfied before proceeding.
+**ADAPTATION NOTICE**: Adapt all commands, tools, and language-specific references to match the project's technology stack, build system, and testing framework.
+
+Use `sequentialthinking` to perform a systematic, verifiable code audit of the entire project codebase. Each phase includes mandatory completion criteria and quality gates that MUST be satisfied before proceeding.
+
+## ADAPTATION GUIDELINES
+
+**Before starting the audit, adapt these elements to your project:**
+
+### Project Context
+- Replace generic documentation references with the project's actual documentation files
+- Identify the project's architectural principles and design patterns
+- Understand the project's specific technology stack and frameworks
+
+### Build & Test Commands
+- Replace generic build/test commands with the project's actual commands
+- Examples:
+  - Node.js: `npm run build`, `npm test`
+  - Python: `python -m build`, `pytest`
+  - Java: `mvn compile`, `mvn test`
+  - Go: `go build`, `go test`
+  - Rust: `cargo build`, `cargo test`
+
+### Language-Specific Considerations
+- **Static typing**: Focus on type safety for TypeScript, Java, C#, etc.
+- **Dynamic typing**: Emphasize runtime validation for Python, JavaScript, etc.
+- **Memory management**: Include memory safety for C/C++, Rust
+- **Package management**: Adapt dependency analysis to the project's package manager (e.g., npm, pip, Maven, Cargo)
 
 ## PHASE 1: PREPARATION (Mandatory Baseline)
 
@@ -30,12 +56,12 @@ Use #sequentialthinking to perform a systematic, verifiable code audit of the GP
 **Objective**: Comprehensive evaluation against project requirements with safety considerations
 
 ### Required Actions:
-- [ ] **Architecture Alignment**: Evaluate against [Overview](../../docs/overview.md) and [PRD](../../docs/prd.md)
-  - Local-first architecture principles compliance
-  - TypeScript best practices adherence
-  - HeroUI component consistency
-  - Lazy loading pattern implementation
-  - AI services and MCP tools integration
+- [ ] **Architecture Alignment**: Evaluate against project documentation and requirements
+  - Architectural principles compliance (e.g., separation of concerns, modularity)
+  - Language/framework best practices adherence
+  - Component/module consistency and patterns
+  - Performance optimization patterns (lazy loading, code splitting, etc.)
+  - External service integrations and API usage
 
 - [ ] **Security Analysis**:
   - Vulnerability scanning of dependencies
@@ -67,7 +93,7 @@ Use #sequentialthinking to perform a systematic, verifiable code audit of the GP
 
 #### **HIGH PRIORITY** (Must Address)
 - [ ] Functionality-affecting bugs
-- [ ] Type safety violations
+- [ ] Type safety violations (for statically-typed languages)
 - [ ] Accessibility barriers
 - [ ] Privacy compliance gaps
 
@@ -92,24 +118,24 @@ Use #sequentialthinking to perform a systematic, verifiable code audit of the GP
 **Objective**: Complete, integrated refactoring with mandatory verification steps
 
 ### Critical Requirements (NO PARTIAL COMPLETION):
-- [ ] **Component Extraction**: Extract reusable components
-- [ ] **Import Path Resolution**: Update all import statements
-- [ ] **Parent Component Integration**: Verify integration in all consuming components
+- [ ] **Module/Component Extraction**: Extract reusable modules and components
+- [ ] **Import Path Resolution**: Update all import/include statements
+- [ ] **Integration Verification**: Verify integration in all consuming modules
 - [ ] **Unused Code Cleanup**: Remove all orphaned code and dependencies
-- [ ] **Type Safety Enhancement**: Resolve all TypeScript errors and warnings
-- [ ] **Error Handling**: Implement comprehensive error boundaries and validation
+- [ ] **Type Safety Enhancement**: Resolve all compiler errors and warnings
+- [ ] **Error Handling**: Implement comprehensive error handling and validation
 
 ### Integration Verification (Mandatory for Each Change):
-- [ ] Component renders without errors in all contexts
-- [ ] Props pass correctly to all sub-components
-- [ ] Event handlers function as expected
+- [ ] Modules/components function without errors in all contexts
+- [ ] Dependencies and interfaces work correctly
+- [ ] Event handlers and callbacks function as expected
 - [ ] State management operates correctly
-- [ ] No console errors or warnings
+- [ ] No runtime errors or warnings
 
 ### Quality Gate 4: Refactoring Complete
 - [ ] ALL refactoring tasks completed end-to-end
 - [ ] NO partial implementations remain
-- [ ] Integration verified for every changed component
+- [ ] Integration verified for every changed module/component
 - [ ] All new code follows established patterns
 
 ## PHASE 5: VERIFICATION (Mandatory Quality Gates)
@@ -119,12 +145,12 @@ Use #sequentialthinking to perform a systematic, verifiable code audit of the GP
 ### **BLOCKING REQUIREMENTS** (Must Pass 100%):
 
 #### **Build Gate** (MANDATORY)
-- [ ] `pnpm build` succeeds without errors
-- [ ] TypeScript compilation passes with zero errors
+- [ ] Project builds successfully without errors
+- [ ] Language compilation passes with zero errors (if applicable)
 - [ ] No build-time warnings for new code
 
 #### **Test Gate** (MANDATORY)
-- [ ] `pnpm test` achieves 100% pass rate
+- [ ] Test suite achieves 100% pass rate
 - [ ] All existing tests continue to pass
 - [ ] New functionality has corresponding tests
 - [ ] Test coverage maintained or improved
