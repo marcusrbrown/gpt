@@ -455,8 +455,6 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     runId: string,
     {pollIntervalMs = 1000, maxWaitTimeMs = 60000} = {},
   ) => {
-    if (!_client) initClient()
-
     const startTime = Date.now()
     let run = await checkRunStatus(threadId, runId)
 
@@ -477,8 +475,6 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
    * Stream a run's progress by polling for status updates
    */
   const streamRun = async (threadId: string, assistantId: string, onUpdate: (message: unknown) => void) => {
-    if (!_client) initClient()
-
     try {
       // Create a run
       const run = await createRun(threadId, assistantId)
