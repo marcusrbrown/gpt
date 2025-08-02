@@ -108,7 +108,7 @@ export function GPTEditorPage() {
           )}
         </div>
         <div className="flex mt-2">
-          <button onClick={toggleSettings} className="text-blue-600 hover:underline text-sm">
+          <button type="button" onClick={toggleSettings} className="text-blue-600 hover:underline text-sm">
             {showSettings ? 'Hide API Settings' : 'Show API Settings'}
           </button>
         </div>
@@ -130,7 +130,11 @@ export function GPTEditorPage() {
           {!apiKey && isInitialized ? (
             <div className="flex flex-col items-center justify-center h-full p-4 text-center">
               <p className="text-gray-600 mb-4">To test your GPT, please set your OpenAI API key in the settings.</p>
-              <button onClick={toggleSettings} className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+              <button
+                type="button"
+                onClick={toggleSettings}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
                 Open API Settings
               </button>
             </div>

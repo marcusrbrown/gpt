@@ -29,6 +29,7 @@ export function AgentTutorial() {
     // In a real implementation, this would execute the code in a sandbox
     // and return the result. For now, we'll just return a mock response.
     await new Promise(resolve => setTimeout(resolve, 500)) // Simulate execution time
+    // eslint-disable-next-line no-console -- Tutorial demonstration code
     console.log('Executing cell:', cell.content)
     return 'Hello! I am doing well. How can I assist you today?'
   }

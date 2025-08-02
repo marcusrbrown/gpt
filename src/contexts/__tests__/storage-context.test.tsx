@@ -16,6 +16,7 @@ function TestComponent() {
     <div>
       <div data-testid="gpt-count">{gpts.length}</div>
       <button
+        type="button"
         onClick={() => {
           const newGPT: GPTConfiguration = {
             id: uuidv4(),
