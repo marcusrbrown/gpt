@@ -35,7 +35,7 @@
     "react-dom": "19.1.1",
     "react-router-dom": "7.7.1",
     "uuid": "11.1.0",
-    "zod": "4.0.13"
+    "zod": "4.0.14"
   },
   "devDependencies": {
     "@bfra.me/eslint-config": "0.25.0",
