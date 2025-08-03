@@ -13,7 +13,7 @@ const __dirname = path.dirname(__filename);
 export default defineConfig(
   {
     name: 'gpt',
-    ignores: ['**/dist', '.triage', 'eslint.config.ts', 'postcss.config.js', 'coverage', '.github/copilot-instructions.md', '.github/prompts', 'llms.txt', '.ai/notes'],
+    ignores: ['**/dist', '.triage', 'eslint.config.ts', 'postcss.config.js', 'coverage', '.github/copilot-instructions.md', '.github/prompts', 'llms.txt', '.ai/'],
     typescript: {
       tsconfigPath: './tsconfig.json',
     },
