@@ -10,10 +10,12 @@ export interface UserGPTCardProps {
 
 export const UserGPTCard: FC<UserGPTCardProps> = ({gpt}) => {
   return (
-    <Card className="max-w-[400px]" isHoverable>
+    <Card className="max-w-[400px]" isHoverable data-testid="user-gpt-card">
       <CardHeader className="flex gap-3">
         <div className="flex flex-col">
-          <p className="text-md font-semibold">{gpt.name}</p>
+          <p className="text-md font-semibold" data-testid="gpt-name">
+            {gpt.name}
+          </p>
           <p className="text-small text-default-500">Updated: {new Date(gpt.updatedAt).toLocaleDateString()}</p>
         </div>
       </CardHeader>

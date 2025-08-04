@@ -14,7 +14,14 @@ export const Card: FC<CardProps> = ({title, description, avatarUrl, author, auth
   const ref = useRef<HTMLDivElement | null>(null)
 
   return (
-    <NextUICard ref={ref} as="div" className={`hover:cursor-pointer max-w-[400px]`} isHoverable isPressable>
+    <NextUICard
+      ref={ref}
+      as="div"
+      className={`hover:cursor-pointer max-w-[400px]`}
+      isHoverable
+      isPressable
+      data-testid="example-gpt-card"
+    >
       <CardHeader className="flex gap-3">
         <Avatar alt="GPT Logo" isBordered radius="full" size="md" src={avatarUrl.toString()} />
         <div className="flex flex-col">
