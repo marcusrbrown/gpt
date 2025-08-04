@@ -12,12 +12,14 @@ export default defineConfig({
   testDir: './tests/visual',
   testMatch: '**/*.visual.spec.ts',
 
-  // Sequential execution for visual tests to avoid resource conflicts
-  fullyParallel: false,
-  workers: 1,
+  // Enable parallel execution for faster visual testing
+  fullyParallel: true,
+
+  // Optimize workers for CI vs local development
+  workers: process.env.CI ? 2 : 1,
 
   // Retries for visual tests - important for consistency
-  retries: process.env.CI ? 3 : 1,
+  retries: process.env.CI ? 2 : 1,
 
   // Reporter configuration optimized for visual testing
   reporter: [
@@ -55,8 +57,8 @@ export default defineConfig({
 
   // Visual comparison settings
   expect: {
-    // Longer timeout for visual operations
-    timeout: 10000,
+    // Optimized timeout for CI performance
+    timeout: 5000,
 
     // Visual comparison settings optimized for cross-platform consistency
     toMatchSnapshot: {
@@ -69,54 +71,69 @@ export default defineConfig({
   },
 
   // Browser projects optimized for visual testing
-  projects: [
-    // Desktop browsers with consistent viewports
-    {
-      name: 'chromium-visual',
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: {width: 1280, height: 720},
-        // Disable web security for consistent font rendering
-        launchOptions: {
-          args: ['--disable-web-security', '--disable-features=TranslateUI'],
+  projects: process.env.CI
+    ? [
+        // CI: Run only essential browsers for faster execution
+        {
+          name: 'chromium-visual',
+          use: {
+            ...devices['Desktop Chrome'],
+            viewport: {width: 1280, height: 720},
+            // Disable web security for consistent font rendering
+            launchOptions: {
+              args: ['--disable-web-security', '--disable-features=TranslateUI'],
+            },
+          },
         },
-      },
-    },
+      ]
+    : [
+        // Local: Full browser matrix for comprehensive testing
+        {
+          name: 'chromium-visual',
+          use: {
+            ...devices['Desktop Chrome'],
+            viewport: {width: 1280, height: 720},
+            // Disable web security for consistent font rendering
+            launchOptions: {
+              args: ['--disable-web-security', '--disable-features=TranslateUI'],
+            },
+          },
+        },
 
-    {
-      name: 'firefox-visual',
-      use: {
-        ...devices['Desktop Firefox'],
-        viewport: {width: 1280, height: 720},
-      },
-    },
+        {
+          name: 'firefox-visual',
+          use: {
+            ...devices['Desktop Firefox'],
+            viewport: {width: 1280, height: 720},
+          },
+        },
 
-    {
-      name: 'webkit-visual',
-      use: {
-        ...devices['Desktop Safari'],
-        viewport: {width: 1280, height: 720},
-      },
-    },
+        {
+          name: 'webkit-visual',
+          use: {
+            ...devices['Desktop Safari'],
+            viewport: {width: 1280, height: 720},
+          },
+        },
 
-    // Mobile visual testing with consistent devices
-    {
-      name: 'mobile-chrome-visual',
-      use: {
-        ...devices['Pixel 7'],
-        // Override viewport for consistent mobile testing
-        viewport: {width: 375, height: 667},
-      },
-    },
+        // Mobile visual testing with consistent devices
+        {
+          name: 'mobile-chrome-visual',
+          use: {
+            ...devices['Pixel 7'],
+            // Override viewport for consistent mobile testing
+            viewport: {width: 375, height: 667},
+          },
+        },
 
-    {
-      name: 'mobile-safari-visual',
-      use: {
-        ...devices['iPhone 14'],
-        viewport: {width: 375, height: 812},
-      },
-    },
-  ],
+        {
+          name: 'mobile-safari-visual',
+          use: {
+            ...devices['iPhone 14'],
+            viewport: {width: 375, height: 812},
+          },
+        },
+      ],
 
   // Web server configuration
   webServer: {
@@ -125,15 +142,15 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     stdout: 'ignore',
     stderr: 'pipe',
-    timeout: 120 * 1000, // Longer timeout for visual tests
+    timeout: process.env.CI ? 60 * 1000 : 120 * 1000, // Faster timeout for CI
   },
 
   // Global setup for visual tests
   globalSetup: './tests/e2e/global-setup.ts',
   globalTeardown: './tests/e2e/global-teardown.ts',
 
-  // Longer timeout for visual operations
-  timeout: 60 * 1000,
+  // Optimized timeout for CI performance
+  timeout: 30 * 1000,
 
   // Output directory for visual artifacts
   outputDir: 'test-results/visual-artifacts/',
