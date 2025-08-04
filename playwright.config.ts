@@ -8,8 +8,9 @@ import {defineConfig, devices} from '@playwright/test'
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-  // Test directory structure
-  testDir: './tests/e2e',
+  // Test directory structure - include both e2e and visual tests
+  testDir: './tests',
+  testMatch: ['**/tests/e2e/**/*.spec.ts', '**/tests/visual/**/*.spec.ts'],
 
   // Run tests in files in parallel
   fullyParallel: true,
@@ -46,6 +47,11 @@ export default defineConfig({
 
     // Ignore HTTPS errors
     ignoreHTTPSErrors: true,
+
+    // Visual testing optimizations
+    locale: 'en-US',
+    timezoneId: 'America/Phoenix',
+    colorScheme: 'light',
   },
 
   // Configure projects for major browsers
@@ -108,6 +114,15 @@ export default defineConfig({
   expect: {
     // Maximum time expect() should wait for the condition to be met
     timeout: 5000,
+
+    // Visual comparison settings
+    toMatchSnapshot: {
+      // Pixel difference threshold for cross-platform rendering differences
+      threshold: 0.2,
+
+      // Maximum different pixels allowed before test fails
+      maxDiffPixels: 1000,
+    },
   },
 
   // Output directory for test artifacts
