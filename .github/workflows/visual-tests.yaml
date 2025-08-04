@@ -1,0 +1,200 @@
+name: Visual Regression Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/visual/**'
+      - playwright-visual.config.ts
+      - package.json
+      - pnpm-lock.yaml
+  workflow_dispatch:
+
+jobs:
+  visual-tests:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+
+      - name: Build application
+        run: pnpm run build
+
+      - name: Run visual tests
+        run: pnpm run test:visual
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:5173
+
+      - name: Upload visual test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-test-results
+          path: |
+            test-results/visual-report/
+            test-results/visual-results.json
+            test-results/visual-artifacts/
+          retention-days: 30
+
+      - name: Upload visual diff images
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: visual-diff-images
+          path: |
+            test-results/**/test-failed-*.png
+            test-results/**/test-actual-*.png
+            test-results/**/test-expected-*.png
+          retention-days: 7
+
+      - name: Comment PR with visual test results
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            // Check if visual results file exists
+            const resultsPath = 'test-results/visual-results.json';
+            if (!fs.existsSync(resultsPath)) {
+              console.log('No visual test results found');
+              return;
+            }
+
+            const results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
+            const failed = results.stats.failed || 0;
+            const passed = results.stats.expected || 0;
+            const total = failed + passed;
+
+            let comment = `## 📸 Visual Regression Test Results\n\n`;
+
+            if (failed === 0) {
+              comment += `✅ **All ${total} visual tests passed!**\n\n`;
+              comment += `No visual regressions detected in this PR.`;
+            } else {
+              comment += `❌ **${failed} out of ${total} visual tests failed**\n\n`;
+              comment += `Visual regressions detected. Please review the uploaded artifacts.\n\n`;
+              comment += `### Failed Tests:\n`;
+
+              // Add failed test details if available
+              if (results.suites) {
+                const failedTests = [];
+                results.suites.forEach(suite => {
+                  suite.specs?.forEach(spec => {
+                    spec.tests?.forEach(test => {
+                      if (test.status === 'failed') {
+                        failedTests.push(`- ${test.title}`);
+                      }
+                    });
+                  });
+                });
+
+                if (failedTests.length > 0) {
+                  comment += failedTests.slice(0, 10).join('\n');
+                  if (failedTests.length > 10) {
+                    comment += `\n... and ${failedTests.length - 10} more`;
+                  }
+                }
+              }
+
+              comment += `\n\n📋 [View detailed results](${context.payload.pull_request.html_url}/checks)`;
+            }
+
+            // Post comment
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  # Separate job for updating visual baselines (manual trigger only)
+  update-baselines:
+    if: github.event_name == 'workflow_dispatch'
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium firefox webkit
+
+      - name: Build application
+        run: pnpm run build
+
+      - name: Update visual baselines
+        run: pnpm run test:visual:update
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:5173
+
+      - id: get-app-token
+        name: Get Workflow Access Token
+        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2.0.6
+        with:
+          app-id: ${{ secrets.APPLICATION_ID }}
+          private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+
+      - name: Setup Git user
+        env:
+          GH_TOKEN: ${{ steps.get-app-token.outputs.token }}
+          GIT_USER_NAME: ${{ steps.get-app-token.outputs.app-slug }}[bot]
+        run: |
+          USER_ID=$(gh api "/users/${GIT_USER_NAME}" --jq .id)
+          git config --global user.email "${USER_ID}+${GIT_USER_NAME}@users.noreply.github.com"
+          git config --global user.name "${GIT_USER_NAME}"
+
+      - name: Commit updated baselines
+        run: |
+          git add tests/visual/**/*.png
+          if git diff --staged --quiet; then
+            echo "No baseline changes to commit"
+          else
+            git commit -m "chore: update visual regression baselines [skip ci]"
+            git push
+          fi
