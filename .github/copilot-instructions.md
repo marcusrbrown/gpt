@@ -7,12 +7,13 @@ Key architectural principle: **Local-first data architecture** - all GPT configu
 ## Architecture Patterns
 
 ### Context Provider Pattern
-The app uses a hierarchical context provider pattern for state management:
+The app uses a hierarchical context provider pattern for state management with specific initialization order:
 - `OpenAIProvider` (`src/contexts/openai-provider.tsx`) - manages API keys and service instances
 - `StorageProvider` (`src/contexts/storage-provider.tsx`) - handles local storage and GPT configurations
+- `Providers` (`src/providers.tsx`) - wraps HeroUI, theme providers, and ConversationProvider
 - `ConversationProvider` (`src/contexts/conversation-provider.tsx`) - manages chat state
 
-Always wrap new features requiring state in the appropriate provider and access via custom hooks like `useOpenAIService()` or `useStorage()`.
+Always wrap new features requiring state in the appropriate provider and access via custom hooks like `useOpenAIService()`, `useStorage()`, or `useConversationContext()`. Use the React 19 `use()` hook for context consumption with automatic error boundaries.
 
 ### Service Layer Abstraction
 The `src/services/` directory contains abstracted service classes:
@@ -67,6 +68,39 @@ Uses HeroUI components with custom theming via `next-themes`. Prefer HeroUI comp
 - `src/services/`: API integrations and data persistence
 - `notebooks/`: Jupyter notebooks for agent development and research
 - `.cursor/rules/`: Technology-specific coding guidelines
+
+## Essential Development Patterns
+
+### Error Handling Strategy
+All providers use consistent error handling with state management:
+```tsx
+const saveGPT = useCallback((gpt: GPTConfiguration): void => {
+  try {
+    storageService.saveGPT(gpt)
+    setVersion(v => v + 1) // Trigger re-render
+  } catch (error_) {
+    console.error('Error saving GPT:', error_)
+    setError(error_ instanceof Error ? error_ : new Error('Failed to save GPT'))
+    throw error_ // Re-throw to allow component to handle the error
+  }
+}, [storageService])
+```
+
+### React 19 Hook Usage
+Use `use()` hook for context consumption with automatic error boundaries:
+```tsx
+export function ConversationProvider({children}: ConversationProviderProps) {
+  const storageContext = use(StorageContext) // Automatic error boundary
+  // ... rest of component
+}
+```
+
+### Service Layer Pattern
+Services are stateless classes with error handling and retry logic:
+- Return promises for async operations
+- Include comprehensive error messages with context
+- Use exponential backoff for API calls
+- Validate inputs with Zod schemas before processing
 
 ## Design System & UI Patterns
 
@@ -218,17 +252,42 @@ Example migration:
 - Components: Use HeroUI imports, functional components with hooks
 - Services: Return `Promise<Result>` with proper error handling
 - Types: Define Zod schema first, then infer TypeScript types
-- Tests: Co-located in `__tests__/` directories
+- Tests: Co-located in `__tests__/` directories alongside source files
 
 ### Testing Pattern
-Uses Vitest with React Testing Library. Test files in `__tests__/` directories alongside source files. Focus on testing context providers and service integrations.
+Uses Vitest with React Testing Library. Test files in `__tests__/` directories alongside source files. Key patterns:
+- **Context Testing**: Mock providers and test hooks in isolation using wrapper components
+- **Service Integration**: Focus on testing context providers and service integrations rather than individual functions
+- **Error Boundaries**: Test error states by suppressing console.error during error scenario tests
+- **Persistence Testing**: Verify localStorage interactions across component unmount/remount cycles
+
+Example context provider test:
+```tsx
+function TestComponent() {
+  const {getAllGPTs, saveGPT} = useStorage()
+  return (
+    <div>
+      <div data-testid="gpt-count">{getAllGPTs().length}</div>
+      <button onClick={() => saveGPT(mockGPT)}>Add GPT</button>
+    </div>
+  )
+}
+
+it('should persist state across renders', async () => {
+  const {unmount} = render(
+    <StorageProvider><TestComponent /></StorageProvider>
+  )
+  // Add data, unmount, remount, verify persistence
+})
+```
 
 ### Code Style
-Follow `.cursorrules` conventions:
-- Prefer early returns over nested conditions
-- Use descriptive names with "handle" prefix for event handlers
-- Minimize code changes, focus on DRY principles
-- Use functional/immutable patterns unless verbose.
+Follow `.cursorrules` conventions prioritizing simplicity and maintainability:
+- **Early Returns**: Prefer early returns over nested conditions for readability
+- **Descriptive Names**: Use "handle" prefix for event handlers (handleSubmit, handleChange)
+- **Minimal Changes**: Focus on DRY principles, modify only code related to the task
+- **Functional Style**: Use functional/immutable patterns unless verbose
+- **Error Handling**: All service methods include comprehensive try/catch with proper error propagation
 
 ## AI Integration Patterns
 
