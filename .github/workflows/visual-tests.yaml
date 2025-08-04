@@ -15,7 +15,7 @@ on:
 
 jobs:
   visual-tests:
-    timeout-minutes: 30
+    timeout-minutes: 15
     runs-on: ubuntu-latest
 
     steps:
@@ -45,13 +45,13 @@ jobs:
         run: pnpm install
 
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium firefox webkit
+        run: pnpm exec playwright install --with-deps chromium
 
       - name: Build application
         run: pnpm run build
 
       - name: Run visual tests
-        run: pnpm run test:visual
+        run: pnpm run test:visual:ci
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:5173
@@ -143,7 +143,7 @@ jobs:
   # Separate job for updating visual baselines (manual trigger only)
   update-baselines:
     if: github.event_name == 'workflow_dispatch'
-    timeout-minutes: 30
+    timeout-minutes: 15
     runs-on: ubuntu-latest
 
     steps:
@@ -162,13 +162,13 @@ jobs:
         run: pnpm install
 
       - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium firefox webkit
+        run: pnpm exec playwright install --with-deps chromium
 
       - name: Build application
         run: pnpm run build
 
       - name: Update visual baselines
-        run: pnpm run test:visual:update
+        run: pnpm run test:visual:ci --update-snapshots
         env:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:5173

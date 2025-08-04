@@ -15,6 +15,7 @@
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:headed": "playwright test --headed",
     "test:visual": "playwright test --config=playwright-visual.config.ts",
+    "test:visual:ci": "playwright test --config=playwright-visual.config.ts tests/visual/homepage.visual.spec.ts",
     "test:visual:ui": "playwright test --config=playwright-visual.config.ts --ui",
     "test:visual:debug": "playwright test --config=playwright-visual.config.ts --debug",
     "test:visual:update": "playwright test --config=playwright-visual.config.ts --update-snapshots",
