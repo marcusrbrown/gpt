@@ -147,10 +147,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+      - id: get-app-token
+        name: Get Workflow Access Token
+        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2.0.6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          app-id: ${{ secrets.APPLICATION_ID }}
+          private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.head_ref }}
+          token: ${{ steps.get-app-token.outputs.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -173,28 +181,47 @@ jobs:
           CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:5173
 
-      - id: get-app-token
-        name: Get Workflow Access Token
-        uses: actions/create-github-app-token@df432ceedc7162793a195dd1713ff69aefc7379e # v2.0.6
-        with:
-          app-id: ${{ secrets.APPLICATION_ID }}
-          private-key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-
-      - name: Setup Git user
+      - id: setup-bot-user
+        name: Setup bot user
         env:
           GH_TOKEN: ${{ steps.get-app-token.outputs.token }}
           GIT_USER_NAME: ${{ steps.get-app-token.outputs.app-slug }}[bot]
         run: |
           USER_ID=$(gh api "/users/${GIT_USER_NAME}" --jq .id)
-          git config --global user.email "${USER_ID}+${GIT_USER_NAME}@users.noreply.github.com"
-          git config --global user.name "${GIT_USER_NAME}"
+          echo "USER_EMAIL=${USER_ID}+${GIT_USER_NAME}@users.noreply.github.com" >> $GITHUB_OUTPUT
+          echo "USER_NAME=${GIT_USER_NAME}" >> $GITHUB_OUTPUT
 
-      - name: Commit updated baselines
-        run: |
-          git add tests/visual/**/*.png
-          if git diff --staged --quiet; then
-            echo "No baseline changes to commit"
-          else
-            git commit -m "chore: update visual regression baselines [skip ci]"
-            git push
-          fi
+      # Commit changes to the branch when triggered from a ref other than main
+      - name: Commit changes to HEAD
+        uses: EndBug/add-and-commit@a94899bca583c204427a224a7af87c02f9b325d5 # v9.1.4
+        if: github.ref != 'refs/heads/main'
+        with:
+          author_name: '${{ steps.setup-bot-user.outputs.USER_NAME }}'
+          author_email: '${{ steps.setup-bot-user.outputs.USER_EMAIL }}'
+          committer_name: '${{ steps.setup-bot-user.outputs.USER_NAME }}'
+          committer_email: '${{ steps.setup-bot-user.outputs.USER_EMAIL }}'
+          message: 'chore: update visual regression baselines [skip ci]'
+
+      # Create a pull request when triggered from the main branch
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
+        if: github.ref == 'refs/heads/main'
+        with:
+          assignees: marcusrbrown
+          author: '${{ steps.setup-bot-user.outputs.USER_NAME }} <${{ steps.setup-bot-user.outputs.USER_EMAIL }}>'
+          body: |
+            This is an automated pull request to update the visual regression baselines.
+            Please review the changes and merge this pull request if you approve.
+
+            <sup>
+            _This pull request was automatically created by [create-pull-request][1] ([#${{ github.run_number }}][2])._
+            </sup>
+
+            [1]: https://github.com/peter-evans/create-pull-request 'Create Pull Request action on GitHub'
+            [2]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} 'Workflow run on GitHub'
+          branch: chore/update-visual-baselines
+          commit-message: 'chore: update visual regression baselines [skip ci]'
+          committer: '${{ steps.setup-bot-user.outputs.USER_NAME }} <${{ steps.setup-bot-user.outputs.USER_EMAIL }}>'
+          sign-commits: true
+          title: 'build: update visual regression baselines'
+          token: ${{ steps.get-app-token.outputs.token }}
