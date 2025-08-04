@@ -58,7 +58,7 @@ export default defineConfig({
   // Visual comparison settings
   expect: {
     // Optimized timeout for CI performance
-    timeout: 5000,
+    timeout: process.env.CI ? 7500 : 5000,
 
     // Visual comparison settings optimized for cross-platform consistency
     toMatchSnapshot: {
@@ -150,7 +150,7 @@ export default defineConfig({
   globalTeardown: './tests/e2e/global-teardown.ts',
 
   // Optimized timeout for CI performance
-  timeout: 30 * 1000,
+  timeout: process.env.CI ? 45 * 1000 : 60 * 1000,
 
   // Output directory for visual artifacts
   outputDir: 'test-results/visual-artifacts/',
