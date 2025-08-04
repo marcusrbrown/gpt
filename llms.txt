@@ -51,6 +51,12 @@ The project combines modern AI frameworks with web technologies to create a flex
 - [Vite Best Practices](.cursor/rules/vite-best-practices.mdc): Build optimization and Vite configuration guidelines
 - [Vitest Best Practices](.cursor/rules/vitest-best-practices.mdc): Testing patterns and Vitest configuration
 - [AI Coding Frameworks Guide](.ai/compass_artifact_wf-8c9e0619-8195-49a8-b0f5-adbbf15c99e3_text_markdown.md): Comprehensive whitepaper on building autonomous AI coding agents and frameworks
-- [Codebase Audit Prompt](.github/prompts/audit-codebase.prompt.md): Development tool for comprehensive code quality assessment
 - [LangChain Best Practices](.cursor/rules/langchain.mdc): Guidelines for LangChain framework usage and patterns
-- [Zod Best Practices](.cursor/rules/zod-best-practices.mdc): Schema validation and type safety with Zod
+
+## Development Plans
+
+- [Form Components HeroUI Integration](.ai/plan/refactor-form-components-1.md): Migration plan for form components to use HeroUI patterns and design system tokens
+- [Comprehensive Testing Framework](.ai/plan/feature-comprehensive-testing-framework-1.md): End-to-end testing framework with Playwright, visual regression, accessibility, and performance testing
+- [Card Components Design System Integration](.ai/plan/refactor-card-components-1.md): Standardization of card components using design system utilities and HeroUI patterns
+- [Typography System Migration](.ai/plan/refactor-typography-system-1.md): Migration to unified typography system with semantic tokens and responsive patterns
+- [Animation and Interaction Standardization](.ai/plan/refactor-animations-interactions-1.md): Standardization of animations and interactions using design system utilities
