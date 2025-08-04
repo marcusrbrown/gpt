@@ -13,8 +13,17 @@ on:
       - pnpm-lock.yaml
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   visual-tests:
+    if: github.event_name != 'workflow_dispatch'
+    name: Run Visual Tests
     timeout-minutes: 15
     runs-on: ubuntu-latest
 
@@ -143,6 +152,7 @@ jobs:
   # Separate job for updating visual baselines (manual trigger only)
   update-baselines:
     if: github.event_name == 'workflow_dispatch'
+    name: Update Visual Baselines
     timeout-minutes: 15
     runs-on: ubuntu-latest
 
@@ -190,6 +200,7 @@ jobs:
           USER_ID=$(gh api "/users/${GIT_USER_NAME}" --jq .id)
           echo "USER_EMAIL=${USER_ID}+${GIT_USER_NAME}@users.noreply.github.com" >> $GITHUB_OUTPUT
           echo "USER_NAME=${GIT_USER_NAME}" >> $GITHUB_OUTPUT
+          git lfs install
 
       # Commit changes to the branch when triggered from a ref other than main
       - name: Commit changes to HEAD
@@ -213,9 +224,7 @@ jobs:
             This is an automated pull request to update the visual regression baselines.
             Please review the changes and merge this pull request if you approve.
 
-            <sup>
-            _This pull request was automatically created by [create-pull-request][1] ([#${{ github.run_number }}][2])._
-            </sup>
+            > _This pull request was automatically created by [create-pull-request][1] ([#${{ github.run_number }}][2])._
 
             [1]: https://github.com/peter-evans/create-pull-request 'Create Pull Request action on GitHub'
             [2]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} 'Workflow run on GitHub'
@@ -223,5 +232,5 @@ jobs:
           commit-message: 'chore: update visual regression baselines [skip ci]'
           committer: '${{ steps.setup-bot-user.outputs.USER_NAME }} <${{ steps.setup-bot-user.outputs.USER_EMAIL }}>'
           sign-commits: true
-          title: 'build: update visual regression baselines'
+          title: 'chore: update visual regression baselines'
           token: ${{ steps.get-app-token.outputs.token }}
