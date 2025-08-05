@@ -59,6 +59,12 @@ jobs:
         with:
           install-playwright: true
 
+      - name: Clean up missing LFS objects
+        run: |
+          # Remove any files that have missing LFS objects to prevent issues
+          git lfs ls-files --missing 2>/dev/null | cut -d' ' -f3- | xargs -r rm -f || true
+          echo "Cleaned up any missing LFS objects"
+
       - name: Build application
         run: pnpm run build
 
@@ -178,6 +184,12 @@ jobs:
         uses: ./.github/actions/setup-pnpm
         with:
           install-playwright: true
+
+      - name: Clean up missing LFS objects
+        run: |
+          # Remove any files that have missing LFS objects to prevent issues
+          git lfs ls-files --missing 2>/dev/null | cut -d' ' -f3- | xargs -r rm -f || true
+          echo "Cleaned up any missing LFS objects"
 
       - name: Build application
         run: pnpm run build
