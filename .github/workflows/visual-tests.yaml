@@ -51,6 +51,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
+          lfs: true
           ref: ${{ github.head_ref }}
 
       - name: Setup pnpm
@@ -195,7 +196,6 @@ jobs:
           USER_ID=$(gh api "/users/${GIT_USER_NAME}" --jq .id)
           echo "USER_EMAIL=${USER_ID}+${GIT_USER_NAME}@users.noreply.github.com" >> $GITHUB_OUTPUT
           echo "USER_NAME=${GIT_USER_NAME}" >> $GITHUB_OUTPUT
-          git lfs install
 
       # Commit changes to the branch when triggered from a ref other than main
       - name: Commit changes to HEAD
