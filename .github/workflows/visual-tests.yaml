@@ -48,33 +48,15 @@ jobs:
     timeout-minutes: 15
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
-
-      - name: Get pnpm store directory
-        shell: bash
-        run: |
-          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
-
-      - name: Setup pnpm cache
-        uses: actions/cache@5a3ec84eff668545956fd18022155c47e93e2684 # v4
+        uses: ./.github/actions/setup-pnpm
         with:
-          path: ${{ env.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
+          install-playwright: true
 
       - name: Build application
         run: pnpm run build
@@ -190,17 +172,10 @@ jobs:
           ref: ${{ github.head_ref }}
           token: ${{ steps.get-app-token.outputs.token }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-
       - name: Setup pnpm
-        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Install Playwright browsers
-        run: pnpm exec playwright install --with-deps chromium
+        uses: ./.github/actions/setup-pnpm
+        with:
+          install-playwright: true
 
       - name: Build application
         run: pnpm run build
@@ -231,7 +206,7 @@ jobs:
           author_email: '${{ steps.setup-bot-user.outputs.USER_EMAIL }}'
           committer_name: '${{ steps.setup-bot-user.outputs.USER_NAME }}'
           committer_email: '${{ steps.setup-bot-user.outputs.USER_EMAIL }}'
-          message: 'chore: update visual regression baselines [skip ci]'
+          message: 'chore: update visual regression baselines'
 
       # Create a pull request when triggered from the main branch
       - name: Create pull request
@@ -249,7 +224,7 @@ jobs:
             [1]: https://github.com/peter-evans/create-pull-request 'Create Pull Request action on GitHub'
             [2]: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }} 'Workflow run on GitHub'
           branch: chore/update-visual-baselines
-          commit-message: 'chore: update visual regression baselines [skip ci]'
+          commit-message: 'chore: update visual regression baselines'
           committer: '${{ steps.setup-bot-user.outputs.USER_NAME }} <${{ steps.setup-bot-user.outputs.USER_EMAIL }}>'
           sign-commits: true
           title: 'chore: update visual regression baselines'
