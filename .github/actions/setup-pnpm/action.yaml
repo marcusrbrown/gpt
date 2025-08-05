@@ -6,8 +6,8 @@ description: Setup pnpm and install dependencies
 inputs:
   install-playwright:
     description: Install Playwright browsers
+    default: 'false'
     required: false
-    default: 'true'
 
 runs:
   steps:
