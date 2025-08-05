@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   prepare:
-    if: github.event_name == 'pull_request'
+    if: github.event_name != 'workflow_dispatch'
     name: Prepare
     outputs:
       changes: ${{ steps.filter.outputs.changes }}
@@ -170,6 +170,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
+          lfs: true
           ref: ${{ github.head_ref }}
           token: ${{ steps.get-app-token.outputs.token }}
 
