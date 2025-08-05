@@ -59,6 +59,18 @@ jobs:
         with:
           install-playwright: true
 
+      - name: Clean up missing LFS objects
+        run: |
+          # Remove any files that have missing LFS objects to prevent issues
+          git lfs ls-files 2>/dev/null | while read -r line; do
+            file=$(echo "$line" | cut -d' ' -f3-)
+            if ! git lfs pointer --file="$file" --check 2>/dev/null; then
+              echo "Removing file with missing LFS object: $file"
+              rm -f "$file" || true
+            fi
+          done
+          echo "Cleaned up any missing LFS objects"
+
       - name: Build application
         run: pnpm run build
 
@@ -179,6 +191,18 @@ jobs:
         with:
           install-playwright: true
 
+      - name: Clean up missing LFS objects
+        run: |
+          # Remove any files that have missing LFS objects to prevent issues
+          git lfs ls-files 2>/dev/null | while read -r line; do
+            file=$(echo "$line" | cut -d' ' -f3-)
+            if ! git lfs pointer --file="$file" --check 2>/dev/null; then
+              echo "Removing file with missing LFS object: $file"
+              rm -f "$file" || true
+            fi
+          done
+          echo "Cleaned up any missing LFS objects"
+
       - name: Build application
         run: pnpm run build
 
@@ -200,17 +224,34 @@ jobs:
 
       # Commit changes to the branch when triggered from a ref other than main
       - name: Commit changes to HEAD
-        uses: EndBug/add-and-commit@a94899bca583c204427a224a7af87c02f9b325d5 # v9.1.4
         if: github.ref != 'refs/heads/main'
-        with:
-          author_name: '${{ steps.setup-bot-user.outputs.USER_NAME }}'
-          author_email: '${{ steps.setup-bot-user.outputs.USER_EMAIL }}'
-          committer_name: '${{ steps.setup-bot-user.outputs.USER_NAME }}'
-          committer_email: '${{ steps.setup-bot-user.outputs.USER_EMAIL }}'
-          message: 'chore: update visual regression baselines'
+        run: |
+          # Configure git with bot credentials
+          git config --local user.email "${{ steps.setup-bot-user.outputs.USER_EMAIL }}"
+          git config --local user.name "${{ steps.setup-bot-user.outputs.USER_NAME }}"
+
+          # Check if there are any changes to commit
+          if git status --porcelain | grep -E '^\?\?.*-linux\.png$'; then
+            echo "New LFS files detected, committing changes..."
+
+            # Add the new LFS files
+            git add tests/**/*-linux.png
+
+            # Commit the LFS files
+            git commit -m "chore: update visual regression baselines"
+
+            # Push both regular changes and LFS objects
+            git push origin HEAD
+            git lfs push origin HEAD
+
+            echo "Changes and LFS objects pushed successfully"
+          else
+            echo "No new files to commit"
+          fi
 
       # Create a pull request when triggered from the main branch
       - name: Create pull request
+        id: create-pr
         uses: peter-evans/create-pull-request@271a8d0340265f705b14b6d32b9829c1cb33d45e # v7.0.8
         if: github.ref == 'refs/heads/main'
         with:
@@ -230,3 +271,12 @@ jobs:
           sign-commits: true
           title: 'chore: update visual regression baselines'
           token: ${{ steps.get-app-token.outputs.token }}
+          # Delete branch when PR is closed to avoid conflicts
+          delete-branch: true
+
+      # Ensure LFS objects are pushed for the PR branch
+      - name: Push LFS objects for PR branch
+        if: github.ref == 'refs/heads/main' && steps.create-pr.outputs.pull-request-number
+        run: |
+          echo "Ensuring LFS objects are pushed for PR branch..."
+          git lfs push origin chore/update-visual-baselines || echo "No LFS objects to push or already pushed"
