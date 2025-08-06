@@ -29,4 +29,5 @@
     commands: ['pnpm run bootstrap', 'pnpm run fix', 'pnpm run build'],
     executionMode: 'branch',
   },
+  rebaseWhen: 'behind-base-branch',
 }
