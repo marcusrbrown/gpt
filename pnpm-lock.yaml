@@ -24,8 +24,8 @@ importers:
         specifier: 0.3.66
         version: 0.3.66(openai@5.11.0(ws@8.18.3)(zod@4.0.14))
       '@langchain/langgraph':
-        specifier: 0.4.2
-        version: 0.4.2(@langchain/core@0.3.66(openai@5.11.0(ws@8.18.3)(zod@4.0.14)))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod-to-json-schema@3.24.6(zod@4.0.14))
+        specifier: 0.4.3
+        version: 0.4.3(@langchain/core@0.3.66(openai@5.11.0(ws@8.18.3)(zod@4.0.14)))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod-to-json-schema@3.24.6(zod@4.0.14))
       '@langchain/openai':
         specifier: 0.6.3
         version: 0.6.3(@langchain/core@0.3.66(openai@5.11.0(ws@8.18.3)(zod@4.0.14)))(ws@8.18.3)
@@ -140,7 +140,7 @@ importers:
         version: 5.5.3(eslint-config-prettier@10.1.8(eslint@9.32.0(jiti@2.1.2)))(eslint@9.32.0(jiti@2.1.2))(prettier@3.6.2)
       eslint-plugin-react-hooks:
         specifier: canary
-        version: 6.1.0-canary-bdb4a96f-20250801(eslint@9.32.0(jiti@2.1.2))
+        version: 6.1.0-canary-7deda941-20250804(eslint@9.32.0(jiti@2.1.2))
       eslint-plugin-react-refresh:
         specifier: 0.4.20
         version: 0.4.20(eslint@9.32.0(jiti@2.1.2))
@@ -1287,8 +1287,8 @@ packages:
       react-dom:
         optional: true
 
-  '@langchain/langgraph@0.4.2':
-    resolution: {integrity: sha512-QAxeBIjamn2T2hlqCi+qC8k3Bv/bE/j0VGA+qR+z8NizSbGeD2uftqAYIrk3YtYLWIwk0kIICKcmTz8dKIWzog==}
+  '@langchain/langgraph@0.4.3':
+    resolution: {integrity: sha512-wYi0LsJ+VQMpOHradx0apZtDXR5iINLus9mtvaVwT2qS78wd9Ic/XWKHHpVUNGDpO2KalTkmJWWXVjYKW5C3Rw==}
     engines: {node: '>=18'}
     peerDependencies:
       '@langchain/core': '>=0.3.58 < 0.4.0'
@@ -2845,8 +2845,8 @@ packages:
       typescript:
         optional: true
 
-  eslint-plugin-react-hooks@6.1.0-canary-bdb4a96f-20250801:
-    resolution: {integrity: sha512-bEKJ2ba2L2YlQ4Y6dDLtHIy1v4ZbOAKnhDSHCVEak6FH+ZhumgflItMy67GlTBipuTozfX4nclB7Rs3vdg8vvw==}
+  eslint-plugin-react-hooks@6.1.0-canary-7deda941-20250804:
+    resolution: {integrity: sha512-Fq3YL1w4V0PsxjwFdZR+0eeY+ponRyrUgoT39HkTSdczD020VXTMuI7MME2hVhXzWVW+Lvr0UrpCgRdI4jZlww==}
     engines: {node: '>=18'}
     peerDependencies:
       eslint: ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0-0 || ^9.0.0
@@ -6145,7 +6145,7 @@ snapshots:
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
 
-  '@langchain/langgraph@0.4.2(@langchain/core@0.3.66(openai@5.11.0(ws@8.18.3)(zod@4.0.14)))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod-to-json-schema@3.24.6(zod@4.0.14))':
+  '@langchain/langgraph@0.4.3(@langchain/core@0.3.66(openai@5.11.0(ws@8.18.3)(zod@4.0.14)))(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(zod-to-json-schema@3.24.6(zod@4.0.14))':
     dependencies:
       '@langchain/core': 0.3.66(openai@5.11.0(ws@8.18.3)(zod@4.0.14))
       '@langchain/langgraph-checkpoint': 0.1.0(@langchain/core@0.3.66(openai@5.11.0(ws@8.18.3)(zod@4.0.14)))
@@ -8011,7 +8011,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-hooks@6.1.0-canary-bdb4a96f-20250801(eslint@9.32.0(jiti@2.1.2)):
+  eslint-plugin-react-hooks@6.1.0-canary-7deda941-20250804(eslint@9.32.0(jiti@2.1.2)):
     dependencies:
       '@babel/core': 7.28.0
       '@babel/parser': 7.28.0
