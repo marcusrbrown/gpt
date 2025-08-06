@@ -59,17 +59,17 @@ jobs:
         with:
           install-playwright: true
 
-      - name: Clean up missing LFS objects
-        run: |
-          # Remove any files that have missing LFS objects to prevent issues
-          git lfs ls-files 2>/dev/null | while read -r line; do
-            file=$(echo "$line" | cut -d' ' -f3-)
-            if ! git lfs pointer --file="$file" --check 2>/dev/null; then
-              echo "Removing file with missing LFS object: $file"
-              rm -f "$file" || true
-            fi
-          done
-          echo "Cleaned up any missing LFS objects"
+      # - name: Clean up missing LFS objects
+      #   run: |
+      #     # Remove any files that have missing LFS objects to prevent issues
+      #     git lfs ls-files 2>/dev/null | while read -r line; do
+      #       file=$(echo "$line" | cut -d' ' -f3-)
+      #       if ! git lfs pointer --file="$file" --check 2>/dev/null; then
+      #         echo "Removing file with missing LFS object: $file"
+      #         rm -f "$file" || true
+      #       fi
+      #     done
+      #     echo "Cleaned up any missing LFS objects"
 
       - name: Build application
         run: pnpm run build
