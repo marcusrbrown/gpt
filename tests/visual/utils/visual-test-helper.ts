@@ -22,8 +22,18 @@ export class VisualTestHelper {
     // Wait for any fonts to load
     await this.page.waitForFunction(async () => document.fonts.ready)
 
-    // Wait for any CSS animations to complete
-    await this.page.waitForTimeout(500)
+    // Wait for any CSS animations to complete and ensure layout stability
+    await this.page.waitForTimeout(750) // Increased from 500ms for better stability
+
+    // Double-check that layout is stable by waiting for no layout shifts
+    await this.page.waitForFunction(async () => {
+      return new Promise(resolve => {
+        // Use requestAnimationFrame to ensure we're checking after layout
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => resolve(true))
+        })
+      })
+    })
   }
 
   /**
@@ -145,17 +155,28 @@ export class VisualTestHelper {
       {name: 'large', width: 1920, height: 1080},
     ],
   ): Promise<void> {
-    for (const viewport of viewports) {
-      await this.page.setViewportSize({
-        width: viewport.width,
-        height: viewport.height,
-      })
+    // Capture original viewport size to restore after responsive testing
+    const originalViewport = this.page.viewportSize()
 
-      await this.prepareForScreenshot()
+    try {
+      for (const viewport of viewports) {
+        await this.page.setViewportSize({
+          width: viewport.width,
+          height: viewport.height,
+        })
 
-      await expect(this.page).toHaveScreenshot(`${name}-${viewport.name}.png`, {
-        fullPage: true,
-      })
+        await this.prepareForScreenshot()
+
+        await expect(this.page).toHaveScreenshot(`${name}-${viewport.name}.png`, {
+          fullPage: true,
+        })
+      }
+    } finally {
+      // Always restore original viewport size to prevent state pollution
+      if (originalViewport) {
+        await this.page.setViewportSize(originalViewport)
+        await this.prepareForScreenshot() // Re-stabilize after viewport change
+      }
     }
   }
 
