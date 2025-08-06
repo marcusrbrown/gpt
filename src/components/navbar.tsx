@@ -1,4 +1,8 @@
 import {ThemeSwitch} from '@/components/theme-switch'
+// TODO: These imports will be used in Phase 2 of the design system migration
+// @ts-expect-error - Imports will be used in Phase 2
+// eslint-disable-next-line no-unused-vars
+import {cn, compose, ds, theme} from '@/lib/design-system'
 import {Button, Input, type ButtonProps} from '@heroui/react'
 import {BookOpen, Github, Menu, Search, X} from 'lucide-react'
 import {useState, type ElementType} from 'react'
