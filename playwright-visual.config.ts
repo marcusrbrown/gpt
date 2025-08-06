@@ -15,11 +15,14 @@ export default defineConfig({
   // Enable parallel execution for faster visual testing
   fullyParallel: true,
 
+  // Fail the build on CI if you accidentally left test.only in the source code
+  forbidOnly: !!process.env.CI,
+
   // Optimize workers for CI vs local development
-  workers: process.env.CI ? 2 : 1,
+  workers: process.env.CI ? 1 : undefined,
 
   // Retries for visual tests - important for consistency
-  retries: process.env.CI ? 2 : 1,
+  retries: process.env.CI ? 2 : 0,
 
   // Reporter configuration optimized for visual testing
   reporter: [
