@@ -240,11 +240,21 @@ Example migration:
 
 ## Development Workflow
 
+### Build System
+Vite configuration includes optimized manual chunking for performance:
+- Core libraries (React, Router) are separated into dedicated chunks
+- AI libraries (OpenAI, LangChain) are bundled separately
+- Monaco Editor and UI components have their own chunks
+- Chunk size warning limit increased to 1MB for AI libraries
+
 ### Commands
-- `pnpm dev` - Start Vite development server
-- `pnpm build` - Production build (TypeScript + Vite)
+- `pnpm dev` - Start Vite development server with HMR
+- `pnpm build` - Production build (TypeScript + Vite) with optimized chunking
 - `pnpm test` - Run Vitest test suite
-- `pnpm test:coverage` - Generate test coverage
+- `pnpm test:coverage` - Generate test coverage reports
+- `pnpm test:e2e` - Run Playwright end-to-end tests
+- `pnpm test:visual` - Run Playwright visual regression tests
+- `pnpm test:visual:update` - Update visual test baselines
 - `pnpm lint` - ESLint with auto-fix capability
 - `pnpm fix` - Apply code fixes using ESLint
 
@@ -260,6 +270,8 @@ Uses Vitest with React Testing Library. Test files in `__tests__/` directories a
 - **Service Integration**: Focus on testing context providers and service integrations rather than individual functions
 - **Error Boundaries**: Test error states by suppressing console.error during error scenario tests
 - **Persistence Testing**: Verify localStorage interactions across component unmount/remount cycles
+- **Storage Quota Testing**: Test localStorage quota exceeded scenarios with proper error handling
+- **Provider Initialization**: Test context provider lifecycle and error states with proper cleanup
 
 Example context provider test:
 ```tsx
@@ -278,6 +290,16 @@ it('should persist state across renders', async () => {
     <StorageProvider><TestComponent /></StorageProvider>
   )
   // Add data, unmount, remount, verify persistence
+})
+
+it('should handle quota exceeded errors', () => {
+  const originalSetItem = localStorage.setItem
+  localStorage.setItem = vi.fn().mockImplementation(() => {
+    throw new Error('QuotaExceededError')
+  })
+
+  expect(() => storageService.saveGPT(mockGPT)).toThrow('QuotaExceededError')
+  localStorage.setItem = originalSetItem
 })
 ```
 
@@ -319,6 +341,40 @@ Jupyter notebooks in `notebooks/` directory use Deno kernel for TypeScript devel
 - `notebooks/assistants/` - Assistant prototypes
 - `notebooks/experiments/` - Research and testing
 - `notebooks/research/` - Documentation and analysis
+
+#### Notebook Development Workflow
+1. **Use Template**: Start with `notebooks/templates/agent.ipynb` for new agents
+2. **Deno Integration**: Notebooks run TypeScript directly with Deno kernel
+3. **Type Safety**: Import types from `src/types/agent.ts` and use Zod validation
+4. **Platform Agnostic**: Implement BaseAgent interface for cross-platform compatibility
+5. **Testing**: Include test cells with proper error handling and validation
+
+Example notebook cell pattern:
+```typescript
+import { z } from 'zod';
+import { BaseAgent, AgentResponse, Platform } from '../../../src/types/agent';
+
+const ConfigSchema = z.object({
+  platform: z.nativeEnum(Platform),
+  model: z.string(),
+  temperature: z.number().min(0).max(1),
+});
+
+class MyAgent implements BaseAgent {
+  async process(input: string): Promise<AgentResponse> {
+    // Implementation with proper error handling
+    return { success: true, result: 'Processed' };
+  }
+}
+```
+
+#### Interactive Notebook Components
+React components in `src/components/docs/` provide notebook-like experiences in the web interface:
+- `InteractiveNotebook` - Renders markdown and code cells with execution
+- `getting-started.tsx` - Tutorial notebook component
+- `agent-tutorial.tsx` - Agent development guide
+
+Use these components for documentation that combines explanatory text with executable code examples.
 
 ### LangChain/LangGraph Integration
 The project leverages LangChain for AI workflows and LangGraph for stateful agent development:
