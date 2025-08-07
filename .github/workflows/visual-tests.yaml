@@ -204,29 +204,13 @@ jobs:
       # Commit changes to the branch when triggered from a ref other than main
       - name: Commit changes to HEAD
         if: github.ref != 'refs/heads/main'
-        run: |
-          # Configure git with bot credentials
-          git config --local user.email "${{ steps.setup-bot-user.outputs.USER_EMAIL }}"
-          git config --local user.name "${{ steps.setup-bot-user.outputs.USER_NAME }}"
-
-          # Check if there are any changes to commit
-          if git status --porcelain | grep -E '^\?\?.*-linux\.png$'; then
-            echo "New LFS files detected, committing changes..."
-
-            # Add the new LFS files
-            git add tests/**/*-linux.png
-
-            # Commit the LFS files
-            git commit -m "chore: update visual regression baselines"
-
-            # Push both regular changes and LFS objects
-            git push origin HEAD
-            git lfs push origin HEAD
-
-            echo "Changes and LFS objects pushed successfully"
-          else
-            echo "No new files to commit"
-          fi
+        uses: EndBug/add-and-commit@a94899bca583c204427a224a7af87c02f9b325d5 # v9.1.4
+        with:
+          author_name: '${{ steps.setup-bot-user.outputs.USER_NAME }}'
+          author_email: '${{ steps.setup-bot-user.outputs.USER_EMAIL }}'
+          committer_name: '${{ steps.setup-bot-user.outputs.USER_NAME }}'
+          committer_email: '${{ steps.setup-bot-user.outputs.USER_EMAIL }}'
+          message: 'chore: update visual regression baselines'
 
       # Create a pull request when triggered from the main branch
       - name: Create pull request
