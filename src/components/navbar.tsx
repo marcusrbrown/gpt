@@ -21,7 +21,7 @@ export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-[var(--header-height)] border-b border-[var(--border-color)] bg-[var(--background-primary)] z-50">
+    <header className="fixed top-0 left-0 right-0 h-[var(--header-height)] border-b border-border-default bg-surface-primary z-50">
       <div className="flex items-center justify-between h-full px-4 mx-auto container">
         {/* Left section - Logo */}
         <div className="flex items-center gap-2">
@@ -36,7 +36,7 @@ export const Navbar = () => {
           </Button>
           <RouterLink to="/" className="flex items-center gap-2">
             <span className="font-bold text-xl">GPT</span>
-            <span className="font-medium text-[var(--text-secondary)] hidden sm:inline">Agent Framework</span>
+            <span className="font-medium text-content-secondary hidden sm:inline">Agent Framework</span>
           </RouterLink>
         </div>
 
@@ -46,12 +46,12 @@ export const Navbar = () => {
             <Input
               type="search"
               placeholder="Search documentation..."
-              startContent={<Search className="text-[var(--text-tertiary)]" />}
+              startContent={<Search className="text-content-tertiary" />}
               size="sm"
               variant="bordered"
               classNames={{
                 input: 'text-sm',
-                inputWrapper: 'bg-[var(--background-secondary)]',
+                inputWrapper: 'bg-surface-secondary',
               }}
             />
           </div>
@@ -85,17 +85,17 @@ export const Navbar = () => {
             onClick={() => setIsMobileMenuOpen(false)}
             aria-hidden="true"
           />
-          <div className="fixed top-[var(--header-height)] left-0 right-0 bottom-0 z-50 bg-[var(--background-primary)] lg:hidden">
+          <div className="fixed top-[var(--header-height)] left-0 right-0 bottom-0 z-50 bg-surface-primary lg:hidden">
             <nav className="container mx-auto p-4 flex flex-col gap-4">
               <Input
                 type="search"
                 placeholder="Search documentation..."
-                startContent={<Search className="text-[var(--text-tertiary)]" />}
+                startContent={<Search className="text-content-tertiary" />}
                 size="sm"
                 variant="bordered"
                 classNames={{
                   input: 'text-sm',
-                  inputWrapper: 'bg-[var(--background-secondary)]',
+                  inputWrapper: 'bg-surface-secondary',
                 }}
               />
               <ButtonLink
