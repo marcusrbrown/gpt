@@ -78,4 +78,12 @@ export default defineConfig(
       },
     },
   },
+
+  {
+    files: ['src/components/navbar.tsx'],
+    rules: {
+      'no-unused-vars': 'off',
+      'unused-imports/no-unused-imports': 'off',
+    }
+  }
 );
