@@ -1,7 +1,5 @@
 import {ThemeSwitch} from '@/components/theme-switch'
-// TODO: These imports will be used in Phase 2 of the design system migration
-// @ts-expect-error - Imports will be used in Phase 2
-import {cn, compose, ds, theme} from '@/lib/design-system'
+import {cn, ds} from '@/lib/design-system'
 import {Button, Input, type ButtonProps} from '@heroui/react'
 import {BookOpen, Github, Menu, Search, X} from 'lucide-react'
 import {useState, type ElementType} from 'react'
@@ -11,8 +9,13 @@ type ButtonLinkProps = ButtonProps & {
   to: string
 } & Omit<LinkProps, keyof {to: string; className: string}>
 
-const ButtonLink = ({to, children, ...props}: ButtonLinkProps) => (
-  <Button as={RouterLink as ElementType} to={to} {...props}>
+const ButtonLink = ({to, children, className, ...props}: ButtonLinkProps) => (
+  <Button
+    as={RouterLink as ElementType}
+    to={to}
+    className={cn(ds.animation.transition, ds.focus.ring, className)}
+    {...props}
+  >
     {children}
   </Button>
 )
@@ -28,11 +31,16 @@ export const Navbar = () => {
           <Button
             isIconOnly
             variant="light"
-            className="lg:hidden"
+            color="default"
+            className={cn('lg:hidden', ds.animation.transition, ds.focus.ring)}
             onPress={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
-            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            {isMobileMenuOpen ? (
+              <X size={20} className="text-content-primary" />
+            ) : (
+              <Menu size={20} className="text-content-primary" />
+            )}
           </Button>
           <RouterLink to="/" className="flex items-center gap-2">
             <span className="font-bold text-xl">GPT</span>
@@ -46,9 +54,10 @@ export const Navbar = () => {
             <Input
               type="search"
               placeholder="Search documentation..."
-              startContent={<Search className="text-content-tertiary" />}
+              startContent={<Search className="text-content-tertiary" size={16} />}
               size="sm"
               variant="bordered"
+              className={cn(ds.animation.transition, ds.focus.ring)}
               classNames={{
                 input: 'text-sm',
                 inputWrapper: 'bg-surface-secondary',
@@ -59,8 +68,8 @@ export const Navbar = () => {
 
         {/* Right section - Navigation */}
         <nav className="flex items-center gap-2">
-          <ButtonLink to="/docs" isIconOnly variant="light" aria-label="Documentation">
-            <BookOpen size={20} />
+          <ButtonLink to="/docs" isIconOnly variant="light" color="default" aria-label="Documentation">
+            <BookOpen size={20} className="text-content-primary" />
           </ButtonLink>
           <Button
             as="a"
@@ -69,9 +78,11 @@ export const Navbar = () => {
             rel="noopener noreferrer"
             isIconOnly
             variant="light"
+            color="default"
+            className={cn(ds.animation.transition, ds.focus.ring)}
             aria-label="GitHub repository"
           >
-            <Github size={20} />
+            <Github size={20} className="text-content-primary" />
           </Button>
           <ThemeSwitch />
         </nav>
@@ -90,9 +101,10 @@ export const Navbar = () => {
               <Input
                 type="search"
                 placeholder="Search documentation..."
-                startContent={<Search className="text-content-tertiary" />}
+                startContent={<Search className="text-content-tertiary" size={16} />}
                 size="sm"
                 variant="bordered"
+                className={cn(ds.animation.transition, ds.focus.ring)}
                 classNames={{
                   input: 'text-sm',
                   inputWrapper: 'bg-surface-secondary',
@@ -101,10 +113,11 @@ export const Navbar = () => {
               <ButtonLink
                 to="/docs"
                 variant="light"
+                color="default"
                 className="justify-start"
                 onPress={() => setIsMobileMenuOpen(false)}
               >
-                <BookOpen size={20} className="mr-2" />
+                <BookOpen size={20} className="text-content-primary mr-2" />
                 Documentation
               </ButtonLink>
               <Button
@@ -113,9 +126,10 @@ export const Navbar = () => {
                 target="_blank"
                 rel="noopener noreferrer"
                 variant="light"
-                className="justify-start"
+                color="default"
+                className={cn('justify-start', ds.animation.transition, ds.focus.ring)}
               >
-                <Github size={20} className="mr-2" />
+                <Github size={20} className="text-content-primary mr-2" />
                 GitHub
               </Button>
             </nav>
