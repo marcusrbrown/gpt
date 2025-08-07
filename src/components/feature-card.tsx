@@ -1,6 +1,9 @@
+import {cn, compose, ds, theme} from '@/lib/design-system'
+import {Card, CardBody, CardFooter, CardHeader} from '@heroui/react'
 import {type LucideIcon} from 'lucide-react'
 import {type FC} from 'react'
-import {Link} from 'react-router-dom'
+
+import {useNavigate} from 'react-router-dom'
 
 interface FeatureCardProps {
   title: string
@@ -11,38 +14,51 @@ interface FeatureCardProps {
 }
 
 export const FeatureCard: FC<FeatureCardProps> = ({title, description, icon: Icon, href, domain}) => {
+  const navigate = useNavigate()
   const isExternal = href.startsWith('http')
 
-  const cardContent = (
-    <>
-      <div className="flex items-center gap-4">
-        <div className="rounded-lg bg-[var(--background-tertiary)] p-3 transition-colors">
-          <Icon className="h-6 w-6 text-[var(--accent-color)]" />
+  const handleCardPress = () => {
+    if (isExternal) {
+      window.open(href, '_blank', 'noopener,noreferrer')
+    } else {
+      navigate(href)
+    }
+  }
+
+  return (
+    <Card
+      className={cn(compose.card(), ds.animation.transition, 'max-w-sm', 'cursor-pointer')}
+      isHoverable
+      isPressable
+      onPress={handleCardPress}
+    >
+      <CardHeader className={cn('pb-4')}>
+        <div className="flex items-center gap-4">
+          <div className={cn('rounded-lg p-3', theme.surface(2), ds.animation.transition)}>
+            <Icon className={cn('h-6 w-6', 'text-primary-500')} />
+          </div>
+          <div className="flex flex-col">
+            <h3 className={cn(ds.text.heading.h4)}>{title}</h3>
+            {domain && <div className={cn(ds.text.body.small)}>{domain}</div>}
+          </div>
         </div>
-        <div>
-          <h3 className="font-semibold text-[var(--text-primary)]">{title}</h3>
-          {domain && <div className="text-sm text-[var(--text-tertiary)]">{domain}</div>}
-        </div>
-      </div>
-      <p className="mt-4 text-[var(--text-secondary)] line-clamp-2">{description}</p>
-      <div className="mt-4">
-        <span className="text-[var(--accent-color)] text-sm font-medium group-hover:text-[var(--accent-hover)]">
+      </CardHeader>
+
+      <CardBody className="pt-0">
+        <p className={cn(ds.text.body.base, 'line-clamp-2')}>{description}</p>
+      </CardBody>
+
+      <CardFooter className="pt-4">
+        <span
+          className={cn(
+            'text-primary-500 text-sm font-medium',
+            ds.animation.transition,
+            'group-hover:text-primary-600',
+          )}
+        >
           {isExternal ? 'Open in ChatGPT' : 'Learn more'} →
         </span>
-      </div>
-    </>
-  )
-
-  const cardClasses =
-    'group relative rounded-lg border border-[var(--border-color)] bg-[var(--background-secondary)] p-6 transition-all hover:border-[var(--accent-color)] hover:shadow-md'
-
-  return isExternal ? (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={cardClasses}>
-      {cardContent}
-    </a>
-  ) : (
-    <Link to={href} className={cardClasses}>
-      {cardContent}
-    </Link>
+      </CardFooter>
+    </Card>
   )
 }
