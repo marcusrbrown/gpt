@@ -31,10 +31,10 @@ export const Card: FC<CardProps> = ({
       ref={ref}
       as="div"
       className={cn(
-        compose.card('max-w-[400px]'),
+        compose.card('max-w-sm'),
         'p-0', // Override compose.card padding since HeroUI Card handles internal spacing
-        'hover:cursor-pointer',
         ds.animation.transition,
+        ds.focus.ring,
         isLoading && ds.state.loading,
         error && ds.state.error,
       )}

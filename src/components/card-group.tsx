@@ -2,6 +2,7 @@ import mine from '@/assets/mine.json'
 import {Card} from '@/components/card'
 import {UserGPTCard} from '@/components/user-gpt-card'
 import {useStorage} from '@/hooks/use-storage'
+import {ds, responsive} from '@/lib/design-system'
 import {Button} from '@heroui/react'
 import {Plus} from 'lucide-react'
 import {type FC} from 'react'
@@ -19,21 +20,21 @@ export const CardGroup: FC<CardGroupProps> = () => {
       {/* User's GPTs section */}
       <div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold">Your GPTs</h2>
+          <h2 className={ds.text.heading.h2}>Your GPTs</h2>
           <Button as={Link} to="/gpt/new" color="primary" startContent={<Plus size={16} />}>
             Create New GPT
           </Button>
         </div>
 
         {userGPTs.length > 0 ? (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className={responsive.cardGrid.threeColumn}>
             {userGPTs.map(gpt => (
               <UserGPTCard key={gpt.id} gpt={gpt} />
             ))}
           </div>
         ) : (
-          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-8 text-center">
-            <p className="text-gray-500 mb-4">You haven't created any GPTs yet.</p>
+          <div className="bg-surface-secondary rounded-lg p-8 text-center border border-border-default">
+            <p className="text-content-secondary mb-4">You haven't created any GPTs yet.</p>
             <Button as={Link} to="/gpt/new" color="primary" startContent={<Plus size={16} />}>
               Create Your First GPT
             </Button>
@@ -43,8 +44,8 @@ export const CardGroup: FC<CardGroupProps> = () => {
 
       {/* Example GPTs section */}
       <div>
-        <h2 className="text-2xl font-semibold mb-4">Example GPTs</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <h2 className={`${ds.text.heading.h2} mb-4`}>Example GPTs</h2>
+        <div className={responsive.cardGrid.threeColumn}>
           {mine.map(card => (
             <Card key={card.name} {...card} />
           ))}
