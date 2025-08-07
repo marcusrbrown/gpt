@@ -22,7 +22,7 @@ export const Navbar = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 h-[var(--header-height)] border-b border-border-default bg-surface-primary z-50">
-      <div className="flex items-center justify-between h-full px-4 mx-auto container">
+      <div className={cn('flex items-center justify-between h-full', ds.layout.container)}>
         {/* Left section - Logo */}
         <div className="flex items-center gap-2">
           <Button
@@ -86,7 +86,7 @@ export const Navbar = () => {
             aria-hidden="true"
           />
           <div className="fixed top-[var(--header-height)] left-0 right-0 bottom-0 z-50 bg-surface-primary lg:hidden">
-            <nav className="container mx-auto p-4 flex flex-col gap-4">
+            <nav className={cn(ds.layout.container, 'flex flex-col gap-4 py-4')}>
               <Input
                 type="search"
                 placeholder="Search documentation..."
