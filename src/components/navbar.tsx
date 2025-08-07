@@ -2,7 +2,7 @@ import {ThemeSwitch} from '@/components/theme-switch'
 import {cn, compose, ds, theme} from '@/lib/design-system'
 import {Button, Input, type ButtonProps} from '@heroui/react'
 import {BookOpen, Github, Menu, Search, X} from 'lucide-react'
-import {useState, type ElementType} from 'react'
+import {useEffect, useState, type ElementType} from 'react'
 import {Link as RouterLink, type LinkProps} from 'react-router-dom'
 
 type ButtonLinkProps = ButtonProps & {
@@ -17,6 +17,26 @@ const ButtonLink = ({to, children, className, ...props}: ButtonLinkProps) => (
 
 export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  // Handle keyboard navigation for mobile menu
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false)
+      }
+    }
+
+    if (isMobileMenuOpen) {
+      document.addEventListener('keydown', handleKeyDown)
+      // Prevent body scroll when mobile menu is open
+      document.body.style.overflow = 'hidden'
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = 'auto'
+    }
+  }, [isMobileMenuOpen])
 
   return (
     <header
@@ -43,7 +63,7 @@ export const Navbar = () => {
               <Menu size={20} className={theme.content('primary')} />
             )}
           </Button>
-          <RouterLink to="/" className="flex items-center gap-2">
+          <RouterLink to="/" className="flex items-center gap-2" aria-label="GPT Agent Framework - Go to homepage">
             <span className="font-bold text-xl">GPT</span>
             <span className={cn('font-medium hidden sm:inline', theme.content('secondary'))}>Agent Framework</span>
           </RouterLink>
@@ -55,7 +75,7 @@ export const Navbar = () => {
             <Input
               type="search"
               placeholder="Search documentation..."
-              startContent={<Search className={theme.content('tertiary')} size={16} />}
+              startContent={<Search className={theme.content('tertiary')} size={16} aria-hidden="true" />}
               size="sm"
               variant="bordered"
               className={compose.button()}
@@ -63,12 +83,13 @@ export const Navbar = () => {
                 input: 'text-sm',
                 inputWrapper: theme.surface(1),
               }}
+              aria-label="Search documentation"
             />
           </div>
         </div>
 
         {/* Right section - Navigation */}
-        <nav className="flex items-center gap-2">
+        <nav className="flex items-center gap-2" aria-label="Main navigation">
           <ButtonLink to="/docs" isIconOnly variant="light" color="default" aria-label="Documentation">
             <BookOpen size={20} className={theme.content('primary')} />
           </ButtonLink>
@@ -96,15 +117,18 @@ export const Navbar = () => {
             className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40 lg:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
             aria-hidden="true"
+            role="presentation"
           />
           <div
             className={cn('fixed top-[var(--header-height)] left-0 right-0 bottom-0 z-50 lg:hidden', theme.surface(0))}
+            role="dialog"
+            aria-label="Mobile navigation menu"
           >
-            <nav className={cn(ds.layout.container, 'flex flex-col gap-4 py-4')}>
+            <nav className={cn(ds.layout.container, 'flex flex-col gap-4 py-4')} aria-label="Mobile navigation">
               <Input
                 type="search"
                 placeholder="Search documentation..."
-                startContent={<Search className={theme.content('tertiary')} size={16} />}
+                startContent={<Search className={theme.content('tertiary')} size={16} aria-hidden="true" />}
                 size="sm"
                 variant="bordered"
                 className={compose.button()}
@@ -112,6 +136,7 @@ export const Navbar = () => {
                   input: 'text-sm',
                   inputWrapper: theme.surface(1),
                 }}
+                aria-label="Search documentation"
               />
               <ButtonLink
                 to="/docs"
@@ -119,8 +144,9 @@ export const Navbar = () => {
                 color="default"
                 className="justify-start"
                 onPress={() => setIsMobileMenuOpen(false)}
+                aria-label="Go to Documentation"
               >
-                <BookOpen size={20} className={cn(theme.content('primary'), 'mr-2')} />
+                <BookOpen size={20} className={cn(theme.content('primary'), 'mr-2')} aria-hidden="true" />
                 Documentation
               </ButtonLink>
               <Button
@@ -131,8 +157,9 @@ export const Navbar = () => {
                 variant="light"
                 color="default"
                 className={cn('justify-start', compose.button())}
+                aria-label="Visit GitHub repository (opens in new tab)"
               >
-                <Github size={20} className={cn(theme.content('primary'), 'mr-2')} />
+                <Github size={20} className={cn(theme.content('primary'), 'mr-2')} aria-hidden="true" />
                 GitHub
               </Button>
             </nav>
