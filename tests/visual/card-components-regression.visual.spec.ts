@@ -268,7 +268,7 @@ visualTest.describe('Card Components - Visual Regression Tests', () => {
         `)
 
         await page.waitForLoadState('networkidle')
-        const card = page.locator('.compose-card').first()
+        const card = page.locator('[data-testid="feature-card"]').first()
         await visualHelper.takeComponentScreenshot(card, 'feature-card-default-state')
       },
     )
@@ -320,7 +320,7 @@ visualTest.describe('Card Components - Visual Regression Tests', () => {
         `)
 
         await page.waitForLoadState('networkidle')
-        const card = page.locator('.compose-card').first()
+        const card = page.locator('[data-testid="feature-card"]').first()
 
         // Test hover state
         await card.hover()
@@ -375,7 +375,7 @@ visualTest.describe('Card Components - Visual Regression Tests', () => {
         `)
 
         await page.waitForLoadState('networkidle')
-        const card = page.locator('.compose-card').first()
+        const card = page.locator('[data-testid="feature-card"]').first()
 
         // Test focus state first
         await card.focus()
@@ -437,7 +437,7 @@ visualTest.describe('Card Components - Visual Regression Tests', () => {
         `)
 
         await page.waitForLoadState('networkidle')
-        const card = page.locator('.compose-card').first()
+        const card = page.locator('[data-testid="feature-card"]').first()
         await visualHelper.takeComponentScreenshot(card, 'feature-card-external-link')
       },
     )
@@ -486,7 +486,7 @@ visualTest.describe('Card Components - Visual Regression Tests', () => {
         `)
 
         await page.waitForLoadState('networkidle')
-        const card = page.locator('.compose-card').first()
+        const card = page.locator('[data-testid="example-gpt-card"]').first()
         await visualHelper.takeComponentScreenshot(card, 'generic-card-with-avatar')
       },
     )
@@ -532,7 +532,7 @@ visualTest.describe('Card Components - Visual Regression Tests', () => {
         `)
 
         await page.waitForLoadState('networkidle')
-        const card = page.locator('.compose-card').first()
+        const card = page.locator('[data-testid="example-gpt-card"]').first()
 
         // Test hover state
         await card.hover()

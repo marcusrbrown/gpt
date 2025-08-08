@@ -38,6 +38,7 @@ export const FeatureCard: FC<FeatureCardProps> = ({
 
   return (
     <Card
+      data-testid="feature-card"
       className={cn(
         compose.card(),
         ds.animation.transition,
