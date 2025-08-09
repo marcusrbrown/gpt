@@ -609,23 +609,26 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                  Name
-                </label>
-                <input
+                <Input
                   type="text"
+                  label="Name"
                   name="name"
                   id="name"
                   value={gpt.name}
-                  onChange={handleInputChange}
-                  className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
-                    errors.name
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                      : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
-                  }`}
-                  required
+                  onValueChange={value => {
+                    setGpt(prev => ({
+                      ...prev,
+                      name: value,
+                      updatedAt: new Date(),
+                    }))
+                    if (errors.name) {
+                      clearFieldError('name')
+                    }
+                  }}
+                  isInvalid={!!errors.name}
+                  errorMessage={errors.name}
+                  isRequired
                 />
-                <FormFieldError error={errors.name!} />
               </div>
               <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">
