@@ -1,5 +1,6 @@
 import {Button, Input} from '@heroui/react'
 import {useRef} from 'react'
+import {cn, ds} from '../lib/design-system'
 import {type LocalFile} from '../types/gpt'
 
 interface FormErrors {
@@ -34,49 +35,43 @@ export function KnowledgeConfiguration({
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   return (
-    <div className="space-y-6">
+    <div className={cn(ds.form.fieldGroup)}>
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Files</h3>
-        <div className="border-dashed border-2 border-gray-300 rounded-md p-6 text-center">
+        <h3 className={cn(ds.text.heading.h3)}>Files</h3>
+        <div className="border-dashed border-2 border-border-default rounded-md p-6 text-center">
           <input type="file" ref={fileInputRef} onChange={onFileUpload} multiple className="hidden" />
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className="text-blue-600 hover:text-blue-800 focus:outline-none"
-          >
+          <Button onPress={() => fileInputRef.current?.click()} color="primary" variant="light" className="mb-2">
             Upload Files
-          </button>
-          <p className="mt-2 text-sm text-gray-600">Upload files to use as knowledge sources for your GPT</p>
+          </Button>
+          <p className={cn(ds.text.body.small)}>Upload files to use as knowledge sources for your GPT</p>
         </div>
 
         {/* Display uploaded files */}
         {files.length > 0 && (
           <div className="mt-4">
-            <h4 className="text-md font-medium mb-2">Uploaded Files</h4>
-            <div className="border rounded-md overflow-hidden">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+            <h4 className={cn(ds.text.heading.h4, 'mb-2')}>Uploaded Files</h4>
+            <div className="border border-border-default rounded-md overflow-hidden">
+              <table className="min-w-full divide-y divide-border-default">
+                <thead className="bg-surface-secondary">
                   <tr>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Size</th>
-                    <th className="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-content-tertiary uppercase">Name</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-content-tertiary uppercase">Type</th>
+                    <th className="px-3 py-2 text-left text-xs font-medium text-content-tertiary uppercase">Size</th>
+                    <th className="px-3 py-2 text-right text-xs font-medium text-content-tertiary uppercase">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-surface-primary divide-y divide-border-default">
                   {files.map((file, index) => (
                     <tr key={`${file.name}-${file.lastModified}-${index}`}>
-                      <td className="px-3 py-2 text-sm text-gray-900">{file.name}</td>
-                      <td className="px-3 py-2 text-sm text-gray-500">{file.type || 'Unknown'}</td>
-                      <td className="px-3 py-2 text-sm text-gray-500">{Math.round(file.size / 1024)} KB</td>
+                      <td className="px-3 py-2 text-sm text-content-primary">{file.name}</td>
+                      <td className="px-3 py-2 text-sm text-content-secondary">{file.type || 'Unknown'}</td>
+                      <td className="px-3 py-2 text-sm text-content-secondary">{Math.round(file.size / 1024)} KB</td>
                       <td className="px-3 py-2 text-right">
-                        <button
-                          type="button"
-                          onClick={() => onRemoveFile(index)}
-                          className="text-red-600 hover:text-red-900 text-sm"
-                        >
+                        <Button onPress={() => onRemoveFile(index)} size="sm" color="danger" variant="light">
                           Remove
-                        </button>
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -88,10 +83,10 @@ export function KnowledgeConfiguration({
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-medium">Web URLs</h3>
+        <h3 className={cn(ds.text.heading.h3)}>Web URLs</h3>
         <div className="space-y-3">
           {urls.map((url, index) => (
-            <div key={`url-${index}`} className="flex space-x-2">
+            <div key={`url-${index}`} className={cn(ds.form.fieldRow)}>
               <Input
                 type="url"
                 value={url}
