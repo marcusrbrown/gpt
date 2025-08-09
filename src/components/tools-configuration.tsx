@@ -1,4 +1,5 @@
-import {Button, Input} from '@heroui/react'
+import {Button, Input, Select, SelectItem} from '@heroui/react'
+import {cn, ds} from '../lib/design-system'
 import {type MCPTool} from '../types/gpt'
 
 interface FormErrors {
@@ -29,23 +30,23 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
   return (
     <div>
       <div className="flex items-center justify-between">
-        <label className="block text-sm font-medium text-gray-700">Tools</label>
+        <label className={cn(ds.form.label)}>Tools</label>
         <Button onPress={onAddTool} size="sm" color="primary">
           Add Tool
         </Button>
       </div>
-      <div className="mt-4 space-y-4">
+      <div className={cn(ds.form.fieldGroup)}>
         {tools.map((tool, index) => (
           <div key={index} className="p-4 border rounded-lg space-y-4">
             <div className="flex justify-between items-start">
-              <h4 className="text-sm font-medium text-gray-700">Tool {index + 1}</h4>
+              <h4 className={cn(ds.form.label)}>Tool {index + 1}</h4>
               <Button onPress={() => onRemoveTool(index)} size="sm" color="danger" variant="light">
                 Remove
               </Button>
             </div>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className={cn(ds.form.fieldRow, 'grid grid-cols-1 gap-4 sm:grid-cols-2')}>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Name</label>
+                <label className={cn(ds.form.label)}>Name</label>
                 <Input
                   value={tool.name}
                   onChange={e => onToolChange(index, 'name', e.target.value)}
@@ -55,7 +56,7 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Description</label>
+                <label className={cn(ds.form.label)}>Description</label>
                 <Input
                   value={tool.description}
                   onChange={e => onToolChange(index, 'description', e.target.value)}
@@ -65,7 +66,7 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Endpoint</label>
+                <label className={cn(ds.form.label)}>Endpoint</label>
                 <Input
                   value={tool.endpoint}
                   onChange={e => onToolChange(index, 'endpoint', e.target.value)}
@@ -75,28 +76,29 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">Authentication Type</label>
-                <select
-                  value={tool.authentication?.type || ''}
-                  onChange={e =>
+                <label className={cn(ds.form.label)}>Authentication Type</label>
+                <Select
+                  selectedKeys={tool.authentication?.type ? [tool.authentication.type] : []}
+                  onSelectionChange={keys => {
+                    const value = Array.from(keys)[0] as string
                     onToolChange(index, 'authentication', {
-                      type: e.target.value as 'bearer' | 'api_key',
+                      type: value as 'bearer' | 'api_key',
                       value: tool.authentication?.value || '',
                     })
-                  }
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                  }}
+                  placeholder="Select type..."
+                  className={cn(ds.form.fieldGroup)}
+                  isInvalid={!!errors.tools[index]?.authentication}
+                  errorMessage={errors.tools[index]?.authentication}
                 >
-                  <option value="">Select type...</option>
                   {AUTH_TYPES.map(type => (
-                    <option key={type.value} value={type.value}>
-                      {type.label}
-                    </option>
+                    <SelectItem key={type.value}>{type.label}</SelectItem>
                   ))}
-                </select>
+                </Select>
               </div>
               {tool.authentication && (
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Authentication Value</label>
+                  <label className={cn(ds.form.label)}>Authentication Value</label>
                   <Input
                     type="password"
                     value={tool.authentication.value}
