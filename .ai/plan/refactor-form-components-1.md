@@ -84,12 +84,12 @@ Comprehensive migration of form components to implement HeroUI patterns and unif
 
 | Task | Description | Completed | Date |
 | --- | --- | --- | --- |
-| TASK-019 | Standardize Input components in gpt-test-pane.tsx for conversation name and message input |  |  |
-| TASK-020 | Apply consistent focus states using ds.focus.ring for all interactive form elements |  |  |
-| TASK-021 | Update api-settings.tsx to use design system form utilities and semantic tokens |  |  |
-| TASK-022 | Implement consistent loading states for form submissions using ds.state.loading |  |  |
-| TASK-023 | Add proper placeholder text and helper text using HeroUI description prop where appropriate |  |  |
-| TASK-024 | Ensure all form inputs have proper `aria-label` attributes for accessibility |  |  |
+| TASK-019 | Standardize Input components in gpt-test-pane.tsx for conversation name and message input | ✅ | 2025-08-09 |
+| TASK-020 | Apply consistent focus states using ds.focus.ring for all interactive form elements | ✅ | 2025-08-09 |
+| TASK-021 | Update api-settings.tsx to use design system form utilities and semantic tokens | ✅ | 2025-08-09 |
+| TASK-022 | Implement consistent loading states for form submissions using ds.state.loading | ✅ | 2025-08-09 |
+| TASK-023 | Add proper placeholder text and helper text using HeroUI description prop where appropriate | ✅ | 2025-08-09 |
+| TASK-024 | Ensure all form inputs have proper `aria-label` attributes for accessibility | ✅ | 2025-08-09 |
 
 ### Implementation Phase 5: File Upload and Advanced Components
 
