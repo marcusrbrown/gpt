@@ -204,7 +204,20 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
     }
     return {...DEFAULT_GPT, id: uuidv4()}
   })
-  const {errors, validateForm, clearFieldError} = useGPTValidation()
+  const {
+    errors,
+    validateForm,
+    handleFieldValidation,
+    clearFieldError,
+    hasFieldSuccess,
+    setValidationTiming,
+    isValidating,
+  } = useGPTValidation()
+
+  // Set validation timing mode for consistent UX
+  useEffect(() => {
+    setValidationTiming('blur')
+  }, [setValidationTiming])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [activeTab, setActiveTab] = useState('edit')
   const [testMessage, setTestMessage] = useState('')
@@ -602,7 +615,18 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
 
             {importError && <div className={cn(ds.state.error, 'p-2 my-2 rounded')}>{importError}</div>}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form
+              onSubmit={handleSubmit}
+              className={cn('space-y-6 relative', (isSubmitting || isValidating) && ds.state.loading)}
+            >
+              {(isSubmitting || isValidating) && (
+                <div className="absolute inset-0 bg-surface-primary/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg">
+                  <div className="flex items-center gap-3 p-4 bg-surface-secondary rounded-lg shadow-lg border border-border-default">
+                    <Spinner size="sm" color="primary" />
+                    <span className={cn(ds.text.body.base)}>{isValidating ? 'Validating...' : 'Saving GPT...'}</span>
+                  </div>
+                </div>
+              )}
               <div>
                 <Input
                   type="text"
@@ -620,9 +644,17 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                       clearFieldError('name')
                     }
                   }}
+                  onBlur={() => {
+                    // Validate on blur for consistent UX
+                    handleFieldValidation('name', gpt.name, gpt, 'blur')
+                  }}
                   isInvalid={!!errors.name}
                   errorMessage={errors.name}
                   isRequired
+                  className={cn(
+                    hasFieldSuccess('name') && !errors.name && ds.state.success,
+                    'transition-colors duration-200',
+                  )}
                 />
               </div>
               <div>
@@ -634,11 +666,19 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   id="description"
                   value={gpt.description}
                   onChange={handleInputChange}
+                  onBlur={() => {
+                    // Validate on blur for consistent UX
+                    handleFieldValidation('description', gpt.description, gpt, 'blur')
+                  }}
                   minRows={3}
                   isInvalid={!!errors.description}
                   errorMessage={errors.description}
                   isRequired
-                  className={cn(ds.form.fieldGroup)}
+                  className={cn(
+                    ds.form.fieldGroup,
+                    hasFieldSuccess('description') && !errors.description && ds.state.success,
+                    'transition-colors duration-200',
+                  )}
                 />
               </div>
               <div>
@@ -650,11 +690,19 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   id="systemPrompt"
                   value={gpt.systemPrompt}
                   onChange={handleInputChange}
+                  onBlur={() => {
+                    // Validate on blur for consistent UX
+                    handleFieldValidation('systemPrompt', gpt.systemPrompt, gpt, 'blur')
+                  }}
                   minRows={5}
                   isInvalid={!!errors.systemPrompt}
                   errorMessage={errors.systemPrompt}
                   isRequired
-                  className={cn(ds.form.fieldGroup)}
+                  className={cn(
+                    ds.form.fieldGroup,
+                    hasFieldSuccess('systemPrompt') && !errors.systemPrompt && ds.state.success,
+                    'transition-colors duration-200',
+                  )}
                 />
               </div>
               <ToolsConfiguration
