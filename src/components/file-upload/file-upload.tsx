@@ -1,4 +1,7 @@
+import {Spinner} from '@heroui/react'
+import {Upload} from 'lucide-react'
 import {useRef, useState, type ChangeEvent} from 'react'
+import {cn, ds, theme} from '../../lib/design-system'
 
 export const ACCEPTED_FILE_TYPES = {
   PDF: 'application/pdf',
@@ -10,15 +13,20 @@ export const ACCEPTED_FILE_TYPES = {
   PNG: 'image/png',
   JPG: 'image/jpeg',
   JPEG: 'image/jpeg',
-}
+} as const
 
 export type AcceptedFileType = keyof typeof ACCEPTED_FILE_TYPES
+
+const DEFAULT_ALLOWED_TYPES = Object.values(ACCEPTED_FILE_TYPES)
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void
   allowedTypes?: string[]
   maxSizeMB?: number
   className?: string
+  isLoading?: boolean
+  disabled?: boolean
+  ariaLabel?: string
 }
 
 /**
@@ -26,9 +34,12 @@ interface FileUploadProps {
  */
 export function FileUpload({
   onFileSelect,
-  allowedTypes = Object.values(ACCEPTED_FILE_TYPES),
+  allowedTypes = DEFAULT_ALLOWED_TYPES,
   maxSizeMB = 100,
   className = '',
+  isLoading = false,
+  disabled = false,
+  ariaLabel = 'File upload area',
 }: FileUploadProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
@@ -75,18 +86,22 @@ export function FileUpload({
     e.stopPropagation()
     setIsDragging(false)
 
+    if (disabled || isLoading) return
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      // Use non-null assertion since we've checked length above
-      const file = e.dataTransfer.files[0]!
-      handleFile(file)
+      const file = e.dataTransfer.files[0]
+      if (file) {
+        handleFile(file)
+      }
     }
   }
 
   function handleFileInputChange(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
-      // Use non-null assertion since we've checked length above
-      const file = e.target.files[0]!
-      handleFile(file)
+      const file = e.target.files[0]
+      if (file) {
+        handleFile(file)
+      }
     }
   }
 
@@ -98,21 +113,44 @@ export function FileUpload({
   }
 
   function handleClick() {
+    if (disabled || isLoading) return
+
     if (fileInputRef.current) {
       fileInputRef.current.click()
     }
   }
 
   return (
-    <div className={`w-full ${className}`}>
+    <div className={cn('w-full', className)}>
       <div
-        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${
-          isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'
-        }`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-        onClick={handleClick}
+        className={cn(
+          'border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all duration-200',
+          'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+          // Disabled or loading state
+          (disabled || isLoading) &&
+            cn('border-border-subtle', theme.surface(0), ds.state.disabled, 'cursor-not-allowed'),
+          // Dragging state (when not disabled/loading)
+          isDragging && !disabled && !isLoading && cn('border-primary-500', theme.surface(1), 'shadow-sm'),
+          // Default state (when not dragging, disabled, or loading)
+          !isDragging &&
+            !disabled &&
+            !isLoading &&
+            cn('border-border-default hover:border-border-strong', theme.surface(0), 'hover:shadow-sm'),
+        )}
+        onDragOver={disabled || isLoading ? undefined : handleDragOver}
+        onDragLeave={disabled || isLoading ? undefined : handleDragLeave}
+        onDrop={disabled || isLoading ? undefined : handleDrop}
+        onClick={disabled || isLoading ? undefined : handleClick}
+        role="button"
+        tabIndex={disabled || isLoading ? -1 : 0}
+        aria-label={ariaLabel}
+        aria-disabled={disabled || isLoading}
+        onKeyDown={e => {
+          if ((e.key === 'Enter' || e.key === ' ') && !disabled && !isLoading) {
+            e.preventDefault()
+            handleClick()
+          }
+        }}
       >
         <input
           type="file"
@@ -120,42 +158,56 @@ export function FileUpload({
           onChange={handleFileInputChange}
           className="hidden"
           accept={allowedTypes.join(',')}
+          disabled={disabled || isLoading}
+          aria-label="Select file"
         />
 
-        <div className="flex flex-col items-center justify-center gap-2">
-          <svg
-            className="w-8 h-8 text-gray-400"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-            />
-          </svg>
+        <div className="flex flex-col items-center justify-center gap-3">
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <Spinner size="sm" color="primary" />
+              <span className={cn(ds.text.body.small, 'text-content-secondary')}>Uploading...</span>
+            </div>
+          ) : (
+            <>
+              <Upload
+                className={cn(
+                  'w-8 h-8 transition-colors',
+                  disabled ? 'text-content-tertiary' : 'text-content-secondary',
+                )}
+              />
 
-          <div className="text-sm font-medium text-gray-700">
-            {fileName ? (
-              <span className="text-blue-600">{fileName}</span>
-            ) : (
-              <>
-                <span className="text-blue-600">Click to upload</span> or drag and drop
-              </>
-            )}
-          </div>
+              <div className={cn(ds.text.body.small, 'font-medium')}>
+                {fileName ? (
+                  <span className="text-primary-600">{fileName}</span>
+                ) : (
+                  <span className={cn(disabled ? 'text-content-tertiary' : 'text-content-primary')}>
+                    <span className="text-primary-600">Click to upload</span> or drag and drop
+                  </span>
+                )}
+              </div>
 
-          <p className="text-xs text-gray-500">
-            {`Supported formats: ${allowedTypes.map(type => type.split('/')[1]).join(', ')}`}
-          </p>
-          <p className="text-xs text-gray-500">{`Max size: ${maxSizeMB}MB`}</p>
+              <div className={cn('space-y-1', ds.text.body.small, 'text-content-tertiary')}>
+                <p>Supported formats: {allowedTypes.map(type => type.split('/')[1]).join(', ')}</p>
+                <p>Max size: {maxSizeMB}MB</p>
+              </div>
+            </>
+          )}
         </div>
       </div>
 
-      {errorMessage && <div className="mt-2 text-sm text-red-500">{errorMessage}</div>}
+      {errorMessage && (
+        <div className={cn('mt-2', ds.form.errorText, 'flex items-start gap-2')}>
+          <svg className="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <path
+              fillRule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span>{errorMessage}</span>
+        </div>
+      )}
     </div>
   )
 }

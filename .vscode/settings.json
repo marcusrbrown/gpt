@@ -50,6 +50,8 @@
         "llms.txt": "markdown"
     },
 
+    "markdown.validate.referenceLinks.enabled": "ignore",
+
     "prettier.enable": false,
 
     "typescript.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces": false,
