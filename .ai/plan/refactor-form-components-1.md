@@ -58,12 +58,12 @@ Comprehensive migration of form components to implement HeroUI patterns and unif
 | Task | Description | Completed | Date |
 | --- | --- | --- | --- |
 | TASK-006 | Replace native input[type="text"] for GPT name with HeroUI Input component in gpt-editor.tsx | ✅ | 2025-08-08 |
-| TASK-007 | Replace native textarea for GPT description with HeroUI Textarea component |  |  |
-| TASK-008 | Replace native textarea for system prompt with HeroUI Textarea component |  |  |
-| TASK-009 | Convert manual error styling (`border-red-300`) to HeroUI `isInvalid` and `errorMessage` props |  |  |
-| TASK-010 | Replace custom FormFieldError component with HeroUI built-in error display |  |  |
-| TASK-011 | Apply ds.form.fieldGroup utility for consistent spacing between form fields |  |  |
-| TASK-012 | Update form labels to use ds.form.label utility for consistent label styling |  |  |
+| TASK-007 | Replace native textarea for GPT description with HeroUI Textarea component | ✅ | 2025-08-08 |
+| TASK-008 | Replace native textarea for system prompt with HeroUI Textarea component | ✅ | 2025-08-08 |
+| TASK-009 | Convert manual error styling (`border-red-300`) to HeroUI `isInvalid` and `errorMessage` props | ✅ | 2025-08-08 |
+| TASK-010 | Replace custom FormFieldError component with HeroUI built-in error display | ✅ | 2025-08-08 |
+| TASK-011 | Apply ds.form.fieldGroup utility for consistent spacing between form fields | ✅ | 2025-08-08 |
+| TASK-012 | Update form labels to use ds.form.label utility for consistent label styling | ✅ | 2025-08-08 |
 
 ### Implementation Phase 3: Specialized Form Components Migration
 

@@ -1,9 +1,10 @@
-import {Button, Input, Spinner, Tab, Tabs} from '@heroui/react'
+import {Button, Input, Spinner, Tab, Tabs, Textarea} from '@heroui/react'
 import {useEffect, useRef, useState} from 'react'
 import {v4 as uuidv4} from 'uuid'
 import {useGPTValidation} from '../hooks/use-gpt-validation'
 import {useOpenAIService} from '../hooks/use-openai-service'
 import {useStorage} from '../hooks/use-storage'
+import {cn, ds} from '../lib/design-system'
 import {
   GPTConfigurationSchema,
   type ConversationMessage,
@@ -118,11 +119,11 @@ function VectorKnowledge({
         Create vector stores from your files to enable advanced retrieval capabilities.
       </p>
 
-      {error && <div className="text-red-500 bg-red-50 p-2 rounded text-sm">{error}</div>}
+      {error && <div className={cn(ds.state.error, 'p-2 rounded text-sm')}>{error}</div>}
 
       <div className="border rounded-md p-4 space-y-4">
         <div>
-          <label htmlFor="storeName" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="storeName" className={cn(ds.form.label)}>
             Vector Store Name
           </label>
           <Input
@@ -526,12 +527,6 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
     if (importGptRef.current) importGptRef.current.value = ''
   }
 
-  // Display form field error component for consistent error styling
-  const FormFieldError = ({error}: {error?: string}) => {
-    if (!error) return null
-    return <p className="text-red-500 text-sm mt-1">{error}</p>
-  }
-
   // Handle creating a vector store
   const handleCreateVectorStore = (name: string, fileIds: string[]) => {
     const newStore: VectorStore = {
@@ -605,7 +600,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
               </div>
             </div>
 
-            {importError && <div className="text-red-500 p-2 my-2 bg-red-50 rounded">{importError}</div>}
+            {importError && <div className={cn(ds.state.error, 'p-2 my-2 rounded')}>{importError}</div>}
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
@@ -631,42 +626,36 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                 />
               </div>
               <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="description" className={cn(ds.form.label)}>
                   Description
                 </label>
-                <textarea
+                <Textarea
                   name="description"
                   id="description"
                   value={gpt.description}
                   onChange={handleInputChange}
-                  rows={3}
-                  className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
-                    errors.description
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                      : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
-                  }`}
-                  required
+                  minRows={3}
+                  isInvalid={!!errors.description}
+                  errorMessage={errors.description}
+                  isRequired
+                  className={cn(ds.form.fieldGroup)}
                 />
-                <FormFieldError error={errors.description!} />
               </div>
               <div>
-                <label htmlFor="systemPrompt" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="systemPrompt" className={cn(ds.form.label)}>
                   System Prompt
                 </label>
-                <textarea
+                <Textarea
                   name="systemPrompt"
                   id="systemPrompt"
                   value={gpt.systemPrompt}
                   onChange={handleInputChange}
-                  rows={5}
-                  className={`mt-1 block w-full rounded-md shadow-sm sm:text-sm ${
-                    errors.systemPrompt
-                      ? 'border-red-300 focus:border-red-500 focus:ring-red-500'
-                      : 'border-gray-300 focus:border-indigo-500 focus:ring-indigo-500'
-                  }`}
-                  required
+                  minRows={5}
+                  isInvalid={!!errors.systemPrompt}
+                  errorMessage={errors.systemPrompt}
+                  isRequired
+                  className={cn(ds.form.fieldGroup)}
                 />
-                <FormFieldError error={errors.systemPrompt!} />
               </div>
               <ToolsConfiguration
                 tools={gpt.tools}
@@ -818,7 +807,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
           )}
 
           {/* Show error if any */}
-          {testError && <div className="text-red-500 p-4 rounded bg-red-50 my-2">Error: {testError}</div>}
+          {testError && <div className={cn(ds.state.error, 'p-4 rounded my-2')}>Error: {testError}</div>}
 
           {/* Display file list */}
           {files.length > 0 && (
