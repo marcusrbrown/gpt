@@ -4,6 +4,7 @@ import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {v4 as uuidv4} from 'uuid'
 import {useOpenAIService} from '../hooks/use-openai-service'
 import {useStorage} from '../hooks/use-storage'
+import {cn, ds} from '../lib/design-system'
 import {type ConversationMessage, type GPTConfiguration} from '../types/gpt'
 
 interface GPTTestPaneProps {
@@ -387,18 +388,21 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
             label="Conversation Name"
             value={conversationName}
             onChange={handleConversationNameChange}
-            className="w-full"
-            aria-label="Conversation Name"
+            className={cn(ds.focus.ring, ds.animation.transition)}
+            placeholder="Enter a name for this conversation"
+            description="Give your conversation a descriptive name for easy reference"
+            aria-label="Enter conversation name"
           />
         </div>
         <div className="flex gap-2">
           <Tooltip content="Save conversation">
             <Button
               isIconOnly
-              aria-label="Save conversation"
+              aria-label="Save current conversation to local storage"
               color={isSaved ? 'success' : 'primary'}
               isDisabled={isLoading || messages.length === 0 || isSaving}
               onPress={handleSaveConversation}
+              className={cn(ds.focus.ring, ds.animation.transition)}
             >
               {isSaving ? <Spinner size="sm" /> : <Save size={18} />}
             </Button>
@@ -406,10 +410,11 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
           <Tooltip content="Export as JSON">
             <Button
               isIconOnly
-              aria-label="Export as JSON"
+              aria-label="Export conversation as JSON file"
               color="secondary"
               isDisabled={messages.length === 0}
               onPress={handleExportConversation}
+              className={cn(ds.focus.ring, ds.animation.transition)}
             >
               <Download size={18} />
             </Button>
@@ -417,10 +422,11 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
           <Tooltip content="Clear conversation">
             <Button
               isIconOnly
-              aria-label="Clear conversation"
+              aria-label="Clear all messages from current conversation"
               color="danger"
               isDisabled={messages.length === 0 || isLoading}
               onPress={handleClearConversation}
+              className={cn(ds.focus.ring, ds.animation.transition)}
             >
               <Trash size={18} />
             </Button>
@@ -476,9 +482,15 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
         )}
 
         {isLoading && (
-          <div className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
-            <Spinner size="sm" />
-            <span className="text-sm text-gray-600">{processingMessage}</span>
+          <div
+            className={cn(
+              'flex items-center space-x-2 p-3 rounded-lg',
+              ds.state.loading,
+              'bg-surface-secondary border border-border-subtle',
+            )}
+          >
+            <Spinner size="sm" color="primary" />
+            <span className={cn('text-sm', ds.text.body.base)}>{processingMessage}</span>
           </div>
         )}
 
@@ -502,17 +514,19 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
             value={userInput}
             onChange={handleInputChange}
             placeholder="Type your message..."
-            className="flex-1"
-            disabled={isLoading}
+            className={cn('flex-1', ds.focus.ring, ds.animation.transition)}
+            isDisabled={isLoading}
             onKeyDown={handleKeyPress}
-            aria-label="Message input"
+            aria-label="Enter your message to send to the GPT"
+            description="Press Enter to send your message"
           />
           <Button
             type="submit"
             color="primary"
             isDisabled={!userInput.trim() || isLoading}
             isIconOnly
-            aria-label="Send message"
+            className={cn(ds.focus.ring, ds.animation.transition)}
+            aria-label="Send message to GPT assistant"
           >
             <Send size={18} />
           </Button>

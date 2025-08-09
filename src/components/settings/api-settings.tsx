@@ -1,6 +1,7 @@
 import {Button, Input} from '@heroui/react'
 import {useState} from 'react'
 import {useOpenAI} from '../../contexts/openai-provider'
+import {cn, compose, ds, theme} from '../../lib/design-system'
 
 export function APISettings() {
   const {apiKey, setApiKey, clearApiKey} = useOpenAI()
@@ -39,11 +40,11 @@ export function APISettings() {
   }
 
   return (
-    <div className="bg-white rounded-lg p-6 shadow-md">
-      <h2 className="text-xl font-semibold mb-4">OpenAI API Settings</h2>
+    <div className={cn(compose.card(), theme.surface(1))}>
+      <h2 className={cn(ds.text.heading.h2, 'mb-4')}>OpenAI API Settings</h2>
 
-      <div className="mb-4">
-        <p className="text-sm text-gray-600 mb-2">
+      <div className={cn(ds.form.fieldGroup)}>
+        <p className={cn(ds.text.body.small, 'mb-2')}>
           Enter your OpenAI API key to use the GPT Test functionality. Your API key is stored locally in your browser
           and never sent to our servers.
         </p>
@@ -54,33 +55,55 @@ export function APISettings() {
             value={inputKey}
             onChange={handleInputChange}
             placeholder="sk-..."
-            className="flex-1 mr-2"
+            className={cn('flex-1 mr-2', ds.focus.ring, ds.animation.transition)}
+            description="Your OpenAI API key for testing GPT configurations"
+            aria-label="Enter your OpenAI API key"
           />
-          <Button onPress={toggleShowApiKey} variant="bordered" className="min-w-[80px] px-3">
+          <Button
+            onPress={toggleShowApiKey}
+            variant="bordered"
+            className={cn('min-w-[80px] px-3', ds.focus.ring, ds.animation.transition)}
+            aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
+          >
             {showApiKey ? 'Hide' : 'Show'}
           </Button>
         </div>
 
-        {saveStatus === 'success' && <p className="text-sm text-green-600 mt-1">API key saved successfully!</p>}
-
-        {saveStatus === 'error' && (
-          <p className="text-sm text-red-600 mt-1">Failed to save API key. Please try again.</p>
+        {saveStatus === 'success' && (
+          <p className={cn(ds.form.errorText, 'text-success-600 mt-1')}>API key saved successfully!</p>
         )}
 
-        <div className="flex mt-4 space-x-2">
-          <Button onPress={handleSaveKey} color="primary" isDisabled={!inputKey.trim() || inputKey === apiKey}>
+        {saveStatus === 'error' && (
+          <p className={cn(ds.form.errorText, 'mt-1')}>Failed to save API key. Please try again.</p>
+        )}
+
+        <div className={cn('flex mt-4 space-x-2', ds.form.fieldRow)}>
+          <Button
+            onPress={handleSaveKey}
+            color="primary"
+            isDisabled={!inputKey.trim() || inputKey === apiKey}
+            className={cn(ds.focus.ring, ds.animation.transition)}
+            aria-label="Save API key to local storage"
+          >
             Save API Key
           </Button>
 
-          <Button onPress={handleClearKey} variant="bordered" color="danger" isDisabled={!apiKey}>
+          <Button
+            onPress={handleClearKey}
+            variant="bordered"
+            color="danger"
+            isDisabled={!apiKey}
+            className={cn(ds.focus.ring, ds.animation.transition)}
+            aria-label="Clear saved API key from local storage"
+          >
             Clear API Key
           </Button>
         </div>
       </div>
 
-      <div className="mt-4 border-t pt-4">
-        <h3 className="text-md font-semibold mb-2">Using Your API Key</h3>
-        <p className="text-sm text-gray-600">
+      <div className={cn('mt-4 pt-4', 'border-t', theme.border())}>
+        <h3 className={cn(ds.text.heading.h4, 'mb-2')}>Using Your API Key</h3>
+        <p className={cn(ds.text.body.small)}>
           Your OpenAI API key is used to access the Assistants API for testing your GPT configurations. Usage will be
           billed to your OpenAI account based on your API usage.
         </p>

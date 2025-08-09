@@ -118,13 +118,13 @@ describe('GPTTestPane', () => {
     renderWithContext(<GPTTestPane gptConfig={mockConfig} apiKey={mockApiKey} />)
 
     // Check for basic UI elements
-    expect(screen.getByLabelText('Conversation Name')).toBeInTheDocument()
-    expect(screen.getByLabelText('Save conversation')).toBeInTheDocument()
-    expect(screen.getByLabelText('Export as JSON')).toBeInTheDocument()
-    expect(screen.getByLabelText('Clear conversation')).toBeInTheDocument()
+    expect(screen.getByLabelText('Enter conversation name')).toBeInTheDocument()
+    expect(screen.getByLabelText('Save current conversation to local storage')).toBeInTheDocument()
+    expect(screen.getByLabelText('Export conversation as JSON file')).toBeInTheDocument()
+    expect(screen.getByLabelText('Clear all messages from current conversation')).toBeInTheDocument()
     expect(screen.getByText('Start testing your GPT by sending a message below')).toBeInTheDocument()
-    expect(screen.getByLabelText('Message input')).toBeInTheDocument()
-    expect(screen.getByLabelText('Send message')).toBeInTheDocument()
+    expect(screen.getByLabelText('Enter your message to send to the GPT')).toBeInTheDocument()
+    expect(screen.getByLabelText('Send message to GPT assistant')).toBeInTheDocument()
   })
 
   it('initializes assistant and thread when sending a message', async () => {
@@ -133,10 +133,10 @@ describe('GPTTestPane', () => {
     renderWithContext(<GPTTestPane gptConfig={mockConfig} apiKey={mockApiKey} />)
 
     // Type and send a message to trigger initialization
-    const input = screen.getByLabelText('Message input')
+    const input = screen.getByLabelText('Enter your message to send to the GPT')
     await user.type(input, 'Hello')
 
-    const sendButton = screen.getByLabelText('Send message')
+    const sendButton = screen.getByLabelText('Send message to GPT assistant')
     await user.click(sendButton)
 
     // Verify initialization happened
@@ -157,14 +157,14 @@ describe('GPTTestPane', () => {
     renderWithContext(<GPTTestPane gptConfig={mockConfig} apiKey={mockApiKey} />)
 
     // Type in the message input
-    const input = screen.getByLabelText('Message input')
+    const input = screen.getByLabelText('Enter your message to send to the GPT')
     await user.type(input, 'Hello')
 
     // Verify the input has the text
     expect(input).toHaveValue('Hello')
 
     // Click the send button
-    const sendButton = screen.getByLabelText('Send message')
+    const sendButton = screen.getByLabelText('Send message to GPT assistant')
     await user.click(sendButton)
 
     // Input should be cleared after sending
