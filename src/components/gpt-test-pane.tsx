@@ -437,11 +437,11 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
       {/* Messages Area */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{maxHeight: 'calc(100vh - 210px)'}}>
         {error && (
-          <div className="bg-red-50 p-4 rounded-md border border-red-200 flex items-start space-x-3">
-            <AlertCircle className="text-red-500 mt-0.5" size={18} />
+          <div className={cn('p-4 rounded-md flex items-start space-x-3', ds.state.error, 'border')}>
+            <AlertCircle className={cn('mt-0.5', ds.form.errorText)} size={18} />
             <div className="flex-1">
-              <h3 className="text-sm font-medium text-red-800">Error</h3>
-              <p className="text-sm text-red-700 mt-1">{error}</p>
+              <h3 className={cn('text-sm font-medium', ds.form.errorText)}>Error</h3>
+              <p className={cn('text-sm mt-1', ds.form.errorText)}>{error}</p>
               {apiKey ? (
                 <button
                   type="button"
@@ -449,12 +449,16 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
                     setError(null)
                     initializeAssistant()
                   }}
-                  className="mt-3 text-sm text-red-600 hover:text-red-500 font-medium"
+                  className={cn(
+                    'mt-3 text-sm font-medium hover:opacity-80',
+                    ds.form.errorText,
+                    ds.animation.transition,
+                  )}
                 >
                   Try again
                 </button>
               ) : (
-                <p className="mt-2 text-sm text-red-700">Please set your OpenAI API key in settings.</p>
+                <p className={cn('mt-2 text-sm', ds.form.errorText)}>Please set your OpenAI API key in settings.</p>
               )}
             </div>
           </div>
