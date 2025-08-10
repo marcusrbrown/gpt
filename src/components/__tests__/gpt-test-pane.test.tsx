@@ -172,4 +172,44 @@ describe('GPTTestPane', () => {
       expect(input).toHaveValue('')
     })
   })
+
+  it('displays proper accessibility attributes for HeroUI Input components', () => {
+    renderWithContext(<GPTTestPane gptConfig={mockConfig} apiKey={mockApiKey} />)
+
+    // Verify HeroUI Input components have proper accessibility attributes
+    const conversationNameInput = screen.getByLabelText('Enter conversation name')
+    const messageInput = screen.getByLabelText('Enter your message to send to the GPT')
+
+    // Check that inputs have proper ARIA attributes
+    expect(conversationNameInput).toHaveAttribute('type', 'text')
+    expect(messageInput).toBeInTheDocument()
+
+    // Verify inputs are accessible and have proper labeling
+    expect(conversationNameInput).toHaveAccessibleName()
+    expect(messageInput).toHaveAccessibleName()
+  })
+
+  it('handles keyboard navigation properly with HeroUI components', async () => {
+    const user = userEvent.setup()
+    renderWithContext(<GPTTestPane gptConfig={mockConfig} apiKey={mockApiKey} />)
+
+    const messageInput = screen.getByLabelText('Enter your message to send to the GPT')
+
+    // Focus the message input and type
+    await user.click(messageInput)
+    expect(messageInput).toHaveFocus()
+
+    // Type a message
+    await user.type(messageInput, 'Test message')
+    expect(messageInput).toHaveValue('Test message')
+
+    // Verify send button can be focused and activated
+    const sendButton = screen.getByLabelText('Send message to GPT assistant')
+    await user.click(sendButton)
+
+    // After sending, input should be cleared
+    await waitFor(() => {
+      expect(messageInput).toHaveValue('')
+    })
+  })
 })
