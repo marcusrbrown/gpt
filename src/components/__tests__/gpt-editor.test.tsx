@@ -150,4 +150,58 @@ describe('GPTEditor', () => {
     // Verify it's unchecked again
     expect(codeInterpreterCheckbox).not.toBeChecked()
   })
+
+  it('displays error states for invalid form inputs', async () => {
+    const user = userEvent.setup()
+    renderWithContext(<GPTEditor />)
+
+    // Find the save button and click it without filling required fields
+    const saveButton = screen.getByText('Save')
+    await user.click(saveButton)
+
+    // Check that form inputs show error states using HeroUI error patterns
+    const nameInput = screen.getByLabelText('Name')
+    const descriptionInput = screen.getByLabelText('Description')
+    const systemPromptInput = screen.getByLabelText('System Prompt')
+
+    // HeroUI Input components should have aria-invalid when there's an error
+    expect(nameInput).toHaveAttribute('aria-invalid', 'true')
+    expect(descriptionInput).toHaveAttribute('aria-invalid', 'true')
+    expect(systemPromptInput).toHaveAttribute('aria-invalid', 'true')
+  })
+
+  it('clears error states when user starts typing', async () => {
+    const user = userEvent.setup()
+    renderWithContext(<GPTEditor />)
+
+    // Trigger validation by trying to save empty form
+    const saveButton = screen.getByText('Save')
+    await user.click(saveButton)
+
+    const nameInput = screen.getByLabelText('Name')
+
+    // Initially should have error state
+    expect(nameInput).toHaveAttribute('aria-invalid', 'true')
+
+    // Type in the input to clear the error
+    await user.type(nameInput, 'Test GPT')
+
+    // Error state should be cleared - aria-invalid should be false or not present
+    expect(nameInput).not.toHaveAttribute('aria-invalid', 'true')
+  })
+
+  it('uses proper ARIA labels and roles for form accessibility', () => {
+    renderWithContext(<GPTEditor />)
+
+    // Verify form elements have proper labels
+    expect(screen.getByLabelText('Name')).toBeInTheDocument()
+    expect(screen.getByLabelText('Description')).toBeInTheDocument()
+    expect(screen.getByLabelText('System Prompt')).toBeInTheDocument()
+
+    // Verify buttons have proper labels
+    expect(screen.getByRole('button', {name: /save/i})).toBeInTheDocument()
+
+    // Verify checkboxes are properly labeled
+    expect(screen.getByLabelText(/code interpreter/i)).toBeInTheDocument()
+  })
 })
