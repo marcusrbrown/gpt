@@ -165,11 +165,26 @@ export class GPTEditorPage extends BasePage {
   }
 
   /**
-   * Add a tool (simplified - you might need more specific methods)
+   * Add a tool with configuration
    */
-  async addTool(): Promise<void> {
+  async addTool(config?: {
+    name: string
+    description: string
+    endpoint: string
+    authenticationType: string
+    authenticationValue: string
+  }): Promise<void> {
     await this.clickTab('Tools')
     await this.clickElement(this.addToolButton)
+
+    if (config) {
+      // Basic tool configuration - simplified for e2e testing
+      const toolNameInput = this.page.locator('[name*="name"]').last()
+      const toolDescInput = this.page.locator('[name*="description"]').last()
+
+      await this.fillInput(toolNameInput, config.name)
+      await this.fillInput(toolDescInput, config.description)
+    }
   }
 
   /**
@@ -220,6 +235,53 @@ export class GPTEditorPage extends BasePage {
         return !loadingIndicator || loadingIndicator.getAttribute('style')?.includes('display: none')
       },
       {timeout: 30000},
+    )
+  }
+
+  /**
+   * Check if validation errors are present by looking for HeroUI error states
+   */
+  async hasValidationErrors(): Promise<boolean> {
+    const errorElements = this.page.locator('[aria-invalid="true"]')
+    const count = await errorElements.count()
+    return count > 0
+  }
+
+  /**
+   * Check if a specific field has validation error
+   */
+  async hasFieldError(fieldName: string): Promise<boolean> {
+    const field = this.page.locator(`[name="${fieldName}"]`)
+    const ariaInvalid = await field.getAttribute('aria-invalid')
+    return ariaInvalid === 'true'
+  }
+
+  /**
+   * Get field value by name
+   */
+  async getFieldValue(fieldName: string): Promise<string | null> {
+    const field = this.page.locator(`[name="${fieldName}"]`)
+    return await field.inputValue()
+  }
+
+  /**
+   * Check if form is currently submitting (look for loading overlay)
+   */
+  async isFormSubmitting(): Promise<boolean> {
+    const loadingOverlay = this.page.locator('.absolute.inset-0:has-text("Saving GPT")')
+    return await loadingOverlay.isVisible()
+  }
+
+  /**
+   * Wait for form to finish submitting
+   */
+  async waitForFormSubmission(): Promise<void> {
+    await this.page.waitForFunction(
+      () => {
+        const overlay = document.querySelector('.absolute.inset-0:has-text("Saving GPT")')
+        return !overlay
+      },
+      {timeout: 10000},
     )
   }
 }
