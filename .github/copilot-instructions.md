@@ -250,11 +250,17 @@ Vite configuration includes optimized manual chunking for performance:
 ### Commands
 - `pnpm dev` - Start Vite development server with HMR
 - `pnpm build` - Production build (TypeScript + Vite) with optimized chunking
-- `pnpm test` - Run Vitest test suite
+- `pnpm test` - Run Vitest unit test suite
 - `pnpm test:coverage` - Generate test coverage reports
 - `pnpm test:e2e` - Run Playwright end-to-end tests
+- `pnpm test:e2e:ui` - Run E2E tests with interactive UI
+- `pnpm test:e2e:debug` - Debug E2E tests step-by-step
 - `pnpm test:visual` - Run Playwright visual regression tests
 - `pnpm test:visual:update` - Update visual test baselines
+- `pnpm test:visual:ui` - Run visual tests with interactive UI
+- `pnpm test:accessibility` - Run comprehensive accessibility tests
+- `pnpm test:accessibility:ui` - Run accessibility tests with interactive UI
+- `pnpm test:accessibility:debug` - Debug accessibility test failures
 - `pnpm lint` - ESLint with auto-fix capability
 - `pnpm fix` - Apply code fixes using ESLint
 
@@ -265,13 +271,53 @@ Vite configuration includes optimized manual chunking for performance:
 - Tests: Co-located in `__tests__/` directories alongside source files
 
 ### Testing Pattern
-Uses Vitest with React Testing Library. Test files in `__tests__/` directories alongside source files. Key patterns:
+Uses a comprehensive testing strategy with Vitest, Playwright, and accessibility testing:
+
+#### Unit Testing
+- **Vitest** with React Testing Library for component and utility testing
+- Test files in `__tests__/` directories alongside source files
+- Focus on context providers and service integrations rather than individual functions
+- Mock providers and test hooks in isolation using wrapper components
+
+#### End-to-End Testing
+- **Playwright** for browser automation and user workflow testing
+- Page Object Model pattern in `tests/e2e/page-objects/`
+- Test real user interactions and data persistence
+
+#### Visual Regression Testing
+- **Playwright** screenshot comparison with approved baselines
+- Dedicated configuration in `playwright-visual.config.ts`
+- Tests in `tests/visual/` with custom fixtures and utilities
+- Ensures UI consistency across updates and releases
+
+#### Accessibility Testing
+- **@axe-core/playwright** integration for WCAG compliance
+- Comprehensive test suite in `tests/accessibility/`
+- Custom fixtures extend base Playwright tests with accessibility utilities
+- Tests keyboard navigation, screen reader compatibility, and color contrast
+
+Key testing patterns:
 - **Context Testing**: Mock providers and test hooks in isolation using wrapper components
 - **Service Integration**: Focus on testing context providers and service integrations rather than individual functions
 - **Error Boundaries**: Test error states by suppressing console.error during error scenario tests
 - **Persistence Testing**: Verify localStorage interactions across component unmount/remount cycles
 - **Storage Quota Testing**: Test localStorage quota exceeded scenarios with proper error handling
 - **Provider Initialization**: Test context provider lifecycle and error states with proper cleanup
+- **Accessibility Testing**: Use custom fixtures with page objects for comprehensive WCAG compliance testing
+- **Visual Testing**: Leverage Playwright's screenshot comparison for UI consistency validation
+
+Example accessibility test pattern:
+```tsx
+import {test, expect} from '../accessibility/fixtures'
+
+test.describe('Component Accessibility', () => {
+  test('should meet WCAG 2.1 AA standards', async ({page, homePage}) => {
+    await homePage.goto()
+    await homePage.runAccessibilityAudit()
+    // Custom accessibility assertions and reporting
+  })
+})
+```
 
 Example context provider test:
 ```tsx
