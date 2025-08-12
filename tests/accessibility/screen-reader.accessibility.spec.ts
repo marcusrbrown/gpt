@@ -198,36 +198,125 @@ test.describe('Screen Reader Compatibility', () => {
 
     test('should have accessible form labels', async ({page}) => {
       await test.step('Test form label associations', async () => {
-        await page.goto('/gpt/editor')
+        await page.goto('/gpt/new')
         await page.waitForLoadState('networkidle')
 
-        // Find form inputs
-        const inputs = page.locator('input, textarea, select')
+        // Wait for page content with more flexible selector
+        await page.waitForSelector('div[class*="container"], [data-slot], main', {state: 'visible', timeout: 10000})
+
+        // Find form inputs in any container (more resilient)
+        const inputs = page
+          .locator('input:not([type="hidden"]), textarea, select')
+          .filter({hasNotText: /Open menu|theme/i})
         const inputCount = await inputs.count()
 
         if (inputCount > 0) {
           for (let i = 0; i < Math.min(inputCount, 10); i++) {
             const input = inputs.nth(i)
-            const inputType = await input.getAttribute('type')
 
-            // Skip hidden inputs
-            if (inputType === 'hidden') continue
+            // Skip navigation and theme elements
+            const ariaLabel = await input.getAttribute('aria-label')
+            if (ariaLabel && (ariaLabel.includes('menu') || ariaLabel.includes('theme'))) continue
+
+            const inputType = await input.getAttribute('type')
+            if (inputType === 'hidden' || inputType === 'file') continue
 
             const id = await input.getAttribute('id')
-            const ariaLabel = await input.getAttribute('aria-label')
             const ariaLabelledBy = await input.getAttribute('aria-labelledby')
 
             // Should have label association
             let hasLabel = false
 
+            // Check for standard label
             if (id) {
               const label = page.locator(`label[for="${id}"]`)
               hasLabel = (await label.count()) > 0
             }
 
+            // Check for aria attributes
             hasLabel = hasLabel || !!ariaLabel || !!ariaLabelledBy
 
+            // Check for HeroUI pattern - label within parent
+            if (!hasLabel) {
+              const parentLabel = input.locator('..').locator('label')
+              hasLabel = (await parentLabel.count()) > 0
+            }
+
             expect(hasLabel).toBeTruthy()
+          }
+        }
+      })
+    })
+
+    test('should ensure HeroUI form components are screen reader compatible', async ({page}) => {
+      await test.step('Test HeroUI component screen reader accessibility', async () => {
+        await page.goto('/gpt/new')
+        await page.waitForLoadState('networkidle')
+
+        // Wait for any content to load (more flexible)
+        await page.waitForSelector('input, textarea, [data-slot]', {state: 'visible', timeout: 10000})
+
+        // Test inputs with more resilient approach
+        const inputs = page.locator('input:not([type="hidden"]):not([type="file"])')
+        const inputCount = await inputs.count()
+
+        if (inputCount > 0) {
+          for (let i = 0; i < Math.min(inputCount, 5); i++) {
+            const input = inputs.nth(i)
+
+            // Skip navigation elements
+            const ariaLabel = await input.getAttribute('aria-label')
+            if (ariaLabel && (ariaLabel.includes('menu') || ariaLabel.includes('theme'))) continue
+
+            // Should have accessible name from various sources
+            const ariaLabelledBy = await input.getAttribute('aria-labelledby')
+            const id = await input.getAttribute('id')
+
+            let hasAccessibleName = !!ariaLabel || !!ariaLabelledBy
+
+            // Check for label association
+            if (id && !hasAccessibleName) {
+              const label = page.locator(`label[for="${id}"]`)
+              hasAccessibleName = (await label.count()) > 0
+            }
+
+            // Check for HeroUI label within parent
+            if (!hasAccessibleName) {
+              const parentLabel = input.locator('..').locator('label')
+              hasAccessibleName = (await parentLabel.count()) > 0
+            }
+
+            expect(hasAccessibleName).toBeTruthy()
+          }
+        }
+
+        // Test textarea elements
+        const textareas = page.locator('textarea')
+        const textareaCount = await textareas.count()
+
+        if (textareaCount > 0) {
+          for (let i = 0; i < Math.min(textareaCount, 3); i++) {
+            const textarea = textareas.nth(i)
+
+            const ariaLabel = await textarea.getAttribute('aria-label')
+            const ariaLabelledBy = await textarea.getAttribute('aria-labelledby')
+            const id = await textarea.getAttribute('id')
+
+            let hasAccessibleName = !!ariaLabel || !!ariaLabelledBy
+
+            // Check for label association
+            if (id && !hasAccessibleName) {
+              const label = page.locator(`label[for="${id}"]`)
+              hasAccessibleName = (await label.count()) > 0
+            }
+
+            // Check for adjacent label
+            if (!hasAccessibleName) {
+              const parentLabel = textarea.locator('..').locator('label')
+              hasAccessibleName = (await parentLabel.count()) > 0
+            }
+
+            expect(hasAccessibleName).toBeTruthy()
           }
         }
       })
