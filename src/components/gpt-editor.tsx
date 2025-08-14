@@ -815,7 +815,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   <div
                     key={message.id}
                     className={`p-3 rounded-lg ${
-                      message.role === 'user' ? 'bg-indigo-50 text-indigo-900' : 'bg-gray-50 text-gray-900'
+                      message.role === 'user' ? 'bg-primary-50 text-primary-900' : 'bg-default-50 text-content-primary'
                     }`}
                   >
                     <div className={cn(ds.text.caption, 'font-medium mb-1')}>
@@ -825,7 +825,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   </div>
                 ))}
                 {isTesting && (
-                  <div className="p-3 rounded-lg bg-gray-50 text-gray-900">
+                  <div className="p-3 rounded-lg bg-default-50 text-content-primary">
                     <div className={cn(ds.text.caption, 'font-medium mb-1')}>Assistant</div>
                     <div className={ds.text.body.small}>Thinking...</div>
                   </div>

@@ -92,8 +92,8 @@ function NavItemComponent({item}: {item: NavItem}) {
           className={({isActive: linkActive}) =>
             `flex-1 flex items-center py-1.5 px-3 text-sm rounded-md transition-colors ${
               linkActive || hasActiveChild
-                ? 'text-[var(--accent-color)] bg-[var(--background-secondary)]'
-                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                ? 'text-primary bg-default-100'
+                : 'text-content-secondary hover:text-content-primary'
             }`
           }
           onClick={toggleExpand}
@@ -103,7 +103,7 @@ function NavItemComponent({item}: {item: NavItem}) {
             <ChevronDown
               size={16}
               className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''} ${
-                isActive || hasActiveChild ? 'text-[var(--accent-color)]' : 'text-[var(--text-tertiary)]'
+                isActive || hasActiveChild ? 'text-primary' : 'text-content-tertiary'
               }`}
             />
           )}
@@ -122,9 +122,7 @@ function NavItemComponent({item}: {item: NavItem}) {
                 to={subItem.path}
                 className={({isActive}) =>
                   `block py-1 px-3 text-sm rounded-md transition-colors ${
-                    isActive
-                      ? 'text-[var(--accent-color)] bg-[var(--background-secondary)]'
-                      : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
+                    isActive ? 'text-primary bg-default-100' : 'text-content-secondary hover:text-content-primary'
                   }`
                 }
               >

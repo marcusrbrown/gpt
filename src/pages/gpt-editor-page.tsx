@@ -129,7 +129,9 @@ export function GPTEditorPage() {
         <div className="w-2/5 overflow-auto">
           {!apiKey && isInitialized ? (
             <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-              <p className="text-gray-600 mb-4">To test your GPT, please set your OpenAI API key in the settings.</p>
+              <p className="text-content-secondary mb-4">
+                To test your GPT, please set your OpenAI API key in the settings.
+              </p>
               <button
                 type="button"
                 onClick={toggleSettings}
