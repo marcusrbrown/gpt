@@ -478,7 +478,9 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
             <div
               key={message.id}
               className={`p-3 rounded-lg max-w-[85%] ${
-                message.role === 'user' ? 'ml-auto bg-blue-100 text-blue-900' : 'bg-gray-100 text-gray-900'
+                message.role === 'user'
+                  ? 'ml-auto bg-primary-100 text-primary-900'
+                  : 'bg-default-100 text-content-primary'
               }`}
             >
               <p className={cn(ds.text.body.small, 'font-medium mb-1')}>

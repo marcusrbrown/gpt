@@ -14,7 +14,7 @@ type BreadcrumbLinkProps = {
 } & Omit<LinkProps, keyof {to: string; className: string}>
 
 const BreadcrumbLink = ({to, children, className, ...props}: BreadcrumbLinkProps) => (
-  <Link to={to} className={`breadcrumb-item hover:text-[var(--accent-color)] ${className ?? ''}`} {...props}>
+  <Link to={to} className={`breadcrumb-item hover:text-primary ${className ?? ''}`} {...props}>
     {children}
   </Link>
 )
@@ -28,7 +28,7 @@ function Breadcrumbs() {
       <BreadcrumbLink to="/">Home</BreadcrumbLink>
       {paths.map((path, index) => (
         <span key={path} className="flex items-center">
-          <ChevronRight size={14} className="mx-1 text-[var(--text-tertiary)]" />
+          <ChevronRight size={14} className="mx-1 text-content-tertiary" />
           <BreadcrumbLink to={`/${paths.slice(0, index + 1).join('/')}`} className="capitalize">
             {path.replaceAll('-', ' ')}
           </BreadcrumbLink>

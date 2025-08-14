@@ -1,3 +1,4 @@
+import {cn, ds} from '@/lib/design-system'
 import {Link} from 'react-router-dom'
 
 interface DocSection {
@@ -40,11 +41,9 @@ export function DocsIndex() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {SECTIONS.map(section => (
           <Link key={section.path} to={section.path} className="card-link group">
-            <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-2">{section.title}</h2>
-            <p className="text-[var(--text-secondary)] mb-4">{section.description}</p>
-            <span className="text-[var(--accent-color)] text-sm font-medium group-hover:text-[var(--accent-hover)]">
-              Learn more →
-            </span>
+            <h2 className={cn(ds.text.heading.h2, 'mb-2')}>{section.title}</h2>
+            <p className={cn(ds.text.body.base, 'text-content-secondary mb-4')}>{section.description}</p>
+            <span className="text-primary text-sm font-medium group-hover:text-primary-600">Learn more →</span>
           </Link>
         ))}
       </div>
@@ -53,18 +52,18 @@ export function DocsIndex() {
         <h2 className="text-2xl font-semibold mb-4">Latest Updates</h2>
         <ul className="space-y-3">
           <li className="flex items-center gap-2">
-            <span className="text-[var(--accent-color)]">●</span>
-            <span className="text-[var(--text-secondary)]">
+            <span className="text-primary">●</span>
+            <span className="text-content-secondary">
               New interactive notebook feature for live code experimentation
             </span>
           </li>
           <li className="flex items-center gap-2">
-            <span className="text-[var(--accent-color)]">●</span>
-            <span className="text-[var(--text-secondary)]">Added research paper integration with code examples</span>
+            <span className="text-primary">●</span>
+            <span className="text-content-secondary">Added research paper integration with code examples</span>
           </li>
           <li className="flex items-center gap-2">
-            <span className="text-[var(--accent-color)]">●</span>
-            <span className="text-[var(--text-secondary)]">Improved API documentation with real-world use cases</span>
+            <span className="text-primary">●</span>
+            <span className="text-content-secondary">Improved API documentation with real-world use cases</span>
           </li>
         </ul>
       </div>

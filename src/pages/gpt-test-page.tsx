@@ -21,7 +21,7 @@ export function GPTTestPage() {
   if (!gptConfig) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p className="text-lg text-gray-500">GPT not found. Please select a valid GPT.</p>
+        <p className="text-lg text-content-tertiary">GPT not found. Please select a valid GPT.</p>
       </div>
     )
   }
