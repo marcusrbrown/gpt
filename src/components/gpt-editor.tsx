@@ -114,7 +114,7 @@ function VectorKnowledge({
 
   return (
     <div className="space-y-4">
-      <h3 className="text-lg font-medium">Vector Knowledge Stores</h3>
+      <h3 className={ds.text.heading.h3}>Vector Knowledge Stores</h3>
       <p className="text-sm text-gray-600">
         Create vector stores from your files to enable advanced retrieval capabilities.
       </p>
@@ -136,7 +136,7 @@ function VectorKnowledge({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Select Files</label>
+          <label className={cn('block mb-2', ds.text.heading.h4, 'text-content-primary')}>Select Files</label>
           <div className="max-h-40 overflow-y-auto border rounded-md p-2">
             {files.length === 0 ? (
               <p className="text-gray-500 text-sm p-2">No files available. Upload files in the Knowledge section.</p>
@@ -170,7 +170,7 @@ function VectorKnowledge({
 
       {/* List existing vector stores */}
       <div className="mt-6">
-        <h4 className="text-md font-medium mb-2">Existing Vector Stores</h4>
+        <h4 className={ds.text.heading.h4}>Existing Vector Stores</h4>
         {!vectorStores || vectorStores.length === 0 ? (
           <p className="text-gray-500 text-sm">No vector stores created yet.</p>
         ) : (
@@ -581,7 +581,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
           <div className="p-4 space-y-6 max-w-full overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h2 className="text-xl font-bold">GPT Configuration</h2>
+                <h2 className={ds.text.heading.h2}>GPT Configuration</h2>
                 <div className="mt-2 w-64">
                   <div className="flex justify-between text-xs text-gray-600 mb-1">
                     <span>Completion</span>
@@ -715,10 +715,10 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
               <CapabilitiesConfiguration capabilities={gpt.capabilities} onCapabilityChange={handleCapabilityChange} />{' '}
               <div>
                 <div className="flex items-center justify-between">
-                  <label className="block text-sm font-medium text-gray-700">Knowledge Base</label>
+                  <label className={cn('block', ds.text.heading.h4, 'text-content-primary')}>Knowledge Base</label>
                   <div className="flex gap-2">
                     <div className="mb-4">
-                      <h3 className="text-sm font-medium mb-2">Knowledge Files</h3>
+                      <h3 className={cn(ds.text.heading.h4, 'mb-2')}>Knowledge Files</h3>
                       <div className="space-y-2">
                         {gpt.knowledge.files.map((file, index) => (
                           <div
@@ -750,7 +750,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
 
                 {/* URLs Section */}
                 <div className="mt-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">URLs</h4>
+                  <h4 className={cn(ds.text.heading.h4, 'text-content-primary mb-2')}>URLs</h4>
                   <div className="space-y-2">
                     {gpt.knowledge.urls.map((url, index) => (
                       <div key={index} className="flex items-center gap-2">
@@ -774,7 +774,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
         </Tab>
         <Tab key="knowledge" title="Knowledge">
           <div className="p-4 space-y-6 max-w-full overflow-y-auto">
-            <h2 className="text-xl font-bold">Knowledge Sources</h2>
+            <h2 className={ds.text.heading.h2}>Knowledge Sources</h2>
 
             <KnowledgeConfiguration
               files={gpt.knowledge.files}
@@ -800,12 +800,12 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
         <Tab key="test" title="Test GPT">
           <div className="space-y-4">
             <div className="bg-gray-50 rounded-lg p-4">
-              <h3 className="text-sm font-medium text-gray-700 mb-2">System Prompt</h3>
+              <h3 className={cn(ds.text.heading.h4, 'text-content-primary mb-2')}>System Prompt</h3>
               <p className="text-sm text-gray-600 whitespace-pre-wrap">{gpt.systemPrompt}</p>
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-sm font-medium text-gray-700">Conversation</h3>
+              <h3 className={cn(ds.text.heading.h4, 'text-content-primary')}>Conversation</h3>
               <div className="space-y-4 max-h-[400px] overflow-y-auto">
                 {testMessages.map(message => (
                   <div
@@ -860,7 +860,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
           {/* Display file list */}
           {files.length > 0 && (
             <div className="mt-4">
-              <h3 className="text-sm font-medium mb-2">Uploaded Files:</h3>
+              <h3 className={cn(ds.text.heading.h4, 'mb-2')}>Uploaded Files:</h3>
               <ul className="text-sm">
                 {files.map((file, index) => (
                   <li key={`${file.name}-${index}`} className="flex items-center justify-between py-1">
@@ -877,7 +877,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
           {/* Show test response if any */}
           {testResponse && !isTestLoading && !testError && (
             <div className="mt-4 p-4 bg-gray-50 rounded">
-              <h3 className="text-sm font-medium mb-2">Response:</h3>
+              <h3 className={cn(ds.text.heading.h4, 'mb-2')}>Response:</h3>
               <div className="whitespace-pre-wrap">{testResponse}</div>
             </div>
           )}

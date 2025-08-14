@@ -39,7 +39,7 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
         {tools.map((tool, index) => (
           <div key={index} className="p-4 border rounded-lg space-y-4">
             <div className="flex justify-between items-start">
-              <h4 className={cn(ds.form.label)}>Tool {index + 1}</h4>
+              <h4 className={cn(ds.text.heading.h4, 'text-content-primary')}>Tool {index + 1}</h4>
               <Button onPress={() => onRemoveTool(index)} size="sm" color="danger" variant="light">
                 Remove
               </Button>
