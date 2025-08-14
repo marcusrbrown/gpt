@@ -94,7 +94,7 @@ export function FormFieldWrapper({
       {success && !error && (
         <div
           id={successId}
-          className={cn('text-success-600 text-sm flex items-start gap-2 mt-1')}
+          className={cn('text-success-600 flex items-start gap-2 mt-1', ds.text.body.small)}
           role="status"
           aria-live="polite"
         >

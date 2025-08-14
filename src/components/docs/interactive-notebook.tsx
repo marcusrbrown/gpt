@@ -1,6 +1,7 @@
 import {Button} from '@heroui/react'
 import Editor from '@monaco-editor/react'
 import {useCallback, useState} from 'react'
+import {cn, ds} from '../../lib/design-system'
 
 interface NotebookCell {
   id: string
@@ -54,7 +55,7 @@ export function InteractiveNotebook({initialCells = [], onExecute}: InteractiveN
       {cells.map(cell => (
         <div key={cell.id} className="border rounded-lg p-4 bg-white dark:bg-gray-800">
           <div className="flex justify-between mb-2">
-            <span className="text-sm text-gray-500">{cell.type}</span>
+            <span className={cn(ds.text.body.small, 'text-content-tertiary')}>{cell.type}</span>
             {cell.type === 'code' && (
               <Button onPress={async () => handleExecute(cell.id)} color="primary" size="sm">
                 Run
