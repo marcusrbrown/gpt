@@ -115,11 +115,11 @@ function VectorKnowledge({
   return (
     <div className="space-y-4">
       <h3 className={ds.text.heading.h3}>Vector Knowledge Stores</h3>
-      <p className="text-sm text-gray-600">
+      <p className={cn(ds.text.body.base, 'text-content-secondary')}>
         Create vector stores from your files to enable advanced retrieval capabilities.
       </p>
 
-      {error && <div className={cn(ds.state.error, 'p-2 rounded text-sm')}>{error}</div>}
+      {error && <div className={cn(ds.state.error, 'p-2 rounded', ds.text.body.small)}>{error}</div>}
 
       <div className="border rounded-md p-4 space-y-4">
         <div>
@@ -139,7 +139,9 @@ function VectorKnowledge({
           <label className={cn('block mb-2', ds.text.heading.h4, 'text-content-primary')}>Select Files</label>
           <div className="max-h-40 overflow-y-auto border rounded-md p-2">
             {files.length === 0 ? (
-              <p className="text-gray-500 text-sm p-2">No files available. Upload files in the Knowledge section.</p>
+              <p className={cn(ds.text.body.small, 'text-content-tertiary p-2')}>
+                No files available. Upload files in the Knowledge section.
+              </p>
             ) : (
               files.map(file => (
                 <div key={file.name} className="flex items-center py-1">
@@ -150,7 +152,7 @@ function VectorKnowledge({
                     onChange={() => toggleFileSelection(file.name)}
                     className="mr-2"
                   />
-                  <label htmlFor={`file-${file.name}`} className="text-sm">
+                  <label htmlFor={`file-${file.name}`} className={ds.text.body.small}>
                     {file.name}
                   </label>
                 </div>
@@ -172,14 +174,16 @@ function VectorKnowledge({
       <div className="mt-6">
         <h4 className={ds.text.heading.h4}>Existing Vector Stores</h4>
         {!vectorStores || vectorStores.length === 0 ? (
-          <p className="text-gray-500 text-sm">No vector stores created yet.</p>
+          <p className={cn(ds.text.body.small, 'text-content-tertiary')}>No vector stores created yet.</p>
         ) : (
           <div className="space-y-2">
             {vectorStores.map(store => (
               <div key={store.id} className="border rounded-md p-3 flex justify-between items-center">
                 <div>
                   <h5 className="font-medium">{store.name}</h5>
-                  <p className="text-xs text-gray-600">{store.fileIds.length} files indexed</p>
+                  <p className={cn(ds.text.caption, 'text-content-tertiary normal-case')}>
+                    {store.fileIds.length} files indexed
+                  </p>
                 </div>
                 <Button color="danger" size="sm" variant="ghost" onPress={() => onDeleteVectorStore(store.id)}>
                   Remove
@@ -583,7 +587,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
               <div>
                 <h2 className={ds.text.heading.h2}>GPT Configuration</h2>
                 <div className="mt-2 w-64">
-                  <div className="flex justify-between text-xs text-gray-600 mb-1">
+                  <div className={cn('flex justify-between mb-1', ds.text.caption, 'text-content-secondary')}>
                     <span>Completion</span>
                     <span>{completionPercentage}%</span>
                   </div>
@@ -725,7 +729,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                             key={`${file.name}-${index}`}
                             className="flex items-center justify-between p-2 bg-gray-50 rounded"
                           >
-                            <span className="text-sm">{file.name}</span>
+                            <span className={ds.text.body.small}>{file.name}</span>
                             <Button
                               variant="ghost"
                               size="sm"
@@ -801,7 +805,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
           <div className="space-y-4">
             <div className="bg-gray-50 rounded-lg p-4">
               <h3 className={cn(ds.text.heading.h4, 'text-content-primary mb-2')}>System Prompt</h3>
-              <p className="text-sm text-gray-600 whitespace-pre-wrap">{gpt.systemPrompt}</p>
+              <p className={cn(ds.text.body.small, 'text-content-secondary whitespace-pre-wrap')}>{gpt.systemPrompt}</p>
             </div>
 
             <div className="space-y-4">
@@ -814,14 +818,16 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                       message.role === 'user' ? 'bg-indigo-50 text-indigo-900' : 'bg-gray-50 text-gray-900'
                     }`}
                   >
-                    <div className="text-xs font-medium mb-1">{message.role === 'user' ? 'You' : 'Assistant'}</div>
-                    <div className="text-sm whitespace-pre-wrap">{message.content}</div>
+                    <div className={cn(ds.text.caption, 'font-medium mb-1')}>
+                      {message.role === 'user' ? 'You' : 'Assistant'}
+                    </div>
+                    <div className={cn(ds.text.body.small, 'whitespace-pre-wrap')}>{message.content}</div>
                   </div>
                 ))}
                 {isTesting && (
                   <div className="p-3 rounded-lg bg-gray-50 text-gray-900">
-                    <div className="text-xs font-medium mb-1">Assistant</div>
-                    <div className="text-sm">Thinking...</div>
+                    <div className={cn(ds.text.caption, 'font-medium mb-1')}>Assistant</div>
+                    <div className={ds.text.body.small}>Thinking...</div>
                   </div>
                 )}
               </div>
@@ -861,7 +867,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
           {files.length > 0 && (
             <div className="mt-4">
               <h3 className={cn(ds.text.heading.h4, 'mb-2')}>Uploaded Files:</h3>
-              <ul className="text-sm">
+              <ul className={ds.text.body.small}>
                 {files.map((file, index) => (
                   <li key={`${file.name}-${index}`} className="flex items-center justify-between py-1">
                     <span>{file.name}</span>

@@ -440,8 +440,8 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
           <div className={cn('p-4 rounded-md flex items-start space-x-3', ds.state.error, 'border')}>
             <AlertCircle className={cn('mt-0.5', ds.form.errorText)} size={18} />
             <div className="flex-1">
-              <h3 className={cn('text-sm font-medium', ds.form.errorText)}>Error</h3>
-              <p className={cn('text-sm mt-1', ds.form.errorText)}>{error}</p>
+              <h3 className={cn(ds.text.heading.h4, ds.form.errorText)}>Error</h3>
+              <p className={cn(ds.text.body.small, 'mt-1', ds.form.errorText)}>{error}</p>
               {apiKey ? (
                 <button
                   type="button"
@@ -450,7 +450,8 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
                     initializeAssistant()
                   }}
                   className={cn(
-                    'mt-3 text-sm font-medium hover:opacity-80',
+                    'mt-3 font-medium hover:opacity-80',
+                    ds.text.body.small,
                     ds.form.errorText,
                     ds.animation.transition,
                   )}
@@ -458,7 +459,9 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
                   Try again
                 </button>
               ) : (
-                <p className={cn('mt-2 text-sm', ds.form.errorText)}>Please set your OpenAI API key in settings.</p>
+                <p className={cn('mt-2', ds.text.body.small, ds.form.errorText)}>
+                  Please set your OpenAI API key in settings.
+                </p>
               )}
             </div>
           </div>
@@ -466,7 +469,9 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
 
         {messages.length === 0 ? (
           <div className="text-center py-10">
-            <p className="text-gray-500">Start testing your GPT by sending a message below</p>
+            <p className={cn(ds.text.body.base, 'text-content-tertiary')}>
+              Start testing your GPT by sending a message below
+            </p>
           </div>
         ) : (
           messages.map(message => (
@@ -476,11 +481,13 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
                 message.role === 'user' ? 'ml-auto bg-blue-100 text-blue-900' : 'bg-gray-100 text-gray-900'
               }`}
             >
-              <p className="text-sm font-medium mb-1">
+              <p className={cn(ds.text.body.small, 'font-medium mb-1')}>
                 {message.role === 'user' ? 'You' : gptConfig?.name || 'Assistant'}
               </p>
-              <p className="whitespace-pre-wrap">{message.content}</p>
-              <p className="text-xs text-gray-500 mt-1 text-right">{message.timestamp.toLocaleTimeString()}</p>
+              <p className={cn(ds.text.body.base, 'whitespace-pre-wrap')}>{message.content}</p>
+              <p className={cn(ds.text.caption, 'text-content-tertiary mt-1 text-right')}>
+                {message.timestamp.toLocaleTimeString()}
+              </p>
             </div>
           ))
         )}
@@ -494,7 +501,7 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
             )}
           >
             <Spinner size="sm" color="primary" />
-            <span className={cn('text-sm', ds.text.body.base)}>{processingMessage}</span>
+            <span className={ds.text.body.small}>{processingMessage}</span>
           </div>
         )}
 

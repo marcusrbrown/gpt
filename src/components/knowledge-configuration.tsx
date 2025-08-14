@@ -54,10 +54,27 @@ export function KnowledgeConfiguration({
               <table className="min-w-full divide-y divide-border-default">
                 <thead className="bg-surface-secondary">
                   <tr>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-content-tertiary uppercase">Name</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-content-tertiary uppercase">Type</th>
-                    <th className="px-3 py-2 text-left text-xs font-medium text-content-tertiary uppercase">Size</th>
-                    <th className="px-3 py-2 text-right text-xs font-medium text-content-tertiary uppercase">
+                    <th
+                      className={cn('px-3 py-2 text-left font-medium text-content-tertiary uppercase', ds.text.caption)}
+                    >
+                      Name
+                    </th>
+                    <th
+                      className={cn('px-3 py-2 text-left font-medium text-content-tertiary uppercase', ds.text.caption)}
+                    >
+                      Type
+                    </th>
+                    <th
+                      className={cn('px-3 py-2 text-left font-medium text-content-tertiary uppercase', ds.text.caption)}
+                    >
+                      Size
+                    </th>
+                    <th
+                      className={cn(
+                        'px-3 py-2 text-right font-medium text-content-tertiary uppercase',
+                        ds.text.caption,
+                      )}
+                    >
                       Actions
                     </th>
                   </tr>
@@ -65,9 +82,13 @@ export function KnowledgeConfiguration({
                 <tbody className="bg-surface-primary divide-y divide-border-default">
                   {files.map((file, index) => (
                     <tr key={`${file.name}-${file.lastModified}-${index}`}>
-                      <td className="px-3 py-2 text-sm text-content-primary">{file.name}</td>
-                      <td className="px-3 py-2 text-sm text-content-secondary">{file.type || 'Unknown'}</td>
-                      <td className="px-3 py-2 text-sm text-content-secondary">{Math.round(file.size / 1024)} KB</td>
+                      <td className={cn('px-3 py-2 text-content-primary', ds.text.body.small)}>{file.name}</td>
+                      <td className={cn('px-3 py-2 text-content-secondary', ds.text.body.small)}>
+                        {file.type || 'Unknown'}
+                      </td>
+                      <td className={cn('px-3 py-2 text-content-secondary', ds.text.body.small)}>
+                        {Math.round(file.size / 1024)} KB
+                      </td>
                       <td className="px-3 py-2 text-right">
                         <Button onPress={() => onRemoveFile(index)} size="sm" color="danger" variant="light">
                           Remove
