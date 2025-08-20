@@ -1,3 +1,4 @@
+import {cn, ds, theme} from '@/lib/design-system'
 import {ChevronRight} from 'lucide-react'
 import {useState, type ReactNode} from 'react'
 import {Link, useLocation, type LinkProps} from 'react-router-dom'
@@ -14,7 +15,7 @@ type BreadcrumbLinkProps = {
 } & Omit<LinkProps, keyof {to: string; className: string}>
 
 const BreadcrumbLink = ({to, children, className, ...props}: BreadcrumbLinkProps) => (
-  <Link to={to} className={`breadcrumb-item hover:text-primary ${className ?? ''}`} {...props}>
+  <Link to={to} className={cn(ds.text.body.small, 'hover:text-primary', className)} {...props}>
     {children}
   </Link>
 )
@@ -24,11 +25,11 @@ function Breadcrumbs() {
   const paths = pathname.split('/').filter(Boolean)
 
   return (
-    <div className="breadcrumb" role="navigation" aria-label="Breadcrumb">
+    <div className={cn('flex items-center gap-1', ds.text.body.small)} role="navigation" aria-label="Breadcrumb">
       <BreadcrumbLink to="/">Home</BreadcrumbLink>
       {paths.map((path, index) => (
         <span key={path} className="flex items-center">
-          <ChevronRight size={14} className="mx-1 text-content-tertiary" />
+          <ChevronRight size={14} className={cn('mx-1', theme.content('tertiary'))} />
           <BreadcrumbLink to={`/${paths.slice(0, index + 1).join('/')}`} className="capitalize">
             {path.replaceAll('-', ' ')}
           </BreadcrumbLink>
@@ -42,7 +43,7 @@ export function DocLayout({children, sidebar}: DocLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   return (
-    <div className="flex min-h-[calc(100vh-var(--header-height))] bg-[var(--background-primary)]">
+    <div className={cn('flex min-h-[calc(100vh-var(--header-height))]', theme.surface(0))}>
       {/* Mobile sidebar backdrop */}
       {isSidebarOpen && (
         <div
@@ -54,16 +55,19 @@ export function DocLayout({children, sidebar}: DocLayoutProps) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-[var(--header-height)] bottom-0 left-0 z-40 w-[var(--sidebar-width)] border-r border-[var(--border-color)] bg-[var(--background-primary)] lg:static transform transition-transform duration-300 ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }`}
+        className={cn(
+          'fixed top-[var(--header-height)] bottom-0 left-0 z-40 w-[var(--sidebar-width)] border-r lg:static transform transition-transform duration-300',
+          theme.border(),
+          theme.surface(0),
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+        )}
       >
         <nav className="h-full py-6 px-4 overflow-y-auto">{sidebar}</nav>
       </aside>
 
       {/* Main content */}
       <main className="flex-1 overflow-auto lg:pl-[var(--sidebar-width)]">
-        <div className="container mx-auto px-4 py-6 lg:px-8">
+        <div className={cn(ds.layout.container, 'py-6')}>
           <Breadcrumbs />
           {children}
         </div>
