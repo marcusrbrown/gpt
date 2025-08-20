@@ -1,6 +1,6 @@
 import {Button, Input} from '@heroui/react'
 import {useRef} from 'react'
-import {cn, ds} from '../lib/design-system'
+import {cn, ds, responsive} from '../lib/design-system'
 import {type LocalFile} from '../types/gpt'
 
 interface FormErrors {
@@ -37,7 +37,7 @@ export function KnowledgeConfiguration({
   return (
     <div className={cn(ds.form.fieldGroup)}>
       <div className="space-y-4">
-        <h3 className={cn(ds.text.heading.h3)}>Files</h3>
+        <h3 className={cn(responsive.heading.medium)}>Files</h3>
         <div className="border-dashed border-2 border-border-default rounded-md p-6 text-center">
           <input type="file" ref={fileInputRef} onChange={onFileUpload} multiple className="hidden" />
           <Button onPress={() => fileInputRef.current?.click()} color="primary" variant="light" className="mb-2">
@@ -104,7 +104,7 @@ export function KnowledgeConfiguration({
       </div>
 
       <div className="space-y-4">
-        <h3 className={cn(ds.text.heading.h3)}>Web URLs</h3>
+        <h3 className={cn(responsive.heading.medium)}>Web URLs</h3>
         <div className="space-y-3">
           {urls.map((url, index) => (
             <div key={`url-${index}`} className={cn(ds.form.fieldRow)}>

@@ -2,7 +2,7 @@ import mine from '@/assets/mine.json'
 import {Card} from '@/components/card'
 import {UserGPTCard} from '@/components/user-gpt-card'
 import {useStorage} from '@/hooks/use-storage'
-import {ds, responsive} from '@/lib/design-system'
+import {responsive} from '@/lib/design-system'
 import {Button} from '@heroui/react'
 import {Plus} from 'lucide-react'
 import {type FC} from 'react'
@@ -20,7 +20,7 @@ export const CardGroup: FC<CardGroupProps> = () => {
       {/* User's GPTs section */}
       <div>
         <div className="flex justify-between items-center mb-4">
-          <h2 className={ds.text.heading.h2}>Your GPTs</h2>
+          <h2 className={responsive.heading.large}>Your GPTs</h2>
           <Button as={Link} to="/gpt/new" color="primary" startContent={<Plus size={16} />}>
             Create New GPT
           </Button>
@@ -34,7 +34,7 @@ export const CardGroup: FC<CardGroupProps> = () => {
           </div>
         ) : (
           <div className="bg-surface-secondary rounded-lg p-8 text-center border border-border-default">
-            <p className="text-content-secondary mb-4">You haven't created any GPTs yet.</p>
+            <p className="text-content-secondary text-base sm:text-lg mb-4">You haven't created any GPTs yet.</p>
             <Button as={Link} to="/gpt/new" color="primary" startContent={<Plus size={16} />}>
               Create Your First GPT
             </Button>
@@ -44,7 +44,7 @@ export const CardGroup: FC<CardGroupProps> = () => {
 
       {/* Example GPTs section */}
       <div>
-        <h2 className={`${ds.text.heading.h2} mb-4`}>Example GPTs</h2>
+        <h2 className={`${responsive.heading.large} mb-4`}>Example GPTs</h2>
         <div className={responsive.cardGrid.threeColumn}>
           {mine.map(card => (
             <Card key={card.name} {...card} />

@@ -20,6 +20,9 @@ vi.mock('@/lib/design-system', () => ({
     cardGrid: {
       threeColumn: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6',
     },
+    heading: {
+      large: 'text-xl sm:text-2xl lg:text-3xl font-semibold',
+    },
   },
 }))
 
@@ -303,8 +306,8 @@ describe('CardGroup Integration Tests', () => {
       })
 
       // Verify section structure
-      expect(screen.getByText('Your GPTs')).toHaveClass('text-heading-h2')
-      expect(screen.getByText('Example GPTs')).toHaveClass('text-heading-h2')
+      expect(screen.getByText('Your GPTs')).toHaveClass('text-xl sm:text-2xl lg:text-3xl font-semibold')
+      expect(screen.getByText('Example GPTs')).toHaveClass('text-xl sm:text-2xl lg:text-3xl font-semibold')
     })
 
     it('maintains proper hierarchy with both user and example sections', async () => {
