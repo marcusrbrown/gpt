@@ -1,7 +1,7 @@
 import {Button} from '@heroui/react'
 import Editor from '@monaco-editor/react'
 import {useCallback, useState} from 'react'
-import {cn, ds} from '../../lib/design-system'
+import {cn, ds, theme} from '../../lib/design-system'
 
 interface NotebookCell {
   id: string
@@ -15,7 +15,9 @@ interface InteractiveNotebookProps {
   onExecute?: (cell: NotebookCell) => Promise<string>
 }
 
-export function InteractiveNotebook({initialCells = [], onExecute}: InteractiveNotebookProps) {
+const DEFAULT_CELLS: NotebookCell[] = []
+
+export function InteractiveNotebook({initialCells = DEFAULT_CELLS, onExecute}: InteractiveNotebookProps) {
   const [cells, setCells] = useState<NotebookCell[]>(initialCells)
 
   const handleCodeChange = useCallback((value: string | undefined, cellId: string) => {
@@ -53,9 +55,11 @@ export function InteractiveNotebook({initialCells = [], onExecute}: InteractiveN
   return (
     <div className="space-y-4">
       {cells.map(cell => (
-        <div key={cell.id} className="border rounded-lg p-4 bg-white dark:bg-gray-800">
+        <div key={cell.id} className={cn('border rounded-lg p-4', theme.surface(1), theme.border())}>
           <div className="flex justify-between mb-2">
-            <span className={cn(ds.text.body.small, 'text-content-tertiary')}>{cell.type}</span>
+            <span className={cn(ds.text.body.small, theme.content('tertiary'))}>
+              {cell.type === 'code' ? 'Code' : 'Markdown'}
+            </span>
             {cell.type === 'code' && (
               <Button onPress={async () => handleExecute(cell.id)} color="primary" size="sm">
                 Run
@@ -78,8 +82,8 @@ export function InteractiveNotebook({initialCells = [], onExecute}: InteractiveN
           />
 
           {cell.output && (
-            <div className="mt-2 p-2 bg-gray-100 dark:bg-gray-700 rounded">
-              <pre className="whitespace-pre-wrap">{cell.output}</pre>
+            <div className={cn('mt-2 p-2 rounded', theme.surface(2))}>
+              <pre className={cn('whitespace-pre-wrap', ds.text.body.small)}>{cell.output}</pre>
             </div>
           )}
         </div>

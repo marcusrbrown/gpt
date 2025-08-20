@@ -1,3 +1,4 @@
+import {cn, ds, theme} from '@/lib/design-system'
 import {ChevronDown} from 'lucide-react'
 import {useCallback, useEffect, useState} from 'react'
 import {NavLink, useLocation, type NavLinkProps} from 'react-router-dom'
@@ -90,11 +91,13 @@ function NavItemComponent({item}: {item: NavItem}) {
         <SidebarLink
           to={item.path}
           className={({isActive: linkActive}) =>
-            `flex-1 flex items-center py-1.5 px-3 text-sm rounded-md transition-colors ${
+            cn(
+              'flex-1 flex items-center py-1.5 px-3 rounded-md transition-colors',
+              ds.text.body.small,
               linkActive || hasActiveChild
                 ? 'text-primary bg-default-100'
-                : 'text-content-secondary hover:text-content-primary'
-            }`
+                : cn(theme.content('secondary'), 'hover:text-content-primary'),
+            )
           }
           onClick={toggleExpand}
         >
@@ -102,28 +105,35 @@ function NavItemComponent({item}: {item: NavItem}) {
           {item.items && (
             <ChevronDown
               size={16}
-              className={`transform transition-transform ${isExpanded ? 'rotate-180' : ''} ${
-                isActive || hasActiveChild ? 'text-primary' : 'text-content-tertiary'
-              }`}
+              className={cn(
+                'transform transition-transform',
+                isExpanded ? 'rotate-180' : '',
+                isActive || hasActiveChild ? 'text-primary' : theme.content('tertiary'),
+              )}
             />
           )}
         </SidebarLink>
       </div>
       {item.items && (
         <div
-          className={`overflow-hidden transition-all duration-200 ${
-            isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
-          }`}
+          className={cn(
+            'overflow-hidden transition-all duration-200',
+            isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0',
+          )}
         >
-          <div className="ml-3 pl-3 border-l border-[var(--border-color)] mt-1">
+          <div className={cn('ml-3 pl-3 mt-1', theme.border('default'), 'border-l')}>
             {item.items.map(subItem => (
               <SidebarLink
                 key={subItem.path}
                 to={subItem.path}
                 className={({isActive}) =>
-                  `block py-1 px-3 text-sm rounded-md transition-colors ${
-                    isActive ? 'text-primary bg-default-100' : 'text-content-secondary hover:text-content-primary'
-                  }`
+                  cn(
+                    'block py-1 px-3 rounded-md transition-colors',
+                    ds.text.body.small,
+                    isActive
+                      ? 'text-primary bg-default-100'
+                      : cn(theme.content('secondary'), 'hover:text-content-primary'),
+                  )
                 }
               >
                 {subItem.title}
