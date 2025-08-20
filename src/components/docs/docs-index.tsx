@@ -1,4 +1,4 @@
-import {cn, ds} from '@/lib/design-system'
+import {cn, ds, responsive} from '@/lib/design-system'
 import {Link} from 'react-router-dom'
 
 interface DocSection {
@@ -33,15 +33,15 @@ const SECTIONS: DocSection[] = [
 export function DocsIndex() {
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-4xl font-bold mb-2">GPT Agent Documentation</h1>
-      <p className="text-[var(--text-secondary)] text-xl mb-12">
+      <h1 className={responsive.heading.responsive}>GPT Agent Documentation</h1>
+      <p className="text-content-secondary text-lg sm:text-xl lg:text-2xl mb-12">
         Comprehensive documentation for building, understanding, and extending GPT agents.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {SECTIONS.map(section => (
           <Link key={section.path} to={section.path} className="card-link group">
-            <h2 className={cn(ds.text.heading.h2, 'mb-2')}>{section.title}</h2>
+            <h2 className={cn(responsive.heading.large, 'mb-2')}>{section.title}</h2>
             <p className={cn(ds.text.body.base, 'text-content-secondary mb-4')}>{section.description}</p>
             <span className="text-primary text-sm font-medium group-hover:text-primary-600">Learn more →</span>
           </Link>

@@ -1,3 +1,4 @@
+import {responsive} from '@/lib/design-system'
 import {InteractiveNotebook} from './interactive-notebook'
 
 const INITIAL_CELLS = [
@@ -36,8 +37,8 @@ export function AgentTutorial() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Interactive Agent Tutorial</h1>
-      <p className="mb-6 text-content-secondary">
+      <h1 className={`${responsive.heading.responsive} mb-6`}>Interactive Agent Tutorial</h1>
+      <p className="mb-6 text-content-secondary text-base sm:text-lg">
         Experiment with the code below to learn how to create and interact with GPT agents. Each code cell is fully
         editable and executable.
       </p>

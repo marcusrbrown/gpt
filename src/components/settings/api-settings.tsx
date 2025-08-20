@@ -1,7 +1,7 @@
 import {Button, Input} from '@heroui/react'
 import {useState} from 'react'
 import {useOpenAI} from '../../contexts/openai-provider'
-import {cn, compose, ds, theme} from '../../lib/design-system'
+import {cn, compose, ds, responsive, theme} from '../../lib/design-system'
 
 export function APISettings() {
   const {apiKey, setApiKey, clearApiKey} = useOpenAI()
@@ -41,7 +41,7 @@ export function APISettings() {
 
   return (
     <div className={cn(compose.card(), theme.surface(1))}>
-      <h2 className={cn(ds.text.heading.h2, 'mb-4')}>OpenAI API Settings</h2>
+      <h2 className={cn(responsive.heading.large, 'mb-4')}>OpenAI API Settings</h2>
 
       <div className={cn(ds.form.fieldGroup)}>
         <p className={cn(ds.text.body.small, 'mb-2')}>

@@ -4,7 +4,7 @@ import {v4 as uuidv4} from 'uuid'
 import {useGPTValidation} from '../hooks/use-gpt-validation'
 import {useOpenAIService} from '../hooks/use-openai-service'
 import {useStorage} from '../hooks/use-storage'
-import {cn, ds} from '../lib/design-system'
+import {cn, ds, responsive} from '../lib/design-system'
 import {
   GPTConfigurationSchema,
   type ConversationMessage,
@@ -114,7 +114,7 @@ function VectorKnowledge({
 
   return (
     <div className="space-y-4">
-      <h3 className={ds.text.heading.h3}>Vector Knowledge Stores</h3>
+      <h3 className={responsive.heading.medium}>Vector Knowledge Stores</h3>
       <p className={cn(ds.text.body.base, 'text-content-secondary')}>
         Create vector stores from your files to enable advanced retrieval capabilities.
       </p>
@@ -172,7 +172,7 @@ function VectorKnowledge({
 
       {/* List existing vector stores */}
       <div className="mt-6">
-        <h4 className={ds.text.heading.h4}>Existing Vector Stores</h4>
+        <h4 className={responsive.heading.medium}>Existing Vector Stores</h4>
         {!vectorStores || vectorStores.length === 0 ? (
           <p className={cn(ds.text.body.small, 'text-content-tertiary')}>No vector stores created yet.</p>
         ) : (
@@ -585,7 +585,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
           <div className="p-4 space-y-6 max-w-full overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <div>
-                <h2 className={ds.text.heading.h2}>GPT Configuration</h2>
+                <h2 className={responsive.heading.large}>GPT Configuration</h2>
                 <div className="mt-2 w-64">
                   <div className={cn('flex justify-between mb-1', ds.text.caption, 'text-content-secondary')}>
                     <span>Completion</span>
@@ -778,7 +778,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
         </Tab>
         <Tab key="knowledge" title="Knowledge">
           <div className="p-4 space-y-6 max-w-full overflow-y-auto">
-            <h2 className={ds.text.heading.h2}>Knowledge Sources</h2>
+            <h2 className={responsive.heading.large}>Knowledge Sources</h2>
 
             <KnowledgeConfiguration
               files={gpt.knowledge.files}

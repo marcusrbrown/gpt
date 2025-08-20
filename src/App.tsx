@@ -5,6 +5,7 @@ import {Footer} from './components/footer'
 import {Navbar} from './components/navbar'
 import {OpenAIProvider} from './contexts/openai-provider'
 import {StorageProvider} from './contexts/storage-provider'
+import {responsive} from './lib/design-system'
 import {GPTEditorPage} from './pages/gpt-editor-page'
 import {GPTTestPage} from './pages/gpt-test-page'
 import {Providers} from './providers'
@@ -35,7 +36,7 @@ function App() {
                   path="/"
                   element={
                     <main className="container mx-auto px-12">
-                      <h1 className="text-3xl text-center font-bold py-20">Custom GPTs</h1>
+                      <h1 className={`${responsive.heading.responsive} text-center py-20`}>Custom GPTs</h1>
                       <CardGroup />
                     </main>
                   }
