@@ -8,6 +8,7 @@ import {GPTTestPane} from '../components/gpt-test-pane'
 import {APISettings} from '../components/settings/api-settings'
 import {useOpenAI} from '../contexts/openai-provider'
 import {useStorage} from '../hooks/use-storage'
+import {cn, ds} from '../lib/design-system'
 import {type GPTConfiguration} from '../types/gpt'
 
 export function GPTEditorPage() {
@@ -100,7 +101,7 @@ export function GPTEditorPage() {
     <div className="flex flex-col h-screen">
       <div className="flex-none p-4 bg-gray-100 border-b">
         <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">{gptConfig?.name || 'New GPT'}</h1>
+          <h1 className={cn(ds.text.heading.h2)}>{gptConfig?.name || 'New GPT'}</h1>
           {gptConfig && (
             <Button color="primary" startContent={<Play size={16} />} onPress={handleTestGpt}>
               Test GPT
@@ -108,7 +109,11 @@ export function GPTEditorPage() {
           )}
         </div>
         <div className="flex mt-2">
-          <button type="button" onClick={toggleSettings} className="text-blue-600 hover:underline text-sm">
+          <button
+            type="button"
+            onClick={toggleSettings}
+            className={cn(ds.text.body.small, 'text-primary-600 hover:underline')}
+          >
             {showSettings ? 'Hide API Settings' : 'Show API Settings'}
           </button>
         </div>
@@ -129,13 +134,13 @@ export function GPTEditorPage() {
         <div className="w-2/5 overflow-auto">
           {!apiKey && isInitialized ? (
             <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-              <p className="text-content-secondary mb-4">
+              <p className={cn(ds.text.body.base, 'text-content-secondary mb-4')}>
                 To test your GPT, please set your OpenAI API key in the settings.
               </p>
               <button
                 type="button"
                 onClick={toggleSettings}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className={cn('px-4 py-2 rounded transition-colors', 'bg-primary-600 hover:bg-primary-700 text-white')}
               >
                 Open API Settings
               </button>

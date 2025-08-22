@@ -73,28 +73,22 @@ export const AccessibilityUtils = {
 
     let axeBuilder = new AxeBuilder({page})
 
-    // Configure tags
-    if (config.includeTags) {
-      axeBuilder = axeBuilder.include(config.includeTags)
+    // Configure tags using withTags method
+    if (config.includeTags && config.includeTags.length > 0) {
+      axeBuilder = axeBuilder.withTags(config.includeTags)
     }
 
-    if (config.excludeTags) {
-      axeBuilder = axeBuilder.exclude(config.excludeTags)
+    // Configure specific rules using withRules method
+    if (config.includeRules && config.includeRules.length > 0) {
+      axeBuilder = axeBuilder.withRules(config.includeRules)
     }
 
-    // Configure specific rules
-    if (config.includeRules) {
-      axeBuilder = axeBuilder.include(config.includeRules)
+    if (config.excludeRules && config.excludeRules.length > 0) {
+      axeBuilder = axeBuilder.disableRules(config.excludeRules)
     }
 
-    if (config.excludeRules) {
-      axeBuilder = axeBuilder.exclude(config.excludeRules)
-    }
-
-    // Set timeout - handled by Playwright test timeout configuration
-    // if (config.timeout) {
-    //   axeBuilder = axeBuilder.options({timeout: config.timeout})
-    // }
+    // No need to configure CSS selectors unless specifically required
+    // The scanner will analyze the entire page by default
 
     return await axeBuilder.analyze()
   },
@@ -254,7 +248,7 @@ export const AccessibilityUtils = {
    * Validate color contrast ratios
    */
   async validateColorContrast(page: Page): Promise<AxeResults> {
-    return await new AxeBuilder({page}).include(['color-contrast']).analyze()
+    return await new AxeBuilder({page}).withRules(['color-contrast']).analyze()
   },
 
   /**
