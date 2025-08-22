@@ -14,6 +14,9 @@ vi.mock('@/lib/design-system', () => ({
       heading: {
         h2: 'text-heading-h2',
       },
+      body: {
+        large: 'text-body-large',
+      },
     },
   },
   responsive: {

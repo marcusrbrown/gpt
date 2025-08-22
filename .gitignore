@@ -44,6 +44,8 @@ coverage
 !.ai/notes/*
 !.ai/plan/
 !.ai/plan/*
+!.ai/testing-reports/
+!.ai/testing-reports/*
 
 # Playwright
 test-results/

@@ -180,7 +180,7 @@ function VectorKnowledge({
             {vectorStores.map(store => (
               <div key={store.id} className="border rounded-md p-3 flex justify-between items-center">
                 <div>
-                  <h5 className="font-medium">{store.name}</h5>
+                  <h5 className={cn(ds.text.heading.h4, 'font-medium')}>{store.name}</h5>
                   <p className={cn(ds.text.caption, 'text-content-tertiary normal-case')}>
                     {store.fileIds.length} files indexed
                   </p>

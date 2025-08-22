@@ -2,6 +2,7 @@ import {useEffect, useState} from 'react'
 import {useParams} from 'react-router-dom'
 import {GPTTestPane} from '../components/gpt-test-pane'
 import {useStorage} from '../hooks/use-storage'
+import {cn, ds} from '../lib/design-system'
 import {type GPTConfiguration} from '../types/gpt'
 
 export function GPTTestPage() {
@@ -20,15 +21,15 @@ export function GPTTestPage() {
 
   if (!gptConfig) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-lg text-content-tertiary">GPT not found. Please select a valid GPT.</p>
+      <div className="flex flex-col h-screen p-4">
+        <p className={cn(ds.text.body.large, 'text-content-tertiary')}>GPT not found. Please select a valid GPT.</p>
       </div>
     )
   }
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">{gptConfig.name} - Test</h1>
+      <h1 className={cn(ds.text.heading.h2, 'mb-6')}>{gptConfig.name} - Test</h1>
       <GPTTestPane gptConfig={gptConfig} />
     </div>
   )

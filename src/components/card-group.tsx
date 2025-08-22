@@ -2,7 +2,7 @@ import mine from '@/assets/mine.json'
 import {Card} from '@/components/card'
 import {UserGPTCard} from '@/components/user-gpt-card'
 import {useStorage} from '@/hooks/use-storage'
-import {responsive} from '@/lib/design-system'
+import {cn, ds, responsive} from '@/lib/design-system'
 import {Button} from '@heroui/react'
 import {Plus} from 'lucide-react'
 import {type FC} from 'react'
@@ -34,7 +34,7 @@ export const CardGroup: FC<CardGroupProps> = () => {
           </div>
         ) : (
           <div className="bg-surface-secondary rounded-lg p-8 text-center border border-border-default">
-            <p className="text-content-secondary text-base sm:text-lg mb-4">You haven't created any GPTs yet.</p>
+            <p className={cn(ds.text.body.large, 'text-content-secondary mb-4')}>You haven't created any GPTs yet.</p>
             <Button as={Link} to="/gpt/new" color="primary" startContent={<Plus size={16} />}>
               Create Your First GPT
             </Button>
