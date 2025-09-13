@@ -1,10 +1,10 @@
+import type {FC} from 'react'
+import type {GPTConfiguration} from '../types/gpt'
 import {cn, compose, ds} from '@/lib/design-system'
 import {Button, Card, CardBody, CardFooter, CardHeader, Divider, Skeleton} from '@heroui/react'
-import {Edit, Play} from 'lucide-react'
-import {type FC} from 'react'
 
+import {Edit, Play} from 'lucide-react'
 import {Link} from 'react-router-dom'
-import {type GPTConfiguration} from '../types/gpt'
 
 export interface UserGPTCardProps {
   gpt: GPTConfiguration

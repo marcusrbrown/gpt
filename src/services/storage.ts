@@ -74,8 +74,8 @@ interface RawConversationData {
  * Local storage service for managing GPT configurations and conversations
  */
 export class LocalStorageService {
-  private gptsCache: LRUCache<string, GPTConfiguration>
-  private conversationsCache: LRUCache<string, Conversation>
+  private readonly gptsCache: LRUCache<string, GPTConfiguration>
+  private readonly conversationsCache: LRUCache<string, Conversation>
 
   constructor() {
     this.gptsCache = new LRUCache<string, GPTConfiguration>(CACHE_CONFIG)

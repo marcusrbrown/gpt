@@ -108,7 +108,7 @@ export class GPTEditorPage extends BasePage {
    * Check if the editor is loaded
    */
   async isLoaded(): Promise<boolean> {
-    return await this.isVisible(this.pageTitle)
+    return this.isVisible(this.pageTitle)
   }
 
   /**
@@ -124,7 +124,7 @@ export class GPTEditorPage extends BasePage {
    * Get the current GPT name
    */
   async getGPTName(): Promise<string | null> {
-    return await this.nameInput.inputValue()
+    return this.nameInput.inputValue()
   }
 
   /**
@@ -221,7 +221,7 @@ export class GPTEditorPage extends BasePage {
    * Get test message count
    */
   async getTestMessageCount(): Promise<number> {
-    return await this.testMessages.locator('> *').count()
+    return this.testMessages.locator('> *').count()
   }
 
   /**
@@ -261,7 +261,7 @@ export class GPTEditorPage extends BasePage {
    */
   async getFieldValue(fieldName: string): Promise<string | null> {
     const field = this.page.locator(`[name="${fieldName}"]`)
-    return await field.inputValue()
+    return field.inputValue()
   }
 
   /**
@@ -269,7 +269,7 @@ export class GPTEditorPage extends BasePage {
    */
   async isFormSubmitting(): Promise<boolean> {
     const loadingOverlay = this.page.locator('.absolute.inset-0:has-text("Saving GPT")')
-    return await loadingOverlay.isVisible()
+    return loadingOverlay.isVisible()
   }
 
   /**

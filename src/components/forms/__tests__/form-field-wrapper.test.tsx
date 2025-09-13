@@ -3,7 +3,7 @@ import React from 'react'
 import {describe, expect, it} from 'vitest'
 import {FormFieldWrapper} from '../form-field-wrapper'
 
-describe('FormFieldWrapper', () => {
+describe('formFieldWrapper', () => {
   it('renders children with proper wrapper structure', () => {
     render(
       <FormFieldWrapper label="Test Field">

@@ -1,5 +1,5 @@
+import type {Conversation, GPTConfiguration} from '../types/gpt'
 import {createContext} from 'react'
-import {type Conversation, type GPTConfiguration} from '../types/gpt'
 
 /**
  * Interface for the storage context
