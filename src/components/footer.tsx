@@ -1,6 +1,6 @@
+import type {FC} from 'react'
 import {siteConfig} from '@/config/site'
 import {Link} from '@heroui/react'
-import {type FC} from 'react'
 
 export const Footer: FC = () => {
   return (

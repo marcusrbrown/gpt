@@ -1,7 +1,7 @@
+import type {FC} from 'react'
 import {Button} from '@heroui/react'
 import {Moon, Sun} from 'lucide-react'
 import {useTheme} from 'next-themes'
-import {type FC} from 'react'
 
 export const ThemeSwitch: FC = () => {
   const {theme, setTheme} = useTheme()

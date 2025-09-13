@@ -13,7 +13,7 @@
     {
       description: ['Group packages from LangChain.js monorepo together.'],
       matchSourceUrls: ['https://github.com/langchain-ai/langchainjs'],
-      matchUpdateTypes: ['digest', 'patch', 'minor', 'major'],
+      matchUpdateTypes: ['digest', 'major', 'minor', 'patch'],
       groupName: 'LangChain.js monorepo',
       groupSlug: 'langchainjs-monorepo',
     },
@@ -26,7 +26,7 @@
     },
   ],
   postUpgradeTasks: {
-    commands: ['pnpm run bootstrap', 'pnpm run fix', 'pnpm run build'],
+    commands: ['pnpm run bootstrap', 'pnpm run build', 'pnpm run fix'],
     executionMode: 'branch',
   },
   rebaseWhen: 'behind-base-branch',

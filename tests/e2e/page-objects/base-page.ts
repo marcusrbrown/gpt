@@ -43,7 +43,7 @@ export abstract class BasePage {
    * Get page title
    */
   async getTitle(): Promise<string> {
-    return await this.page.title()
+    return this.page.title()
   }
 
   /**
@@ -64,7 +64,7 @@ export abstract class BasePage {
    * Get element text content
    */
   async getTextContent(locator: Locator): Promise<string | null> {
-    return await locator.textContent()
+    return locator.textContent()
   }
 
   /**
@@ -87,14 +87,14 @@ export abstract class BasePage {
    * Check if element is visible
    */
   async isVisible(locator: Locator): Promise<boolean> {
-    return await locator.isVisible()
+    return locator.isVisible()
   }
 
   /**
    * Evaluate JavaScript in the page context
    */
   async evaluate<T>(fn: () => T): Promise<T> {
-    return await this.page.evaluate(fn)
+    return this.page.evaluate(fn)
   }
 
   /**
