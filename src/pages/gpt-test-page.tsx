@@ -1,9 +1,9 @@
+import type {GPTConfiguration} from '../types/gpt'
 import {useEffect, useState} from 'react'
 import {useParams} from 'react-router-dom'
 import {GPTTestPane} from '../components/gpt-test-pane'
 import {useStorage} from '../hooks/use-storage'
 import {cn, ds} from '../lib/design-system'
-import {type GPTConfiguration} from '../types/gpt'
 
 export function GPTTestPage() {
   const {gptId} = useParams()

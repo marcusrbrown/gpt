@@ -1,9 +1,9 @@
+import type {GPTConfiguration} from '../../types/gpt'
 import {render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {StorageContext} from '../../contexts/storage-context'
-import {type GPTConfiguration} from '../../types/gpt'
 import {GPTEditor} from '../gpt-editor'
 
 // Mock the hooks
@@ -61,7 +61,7 @@ const mockStorageContext = {
   error: null,
 }
 
-describe('GPTEditor', () => {
+describe('gPTEditor', () => {
   // Setup
   beforeEach(() => {
     vi.clearAllMocks()

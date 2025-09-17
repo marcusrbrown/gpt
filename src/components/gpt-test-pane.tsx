@@ -1,3 +1,4 @@
+import type {ConversationMessage, GPTConfiguration} from '../types/gpt'
 import {Button, Input, Spinner, Tooltip} from '@heroui/react'
 import {AlertCircle, Download, Save, Send, Trash} from 'lucide-react'
 import React, {useCallback, useEffect, useRef, useState} from 'react'
@@ -5,7 +6,6 @@ import {v4 as uuidv4} from 'uuid'
 import {useOpenAIService} from '../hooks/use-openai-service'
 import {useStorage} from '../hooks/use-storage'
 import {cn, ds} from '../lib/design-system'
-import {type ConversationMessage, type GPTConfiguration} from '../types/gpt'
 
 interface GPTTestPaneProps {
   gptConfig?: GPTConfiguration | undefined

@@ -1,5 +1,5 @@
+import type {Conversation, ConversationMessage} from '../types/gpt'
 import {createContext} from 'react'
-import {type Conversation, type ConversationMessage} from '../types/gpt'
 
 export interface ConversationContextType {
   conversations: Conversation[]

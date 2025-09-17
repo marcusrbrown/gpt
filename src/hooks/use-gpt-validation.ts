@@ -1,5 +1,5 @@
+import type {GPTConfiguration} from '../types/gpt'
 import {useCallback, useState} from 'react'
-import {type GPTConfiguration} from '../types/gpt'
 
 interface FormErrors {
   name?: string

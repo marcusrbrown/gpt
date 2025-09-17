@@ -44,7 +44,7 @@ export class HomePage extends BasePage {
    * Check if the page is loaded correctly
    */
   async isLoaded(): Promise<boolean> {
-    return await this.isVisible(this.pageTitle)
+    return this.isVisible(this.pageTitle)
   }
 
   /**
@@ -58,7 +58,7 @@ export class HomePage extends BasePage {
    * Get the number of user GPT cards
    */
   async getUserGPTCount(): Promise<number> {
-    return await this.userGPTCards.count()
+    return this.userGPTCards.count()
   }
 
   /**
@@ -93,14 +93,14 @@ export class HomePage extends BasePage {
    * Check if empty state is shown
    */
   async hasEmptyState(): Promise<boolean> {
-    return await this.isVisible(this.emptyStateMessage)
+    return this.isVisible(this.emptyStateMessage)
   }
 
   /**
    * Get the number of example GPT cards
    */
   async getExampleGPTCount(): Promise<number> {
-    return await this.exampleGPTCards.count()
+    return this.exampleGPTCards.count()
   }
 
   /**

@@ -1,3 +1,4 @@
+import type {GPTConfiguration} from '../types/gpt'
 import {Button} from '@heroui/react'
 import {Play} from 'lucide-react'
 import {useEffect, useState} from 'react'
@@ -9,7 +10,6 @@ import {APISettings} from '../components/settings/api-settings'
 import {useOpenAI} from '../contexts/openai-provider'
 import {useStorage} from '../hooks/use-storage'
 import {cn, ds} from '../lib/design-system'
-import {type GPTConfiguration} from '../types/gpt'
 
 export function GPTEditorPage() {
   const {gptId} = useParams()

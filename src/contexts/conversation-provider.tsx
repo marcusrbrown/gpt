@@ -1,6 +1,6 @@
+import type {Conversation, ConversationMessage, GPTConfiguration} from '../types/gpt'
 import {use, useEffect, useState, type ReactNode} from 'react'
 import {v4 as uuid} from 'uuid'
-import {type Conversation, type ConversationMessage, type GPTConfiguration} from '../types/gpt'
 import {ConversationContext} from './conversation-context'
 import {StorageContext} from './storage-context'
 

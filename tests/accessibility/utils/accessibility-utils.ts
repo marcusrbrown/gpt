@@ -90,7 +90,7 @@ export const AccessibilityUtils = {
     // No need to configure CSS selectors unless specifically required
     // The scanner will analyze the entire page by default
 
-    return await axeBuilder.analyze()
+    return axeBuilder.analyze()
   },
 
   /**
@@ -248,7 +248,7 @@ export const AccessibilityUtils = {
    * Validate color contrast ratios
    */
   async validateColorContrast(page: Page): Promise<AxeResults> {
-    return await new AxeBuilder({page}).withRules(['color-contrast']).analyze()
+    return new AxeBuilder({page}).withRules(['color-contrast']).analyze()
   },
 
   /**

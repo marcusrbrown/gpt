@@ -1,8 +1,8 @@
-import {type Callbacks} from '@langchain/core/callbacks/manager'
-import {type BaseChatModel} from '@langchain/core/language_models/chat_models'
-import {type BaseMessage} from '@langchain/core/messages'
-import {type Tool} from '@langchain/core/tools'
-import {type StateGraph} from '@langchain/langgraph'
+import type {Callbacks} from '@langchain/core/callbacks/manager'
+import type {BaseChatModel} from '@langchain/core/language_models/chat_models'
+import type {BaseMessage} from '@langchain/core/messages'
+import type {Tool} from '@langchain/core/tools'
+import type {StateGraph} from '@langchain/langgraph'
 import {z} from 'zod'
 
 /**
@@ -55,11 +55,11 @@ export type AgentConfig = z.infer<typeof AgentConfigSchema>
  */
 export interface AgentMemory {
   /** Retrieve a value from memory */
-  get(key: string): Promise<unknown>
+  get: (key: string) => Promise<unknown>
   /** Store a value in memory */
-  set(key: string, value: unknown): Promise<void>
+  set: (key: string, value: unknown) => Promise<void>
   /** Clear all stored values */
-  clear(): Promise<void>
+  clear: () => Promise<void>
 }
 
 /**
@@ -125,33 +125,33 @@ export interface Agent {
    * @param input The input to process
    * @param options Processing options
    */
-  invoke(
+  invoke: (
     input: string,
     options?: {
       stream?: boolean
       callbacks?: Callbacks
     },
-  ): Promise<AgentResponse>
+  ) => Promise<AgentResponse>
 
   /**
    * Initialize the agent with necessary setup
    */
-  initialize(): Promise<void>
+  initialize: () => Promise<void>
 
   /**
    * Clean up resources used by the agent
    */
-  cleanup(): Promise<void>
+  cleanup: () => Promise<void>
 
   /**
    * Get current token usage statistics
    */
-  getTokenUsage(): {cached: number; total: number}
+  getTokenUsage: () => {cached: number; total: number}
 
   /**
    * Clear all caches
    */
-  clearCaches(): void
+  clearCaches: () => void
 }
 
 /**

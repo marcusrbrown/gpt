@@ -1,3 +1,4 @@
+import type {FC} from 'react'
 import mine from '@/assets/mine.json'
 import {Card} from '@/components/card'
 import {UserGPTCard} from '@/components/user-gpt-card'
@@ -5,7 +6,6 @@ import {useStorage} from '@/hooks/use-storage'
 import {cn, ds, responsive} from '@/lib/design-system'
 import {Button} from '@heroui/react'
 import {Plus} from 'lucide-react'
-import {type FC} from 'react'
 import {Link} from 'react-router-dom'
 
 export interface CardGroupProps {}

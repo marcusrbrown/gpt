@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "composite": true,
-    "skipLibCheck": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "types": ["node"],
     "allowSyntheticDefaultImports": true,
-    "types": ["node"]
+    "skipLibCheck": true
   },
   "include": ["tailwind.config.ts", "vite.config.ts", "vitest.config.ts", "playwright*.config.ts"]
 }

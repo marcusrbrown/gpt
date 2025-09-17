@@ -70,14 +70,14 @@ export class GPTTestPage extends BasePage {
    * Check if the test page is loaded
    */
   async isLoaded(): Promise<boolean> {
-    return await this.isVisible(this.chatContainer)
+    return this.isVisible(this.chatContainer)
   }
 
   /**
    * Get the displayed GPT name
    */
   async getGPTName(): Promise<string | null> {
-    return await this.getTextContent(this.gptNameDisplay)
+    return this.getTextContent(this.gptNameDisplay)
   }
 
   /**
@@ -101,21 +101,21 @@ export class GPTTestPage extends BasePage {
    * Get total message count
    */
   async getMessageCount(): Promise<number> {
-    return await this.messages.count()
+    return this.messages.count()
   }
 
   /**
    * Get user message count
    */
   async getUserMessageCount(): Promise<number> {
-    return await this.userMessages.count()
+    return this.userMessages.count()
   }
 
   /**
    * Get assistant message count
    */
   async getAssistantMessageCount(): Promise<number> {
-    return await this.assistantMessages.count()
+    return this.assistantMessages.count()
   }
 
   /**
@@ -123,7 +123,7 @@ export class GPTTestPage extends BasePage {
    */
   async getLastMessage(): Promise<string | null> {
     const lastMessage = this.messages.last()
-    return await this.getTextContent(lastMessage)
+    return this.getTextContent(lastMessage)
   }
 
   /**
@@ -131,7 +131,7 @@ export class GPTTestPage extends BasePage {
    */
   async getLastAssistantMessage(): Promise<string | null> {
     const lastMessage = this.assistantMessages.last()
-    return await this.getTextContent(lastMessage)
+    return this.getTextContent(lastMessage)
   }
 
   /**
@@ -199,7 +199,7 @@ export class GPTTestPage extends BasePage {
    * Check if system prompt is displayed correctly
    */
   async getDisplayedSystemPrompt(): Promise<string | null> {
-    return await this.getTextContent(this.systemPromptDisplay)
+    return this.getTextContent(this.systemPromptDisplay)
   }
 
   /**

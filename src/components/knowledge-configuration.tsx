@@ -1,7 +1,7 @@
+import type {LocalFile} from '../types/gpt'
 import {Button, Input} from '@heroui/react'
 import {useRef} from 'react'
 import {cn, ds, responsive} from '../lib/design-system'
-import {type LocalFile} from '../types/gpt'
 
 interface FormErrors {
   knowledge: {

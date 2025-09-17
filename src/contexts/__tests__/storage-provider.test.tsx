@@ -1,9 +1,9 @@
+import type {GPTConfiguration} from '../../types/gpt'
 import {render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import {v4 as uuidv4} from 'uuid'
 import {vi} from 'vitest'
 import {useStorage} from '../../hooks/use-storage'
-import {type GPTConfiguration} from '../../types/gpt'
 import {StorageProvider} from '../storage-provider'
 import '@testing-library/jest-dom'
 
@@ -49,12 +49,12 @@ function TestComponent() {
   )
 }
 
-describe('StorageContext', () => {
+describe('storageContext', () => {
   beforeEach(() => {
     localStorage.clear()
   })
 
-  test('should provide storage context to children', () => {
+  it('should provide storage context to children', () => {
     render(
       <StorageProvider>
         <TestComponent />
@@ -64,7 +64,7 @@ describe('StorageContext', () => {
     expect(screen.getByTestId('gpt-count')).toHaveTextContent('0')
   })
 
-  test('should throw error when used outside provider', () => {
+  it('should throw error when used outside provider', () => {
     // Suppress console.error for this test
     const consoleError = console.error
     console.error = vi.fn()
@@ -74,7 +74,7 @@ describe('StorageContext', () => {
     console.error = consoleError
   })
 
-  test('should handle state updates', async () => {
+  it('should handle state updates', async () => {
     const user = userEvent.setup()
     render(
       <StorageProvider>
@@ -90,7 +90,7 @@ describe('StorageContext', () => {
     expect(screen.getByTestId('gpt-count')).toHaveTextContent('1')
   })
 
-  test('should persist state across renders', async () => {
+  it('should persist state across renders', async () => {
     const user = userEvent.setup()
     const {unmount} = render(
       <StorageProvider>
