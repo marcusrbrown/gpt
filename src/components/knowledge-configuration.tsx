@@ -114,8 +114,10 @@ export function KnowledgeConfiguration({
                 onChange={e => onUrlChange(index, e.target.value)}
                 placeholder="https://example.com"
                 className="flex-1"
-                isInvalid={!!errors.knowledge.urls[index]}
-                errorMessage={errors.knowledge.urls[index]}
+                isInvalid={
+                  typeof errors.knowledge.urls[index] === 'string' && errors.knowledge.urls[index].trim() !== ''
+                }
+                errorMessage={errors.knowledge.urls[index] ?? undefined}
               />
               <Button onPress={() => onRemoveUrl(index)} size="sm" color="danger" variant="light">
                 Remove

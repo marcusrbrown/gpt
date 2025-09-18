@@ -218,7 +218,7 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
         // Submit tool outputs
         if (currentThreadId && currentRunId) {
           setProcessingMessage('Processing tool calls...')
-          return openAIService.submitToolOutputs(currentThreadId, currentRunId, toolOutputs)
+          return await openAIService.submitToolOutputs(currentThreadId, currentRunId, toolOutputs)
         }
 
         // If we don't have thread ID or run ID, return null
@@ -307,8 +307,8 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
       } else if (runStatus.status === 'requires_action') {
         // Handle tool calls
         setProcessingMessage('Executing tools...')
-        const {required_action} = runStatus
-        const toolCalls = required_action?.submit_tool_outputs?.tool_calls as ToolCall[]
+        const {required_action: requiredAction} = runStatus
+        const toolCalls = requiredAction?.submit_tool_outputs?.tool_calls as ToolCall[]
 
         // Process tool calls and submit outputs
         await handleToolCalls(toolCalls, threadId, runId)
@@ -365,7 +365,9 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
       setProcessingMessage('Processing...')
       clearPollingInterval() // Clear any existing interval
       pollingRef.current = setInterval(() => {
-        checkRunStatus()
+        checkRunStatus().catch(error => {
+          console.error('Failed to send message:', error)
+        })
       }, 1000)
     } catch (error) {
       setError(error instanceof Error ? error.message : 'Error sending message')
@@ -376,7 +378,9 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
   // Handle keypress events - submit on Enter
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey && !isLoading) {
-      handleSendMessage()
+      handleSendMessage().catch(error => {
+        console.error('Failed to send message:', error)
+      })
     }
   }
 
@@ -447,7 +451,9 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
                   type="button"
                   onClick={() => {
                     setError(null)
-                    initializeAssistant()
+                    initializeAssistant().catch(error => {
+                      console.error('Failed to send message:', error)
+                    })
                   }}
                   className={cn(
                     'mt-3 font-medium hover:opacity-80',
@@ -517,7 +523,9 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
           onSubmit={e => {
             e.preventDefault()
             if (userInput.trim() && !isLoading) {
-              handleSendMessage()
+              handleSendMessage().catch(error => {
+                console.error('Failed to send message:', error)
+              })
             }
           }}
           className="flex space-x-2"

@@ -89,7 +89,7 @@ export function GPTEditorPage() {
 
   const handleTestGpt = () => {
     if (gptConfig) {
-      navigate(`/gpt/test/${gptConfig.id}`)
+      navigate(`/gpt/test/${gptConfig.id}`) as void
     }
   }
 

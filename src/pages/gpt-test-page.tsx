@@ -11,7 +11,8 @@ export function GPTTestPage() {
   const [gptConfig, setGptConfig] = useState<GPTConfiguration | undefined>(undefined)
 
   useEffect(() => {
-    if (gptId) {
+    // Only proceed when gptId is a defined, non-empty string
+    if (typeof gptId === 'string' && gptId.trim() !== '') {
       const savedGpt = storage.getGPT(gptId)
       if (savedGpt) {
         setGptConfig(savedGpt)

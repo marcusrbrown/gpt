@@ -9,7 +9,7 @@ import {FeatureCard} from '../feature-card'
 vi.mock('@/lib/design-system', () => ({
   cn: (...args: any[]) => args.join(' '),
   compose: {
-    card: (className?: string) => `compose-card ${className || ''}`,
+    card: (className?: string) => `compose-card ${className ?? ''}`,
   },
   ds: {
     text: {

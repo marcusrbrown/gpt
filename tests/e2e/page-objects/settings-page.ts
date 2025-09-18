@@ -197,7 +197,8 @@ export class SettingsPage extends BasePage {
    */
   async getCurrentTheme(): Promise<string> {
     return this.page.evaluate(() => {
-      return document.documentElement.dataset.theme || 'system'
+      const theme = document.documentElement.dataset.theme
+      return typeof theme === 'string' && theme.trim() !== '' ? theme : 'system'
     })
   }
 }

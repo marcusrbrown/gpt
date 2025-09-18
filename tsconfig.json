@@ -20,14 +20,14 @@
     /* Linting */
     "strict": true,
     "noFallthroughCasesInSwitch": true,
-    "skipLibCheck": true,
     "noPropertyAccessFromIndexSignature": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noEmit": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "skipLibCheck": true
   },
   "references": [{"path": "./tsconfig.node.json"}],
   "include": ["src", "tests"]

@@ -73,7 +73,8 @@ export class HomePage extends BasePage {
       // Look for the GPT name using the test ID
       const nameElement = card.locator('[data-testid="gpt-name"]')
       const name = await this.getTextContent(nameElement)
-      if (name) {
+      // Explicitly handle nullish and empty values
+      if (typeof name === 'string' && name.trim() !== '') {
         names.push(name)
       }
     }

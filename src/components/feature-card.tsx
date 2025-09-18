@@ -32,7 +32,7 @@ export const FeatureCard: FC<FeatureCardProps> = ({
     if (isExternal) {
       window.open(href, '_blank', 'noopener,noreferrer')
     } else {
-      navigate(href)
+      navigate(href) as void
     }
   }
 

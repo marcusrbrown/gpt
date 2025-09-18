@@ -15,7 +15,7 @@ describe('localStorageService', () => {
     localStorage.clear()
   })
 
-  describe('initialization', () => {
+  describe('Initialization', () => {
     it('should initialize with empty storage', () => {
       expect(storageService.getAllGPTs()).toHaveLength(0)
       expect(storageService.getConversationsForGPT('any-id')).toHaveLength(0)
@@ -287,7 +287,7 @@ describe('localStorageService', () => {
     })
   })
 
-  describe('data Persistence', () => {
+  describe('Data Persistence', () => {
     it('should persist data to localStorage', () => {
       const gpt = {
         id: uuidv4(),

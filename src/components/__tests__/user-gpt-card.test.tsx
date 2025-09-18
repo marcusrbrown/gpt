@@ -9,7 +9,7 @@ import {UserGPTCard, type UserGPTCardProps} from '../user-gpt-card'
 vi.mock('@/lib/design-system', () => ({
   cn: (...args: any[]) => args.join(' '),
   compose: {
-    card: (className?: string) => `compose-card ${className || ''}`,
+    card: (className?: string) => `compose-card ${className ?? ''}`,
   },
   ds: {
     text: {
@@ -45,8 +45,9 @@ vi.mock('@heroui/react', () => ({
   CardBody: ({children}: any) => <div>{children}</div>,
   CardFooter: ({children, className}: any) => <div className={className}>{children}</div>,
   Divider: () => <hr />,
+
   Button: ({children, as: Component = 'button', to, startContent, ...props}: any) => {
-    if (Component && typeof Component !== 'string') {
+    if (typeof Component !== 'string') {
       return (
         <Component to={to} {...props}>
           {startContent}

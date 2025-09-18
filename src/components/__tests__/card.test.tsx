@@ -7,7 +7,7 @@ import {Card, type CardProps} from '../card'
 vi.mock('@/lib/design-system', () => ({
   cn: (...args: any[]) => args.join(' '),
   compose: {
-    card: (className?: string) => `compose-card ${className || ''}`,
+    card: (className?: string) => `compose-card ${className ?? ''}`,
   },
   ds: {
     text: {
@@ -35,7 +35,7 @@ vi.mock('@/lib/design-system', () => ({
 // Mock HeroUI components
 vi.mock('@heroui/react', () => ({
   Card: ({children, className, isHoverable, isPressable, as, ...props}: any) => {
-    const Component = as || 'div'
+    const Component = (as as React.ElementType) ?? 'div'
     return (
       <Component className={className} data-hoverable={isHoverable} data-pressable={isPressable} {...props}>
         {children}

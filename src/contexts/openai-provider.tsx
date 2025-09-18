@@ -26,7 +26,8 @@ export function OpenAIProvider({children}: OpenAIProviderProps) {
   useEffect(() => {
     try {
       const storedKey = localStorage.getItem('openai_api_key')
-      if (storedKey) {
+      // Check explicitly for null and empty string to avoid treating falsy values like '' as valid keys
+      if (storedKey !== null && storedKey !== '') {
         setApiKeyState(storedKey)
         service.setApiKey(storedKey)
       }

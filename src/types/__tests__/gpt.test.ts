@@ -9,8 +9,8 @@ import {
   MCPToolSchema,
 } from '../gpt'
 
-describe('gPT Type Schemas', () => {
-  describe('gPTCapabilitiesSchema', () => {
+describe('GPT Type Schemas', () => {
+  describe('GPTCapabilitiesSchema', () => {
     it('should validate valid capabilities', () => {
       const validCapabilities = {
         codeInterpreter: true,
@@ -45,7 +45,7 @@ describe('gPT Type Schemas', () => {
     })
   })
 
-  describe('localFileSchema', () => {
+  describe('LocalFileSchema', () => {
     it('should validate valid file data', () => {
       const validFile = {
         name: 'test.txt',
@@ -77,7 +77,7 @@ describe('gPT Type Schemas', () => {
     })
   })
 
-  describe('mCPToolSchema', () => {
+  describe('MCPToolSchema', () => {
     it('should validate valid tool configuration', () => {
       const validTool = {
         name: 'TestTool',
@@ -117,7 +117,7 @@ describe('gPT Type Schemas', () => {
     })
   })
 
-  describe('gPTConfigurationSchema', () => {
+  describe('GPTConfigurationSchema', () => {
     it('should validate valid GPT configuration', () => {
       const validConfig = {
         id: uuidv4(),
@@ -209,7 +209,7 @@ describe('gPT Type Schemas', () => {
     })
   })
 
-  describe('conversationMessageSchema', () => {
+  describe('ConversationMessageSchema', () => {
     it('should validate valid message', () => {
       const validMessage = {
         id: uuidv4(),
@@ -244,7 +244,7 @@ describe('gPT Type Schemas', () => {
     })
   })
 
-  describe('conversationSchema', () => {
+  describe('ConversationSchema', () => {
     it('should validate valid conversation', () => {
       const validConversation = {
         id: uuidv4(),

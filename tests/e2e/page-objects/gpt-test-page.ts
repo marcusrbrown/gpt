@@ -144,7 +144,8 @@ export class GPTTestPage extends BasePage {
     for (let i = 0; i < count; i++) {
       const message = this.messages.nth(i)
       const content = await this.getTextContent(message)
-      if (content) {
+      // Explicitly handle null/undefined/empty (and ignore whitespace-only)
+      if (content != null && content.trim() !== '') {
         messages.push(content)
       }
     }

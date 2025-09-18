@@ -1,23 +1,45 @@
-import react from '@eslint-react/eslint-plugin';
-import reactHooks from 'eslint-plugin-react-hooks';
-import reactRefresh from 'eslint-plugin-react-refresh';
-import path from 'node:path';
-import {fileURLToPath} from 'node:url';
+import path from 'node:path'
+import {fileURLToPath} from 'node:url'
 import {defineConfig, type Config} from '@bfra.me/eslint-config'
-import {ESLint} from 'eslint';
+import react from '@eslint-react/eslint-plugin'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
 
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const tempIgnores: string[] = [
+  // 'src/components/__tests__/**',
+  // 'src/components/card.tsx',
+  // 'src/components/docs/doc-layout.tsx',
+  // 'src/components/docs/docs-sidebar.tsx',
+  // 'src/components/docs/interactive-notebook.tsx',
+  // 'src/components/feature-card.tsx',
+  // 'src/components/gpt-editor.tsx',
+  'agent-development.md/*.ts',
+  'docs/**/*.md/*.tsx',
+  'tests/visual/**.md/*.ts',
+  // '**/forms/__tests__/form-field-wrapper.test.tsx',
+]
 
 export default defineConfig(
   {
     name: 'gpt',
-    ignores: ['**/dist', '.triage', 'eslint.config.ts', 'postcss.config.js', 'coverage', '.github/copilot-instructions.md', '.github/prompts', 'llms.txt', '.ai/'],
+    ignores: [
+      '**/dist',
+      '.triage',
+      'coverage',
+      '.github/copilot-instructions.md',
+      '.github/prompts',
+      'llms.txt',
+      '.ai/',
+      ...tempIgnores,
+    ],
     typescript: {
       tsconfigPath: './tsconfig.json',
     },
     vitest: true,
+    rules: {
+      '@typescript-eslint/strict-boolean-expressions': 'off',
+      '@typescript-eslint/switch-exhaustiveness-check': 'off',
+    },
   },
 
   {
@@ -57,13 +79,15 @@ export default defineConfig(
   },
 
   {
-    files: ['src/**/*.test.{ts,tsx}'],
+    files: ['src/**/*.test.{ts,tsx}', 'tests/**/*.ts', 'tests/**/*.tsx'],
     rules: {
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-argument': 'off',
       '@typescript-eslint/unbound-method': 'off',
+
+      'vitest/prefer-lowercase-title': 'off',
     },
   },
 
@@ -74,7 +98,7 @@ export default defineConfig(
       parserOptions: {
         project: './tsconfig.node.json',
         projectService: false,
-        tsconfigRootDir: __dirname,
+        tsconfigRootDir: path.dirname(fileURLToPath(import.meta.url)),
       },
     },
   },
@@ -84,6 +108,6 @@ export default defineConfig(
     rules: {
       'no-unused-vars': 'off',
       'unused-imports/no-unused-imports': 'off',
-    }
-  }
-);
+    },
+  },
+)

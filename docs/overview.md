@@ -84,7 +84,7 @@ Develop a TypeScript-based web application that empowers users to create, custom
    - Custom tool definition interface
 2. Key Features Implementation A. GPT Configuration Management
 
-```ts
+```tsx
 interface GPTConfiguration {
   name: string;
   description: string;
@@ -104,7 +104,7 @@ interface GPTConfiguration {
 
 B. MCP Integration
 
-```ts
+```tsx
 interface MCPTool {
   name: string;
   description: string;
@@ -119,7 +119,7 @@ interface MCPTool {
 
 C. Local Storage Strategy
 
-```ts
+```tsx
 interface LocalStorage {
   gpts: Map<string, GPTConfiguration>;
   conversations: Map<string, Conversation>;
