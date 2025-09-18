@@ -4433,8 +4433,8 @@ packages:
   zod@4.0.17:
     resolution: {integrity: sha512-1PHjlYRevNxxdy2JZ8JcNAw7rX8V9P1AKkP+x/xZfxB0K5FYfuV+Ug6P/6NVSR2jHQ+FzDDoDHS04nYUsOIyLQ==}
 
-  zod@4.1.9:
-    resolution: {integrity: sha512-HI32jTq0AUAC125z30E8bQNz0RQ+9Uc+4J7V97gLYjZVKRjeydPgGt6dvQzFrav7MYOUGFqqOGiHpA/fdbd0cQ==}
+  zod@4.1.8:
+    resolution: {integrity: sha512-5R1P+WwQqmmMIEACyzSvo4JXHY5WiAFHRMg+zBZKgKS+Q1viRa0C1hmUKtHltoIFKtIdki3pRxkmpP74jnNYHQ==}
 
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
@@ -4738,7 +4738,7 @@ snapshots:
       '@eslint-react/eff': 1.53.1
       '@typescript-eslint/utils': 8.43.0(eslint@9.35.0(jiti@2.1.2))(typescript@5.8.3)
       ts-pattern: 5.8.0
-      zod: 4.1.9
+      zod: 4.1.8
     transitivePeerDependencies:
       - eslint
       - supports-color
@@ -4750,7 +4750,7 @@ snapshots:
       '@eslint-react/kit': 1.53.1(eslint@9.35.0(jiti@2.1.2))(typescript@5.8.3)
       '@typescript-eslint/utils': 8.43.0(eslint@9.35.0(jiti@2.1.2))(typescript@5.8.3)
       ts-pattern: 5.8.0
-      zod: 4.1.9
+      zod: 4.1.8
     transitivePeerDependencies:
       - eslint
       - supports-color
@@ -9646,6 +9646,6 @@ snapshots:
 
   zod@4.0.17: {}
 
-  zod@4.1.9: {}
+  zod@4.1.8: {}
 
   zwitch@2.0.4: {}
