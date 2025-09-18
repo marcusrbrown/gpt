@@ -30,7 +30,7 @@
   "prettier": "@bfra.me/prettier-config/120-proof",
   "dependencies": {
     "@bfra.me/prettier-config": "0.16.1",
-    "@heroui/react": "2.8.2",
+    "@heroui/react": "2.8.4",
     "@langchain/anthropic": "0.3.26",
     "@langchain/core": "0.3.70",
     "@langchain/langgraph": "0.4.3",
