@@ -1,5 +1,5 @@
+import type {GPTConfiguration} from '../types/gpt'
 import OpenAI, {type ClientOptions} from 'openai'
-import {type GPTConfiguration} from '../types/gpt'
 
 // Define types for tool calls
 interface ToolCallOutput {
@@ -22,7 +22,8 @@ interface OpenAIError extends Error {
 /**
  * Error response types for better handling
  */
-const ErrorType = {
+
+const ErrorTypes = {
   AUTHENTICATION: 'authentication',
   PERMISSION: 'permission',
   NOT_FOUND: 'not_found',
@@ -34,7 +35,7 @@ const ErrorType = {
   UNKNOWN: 'unknown',
 } as const
 
-type ErrorType = (typeof ErrorType)[keyof typeof ErrorType]
+type ErrorType = (typeof ErrorTypes)[keyof typeof ErrorTypes]
 
 /**
  * Creates a service for interacting with the OpenAI Assistants API
@@ -48,7 +49,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
   }
 
   // OpenAI client instance
-  let _client: OpenAI | null = null
+  let client: OpenAI | null = null
 
   /**
    * Initialize or update the OpenAI client with the API key
@@ -63,7 +64,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
       dangerouslyAllowBrowser: true, // Note: In production, you should use a backend proxy
     }
 
-    _client = new OpenAI(options)
+    client = new OpenAI(options)
   }
 
   /**
@@ -93,19 +94,19 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     const apiError = error as OpenAIError
     console.error(`${defaultMessage}:`, apiError)
 
-    let errorType: ErrorType = ErrorType.UNKNOWN
+    let errorType: ErrorType = ErrorTypes.UNKNOWN
 
     // Determine the type of error for better handling by callers
     if (apiError.status) {
-      if (apiError.status === 401) errorType = ErrorType.AUTHENTICATION
-      else if (apiError.status === 403) errorType = ErrorType.PERMISSION
-      else if (apiError.status === 404) errorType = ErrorType.NOT_FOUND
-      else if (apiError.status === 429) errorType = ErrorType.RATE_LIMIT
-      else if (apiError.status >= 500) errorType = ErrorType.SERVER
+      if (apiError.status === 401) errorType = ErrorTypes.AUTHENTICATION
+      else if (apiError.status === 403) errorType = ErrorTypes.PERMISSION
+      else if (apiError.status === 404) errorType = ErrorTypes.NOT_FOUND
+      else if (apiError.status === 429) errorType = ErrorTypes.RATE_LIMIT
+      else if (apiError.status >= 500) errorType = ErrorTypes.SERVER
     } else if (apiError.code === 'ECONNABORTED') {
-      errorType = ErrorType.TIMEOUT
+      errorType = ErrorTypes.TIMEOUT
     } else if (apiError.code === 'ECONNREFUSED' || apiError.code === 'ENOTFOUND') {
-      errorType = ErrorType.CONNECTION
+      errorType = ErrorTypes.CONNECTION
     }
 
     const enrichedError = new Error(apiError.message || defaultMessage)
@@ -158,13 +159,13 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
    * Ensure client is initialized and return it
    */
   const ensureClient = (): OpenAI => {
-    if (!_client) {
+    if (!client) {
       initClient()
     }
-    if (!_client) {
+    if (!client) {
       throw new Error('Failed to initialize OpenAI client')
     }
-    return _client
+    return client
   }
 
   /**
@@ -530,7 +531,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
         return currentRun
       }
 
-      return poll()
+      return await poll()
     } catch (error) {
       throw handleApiError(error, 'Failed to stream run')
     }

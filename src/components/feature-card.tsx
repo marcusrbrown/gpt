@@ -1,7 +1,7 @@
+import type {LucideIcon} from 'lucide-react'
+import type {FC} from 'react'
 import {cn, compose, ds, theme} from '@/lib/design-system'
 import {Card, CardBody, CardFooter, CardHeader, Skeleton} from '@heroui/react'
-import {type LucideIcon} from 'lucide-react'
-import {type FC} from 'react'
 
 import {useNavigate} from 'react-router-dom'
 
@@ -32,7 +32,7 @@ export const FeatureCard: FC<FeatureCardProps> = ({
     if (isExternal) {
       window.open(href, '_blank', 'noopener,noreferrer')
     } else {
-      navigate(href)
+      navigate(href) as void
     }
   }
 

@@ -1,5 +1,5 @@
 import {v4 as uuidv4} from 'uuid'
-import {describe, expect, test} from 'vitest'
+import {describe, expect} from 'vitest'
 import {
   ConversationMessageSchema,
   ConversationSchema,
@@ -11,7 +11,7 @@ import {
 
 describe('GPT Type Schemas', () => {
   describe('GPTCapabilitiesSchema', () => {
-    test('should validate valid capabilities', () => {
+    it('should validate valid capabilities', () => {
       const validCapabilities = {
         codeInterpreter: true,
         webBrowsing: false,
@@ -23,7 +23,7 @@ describe('GPT Type Schemas', () => {
       expect(() => GPTCapabilitiesSchema.parse(validCapabilities)).not.toThrow()
     })
 
-    test('should provide default values for missing fields', () => {
+    it('should provide default values for missing fields', () => {
       const result = GPTCapabilitiesSchema.parse({fileSearch: {enabled: false}})
       expect(result).toEqual({
         codeInterpreter: false,
@@ -35,7 +35,7 @@ describe('GPT Type Schemas', () => {
       })
     })
 
-    test('should reject invalid boolean values', () => {
+    it('should reject invalid boolean values', () => {
       const invalidCapabilities = {
         codeInterpreter: 'true',
         webBrowsing: 1,
@@ -46,7 +46,7 @@ describe('GPT Type Schemas', () => {
   })
 
   describe('LocalFileSchema', () => {
-    test('should validate valid file data', () => {
+    it('should validate valid file data', () => {
       const validFile = {
         name: 'test.txt',
         content: 'Hello, World!',
@@ -57,7 +57,7 @@ describe('GPT Type Schemas', () => {
       expect(() => LocalFileSchema.parse(validFile)).not.toThrow()
     })
 
-    test('should reject missing required fields', () => {
+    it('should reject missing required fields', () => {
       const invalidFile = {
         name: 'test.txt',
         content: 'Hello, World!',
@@ -65,7 +65,7 @@ describe('GPT Type Schemas', () => {
       expect(() => LocalFileSchema.parse(invalidFile)).toThrow()
     })
 
-    test('should reject invalid types', () => {
+    it('should reject invalid types', () => {
       const invalidFile = {
         name: 123,
         content: null,
@@ -78,7 +78,7 @@ describe('GPT Type Schemas', () => {
   })
 
   describe('MCPToolSchema', () => {
-    test('should validate valid tool configuration', () => {
+    it('should validate valid tool configuration', () => {
       const validTool = {
         name: 'TestTool',
         description: 'A test tool',
@@ -92,7 +92,7 @@ describe('GPT Type Schemas', () => {
       expect(() => MCPToolSchema.parse(validTool)).not.toThrow()
     })
 
-    test('should allow missing authentication', () => {
+    it('should allow missing authentication', () => {
       const validTool = {
         name: 'TestTool',
         description: 'A test tool',
@@ -102,7 +102,7 @@ describe('GPT Type Schemas', () => {
       expect(() => MCPToolSchema.parse(validTool)).not.toThrow()
     })
 
-    test('should reject invalid authentication type', () => {
+    it('should reject invalid authentication type', () => {
       const invalidTool = {
         name: 'TestTool',
         description: 'A test tool',
@@ -118,7 +118,7 @@ describe('GPT Type Schemas', () => {
   })
 
   describe('GPTConfigurationSchema', () => {
-    test('should validate valid GPT configuration', () => {
+    it('should validate valid GPT configuration', () => {
       const validConfig = {
         id: uuidv4(),
         name: 'Test GPT',
@@ -144,7 +144,7 @@ describe('GPT Type Schemas', () => {
       expect(() => GPTConfigurationSchema.parse(validConfig)).not.toThrow()
     })
 
-    test('should validate configuration with tools and knowledge', () => {
+    it('should validate configuration with tools and knowledge', () => {
       const validConfig = {
         id: uuidv4(),
         name: 'Test GPT',
@@ -185,7 +185,7 @@ describe('GPT Type Schemas', () => {
       expect(() => GPTConfigurationSchema.parse(validConfig)).not.toThrow()
     })
 
-    test('should reject invalid dates', () => {
+    it('should reject invalid dates', () => {
       const invalidConfig = {
         id: uuidv4(),
         name: 'Test GPT',
@@ -210,7 +210,7 @@ describe('GPT Type Schemas', () => {
   })
 
   describe('ConversationMessageSchema', () => {
-    test('should validate valid message', () => {
+    it('should validate valid message', () => {
       const validMessage = {
         id: uuidv4(),
         role: 'user',
@@ -220,7 +220,7 @@ describe('GPT Type Schemas', () => {
       expect(() => ConversationMessageSchema.parse(validMessage)).not.toThrow()
     })
 
-    test('should reject invalid role', () => {
+    it('should reject invalid role', () => {
       const invalidMessage = {
         id: uuidv4(),
         role: 'invalid',
@@ -230,7 +230,7 @@ describe('GPT Type Schemas', () => {
       expect(() => ConversationMessageSchema.parse(invalidMessage)).toThrow()
     })
 
-    test('should validate all valid roles', () => {
+    it('should validate all valid roles', () => {
       const roles = ['user', 'assistant', 'system']
       roles.forEach(role => {
         const message = {
@@ -245,7 +245,7 @@ describe('GPT Type Schemas', () => {
   })
 
   describe('ConversationSchema', () => {
-    test('should validate valid conversation', () => {
+    it('should validate valid conversation', () => {
       const validConversation = {
         id: uuidv4(),
         gptId: uuidv4(),
@@ -275,7 +275,7 @@ describe('GPT Type Schemas', () => {
       expect(() => ConversationSchema.parse(validConversation)).not.toThrow()
     })
 
-    test('should reject invalid UUIDs', () => {
+    it('should reject invalid UUIDs', () => {
       const invalidConversation = {
         id: 'not-a-uuid',
         gptId: 'not-a-uuid',
@@ -286,7 +286,7 @@ describe('GPT Type Schemas', () => {
       expect(() => ConversationSchema.parse(invalidConversation)).toThrow()
     })
 
-    test('should reject invalid message array', () => {
+    it('should reject invalid message array', () => {
       const invalidConversation = {
         id: uuidv4(),
         gptId: uuidv4(),

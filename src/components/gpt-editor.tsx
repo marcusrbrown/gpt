@@ -481,7 +481,9 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
     }
 
     // Use void operator to explicitly ignore the promise
-    testGPT()
+    testGPT().catch(error => {
+      console.error('Failed to send message:', error)
+    })
   }
 
   // Handle exporting the GPT configuration to a JSON file
@@ -600,6 +602,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                 </div>
               </div>
               <div className="flex gap-2">
+                {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
                 <input type="file" ref={importGptRef} onChange={handleImportGPT} accept=".json" className="hidden" />
                 <Button color="secondary" onPress={() => importGptRef.current?.click()} isDisabled={isSubmitting}>
                   Import
@@ -743,6 +746,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                       </div>
                       <div className="mt-2">
                         <Button onClick={() => fileInputRef.current?.click()}>Add File</Button>
+                        {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
                         <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} multiple />
                       </div>
                     </div>
@@ -784,6 +788,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
               files={gpt.knowledge.files}
               urls={gpt.knowledge.urls}
               errors={{knowledge: {urls: errors.knowledge?.urls || {}}}}
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises
               onFileUpload={handleFileUpload}
               onRemoveFile={handleRemoveFile}
               onAddUrl={handleAddUrl}

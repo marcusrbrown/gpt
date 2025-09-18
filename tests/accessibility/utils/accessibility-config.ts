@@ -194,7 +194,11 @@ export function mergeAccessibilityConfigs(...configs: AccessibilityTestOptions[]
     if (config.excludeRules) {
       merged.excludeRules = [...(merged.excludeRules || []), ...config.excludeRules]
     }
-    if (config.timeout && config.timeout > (merged.timeout || 0)) {
+    if (
+      typeof config.timeout === 'number' &&
+      Number.isFinite(config.timeout) &&
+      config.timeout > (merged.timeout ?? 0)
+    ) {
       merged.timeout = config.timeout
     }
   })

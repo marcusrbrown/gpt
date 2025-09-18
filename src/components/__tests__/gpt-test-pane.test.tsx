@@ -19,7 +19,7 @@ vi.mock('uuid', () => ({
 // Mock the scrollIntoView method
 Element.prototype.scrollIntoView = vi.fn()
 
-describe('GPTTestPane', () => {
+describe('gPTTestPane', () => {
   // Define mock objects and functions
   const mockOpenAIService = {
     setApiKey: vi.fn(),

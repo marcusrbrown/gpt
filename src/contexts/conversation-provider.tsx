@@ -1,6 +1,6 @@
+import type {Conversation, ConversationMessage, GPTConfiguration} from '../types/gpt'
 import {use, useEffect, useState, type ReactNode} from 'react'
 import {v4 as uuid} from 'uuid'
-import {type Conversation, type ConversationMessage, type GPTConfiguration} from '../types/gpt'
 import {ConversationContext} from './conversation-context'
 import {StorageContext} from './storage-context'
 
@@ -27,7 +27,7 @@ export function ConversationProvider({children}: ConversationProviderProps) {
         // Gather all conversations for all GPTs
         allGpts.forEach((gpt: GPTConfiguration) => {
           const gptConversations = storageContext.getConversationsForGPT(gpt.id)
-          if (gptConversations && gptConversations.length > 0) {
+          if (gptConversations.length > 0) {
             allConversations.push(...gptConversations)
           }
         })
@@ -49,16 +49,17 @@ export function ConversationProvider({children}: ConversationProviderProps) {
 
     try {
       const now = new Date()
-      const initialMessages: ConversationMessage[] = initialMessage
-        ? [
-            {
-              id: uuid(),
-              role: 'user',
-              content: initialMessage,
-              timestamp: now,
-            },
-          ]
-        : []
+      const initialMessages: ConversationMessage[] =
+        typeof initialMessage === 'string' && initialMessage.trim().length > 0
+          ? [
+              {
+                id: uuid(),
+                role: 'user',
+                content: initialMessage.trim(),
+                timestamp: now,
+              },
+            ]
+          : []
 
       const newConversation: Conversation = {
         id: uuid(),

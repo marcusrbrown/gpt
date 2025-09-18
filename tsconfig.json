@@ -2,33 +2,33 @@
   "extends": "@tsconfig/strictest/tsconfig.json",
   "compilerOptions": {
     "target": "ES2021",
-    "useDefineForClassFields": true,
+    "jsx": "preserve",
     "lib": ["ES2021", "DOM", "DOM.Iterable"],
-    "types": ["vite/client", "vitest/globals", "node"],
-    "module": "ESNext",
-    "skipLibCheck": true,
-    "paths": {
-      "@/*": ["./src/*"]
-    },
 
     /* Bundler mode */
     "moduleDetection": "force",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
     "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "preserve",
+    "types": ["vite/client", "vitest/globals", "node"],
+    "allowImportingTsExtensions": true,
 
     /* Linting */
     "strict": true,
+    "noFallthroughCasesInSwitch": true,
     "noPropertyAccessFromIndexSignature": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
+    "noEmit": true,
+    "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "isolatedModules": true,
+    "skipLibCheck": true
   },
-  "include": ["src", "tests"],
-  "references": [{"path": "./tsconfig.node.json"}]
+  "references": [{"path": "./tsconfig.node.json"}],
+  "include": ["src", "tests"]
 }

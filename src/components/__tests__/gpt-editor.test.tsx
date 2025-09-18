@@ -1,13 +1,14 @@
+import type {GPTConfiguration} from '../../types/gpt'
 import {render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {StorageContext} from '../../contexts/storage-context'
-import {type GPTConfiguration} from '../../types/gpt'
 import {GPTEditor} from '../gpt-editor'
 
 // Mock the hooks
 vi.mock('../../hooks/use-openai-service', () => ({
+  // eslint-disable-next-line @eslint-react/hooks-extra/no-unnecessary-use-prefix
   useOpenAIService: () => ({
     createAssistant: vi.fn().mockResolvedValue({id: 'assistant-id'}),
     createThread: vi.fn().mockResolvedValue({id: 'thread-id'}),
@@ -61,7 +62,7 @@ const mockStorageContext = {
   error: null,
 }
 
-describe('GPTEditor', () => {
+describe('gPTEditor', () => {
   // Setup
   beforeEach(() => {
     vi.clearAllMocks()

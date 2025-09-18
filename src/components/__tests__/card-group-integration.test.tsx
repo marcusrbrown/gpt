@@ -146,7 +146,7 @@ const mockGPTs: GPTConfiguration[] = [
   },
 ]
 
-describe('CardGroup Integration Tests', () => {
+describe('cardGroup Integration Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
@@ -159,7 +159,7 @@ describe('CardGroup Integration Tests', () => {
     )
   }
 
-  describe('UserGPTCard Integration', () => {
+  describe('userGPTCard Integration', () => {
     it('renders UserGPTCard components for each user GPT', async () => {
       mockGetAllGPTs.mockReturnValue(mockGPTs)
 
@@ -209,7 +209,7 @@ describe('CardGroup Integration Tests', () => {
     })
   })
 
-  describe('Empty State Handling', () => {
+  describe('empty State Handling', () => {
     it('displays empty state when no user GPTs exist', async () => {
       mockGetAllGPTs.mockReturnValue([])
 
@@ -242,7 +242,7 @@ describe('CardGroup Integration Tests', () => {
     })
   })
 
-  describe('Example GPTs Integration', () => {
+  describe('example GPTs Integration', () => {
     it('renders Card components for example GPTs from mine.json', async () => {
       mockGetAllGPTs.mockReturnValue([])
 
@@ -276,7 +276,7 @@ describe('CardGroup Integration Tests', () => {
     })
   })
 
-  describe('Navigation Integration', () => {
+  describe('navigation Integration', () => {
     it('provides correct navigation links for creating new GPTs', async () => {
       mockGetAllGPTs.mockReturnValue([])
 
@@ -297,7 +297,7 @@ describe('CardGroup Integration Tests', () => {
     })
   })
 
-  describe('Layout and Styling Integration', () => {
+  describe('layout and Styling Integration', () => {
     it('applies correct spacing and layout structure', async () => {
       mockGetAllGPTs.mockReturnValue(mockGPTs)
 
@@ -331,7 +331,7 @@ describe('CardGroup Integration Tests', () => {
     })
   })
 
-  describe('Error Resilience', () => {
+  describe('error Resilience', () => {
     it('handles storage errors gracefully', async () => {
       mockGetAllGPTs.mockImplementation(() => {
         throw new Error('Storage error')

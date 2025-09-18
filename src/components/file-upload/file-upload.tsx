@@ -88,7 +88,7 @@ export function FileUpload({
 
     if (disabled || isLoading) return
 
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+    if (e.dataTransfer.files.length > 0) {
       const file = e.dataTransfer.files[0]
       if (file) {
         handleFile(file)

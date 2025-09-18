@@ -1,6 +1,6 @@
+import type {Conversation, GPTConfiguration} from '../types/gpt'
 import {useCallback, useEffect, useState, type ReactNode} from 'react'
 import {LocalStorageService} from '../services/storage'
-import {type Conversation, type GPTConfiguration} from '../types/gpt'
 import {StorageContext} from './storage-context'
 
 interface StorageProviderProps {

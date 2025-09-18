@@ -9,7 +9,7 @@ import {FeatureCard} from '../feature-card'
 vi.mock('@/lib/design-system', () => ({
   cn: (...args: any[]) => args.join(' '),
   compose: {
-    card: (className?: string) => `compose-card ${className || ''}`,
+    card: (className?: string) => `compose-card ${className ?? ''}`,
   },
   ds: {
     text: {
@@ -71,7 +71,7 @@ const MockIcon = () => <svg data-testid="mock-icon" />
 
 const TestWrapper: React.FC<{children: React.ReactNode}> = ({children}) => <MemoryRouter>{children}</MemoryRouter>
 
-describe('FeatureCard', () => {
+describe('featureCard', () => {
   const defaultProps = {
     title: 'Test Feature',
     description: 'A test feature description',
@@ -92,7 +92,7 @@ describe('FeatureCard', () => {
     vi.clearAllMocks()
   })
 
-  describe('Rendering', () => {
+  describe('rendering', () => {
     it('renders the feature card with basic information', () => {
       renderCard()
 
@@ -131,7 +131,7 @@ describe('FeatureCard', () => {
     })
   })
 
-  describe('Loading State', () => {
+  describe('loading State', () => {
     it('renders loading skeletons when isLoading is true', () => {
       renderCard({isLoading: true})
 
@@ -155,7 +155,7 @@ describe('FeatureCard', () => {
     })
   })
 
-  describe('Error State', () => {
+  describe('error State', () => {
     it('renders error message when error prop is provided', () => {
       renderCard({error: 'Failed to load feature'})
 
@@ -187,7 +187,7 @@ describe('FeatureCard', () => {
     })
   })
 
-  describe('Navigation', () => {
+  describe('navigation', () => {
     it('calls navigate for internal links', async () => {
       const user = userEvent.setup()
       const {container} = renderCard({href: '/internal'})
@@ -233,7 +233,7 @@ describe('FeatureCard', () => {
     })
   })
 
-  describe('Accessibility', () => {
+  describe('accessibility', () => {
     it('is keyboard accessible when enabled', () => {
       const {container} = renderCard()
 
@@ -257,7 +257,7 @@ describe('FeatureCard', () => {
     })
   })
 
-  describe('Content Truncation', () => {
+  describe('content Truncation', () => {
     it('applies line-clamp-2 to description', () => {
       renderCard()
 
@@ -266,7 +266,7 @@ describe('FeatureCard', () => {
     })
   })
 
-  describe('Micro-interactions', () => {
+  describe('micro-interactions', () => {
     it('applies group class for hover effects', () => {
       const {container} = renderCard()
 

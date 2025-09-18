@@ -1,10 +1,12 @@
-# Product Requirements Document:
+# Product Requirements Document: Local-First GPT Creation Platform
 
-# Local-First GPT Creation Platform
+<!-- prettier-ignore-start -->
 
-**Document Version:** 1.0  
-**Date:** May 3, 2025  
+**Document Version:** 1.0
+**Date:** May 3, 2025
 **Project:** GPT - Local-First AI Assistant Creation Platform
+
+<!-- prettier-ignore-end -->
 
 ## 1. Executive Summary
 
@@ -356,7 +358,7 @@ The platform targets technically comfortable users familiar with AI platforms wh
 
 #### 6.2.1 GPT Configuration Model
 
-```typescript
+```tsx
 interface GPTConfiguration {
   id: string;
   name: string;
@@ -388,7 +390,7 @@ interface GPTConfiguration {
 
 #### 6.2.2 Knowledge Base Model
 
-```typescript
+```tsx
 interface KnowledgeItem {
   id: string;
   type: "file" | "url" | "text";
@@ -408,7 +410,7 @@ interface KnowledgeItem {
 
 #### 6.2.3 Tool Model
 
-```typescript
+```tsx
 interface Tool {
   id: string;
   name: string;
@@ -427,7 +429,7 @@ interface Tool {
 
 #### 6.2.4 Conversation Model
 
-```typescript
+```tsx
 interface Conversation {
   id: string;
   gptId: string;

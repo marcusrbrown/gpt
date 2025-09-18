@@ -7,7 +7,7 @@ import {Card, type CardProps} from '../card'
 vi.mock('@/lib/design-system', () => ({
   cn: (...args: any[]) => args.join(' '),
   compose: {
-    card: (className?: string) => `compose-card ${className || ''}`,
+    card: (className?: string) => `compose-card ${className ?? ''}`,
   },
   ds: {
     text: {
@@ -35,7 +35,7 @@ vi.mock('@/lib/design-system', () => ({
 // Mock HeroUI components
 vi.mock('@heroui/react', () => ({
   Card: ({children, className, isHoverable, isPressable, as, ...props}: any) => {
-    const Component = as || 'div'
+    const Component = (as as React.ElementType) ?? 'div'
     return (
       <Component className={className} data-hoverable={isHoverable} data-pressable={isPressable} {...props}>
         {children}
@@ -57,7 +57,7 @@ vi.mock('@heroui/react', () => ({
   Skeleton: ({className}: any) => <div className={`skeleton ${className}`} />,
 }))
 
-describe('Card', () => {
+describe('card', () => {
   const defaultProps: CardProps = {
     title: 'Test GPT',
     description: 'A test GPT description',
@@ -75,7 +75,7 @@ describe('Card', () => {
     vi.clearAllMocks()
   })
 
-  describe('Rendering', () => {
+  describe('rendering', () => {
     it('renders the card with basic information', () => {
       renderCard()
 
@@ -130,7 +130,7 @@ describe('Card', () => {
     })
   })
 
-  describe('Loading State', () => {
+  describe('loading State', () => {
     it('renders loading skeletons when isLoading is true', () => {
       renderCard({isLoading: true})
 
@@ -171,7 +171,7 @@ describe('Card', () => {
     })
   })
 
-  describe('Error State', () => {
+  describe('error State', () => {
     it('renders error message when error prop is provided', () => {
       renderCard({error: 'Failed to load'})
 
@@ -203,7 +203,7 @@ describe('Card', () => {
     })
   })
 
-  describe('URL Handling', () => {
+  describe('uRL Handling', () => {
     it('handles URL objects correctly', () => {
       const avatarUrl = new URL('https://example.com/avatar.jpg')
       const authorUrl = new URL('https://example.com/author')
@@ -239,7 +239,7 @@ describe('Card', () => {
     })
   })
 
-  describe('Accessibility', () => {
+  describe('accessibility', () => {
     it('has proper semantic structure', () => {
       renderCard()
 
@@ -273,7 +273,7 @@ describe('Card', () => {
     })
   })
 
-  describe('Interactive States', () => {
+  describe('interactive States', () => {
     it('is hoverable and pressable when not loading or errored', () => {
       const {container} = renderCard()
 
@@ -299,7 +299,7 @@ describe('Card', () => {
     })
   })
 
-  describe('Layout', () => {
+  describe('layout', () => {
     it('uses NextUICard as base component', () => {
       const {container} = renderCard()
 

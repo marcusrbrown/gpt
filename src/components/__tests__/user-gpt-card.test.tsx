@@ -1,15 +1,15 @@
+import type {GPTConfiguration} from '../../types/gpt'
 import {render, screen} from '@testing-library/react'
 import React from 'react'
 import {MemoryRouter} from 'react-router-dom'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {type GPTConfiguration} from '../../types/gpt'
 import {UserGPTCard, type UserGPTCardProps} from '../user-gpt-card'
 
 // Mock the design system utilities
 vi.mock('@/lib/design-system', () => ({
   cn: (...args: any[]) => args.join(' '),
   compose: {
-    card: (className?: string) => `compose-card ${className || ''}`,
+    card: (className?: string) => `compose-card ${className ?? ''}`,
   },
   ds: {
     text: {
@@ -45,8 +45,9 @@ vi.mock('@heroui/react', () => ({
   CardBody: ({children}: any) => <div>{children}</div>,
   CardFooter: ({children, className}: any) => <div className={className}>{children}</div>,
   Divider: () => <hr />,
+
   Button: ({children, as: Component = 'button', to, startContent, ...props}: any) => {
-    if (Component && typeof Component !== 'string') {
+    if (typeof Component !== 'string') {
       return (
         <Component to={to} {...props}>
           {startContent}
@@ -72,7 +73,7 @@ vi.mock('lucide-react', () => ({
 
 const TestWrapper: React.FC<{children: React.ReactNode}> = ({children}) => <MemoryRouter>{children}</MemoryRouter>
 
-describe('UserGPTCard', () => {
+describe('userGPTCard', () => {
   const mockGPT: GPTConfiguration = {
     id: 'test-gpt-1',
     name: 'Test GPT',
@@ -111,7 +112,7 @@ describe('UserGPTCard', () => {
     vi.clearAllMocks()
   })
 
-  describe('Rendering', () => {
+  describe('rendering', () => {
     it('renders the GPT card with basic information', () => {
       renderCard()
 
@@ -146,7 +147,7 @@ describe('UserGPTCard', () => {
     })
   })
 
-  describe('Loading State', () => {
+  describe('loading State', () => {
     it('renders loading skeletons when isLoading is true', () => {
       renderCard({isLoading: true})
 
@@ -169,7 +170,7 @@ describe('UserGPTCard', () => {
     })
   })
 
-  describe('Error State', () => {
+  describe('error State', () => {
     it('renders error message when error prop is provided', () => {
       renderCard({error: 'Failed to load GPT'})
 
@@ -200,7 +201,7 @@ describe('UserGPTCard', () => {
     })
   })
 
-  describe('Navigation', () => {
+  describe('navigation', () => {
     it('creates correct edit link', () => {
       renderCard()
 
@@ -216,7 +217,7 @@ describe('UserGPTCard', () => {
     })
   })
 
-  describe('Accessibility', () => {
+  describe('accessibility', () => {
     it('has proper ARIA structure', () => {
       renderCard()
 
@@ -239,7 +240,7 @@ describe('UserGPTCard', () => {
     })
   })
 
-  describe('Content Truncation', () => {
+  describe('content Truncation', () => {
     it('applies line-clamp-3 to long descriptions', () => {
       const longDescription = 'A'.repeat(200)
       const gptWithLongDescription = {...mockGPT, description: longDescription}
@@ -250,7 +251,7 @@ describe('UserGPTCard', () => {
     })
   })
 
-  describe('Date Formatting', () => {
+  describe('date Formatting', () => {
     it('formats the updated date correctly', () => {
       renderCard()
 

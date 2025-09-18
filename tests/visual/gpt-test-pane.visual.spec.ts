@@ -143,8 +143,8 @@ visualTest.describe('GPT Test Pane Visual Tests', () => {
     'GPT test pane - error state',
     async ({page, visualHelper}: {page: Page; visualHelper: VisualTestHelper}) => {
       // Mock API error by intercepting the request
-      await page.route('**/api/**', route => {
-        route.fulfill({
+      await page.route('**/api/**', async route => {
+        await route.fulfill({
           status: 500,
           body: JSON.stringify({error: 'Test error for visual testing'}),
         })

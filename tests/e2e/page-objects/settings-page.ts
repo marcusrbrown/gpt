@@ -76,7 +76,7 @@ export class SettingsPage extends BasePage {
    * Get current API key value (visible characters)
    */
   async getApiKeyValue(): Promise<string> {
-    return await this.apiKeyInput.inputValue()
+    return this.apiKeyInput.inputValue()
   }
 
   /**
@@ -97,7 +97,7 @@ export class SettingsPage extends BasePage {
    * Get API key status
    */
   async getApiKeyStatus(): Promise<string | null> {
-    return await this.getTextContent(this.apiKeyStatus)
+    return this.getTextContent(this.apiKeyStatus)
   }
 
   /**
@@ -175,29 +175,30 @@ export class SettingsPage extends BasePage {
    * Get success message text
    */
   async getSuccessMessage(): Promise<string | null> {
-    return await this.getTextContent(this.successMessage)
+    return this.getTextContent(this.successMessage)
   }
 
   /**
    * Get error message text
    */
   async getErrorMessage(): Promise<string | null> {
-    return await this.getTextContent(this.errorMessage)
+    return this.getTextContent(this.errorMessage)
   }
 
   /**
    * Check if settings page is loaded
    */
   async isLoaded(): Promise<boolean> {
-    return await this.isVisible(this.apiKeyInput)
+    return this.isVisible(this.apiKeyInput)
   }
 
   /**
    * Get current theme from document
    */
   async getCurrentTheme(): Promise<string> {
-    return await this.page.evaluate(() => {
-      return document.documentElement.dataset.theme || 'system'
+    return this.page.evaluate(() => {
+      const theme = document.documentElement.dataset.theme
+      return typeof theme === 'string' && theme.trim() !== '' ? theme : 'system'
     })
   }
 }

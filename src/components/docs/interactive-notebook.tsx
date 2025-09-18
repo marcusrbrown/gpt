@@ -61,7 +61,14 @@ export function InteractiveNotebook({initialCells = DEFAULT_CELLS, onExecute}: I
               {cell.type === 'code' ? 'Code' : 'Markdown'}
             </span>
             {cell.type === 'code' && (
-              <Button onPress={async () => handleExecute(cell.id)} color="primary" size="sm">
+              <Button
+                onPress={() => {
+                  // eslint-disable-next-line no-void
+                  void handleExecute(cell.id)
+                }}
+                color="primary"
+                size="sm"
+              >
                 Run
               </Button>
             )}
@@ -81,7 +88,7 @@ export function InteractiveNotebook({initialCells = DEFAULT_CELLS, onExecute}: I
             }}
           />
 
-          {cell.output && (
+          {typeof cell.output === 'string' && cell.output.length > 0 && (
             <div className={cn('mt-2 p-2 rounded', theme.surface(2))}>
               <pre className={cn('whitespace-pre-wrap', ds.text.body.small)}>{cell.output}</pre>
             </div>

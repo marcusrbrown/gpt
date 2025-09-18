@@ -74,8 +74,8 @@ interface RawConversationData {
  * Local storage service for managing GPT configurations and conversations
  */
 export class LocalStorageService {
-  private gptsCache: LRUCache<string, GPTConfiguration>
-  private conversationsCache: LRUCache<string, Conversation>
+  private readonly gptsCache: LRUCache<string, GPTConfiguration>
+  private readonly conversationsCache: LRUCache<string, Conversation>
 
   constructor() {
     this.gptsCache = new LRUCache<string, GPTConfiguration>(CACHE_CONFIG)
@@ -103,7 +103,8 @@ export class LocalStorageService {
    */
   private loadGPTs(): void {
     const storedGpts = localStorage.getItem(STORAGE_KEYS.GPTS)
-    if (!storedGpts) return
+    // Explicitly handle null/undefined and empty (or whitespace-only) strings
+    if (storedGpts == null || storedGpts.trim() === '') return
 
     try {
       const gpts = JSON.parse(storedGpts) as Record<string, RawGPTData>
@@ -131,7 +132,8 @@ export class LocalStorageService {
    */
   private loadConversations(): void {
     const storedConversations = localStorage.getItem(STORAGE_KEYS.CONVERSATIONS)
-    if (!storedConversations) return
+    // Explicitly handle null/undefined and empty (or whitespace-only) strings
+    if (storedConversations == null || storedConversations.trim() === '') return
 
     try {
       const conversations = JSON.parse(storedConversations) as Record<string, RawConversationData>

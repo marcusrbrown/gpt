@@ -1,9 +1,9 @@
+import type {GPTConfiguration} from '../types/gpt'
 import {useEffect, useState} from 'react'
 import {useParams} from 'react-router-dom'
 import {GPTTestPane} from '../components/gpt-test-pane'
 import {useStorage} from '../hooks/use-storage'
 import {cn, ds} from '../lib/design-system'
-import {type GPTConfiguration} from '../types/gpt'
 
 export function GPTTestPage() {
   const {gptId} = useParams()
@@ -11,7 +11,8 @@ export function GPTTestPage() {
   const [gptConfig, setGptConfig] = useState<GPTConfiguration | undefined>(undefined)
 
   useEffect(() => {
-    if (gptId) {
+    // Only proceed when gptId is a defined, non-empty string
+    if (typeof gptId === 'string' && gptId.trim() !== '') {
       const savedGpt = storage.getGPT(gptId)
       if (savedGpt) {
         setGptConfig(savedGpt)

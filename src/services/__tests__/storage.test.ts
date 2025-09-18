@@ -1,9 +1,9 @@
+import type {Conversation, GPTConfiguration} from '../../types/gpt'
 import {v4 as uuidv4} from 'uuid'
-import {afterEach, beforeEach, describe, expect, test} from 'vitest'
-import {type Conversation, type GPTConfiguration} from '../../types/gpt'
+import {afterEach, beforeEach, describe, expect} from 'vitest'
 import {LocalStorageService} from '../storage'
 
-describe('LocalStorageService', () => {
+describe('localStorageService', () => {
   let storageService: LocalStorageService
 
   beforeEach(() => {
@@ -16,12 +16,12 @@ describe('LocalStorageService', () => {
   })
 
   describe('Initialization', () => {
-    test('should initialize with empty storage', () => {
+    it('should initialize with empty storage', () => {
       expect(storageService.getAllGPTs()).toHaveLength(0)
       expect(storageService.getConversationsForGPT('any-id')).toHaveLength(0)
     })
 
-    test('should load existing data from storage', () => {
+    it('should load existing data from storage', () => {
       const gpt: GPTConfiguration = {
         id: uuidv4(),
         name: 'Test GPT',
@@ -52,14 +52,14 @@ describe('LocalStorageService', () => {
       expect(loadedGPTs[0]).toEqual(gpt)
     })
 
-    test('should handle corrupted storage data', () => {
+    it('should handle corrupted storage data', () => {
       localStorage.setItem('gpts', 'invalid json')
       const newService = new LocalStorageService()
       expect(newService.getAllGPTs()).toHaveLength(0)
     })
   })
 
-  describe('GPT Operations', () => {
+  describe('gPT Operations', () => {
     const createTestGPT = (): GPTConfiguration => ({
       id: uuidv4(),
       name: 'Test GPT',
@@ -83,14 +83,14 @@ describe('LocalStorageService', () => {
       version: 1,
     })
 
-    test('should save and retrieve GPT', () => {
+    it('should save and retrieve GPT', () => {
       const gpt = createTestGPT()
       storageService.saveGPT(gpt)
       const retrieved = storageService.getGPT(gpt.id)
       expect(retrieved).toEqual(gpt)
     })
 
-    test('should update existing GPT', () => {
+    it('should update existing GPT', () => {
       const gpt = createTestGPT()
       storageService.saveGPT(gpt)
 
@@ -105,14 +105,14 @@ describe('LocalStorageService', () => {
       expect(retrieved).toEqual(updatedGPT)
     })
 
-    test('should delete GPT', () => {
+    it('should delete GPT', () => {
       const gpt = createTestGPT()
       storageService.saveGPT(gpt)
       storageService.deleteGPT(gpt.id)
       expect(storageService.getGPT(gpt.id)).toBeUndefined()
     })
 
-    test('should list all GPTs', () => {
+    it('should list all GPTs', () => {
       const gpt1 = createTestGPT()
       const gpt2 = createTestGPT()
       storageService.saveGPT(gpt1)
@@ -125,7 +125,7 @@ describe('LocalStorageService', () => {
     })
   })
 
-  describe('Conversation Operations', () => {
+  describe('conversation Operations', () => {
     const createTestConversation = (gptId: string): Conversation => ({
       id: uuidv4(),
       gptId,
@@ -141,7 +141,7 @@ describe('LocalStorageService', () => {
       updatedAt: new Date(),
     })
 
-    test('should save and retrieve conversation', () => {
+    it('should save and retrieve conversation', () => {
       const gpt = {
         id: uuidv4(),
         name: 'Test GPT',
@@ -172,7 +172,7 @@ describe('LocalStorageService', () => {
       expect(retrieved).toEqual(conversation)
     })
 
-    test('should update existing conversation', () => {
+    it('should update existing conversation', () => {
       const gpt = {
         id: uuidv4(),
         name: 'Test GPT',
@@ -219,7 +219,7 @@ describe('LocalStorageService', () => {
       expect(retrieved).toEqual(updatedConversation)
     })
 
-    test('should delete conversation', () => {
+    it('should delete conversation', () => {
       const gpt = {
         id: uuidv4(),
         name: 'Test GPT',
@@ -250,7 +250,7 @@ describe('LocalStorageService', () => {
       expect(storageService.getConversation(conversation.id)).toBeUndefined()
     })
 
-    test('should list all conversations for a GPT', () => {
+    it('should list all conversations for a GPT', () => {
       const gpt = {
         id: uuidv4(),
         name: 'Test GPT',
@@ -288,7 +288,7 @@ describe('LocalStorageService', () => {
   })
 
   describe('Data Persistence', () => {
-    test('should persist data to localStorage', () => {
+    it('should persist data to localStorage', () => {
       const gpt = {
         id: uuidv4(),
         name: 'Test GPT',
@@ -335,7 +335,7 @@ describe('LocalStorageService', () => {
       expect(newService.getConversation(conversation.id)).toEqual(conversation)
     })
 
-    test('should handle storage quota exceeded', () => {
+    it('should handle storage quota exceeded', () => {
       // Mock localStorage.setItem to throw quota exceeded error
       const originalSetItem = localStorage.setItem
       localStorage.setItem = vi.fn().mockImplementation(() => {
