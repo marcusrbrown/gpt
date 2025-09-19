@@ -53,6 +53,7 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
                   required
                   isInvalid={!!errors.tools[index]?.name}
                   errorMessage={errors.tools[index]?.name}
+                  className={cn(ds.focus.ring, ds.animation.transition)}
                 />
               </div>
               <div>
@@ -63,6 +64,7 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
                   required
                   isInvalid={!!errors.tools[index]?.description}
                   errorMessage={errors.tools[index]?.description}
+                  className={cn(ds.focus.ring, ds.animation.transition)}
                 />
               </div>
               <div>
@@ -73,6 +75,7 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
                   required
                   isInvalid={!!errors.tools[index]?.endpoint}
                   errorMessage={errors.tools[index]?.endpoint}
+                  className={cn(ds.focus.ring, ds.animation.transition)}
                 />
               </div>
               <div>
@@ -87,7 +90,7 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
                     })
                   }}
                   placeholder="Select type..."
-                  className={cn(ds.form.fieldGroup)}
+                  className={cn(ds.form.fieldGroup, ds.focus.ring, ds.animation.transition)}
                   isInvalid={!!errors.tools[index]?.authentication}
                   errorMessage={errors.tools[index]?.authentication}
                 >
@@ -111,6 +114,7 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
                     required
                     isInvalid={!!errors.tools[index]?.authentication}
                     errorMessage={errors.tools[index]?.authentication}
+                    className={cn(ds.focus.ring, ds.animation.transition)}
                   />
                 </div>
               )}
