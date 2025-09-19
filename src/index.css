@@ -73,14 +73,11 @@ body {
     @apply bg-[var(--background-primary)] text-[var(--text-primary)];
   }
 
-  /* Smooth transitions for theme changes */
+  /* Smooth transitions for theme changes using design system timing */
   *,
   *::before,
   *::after {
-    transition:
-      background-color 0.15s ease,
-      border-color 0.15s ease,
-      color 0.15s ease;
+    @apply transition-colors duration-200 ease-in-out;
   }
 
   /* Custom scrollbar */
@@ -101,13 +98,13 @@ body {
     background: var(--text-secondary);
   }
 
-  /* Cards */
+  /* Cards - using design system animation utilities */
   .card {
-    @apply rounded-lg border-0 bg-[var(--background-secondary)] p-6 transition-all hover:shadow-lg shadow-md;
+    @apply rounded-lg border-0 bg-[var(--background-secondary)] p-6 shadow-md transition-all duration-200 ease-in-out hover:shadow-lg;
   }
 
   .card-link {
-    @apply block rounded-lg border-0 bg-[var(--background-secondary)] p-6 transition-all hover:shadow-xl shadow-md hover:scale-[1.02];
+    @apply block rounded-lg border-0 bg-[var(--background-secondary)] p-6 shadow-md transition-all duration-200 ease-in-out hover:shadow-xl hover:scale-[1.02];
   }
 
   /* Search */
@@ -115,9 +112,9 @@ body {
     @apply w-64 px-4 py-1.5 rounded-md bg-[var(--background-tertiary)] border border-[var(--border-color)] text-sm text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] focus:border-transparent;
   }
 
-  /* Navigation */
+  /* Navigation - using design system animation utilities */
   .nav-link {
-    @apply p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors;
+    @apply p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 ease-in-out;
   }
 
   .nav-link-active {
@@ -141,9 +138,9 @@ body {
     @apply text-[var(--text-secondary)] leading-relaxed;
   }
 
-  /* Links */
+  /* Links - using design system animation utilities */
   .link {
-    @apply text-[var(--accent-color)] hover:text-[var(--accent-hover)] transition-colors;
+    @apply text-[var(--accent-color)] hover:text-[var(--accent-hover)] transition-colors duration-200 ease-in-out;
   }
 
   /* Documentation */
@@ -166,7 +163,7 @@ body {
   }
 
   .sidebar-link {
-    @apply px-3 py-2 rounded-md hover:bg-[var(--background-secondary)] hover:text-[var(--text-primary)] transition-colors;
+    @apply px-3 py-2 rounded-md hover:bg-[var(--background-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 ease-in-out;
   }
 
   .sidebar-link-active {
