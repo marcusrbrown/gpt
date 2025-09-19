@@ -56,9 +56,9 @@ Comprehensive standardization of animations and interactions across all componen
 | Task | Description | Completed | Date |
 | --- | --- | --- | --- |
 | TASK-005 | Replace `transition-all hover:border-[var(--accent-color)] hover:shadow-md` with `ds.animation.transition hover:border-primary hover:shadow-md` in feature-card.tsx | ✅ | 2025-09-18 |
-| TASK-006 | Replace `transition-colors` with `ds.animation.transition` in feature-card.tsx icon container |  |  |
-| TASK-007 | Replace `transition-colors` with `ds.animation.transition` in file-upload.tsx drag-and-drop area |  |  |
-| TASK-008 | Replace `transition-colors` with `ds.animation.transition` in docs-sidebar.tsx navigation links |  |  |
+| TASK-006 | Replace `transition-colors` with `ds.animation.transition` in feature-card.tsx icon container | ✅ | 2025-09-18 |
+| TASK-007 | Replace `transition-colors` with `ds.animation.transition` in file-upload.tsx drag-and-drop area | ✅ | 2025-09-18 |
+| TASK-008 | Replace `transition-colors` with `ds.animation.transition` in docs-sidebar.tsx navigation links | ✅ | 2025-09-18 |
 | TASK-009 | Update CSS custom properties in index.css to use design system transition utilities |  |  |
 | TASK-010 | Replace `transition-all duration-200` with `ds.animation.transition` in docs-sidebar.tsx collapsible sections | ✅ | 2025-09-18 |
 

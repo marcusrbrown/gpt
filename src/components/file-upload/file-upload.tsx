@@ -172,7 +172,8 @@ export function FileUpload({
             <>
               <Upload
                 className={cn(
-                  'w-8 h-8 transition-colors',
+                  'w-8 h-8',
+                  ds.animation.transition,
                   disabled ? 'text-content-tertiary' : 'text-content-secondary',
                 )}
               />
