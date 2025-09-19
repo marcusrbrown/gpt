@@ -40,6 +40,8 @@ coverage
 .ai/*
 !.ai/analysis/
 !.ai/analysis/*
+!.ai/docs/
+!.ai/docs/*
 !.ai/notes/
 !.ai/notes/*
 !.ai/plan/
