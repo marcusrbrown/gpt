@@ -92,7 +92,8 @@ function NavItemComponent({item}: {item: NavItem}) {
           to={item.path}
           className={({isActive: linkActive}) =>
             cn(
-              'flex-1 flex items-center py-1.5 px-3 rounded-md transition-colors',
+              'flex-1 flex items-center py-1.5 px-3 rounded-md',
+              ds.animation.transition,
               ds.text.body.small,
               linkActive || hasActiveChild
                 ? 'text-primary bg-default-100'
@@ -106,7 +107,8 @@ function NavItemComponent({item}: {item: NavItem}) {
             <ChevronDown
               size={16}
               className={cn(
-                'transform transition-transform',
+                'transform',
+                ds.animation.transition,
                 isExpanded ? 'rotate-180' : '',
                 isActive || hasActiveChild ? 'text-primary' : theme.content('tertiary'),
               )}
@@ -117,7 +119,8 @@ function NavItemComponent({item}: {item: NavItem}) {
       {item.items && (
         <div
           className={cn(
-            'overflow-hidden transition-all duration-200',
+            'overflow-hidden',
+            ds.animation.transition,
             isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0',
           )}
         >
@@ -128,7 +131,8 @@ function NavItemComponent({item}: {item: NavItem}) {
                 to={subItem.path}
                 className={({isActive}) =>
                   cn(
-                    'block py-1 px-3 rounded-md transition-colors',
+                    'block py-1 px-3 rounded-md',
+                    ds.animation.transition,
                     ds.text.body.small,
                     isActive
                       ? 'text-primary bg-default-100'
