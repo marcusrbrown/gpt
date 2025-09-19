@@ -274,11 +274,11 @@ describe('featureCard', () => {
       expect(card).toHaveClass('group')
     })
 
-    it('applies transition animations', () => {
+    it('applies transition animations via compose.card()', () => {
       const {container} = renderCard()
 
       const card = container.firstChild
-      expect(card).toHaveClass('transition-all')
+      expect(card).toHaveClass('compose-card')
     })
   })
 })

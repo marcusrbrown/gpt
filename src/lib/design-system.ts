@@ -148,7 +148,7 @@ export const compose = {
   page: (className?: string) => cn(ds.layout.container, 'min-h-screen', ds.text.body.base, className),
 
   // Interactive card
-  card: (className?: string) => cn(ds.card.base, ds.card.interactive, 'p-6', ds.animation.transition, className),
+  card: (className?: string) => cn(ds.card.base, ds.card.interactive, 'p-6', className),
 
   // Form field wrapper
   field: (className?: string) => cn('flex flex-col', className),

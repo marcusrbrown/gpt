@@ -41,7 +41,6 @@ export const FeatureCard: FC<FeatureCardProps> = ({
       data-testid="feature-card"
       className={cn(
         compose.card(),
-        ds.animation.transition,
         'max-w-sm',
         'cursor-pointer',
         'group', // Add group class for hover effects
@@ -74,10 +73,8 @@ export const FeatureCard: FC<FeatureCardProps> = ({
           </div>
         ) : (
           <div className="flex items-center gap-4">
-            <div className={cn('rounded-lg p-3', theme.surface(2), ds.animation.transition, 'group-hover:scale-105')}>
-              <Icon
-                className={cn('h-6 w-6', 'text-primary-500', 'group-hover:text-primary-600', ds.animation.transition)}
-              />
+            <div className={cn('rounded-lg p-3', theme.surface(2), 'group-hover:scale-[1.02]')}>
+              <Icon className={cn('h-6 w-6', 'text-primary-500', 'group-hover:text-primary-600')} />
             </div>
             <div className="flex flex-col">
               <h3 className={cn(ds.text.heading.h4)}>{title}</h3>
@@ -104,14 +101,7 @@ export const FeatureCard: FC<FeatureCardProps> = ({
         {error || isLoading ? (
           <Skeleton className="h-4 w-32 rounded-lg" />
         ) : (
-          <span
-            className={cn(
-              'text-primary-500 font-medium',
-              ds.text.body.small,
-              ds.animation.transition,
-              'group-hover:text-primary-600',
-            )}
-          >
+          <span className={cn('text-primary-500 font-medium', ds.text.body.small, 'group-hover:text-primary-600')}>
             {isExternal ? 'Open in ChatGPT' : 'Learn more'} →
           </span>
         )}
