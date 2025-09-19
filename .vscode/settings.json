@@ -54,6 +54,7 @@
 
     "prettier.enable": false,
 
+    "typescript.experimental.useTsgo": true,
     "typescript.format.insertSpaceAfterOpeningAndBeforeClosingEmptyBraces": false,
     "typescript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
     "typescript.tsdk": "node_modules/typescript/lib"
