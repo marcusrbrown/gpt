@@ -81,7 +81,7 @@ Comprehensive standardization of animations and interactions across all componen
 
 | Task | Description | Completed | Date |
 | --- | --- | --- | --- |
-| TASK-017 | Apply `ds.state.loading` to content containers during loading states in gpt-test-pane.tsx |  |  |
+| TASK-017 | Apply `ds.state.loading` to content containers during loading states in gpt-test-pane.tsx | ✅ | 2025-09-20 |
 | TASK-018 | Standardize HeroUI Spinner usage with consistent sizing (sm, md, lg) across all loading contexts |  |  |
 | TASK-019 | Implement skeleton loading using HeroUI Skeleton components for card and list loading states |  |  |
 | TASK-020 | Add loading states to form submissions using design system loading utilities and proper feedback |  |  |

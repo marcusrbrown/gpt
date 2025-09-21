@@ -245,7 +245,7 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
   }
 
   // Use streamRun for real-time updates
-  const processMessages = (messageResponse: {data: ApiMessage[]}) => {
+  const processMessages = useCallback((messageResponse: {data: ApiMessage[]}) => {
     const newMessages = messageResponse.data
       .filter((msg: ApiMessage) => msg.role && msg.content && Array.isArray(msg.content) && msg.content.length > 0)
       .map((msg: ApiMessage) => {
@@ -269,7 +269,7 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
       .reverse()
 
     return newMessages
-  }
+  }, [])
 
   // For state setters, use type assertion for IDs when we know they're valid strings
   const checkRunStatus = useCallback(async () => {
@@ -320,7 +320,7 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
       setError(error instanceof Error ? error.message : 'Error checking run status')
       setIsLoading(false)
     }
-  }, [threadId, runId, clearPollingInterval, handleToolCalls, openAIService])
+  }, [threadId, runId, clearPollingInterval, handleToolCalls, openAIService, processMessages])
 
   // Handle sending a message
   const handleSendMessage = async () => {
@@ -386,7 +386,7 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="p-3 border-b flex justify-between items-center gap-2">
+      <div className={cn('p-3 border-b flex justify-between items-center gap-2', isLoading && ds.state.loading)}>
         <div className="flex-1">
           <Input
             label="Conversation Name"
@@ -439,7 +439,10 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{maxHeight: 'calc(100vh - 210px)'}}>
+      <div
+        className={cn('flex-1 overflow-y-auto p-4 space-y-4', isLoading && ds.state.loading)}
+        style={{maxHeight: 'calc(100vh - 210px)'}}
+      >
         {error && (
           <div className={cn('p-4 rounded-md flex items-start space-x-3', ds.state.error, 'border')}>
             <AlertCircle className={cn('mt-0.5', ds.form.errorText)} size={18} />
@@ -518,7 +521,7 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
       </div>
 
       {/* Input Area */}
-      <div className="p-3 border-t">
+      <div className={cn('p-3 border-t', isLoading && ds.state.loading)}>
         <form
           onSubmit={e => {
             e.preventDefault()
