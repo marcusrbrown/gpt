@@ -121,7 +121,7 @@ function VectorKnowledge({
 
       {error && <div className={cn(ds.state.error, 'p-2 rounded', ds.text.body.small)}>{error}</div>}
 
-      <div className="border rounded-md p-4 space-y-4">
+      <div className={cn('border rounded-md p-4 space-y-4', isCreating && ds.state.disabled)}>
         <div>
           <label htmlFor="storeName" className={cn(ds.form.label)}>
             Vector Store Name
@@ -132,12 +132,13 @@ function VectorKnowledge({
             onChange={e => setNewStoreName(e.target.value)}
             className="mt-1"
             placeholder="My Knowledge Base"
+            isDisabled={isCreating}
           />
         </div>
 
         <div>
           <label className={cn('block mb-2', ds.text.heading.h4, 'text-content-primary')}>Select Files</label>
-          <div className="max-h-40 overflow-y-auto border rounded-md p-2">
+          <div className={cn('max-h-40 overflow-y-auto border rounded-md p-2', isCreating && ds.state.disabled)}>
             {files.length === 0 ? (
               <p className={cn(ds.text.body.small, 'text-content-tertiary p-2')}>
                 No files available. Upload files in the Knowledge section.
@@ -150,9 +151,13 @@ function VectorKnowledge({
                     id={`file-${file.name}`}
                     checked={selectedFiles.includes(file.name)}
                     onChange={() => toggleFileSelection(file.name)}
+                    disabled={isCreating}
                     className="mr-2"
                   />
-                  <label htmlFor={`file-${file.name}`} className={ds.text.body.small}>
+                  <label
+                    htmlFor={`file-${file.name}`}
+                    className={cn(ds.text.body.small, isCreating && 'text-content-tertiary')}
+                  >
                     {file.name}
                   </label>
                 </div>

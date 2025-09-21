@@ -27,6 +27,8 @@ interface FileUploadProps {
   isLoading?: boolean
   disabled?: boolean
   ariaLabel?: string
+  progress?: number // Progress percentage (0-100)
+  loadingMessage?: string // Custom loading message
 }
 
 /**
@@ -40,6 +42,8 @@ export function FileUpload({
   isLoading = false,
   disabled = false,
   ariaLabel = 'File upload area',
+  progress,
+  loadingMessage = 'Uploading...',
 }: FileUploadProps) {
   const [isDragging, setIsDragging] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
@@ -144,7 +148,8 @@ export function FileUpload({
         onClick={disabled || isLoading ? undefined : handleClick}
         role="button"
         tabIndex={disabled || isLoading ? -1 : 0}
-        aria-label={ariaLabel}
+        aria-label={isLoading ? `${loadingMessage}${progress ? ` ${Math.round(progress)}% complete` : ''}` : ariaLabel}
+        aria-busy={isLoading}
         aria-disabled={disabled || isLoading}
         onKeyDown={e => {
           if ((e.key === 'Enter' || e.key === ' ') && !disabled && !isLoading) {
@@ -165,9 +170,32 @@ export function FileUpload({
 
         <div className="flex flex-col items-center justify-center gap-3">
           {isLoading ? (
-            <div className="flex items-center gap-2">
-              <Spinner size="sm" color="primary" />
-              <span className={cn(ds.text.body.small, 'text-content-secondary')}>Uploading...</span>
+            <div className={cn('flex flex-col items-center gap-3 w-full', ds.animation.fadeIn)}>
+              <div className="flex items-center gap-2">
+                <Spinner size="sm" color="primary" />
+                <span className={cn(ds.text.body.small, 'text-content-secondary')}>{loadingMessage}</span>
+              </div>
+
+              {progress !== undefined && (
+                <div className="w-full max-w-xs space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className={cn(ds.text.body.small, 'text-content-tertiary')}>Progress</span>
+                    <span className={cn(ds.text.body.small, 'font-medium text-content-primary')}>
+                      {Math.round(progress)}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-default-200 rounded-full h-2 overflow-hidden">
+                    <div
+                      className={cn(
+                        'h-full bg-primary-500 rounded-full transition-all duration-300 ease-out',
+                        ds.animation.transition,
+                      )}
+                      style={{width: `${Math.min(100, Math.max(0, progress))}%`}}
+                      aria-label={`Upload progress: ${Math.round(progress)}%`}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <>
