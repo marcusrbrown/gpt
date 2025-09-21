@@ -40,7 +40,12 @@ export function KnowledgeConfiguration({
         <h3 className={cn(responsive.heading.medium)}>Files</h3>
         <div className="border-dashed border-2 border-border-default rounded-md p-6 text-center">
           <input type="file" ref={fileInputRef} onChange={onFileUpload} multiple className="hidden" />
-          <Button onPress={() => fileInputRef.current?.click()} color="primary" variant="light" className="mb-2">
+          <Button
+            onPress={() => fileInputRef.current?.click()}
+            color="primary"
+            variant="light"
+            className={cn(ds.animation.transition, ds.focus.ring, 'mb-2')}
+          >
             Upload Files
           </Button>
           <p className={cn(ds.text.body.small)}>Upload files to use as knowledge sources for your GPT</p>

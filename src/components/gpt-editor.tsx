@@ -604,16 +604,30 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
               <div className="flex gap-2">
                 {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
                 <input type="file" ref={importGptRef} onChange={handleImportGPT} accept=".json" className="hidden" />
-                <Button color="secondary" onPress={() => importGptRef.current?.click()} isDisabled={isSubmitting}>
+                <Button
+                  color="secondary"
+                  variant="solid"
+                  onPress={() => importGptRef.current?.click()}
+                  isDisabled={isSubmitting}
+                  className={cn(ds.animation.transition)}
+                >
                   Import
                 </Button>
-                <Button color="secondary" onPress={handleExportGPT} isDisabled={isSubmitting || isExporting}>
+                <Button
+                  color="secondary"
+                  variant="solid"
+                  onPress={handleExportGPT}
+                  isDisabled={isSubmitting || isExporting}
+                  className={cn(ds.animation.transition)}
+                >
                   {isExporting ? <Spinner size="sm" /> : 'Export'}
                 </Button>
                 <Button
                   color="primary"
+                  variant="solid"
                   onPress={() => handleSubmit(new Event('submit') as unknown as React.FormEvent)}
                   isDisabled={isSubmitting}
+                  className={cn(ds.animation.transition)}
                 >
                   {isSubmitting ? <Spinner size="sm" /> : 'Save'}
                 </Button>
