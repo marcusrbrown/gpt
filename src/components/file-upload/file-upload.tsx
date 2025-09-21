@@ -124,8 +124,9 @@ export function FileUpload({
     <div className={cn('w-full', className)}>
       <div
         className={cn(
-          'border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all duration-200',
-          'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
+          'border-2 border-dashed rounded-lg p-6 text-center cursor-pointer',
+          ds.animation.transition,
+          ds.focus.visible,
           // Disabled or loading state
           (disabled || isLoading) &&
             cn('border-border-subtle', theme.surface(0), ds.state.disabled, 'cursor-not-allowed'),

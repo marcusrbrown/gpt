@@ -17,7 +17,11 @@ type SidebarLinkProps = {
 } & Omit<NavLinkProps, keyof {to: string; className: string | ((props: {isActive: boolean}) => string)}>
 
 const SidebarLink = ({to, children, className, ...props}: SidebarLinkProps) => (
-  <NavLink to={to} className={typeof className === 'function' ? className : `${className ?? ''}`} {...props}>
+  <NavLink
+    to={to}
+    className={cn(ds.focus.visible, 'rounded-md', typeof className === 'function' ? className : className)}
+    {...props}
+  >
     {children}
   </NavLink>
 )
