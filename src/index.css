@@ -100,11 +100,11 @@ body {
 
   /* Cards - using design system animation utilities */
   .card {
-    @apply rounded-lg border-0 bg-[var(--background-secondary)] p-6 shadow-md transition-all duration-200 ease-in-out hover:shadow-lg;
+    @apply rounded-lg border-0 bg-[var(--background-secondary)] p-6 shadow-sm transition-all duration-200 ease-in-out hover:shadow-md;
   }
 
   .card-link {
-    @apply block rounded-lg border-0 bg-[var(--background-secondary)] p-6 shadow-md transition-all duration-200 ease-in-out hover:shadow-xl hover:scale-[1.02];
+    @apply block rounded-lg border-0 bg-[var(--background-secondary)] p-6 shadow-md transition-all duration-200 ease-in-out hover:shadow-lg hover:scale-[1.02];
   }
 
   /* Search */
