@@ -1,3 +1,4 @@
+import {Spinner} from '@heroui/react'
 import {lazy, Suspense} from 'react'
 import {Route, Routes} from 'react-router-dom'
 import {CardGroup} from './components/card-group'
@@ -53,7 +54,13 @@ function App() {
                 <Route
                   path="/docs/*"
                   element={
-                    <Suspense fallback={<div className="flex-grow flex items-center justify-center">Loading...</div>}>
+                    <Suspense
+                      fallback={
+                        <div className="flex-grow flex items-center justify-center">
+                          <Spinner size="lg" color="primary" />
+                        </div>
+                      }
+                    >
                       <DocLayout sidebar={<DocsSidebar />}>
                         <Routes>
                           <Route index element={<DocsIndex />} />
