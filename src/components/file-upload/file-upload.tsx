@@ -2,22 +2,7 @@ import {Spinner} from '@heroui/react'
 import {Upload} from 'lucide-react'
 import {useRef, useState, type ChangeEvent} from 'react'
 import {cn, ds, theme} from '../../lib/design-system'
-
-export const ACCEPTED_FILE_TYPES = {
-  PDF: 'application/pdf',
-  DOCX: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  TXT: 'text/plain',
-  CSV: 'text/csv',
-  JSON: 'application/json',
-  MD: 'text/markdown',
-  PNG: 'image/png',
-  JPG: 'image/jpeg',
-  JPEG: 'image/jpeg',
-} as const
-
-export type AcceptedFileType = keyof typeof ACCEPTED_FILE_TYPES
-
-const DEFAULT_ALLOWED_TYPES = Object.values(ACCEPTED_FILE_TYPES)
+import {DEFAULT_ALLOWED_TYPES} from './constants'
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void
