@@ -672,10 +672,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   isInvalid={!!errors.name}
                   errorMessage={errors.name}
                   isRequired
-                  className={cn(
-                    hasFieldSuccess('name') && !errors.name && ds.state.success,
-                    'transition-colors duration-200',
-                  )}
+                  className={cn(hasFieldSuccess('name') && !errors.name && ds.state.success, ds.animation.transition)}
                 />
               </div>
               <div>
@@ -698,7 +695,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   className={cn(
                     ds.form.fieldGroup,
                     hasFieldSuccess('description') && !errors.description && ds.state.success,
-                    'transition-colors duration-200',
+                    ds.animation.transition,
                   )}
                 />
               </div>
@@ -722,7 +719,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   className={cn(
                     ds.form.fieldGroup,
                     hasFieldSuccess('systemPrompt') && !errors.systemPrompt && ds.state.success,
-                    'transition-colors duration-200',
+                    ds.animation.transition,
                   )}
                 />
               </div>
