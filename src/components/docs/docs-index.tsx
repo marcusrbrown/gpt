@@ -40,7 +40,16 @@ export function DocsIndex() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {SECTIONS.map(section => (
-          <Link key={section.path} to={section.path} className="card-link group">
+          <Link
+            key={section.path}
+            to={section.path}
+            className={cn(
+              ds.card.base,
+              ds.card.elevated, // shadow-md hover:shadow-lg
+              ds.animation.transition,
+              'p-6 block group hover:scale-[1.02]',
+            )}
+          >
             <h2 className={cn(responsive.heading.large, 'mb-2')}>{section.title}</h2>
             <p className={cn(ds.text.body.base, theme.content('secondary'), 'mb-4')}>{section.description}</p>
             <span className={cn(ds.text.body.small, 'text-primary font-medium group-hover:text-primary-600')}>
