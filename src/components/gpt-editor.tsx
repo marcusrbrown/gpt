@@ -1,5 +1,5 @@
 import {Button, Input, Spinner, Tab, Tabs, Textarea} from '@heroui/react'
-import {useEffect, useRef, useState} from 'react'
+import {useEffect, useMemo, useRef, useState} from 'react'
 import {v4 as uuidv4} from 'uuid'
 import {useGPTValidation} from '../hooks/use-gpt-validation'
 import {useOpenAIService} from '../hooks/use-openai-service'
@@ -121,7 +121,7 @@ function VectorKnowledge({
 
       {error && <div className={cn(ds.state.error, 'p-2 rounded', ds.text.body.small)}>{error}</div>}
 
-      <div className="border rounded-md p-4 space-y-4">
+      <div className={cn('border rounded-md p-4 space-y-4', isCreating && ds.state.disabled)}>
         <div>
           <label htmlFor="storeName" className={cn(ds.form.label)}>
             Vector Store Name
@@ -132,12 +132,13 @@ function VectorKnowledge({
             onChange={e => setNewStoreName(e.target.value)}
             className="mt-1"
             placeholder="My Knowledge Base"
+            isDisabled={isCreating}
           />
         </div>
 
         <div>
           <label className={cn('block mb-2', ds.text.heading.h4, 'text-content-primary')}>Select Files</label>
-          <div className="max-h-40 overflow-y-auto border rounded-md p-2">
+          <div className={cn('max-h-40 overflow-y-auto border rounded-md p-2', isCreating && ds.state.disabled)}>
             {files.length === 0 ? (
               <p className={cn(ds.text.body.small, 'text-content-tertiary p-2')}>
                 No files available. Upload files in the Knowledge section.
@@ -150,9 +151,13 @@ function VectorKnowledge({
                     id={`file-${file.name}`}
                     checked={selectedFiles.includes(file.name)}
                     onChange={() => toggleFileSelection(file.name)}
+                    disabled={isCreating}
                     className="mr-2"
                   />
-                  <label htmlFor={`file-${file.name}`} className={ds.text.body.small}>
+                  <label
+                    htmlFor={`file-${file.name}`}
+                    className={cn(ds.text.body.small, isCreating && 'text-content-tertiary')}
+                  >
                     {file.name}
                   </label>
                 </div>
@@ -233,21 +238,28 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
   const [testError, setTestError] = useState<string | null>(null)
   const [isExporting, setIsExporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
-  const [completionPercentage, setCompletionPercentage] = useState(0)
 
   const openAIService = useOpenAIService()
 
+  // Load existing GPT when gptId changes - use a callback pattern to avoid ESLint issues
   useEffect(() => {
     if (gptId) {
       const existing = getGPT(gptId)
       if (existing) {
-        setGpt(existing)
+        // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
+        setGpt(prev => {
+          // Only update if different to avoid infinite loops
+          if (JSON.stringify(prev) !== JSON.stringify(existing)) {
+            return existing
+          }
+          return prev
+        })
       }
     }
   }, [gptId, getGPT])
 
   // Calculate completion percentage for required fields
-  useEffect(() => {
+  const completionPercentage = useMemo(() => {
     let completedFields = 0
     const totalRequiredFields = 3 // name, description, systemPrompt
 
@@ -257,8 +269,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
     if (gpt.systemPrompt.trim()) completedFields++
 
     // Calculate the percentage
-    const percentage = Math.floor((completedFields / totalRequiredFields) * 100)
-    setCompletionPercentage(percentage)
+    return Math.floor((completedFields / totalRequiredFields) * 100)
   }, [gpt.name, gpt.description, gpt.systemPrompt])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -458,11 +469,13 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   timestamp: new Date(latestMessage.created_at * 1000),
                 }
 
-                // Add the message to the test messages
-                setTestMessages(prev => [...prev, response!])
-
-                // Store the response text for display
-                setTestResponse(response.content)
+                // Add the message to the test messages and store response text
+                if (response) {
+                  const validResponse = response // TypeScript assertion that response is not null
+                  setTestMessages(prev => [...prev, validResponse])
+                  // Store the response text for display
+                  setTestResponse(validResponse.content)
+                }
               }
             }
             setIsTesting(false)
@@ -593,9 +606,12 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                     <span>Completion</span>
                     <span>{completionPercentage}%</span>
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="w-full bg-surface-tertiary rounded-full h-2">
                     <div
-                      className={`h-2 rounded-full ${completionPercentage === 100 ? 'bg-green-500' : 'bg-blue-500'}`}
+                      className={cn(
+                        'h-2 rounded-full transition-all duration-300',
+                        completionPercentage === 100 ? 'bg-success-500' : 'bg-primary-500',
+                      )}
                       style={{width: `${completionPercentage}%`}}
                     ></div>
                   </div>
@@ -750,8 +766,8 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                       <div className="space-y-2">
                         {gpt.knowledge.files.map((file, index) => (
                           <div
-                            key={`${file.name}-${index}`}
-                            className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                            key={`file-${file.name}-${file.content?.slice(0, 50) || index}`}
+                            className="flex items-center justify-between p-2 bg-surface-secondary rounded"
                           >
                             <span className={ds.text.body.small}>{file.name}</span>
                             <Button
@@ -782,7 +798,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   <h4 className={cn(ds.text.heading.h4, 'text-content-primary mb-2')}>URLs</h4>
                   <div className="space-y-2">
                     {gpt.knowledge.urls.map((url, index) => (
-                      <div key={index} className="flex items-center gap-2">
+                      <div key={`url-${url || index}`} className="flex items-center gap-2">
                         <Input
                           type="url"
                           value={url}
@@ -829,7 +845,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
         </Tab>
         <Tab key="test" title="Test GPT">
           <div className="space-y-4">
-            <div className="bg-gray-50 rounded-lg p-4">
+            <div className="bg-surface-secondary rounded-lg p-4">
               <h3 className={cn(ds.text.heading.h4, 'text-content-primary mb-2')}>System Prompt</h3>
               <p className={cn(ds.text.body.small, 'text-content-secondary whitespace-pre-wrap')}>{gpt.systemPrompt}</p>
             </div>
@@ -933,7 +949,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
 
           {/* Show test response if any */}
           {testResponse && !isTestLoading && !testError && (
-            <div className="mt-4 p-4 bg-gray-50 rounded">
+            <div className="mt-4 p-4 bg-surface-secondary rounded">
               <h3 className={cn(ds.text.heading.h4, 'mb-2')}>Response:</h3>
               <div className="whitespace-pre-wrap">{testResponse}</div>
             </div>

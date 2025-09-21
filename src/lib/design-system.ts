@@ -153,9 +153,21 @@ export const compose = {
   // Form field wrapper
   field: (className?: string) => cn('flex flex-col', className),
 
-  // Button with loading state
-  button: (isLoading?: boolean, className?: string) =>
-    cn(ds.animation.transition, ds.focus.ring, isLoading && ds.state.loading, className),
+  // Button with loading and disabled states
+  button: (isLoading?: boolean, isDisabledOrClassName?: boolean | string, className?: string) => {
+    // Handle backward compatibility: button(isLoading, className)
+    if (typeof isDisabledOrClassName === 'string') {
+      return cn(ds.animation.transition, ds.focus.ring, isLoading && ds.state.loading, isDisabledOrClassName)
+    }
+    // New signature: button(isLoading, isDisabled, className)
+    return cn(
+      ds.animation.transition,
+      ds.focus.ring,
+      isLoading && ds.state.loading,
+      isDisabledOrClassName && ds.state.disabled,
+      className,
+    )
+  },
 } as const
 
 /**
