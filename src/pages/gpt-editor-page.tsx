@@ -137,13 +137,9 @@ export function GPTEditorPage() {
               <p className={cn(ds.text.body.base, 'text-content-secondary mb-4')}>
                 To test your GPT, please set your OpenAI API key in the settings.
               </p>
-              <button
-                type="button"
-                onClick={toggleSettings}
-                className={cn('px-4 py-2 rounded transition-colors', 'bg-primary-600 hover:bg-primary-700 text-white')}
-              >
+              <Button color="primary" variant="solid" onPress={toggleSettings} className={cn(ds.animation.transition)}>
                 Open API Settings
-              </button>
+              </Button>
             </div>
           ) : (
             <GPTTestPane gptConfig={gptConfig} apiKey={apiKey || undefined} />

@@ -21,7 +21,14 @@ export const CardGroup: FC<CardGroupProps> = () => {
       <div>
         <div className="flex justify-between items-center mb-4">
           <h2 className={responsive.heading.large}>Your GPTs</h2>
-          <Button as={Link} to="/gpt/new" color="primary" startContent={<Plus size={16} />}>
+          <Button
+            as={Link}
+            to="/gpt/new"
+            color="primary"
+            variant="solid"
+            startContent={<Plus size={16} />}
+            className={cn(ds.animation.transition)}
+          >
             Create New GPT
           </Button>
         </div>
@@ -35,7 +42,14 @@ export const CardGroup: FC<CardGroupProps> = () => {
         ) : (
           <div className="bg-surface-secondary rounded-lg p-8 text-center border border-border-default">
             <p className={cn(ds.text.body.large, 'text-content-secondary mb-4')}>You haven't created any GPTs yet.</p>
-            <Button as={Link} to="/gpt/new" color="primary" startContent={<Plus size={16} />}>
+            <Button
+              as={Link}
+              to="/gpt/new"
+              color="primary"
+              variant="solid"
+              startContent={<Plus size={16} />}
+              className={cn(ds.animation.transition)}
+            >
               Create Your First GPT
             </Button>
           </div>

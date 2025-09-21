@@ -18,6 +18,9 @@ vi.mock('@/lib/design-system', () => ({
         large: 'text-body-large',
       },
     },
+    animation: {
+      transition: 'transition-all duration-200 ease-in-out',
+    },
   },
   responsive: {
     cardGrid: {
