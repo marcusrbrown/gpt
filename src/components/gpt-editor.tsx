@@ -639,12 +639,22 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
             <form
               onSubmit={handleSubmit}
               className={cn('space-y-6 relative', (isSubmitting || isValidating) && ds.state.loading)}
+              aria-busy={isSubmitting || isValidating}
+              {...(isSubmitting || isValidating ? {'aria-describedby': 'form-loading-status'} : {})}
             >
               {(isSubmitting || isValidating) && (
-                <div className="absolute inset-0 bg-surface-primary/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg">
-                  <div className="flex items-center gap-3 p-4 bg-surface-secondary rounded-lg shadow-lg border border-border-default">
-                    <Spinner size="sm" color="primary" />
-                    <span className={cn(ds.text.body.base)}>{isValidating ? 'Validating...' : 'Saving GPT...'}</span>
+                <div
+                  className="absolute inset-0 bg-surface-primary/50 backdrop-blur-sm z-10 flex items-center justify-center rounded-lg"
+                  aria-live="polite"
+                  aria-atomic="true"
+                >
+                  <div
+                    className={cn(ds.card.base, ds.card.elevated, 'flex items-center gap-3 p-4', ds.animation.fadeIn)}
+                  >
+                    <Spinner size="md" color="primary" />
+                    <span id="form-loading-status" className={cn(ds.text.body.base, 'text-content-primary')}>
+                      {isValidating ? 'Validating configuration...' : 'Saving GPT configuration...'}
+                    </span>
                   </div>
                 </div>
               )}
@@ -841,38 +851,60 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   </div>
                 ))}
                 {isTesting && (
-                  <div className="p-3 rounded-lg bg-default-50 text-content-primary">
+                  <div className={cn('p-3 rounded-lg bg-default-50 text-content-primary', ds.animation.fadeIn)}>
                     <div className={cn(ds.text.caption, 'font-medium mb-1')}>Assistant</div>
-                    <div className={ds.text.body.small}>Thinking...</div>
+                    <div className={cn(ds.text.body.small, 'flex items-center gap-2')}>
+                      <Spinner size="sm" />
+                      <span>Processing your message...</span>
+                    </div>
                   </div>
                 )}
               </div>
             </div>
 
-            <form onSubmit={handleTestMessage} className="flex gap-2">
+            <form
+              onSubmit={handleTestMessage}
+              className={cn('flex gap-2', isTesting && ds.state.loading)}
+              aria-busy={isTesting}
+            >
               <Input
                 value={testMessage}
                 onChange={e => setTestMessage(e.target.value)}
                 placeholder="Type your message..."
                 disabled={isTesting}
                 className="flex-1"
+                {...(isTesting ? {'aria-describedby': 'test-loading-status'} : {})}
               />
-              <Button type="submit" color="primary" isLoading={isTesting} disabled={!testMessage.trim() || isTesting}>
-                Send
+              <Button
+                type="submit"
+                color="primary"
+                isLoading={isTesting}
+                disabled={!testMessage.trim() || isTesting}
+                className={cn(ds.animation.transition)}
+              >
+                {isTesting ? 'Sending...' : 'Send'}
               </Button>
             </form>
           </div>
         </Tab>
       </Tabs>
 
-      {/* Add indicators for loading and errors in the test tab */}
+      {/* Enhanced loading and error indicators for test tab */}
       {activeTab === 'test' && (
         <>
-          {/* Show loading indicator */}
+          {/* Show loading indicator with design system utilities */}
           {isTestLoading && (
-            <div className="flex items-center justify-center p-4">
-              <Spinner size="md" />
-              <span className="ml-2">Testing GPT...</span>
+            <div
+              className={cn(ds.state.loading, 'flex items-center justify-center p-6', ds.animation.fadeIn)}
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              <div className={cn(ds.card.base, 'flex items-center gap-3 p-4')}>
+                <Spinner size="md" color="primary" />
+                <span id="test-loading-status" className={cn(ds.text.body.base, 'text-content-primary')}>
+                  Testing GPT configuration...
+                </span>
+              </div>
             </div>
           )}
 
@@ -885,7 +917,10 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
               <h3 className={cn(ds.text.heading.h4, 'mb-2')}>Uploaded Files:</h3>
               <ul className={ds.text.body.small}>
                 {files.map((file, index) => (
-                  <li key={`${file.name}-${index}`} className="flex items-center justify-between py-1">
+                  <li
+                    key={`${file.name}-${file.size}-${file.lastModified || index}`}
+                    className="flex items-center justify-between py-1"
+                  >
                     <span>{file.name}</span>
                     <Button size="sm" variant="ghost" onClick={() => handleRemoveFile(index)} aria-label="Remove file">
                       Remove
