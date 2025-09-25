@@ -39,7 +39,7 @@
     "@react-aria/ssr": "3.9.10",
     "@types/uuid": "10.0.0",
     "clsx": "2.1.1",
-    "framer-motion": "12.23.16",
+    "framer-motion": "12.23.18",
     "langchain": "0.3.34",
     "lru-cache": "11.2.1",
     "lucide-react": "0.544.0",
