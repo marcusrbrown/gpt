@@ -49,7 +49,7 @@
     "react-dom": "19.2.0",
     "react-router-dom": "7.9.3",
     "uuid": "11.1.0",
-    "zod": "4.1.11"
+    "zod": "4.1.12"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.10.2",
