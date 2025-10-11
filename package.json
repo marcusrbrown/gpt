@@ -47,7 +47,7 @@
     "openai": "5.23.2",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "react-router-dom": "7.9.3",
+    "react-router-dom": "7.9.4",
     "uuid": "11.1.0",
     "zod": "4.1.12"
   },
