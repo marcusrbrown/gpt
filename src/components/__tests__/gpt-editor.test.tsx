@@ -80,7 +80,7 @@ describe('gPTEditor', () => {
 
   it('calls getGPT with the correct id when provided', () => {
     renderWithContext(<GPTEditor gptId="test-gpt-id" />)
-    expect(mockStorageContext.getGPT).toHaveBeenCalledWith('test-gpt-id')
+    expect(mockStorageContext.getGPT).toHaveBeenCalledExactlyOnceWith('test-gpt-id')
   })
 
   it('renders form inputs correctly', () => {

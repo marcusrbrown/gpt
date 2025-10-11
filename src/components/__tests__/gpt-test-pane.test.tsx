@@ -141,8 +141,8 @@ describe('gPTTestPane', () => {
 
     // Verify initialization happened
     await waitFor(() => {
-      expect(mockOpenAIService.setApiKey).toHaveBeenCalledWith(mockApiKey)
-      expect(mockOpenAIService.createAssistant).toHaveBeenCalledWith(mockConfig)
+      expect(mockOpenAIService.setApiKey).toHaveBeenCalledExactlyOnceWith(mockApiKey)
+      expect(mockOpenAIService.createAssistant).toHaveBeenCalledExactlyOnceWith(mockConfig)
       expect(mockOpenAIService.createThread).toHaveBeenCalled()
     })
   })

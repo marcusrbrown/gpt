@@ -195,7 +195,7 @@ describe('featureCard', () => {
       const card = container.firstChild as HTMLElement
       await user.click(card)
 
-      expect(mockNavigate).toHaveBeenCalledWith('/internal')
+      expect(mockNavigate).toHaveBeenCalledExactlyOnceWith('/internal')
       expect(mockWindowOpen).not.toHaveBeenCalled()
     })
 
@@ -206,7 +206,7 @@ describe('featureCard', () => {
       const card = container.firstChild as HTMLElement
       await user.click(card)
 
-      expect(mockWindowOpen).toHaveBeenCalledWith('https://external.com', '_blank', 'noopener,noreferrer')
+      expect(mockWindowOpen).toHaveBeenCalledExactlyOnceWith('https://external.com', '_blank', 'noopener,noreferrer')
       expect(mockNavigate).not.toHaveBeenCalled()
     })
 
