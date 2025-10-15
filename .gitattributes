@@ -1,5 +1,4 @@
 * text=auto eol=lf
 *.json linguist-language=JSON-with-Comments
 .cursorrules text linguist-language=Markdown
-llms.txt text linguist-language=Markdown
 tests/**/*-linux.png filter=lfs diff=lfs merge=lfs -text

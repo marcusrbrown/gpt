@@ -6,3 +6,5 @@ globs:
   - '!**/node_modules'
   - '!.specstory/**'
   - '!.ai/**'
+  - '!AGENTS.md'
+  - '!CLAUDE.md'

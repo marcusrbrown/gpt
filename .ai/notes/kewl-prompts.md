@@ -46,3 +46,15 @@ Implement real-time collaboration for GPT configurations using the existing conv
 ```markdown
 Implement a real-time collaborative editing feature for GPT configurations using WebRTC or WebSockets while maintaining the local-first architecture. Create a new collaboration context provider that integrates with the existing StorageProvider, implement conflict resolution using the Zod schema validation patterns, and add proper error handling following the established error handling strategy. Include comprehensive tests for offline/online scenarios and data synchronization.
 ```
+
+---
+
+### 🚀 Implementation Prompts
+
+Here are 3 unique, project-specific prompts that leverage these updated instructions:
+
+1. **Multi-Platform Agent Development**: "Create a new LangGraph agent in agents that demonstrates platform-agnostic design by implementing the BaseAgent interface from agent.ts. The agent should support both Anthropic and Azure OpenAI backends with configurable model selection, use Zod validation for all inputs, and include test cells that verify conversation memory persistence using the local-first storage pattern."
+
+2. **Interactive Testing Component**: "Build a new testing component in `src/components/gpt/` that allows users to execute conversation scenarios against their GPT configurations. Implement it using the design system's `compose.card()` and `ds.state.*` utilities, integrate with ConversationProvider for state management, add visual loading states during API calls, and ensure WCAG 2.1 AA accessibility compliance with proper ARIA labels and keyboard navigation."
+
+3. **Storage Migration Utility**: "Develop a storage migration service in services that helps users upgrade their localStorage schema when GPTConfiguration types change. Use Zod's `.safeParse()` for schema validation, implement exponential backoff for quota exceeded errors, provide a React hook for progress tracking, and add comprehensive unit tests in `__tests__/` that verify migration behavior across unmount/remount cycles."
