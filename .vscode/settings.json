@@ -46,8 +46,7 @@
     ],
 
     "files.associations": {
-        "*.css": "tailwindcss",
-        "llms.txt": "markdown"
+        "*.css": "tailwindcss"
     },
 
     "markdown.validate.referenceLinks.enabled": "ignore",
