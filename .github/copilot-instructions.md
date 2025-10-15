@@ -2,7 +2,31 @@
 
 This project is a research platform for developing LLM-powered AI agents and assistants with complete data sovereignty, supporting multiple AI platforms (Ollama, Anthropic, Azure OpenAI). It provides both a web interface and Jupyter notebook environment for agent development using LangChain/LangGraph.
 
-Key architectural principle: **Local-first data architecture** - all GPT configurations, conversations, and user data are stored locally in the browser using localStorage with Zod validation. No external data persistence required.
+**Core Architectural Principle: Local-first data architecture** - all GPT configurations, conversations, and user data are stored locally in the browser using localStorage with Zod validation. No external data persistence required. This ensures complete data sovereignty and privacy.
+
+## Quick Reference
+
+**Critical Patterns to Follow:**
+- **Import paths**: Use `@/` alias for src/ directory imports (e.g., `import {cn} from '@/lib/design-system'`)
+- **State management**: Access state via custom hooks (`useStorage()`, `useOpenAIService()`, `useConversationContext()`)
+- **Type safety**: Define Zod schemas first, then infer TypeScript types with `z.infer<typeof Schema>`
+- **Design system**: Always use `ds.*`, `compose.*`, and `theme.*` utilities instead of raw Tailwind classes
+- **Error handling**: Wrap errors in try/catch, re-throw to allow component handling
+- **Event handlers**: Prefix with "handle" (e.g., `handleSubmit`, `handleChange`)
+- **Early returns**: Prefer early returns over nested conditions for readability
+
+**Development Philosophy:**
+- **System 2 Thinking**: Break down requirements analytically before implementation
+- **Tree of Thoughts**: Evaluate multiple solutions and select the optimal path
+- **Minimal Changes**: Modify only code related to the task; lines of code = debt
+- **Functional Style**: Prefer functional/immutable patterns unless significantly more verbose
+
+**Common Pitfalls to Avoid:**
+- ❌ Don't access localStorage directly - always use `StorageProvider` and `useStorage()` hook
+- ❌ Don't hardcode colors - use semantic tokens (`surface-primary`, `content-primary`, etc.)
+- ❌ Don't create custom UI components - leverage HeroUI component library first
+- ❌ Don't skip Zod validation - parse user inputs and external data at boundaries
+- ❌ Don't forget error boundaries - use React 19 `use()` hook for automatic error handling
 
 ## Architecture Patterns
 
@@ -62,12 +86,15 @@ Uses HeroUI components with custom theming via `next-themes`. Prefer HeroUI comp
 ## Key Directories
 
 - `src/components/`: Reusable UI components, notably `gpt-editor.tsx` for the main GPT editor
-- `src/contexts/`: React context providers for global state
+- `src/contexts/`: React context providers for global state (OpenAI, Storage, Conversation)
 - `src/hooks/`: Custom hooks for state management and service access
-- `src/types/`: Zod schemas and TypeScript type definitions
-- `src/services/`: API integrations and data persistence
-- `notebooks/`: Jupyter notebooks for agent development and research
-- `.cursor/rules/`: Technology-specific coding guidelines
+- `src/types/`: Zod schemas and TypeScript type definitions (schema-first approach)
+- `src/services/`: API integrations and data persistence (stateless service classes)
+- `src/lib/`: Utility functions including `design-system.ts` with `cn()`, `ds.*`, `compose.*`, `theme.*`
+- `src/pages/`: Route components for home, GPT editor, and test interfaces
+- `notebooks/`: Jupyter notebooks with **Deno kernel** for TypeScript agent development
+- `tests/`: Comprehensive test suites (unit, e2e, visual, accessibility)
+- `.cursor/rules/`: Technology-specific coding guidelines and best practices
 
 ## Essential Development Patterns
 
@@ -221,22 +248,14 @@ Theme setup in `src/providers.tsx` with automatic theme detection and proper SSR
 ```
 
 ### Migration Guidelines
-When updating existing components:
-1. **Import Design System**: Add `import {cn, ds, compose, theme} from '@/lib/design-system'`
-2. **Replace Custom Classes**: Use design system utilities instead of hardcoded Tailwind classes
-3. **Apply Semantic Tokens**: Replace CSS custom properties with semantic token classes
-4. **Use Composition Helpers**: Leverage `compose.*` functions for common patterns
-5. **Implement Standard States**: Use `ds.state.*` utilities for loading, error, and empty states
-6. **Add Type Safety**: Ensure proper TypeScript types and Zod validation
+When updating existing components, follow this systematic approach:
+1. **Import Design System**: `import {cn, ds, compose, theme} from '@/lib/design-system'`
+2. **Replace Custom Classes**: Use design system utilities instead of hardcoded Tailwind
+3. **Apply Semantic Tokens**: Use semantic color classes (`surface-primary`, `content-primary`)
+4. **Leverage Composition Helpers**: Use `compose.*` functions for standard patterns
+5. **Validate with Zod**: Ensure runtime validation at component boundaries
 
-Example migration:
-```tsx
-// Before
-<div className="bg-white text-black border-gray-200 p-6 rounded-lg shadow-sm hover:shadow-md transition-all">
-
-// After
-<div className={compose.card('hover:shadow-md')}>
-```
+Example: `<div className={compose.card('hover:shadow-md')}>`
 
 ## Development Workflow
 
