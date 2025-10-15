@@ -4,7 +4,7 @@
   packageRules: [
     {
       description: ['Automerge unstable minor updates of `lucide-react` once a month.'],
-      matchCurrentVersion: '0.x',
+      matchCurrentVersion: '/^v?0/',
       matchPackageNames: ['lucide-react'],
       matchUpdateTypes: ['minor'],
       automerge: true,
@@ -20,7 +20,7 @@
     },
     {
       description: ['Automerge unstable minor updates of some packages.'],
-      matchCurrentVersion: '0.x',
+      matchCurrentVersion: '/^v?0/',
       matchPackageNames: ['@langchain/**', '@tailwindcss/typography', 'eslint-plugin-react-refresh', 'langchain'],
       matchUpdateTypes: ['minor'],
       dependencyDashboardApproval: false,
