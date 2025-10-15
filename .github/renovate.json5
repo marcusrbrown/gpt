@@ -8,6 +8,7 @@
       matchPackageNames: ['lucide-react'],
       matchUpdateTypes: ['minor'],
       automerge: true,
+      dependencyDashboardApproval: false,
       schedule: ['before 7am on the first day of the month'],
     },
     {
@@ -18,10 +19,11 @@
       groupSlug: 'langchainjs-monorepo',
     },
     {
-      description: ['Automerge unstable minor updates of `@langchain/langgraph`.'],
+      description: ['Automerge unstable minor updates of some packages.'],
       matchCurrentVersion: '0.x',
-      matchPackageNames: ['@langchain/langgraph'],
+      matchPackageNames: ['@langchain/**', '@tailwindcss/typography', 'eslint-plugin-react-refresh', 'langchain'],
       matchUpdateTypes: ['minor'],
+      dependencyDashboardApproval: false,
       automerge: true,
     },
   ],
