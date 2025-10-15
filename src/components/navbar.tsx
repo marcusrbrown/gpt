@@ -1,5 +1,5 @@
 import {ThemeSwitch} from '@/components/theme-switch'
-import {cn, compose, ds, theme} from '@/lib/design-system'
+import {cn, ds, theme} from '@/lib/design-system'
 import {Button, Input, type ButtonProps} from '@heroui/react'
 import {BookOpen, Github, Menu, Search, X} from 'lucide-react'
 import {useEffect, useState, type ElementType} from 'react'
@@ -10,7 +10,15 @@ type ButtonLinkProps = ButtonProps & {
 } & Omit<LinkProps, keyof {to: string; className: string}>
 
 const ButtonLink = ({to, children, className, ...props}: ButtonLinkProps) => (
-  <Button as={RouterLink as ElementType} to={to} className={compose.button(false, className)} {...props}>
+  <Button
+    as={RouterLink as ElementType}
+    to={to}
+    className={cn(
+      'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
+      className,
+    )}
+    {...props}
+  >
     {children}
   </Button>
 )
@@ -39,21 +47,15 @@ export const Navbar = () => {
   }, [isMobileMenuOpen])
 
   return (
-    <header
-      className={cn(
-        'fixed top-0 left-0 right-0 h-[var(--header-height)] border-b z-50',
-        theme.surface(0),
-        theme.border(),
-      )}
-    >
+    <header className={cn('w-full h-[var(--header-height)] border-b', theme.surface(0), theme.border())}>
       <div className={cn('flex items-center justify-between h-full', ds.layout.container)}>
         {/* Left section - Logo */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Button
             isIconOnly
             variant="light"
             color="default"
-            className={cn('lg:hidden', compose.button())}
+            className={cn('lg:hidden min-w-[40px] h-[40px]', ds.animation.transition)}
             onPress={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
@@ -63,7 +65,7 @@ export const Navbar = () => {
               <Menu size={20} className={theme.content('primary')} />
             )}
           </Button>
-          <RouterLink to="/" className="flex items-center gap-2" aria-label="GPT Agent Framework - Go to homepage">
+          <RouterLink to="/" className="flex items-center gap-3" aria-label="GPT Agent Framework - Go to homepage">
             <span className={cn(ds.text.heading.h4, 'font-bold')}>GPT</span>
             <span className={cn(ds.text.body.base, 'font-medium hidden sm:inline', theme.content('secondary'))}>
               Agent Framework
@@ -77,13 +79,13 @@ export const Navbar = () => {
             <Input
               type="search"
               placeholder="Search documentation..."
-              startContent={<Search className={theme.content('tertiary')} size={16} aria-hidden="true" />}
+              endContent={<Search size={16} className={cn(theme.content('tertiary'), 'mr-1')} aria-hidden="true" />}
               size="sm"
               variant="bordered"
-              className={compose.button()}
+              className={cn(ds.animation.transition)}
               classNames={{
-                input: 'text-sm',
-                inputWrapper: theme.surface(1),
+                input: 'text-sm pr-9',
+                inputWrapper: cn(theme.surface(1), 'min-h-[40px]'),
               }}
               aria-label="Search documentation"
             />
@@ -91,8 +93,15 @@ export const Navbar = () => {
         </div>
 
         {/* Right section - Navigation */}
-        <nav className="flex items-center gap-2" aria-label="Main navigation">
-          <ButtonLink to="/docs" isIconOnly variant="light" color="default" aria-label="Documentation">
+        <nav className="flex items-center gap-3" aria-label="Main navigation">
+          <ButtonLink
+            to="/docs"
+            isIconOnly
+            variant="light"
+            color="default"
+            className={cn('min-w-[40px] h-[40px]')}
+            aria-label="Documentation"
+          >
             <BookOpen size={20} className={theme.content('primary')} />
           </ButtonLink>
           <Button
@@ -103,7 +112,9 @@ export const Navbar = () => {
             isIconOnly
             variant="light"
             color="default"
-            className={compose.button()}
+            className={cn(
+              'min-w-[40px] h-[40px] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
+            )}
             aria-label="GitHub repository"
           >
             <Github size={20} className={theme.content('primary')} />
@@ -126,17 +137,17 @@ export const Navbar = () => {
             role="dialog"
             aria-label="Mobile navigation menu"
           >
-            <nav className={cn(ds.layout.container, 'flex flex-col gap-4 py-4')} aria-label="Mobile navigation">
+            <nav className={cn(ds.layout.container, 'flex flex-col gap-4 py-6')} aria-label="Mobile navigation">
               <Input
                 type="search"
                 placeholder="Search documentation..."
-                startContent={<Search className={theme.content('tertiary')} size={16} aria-hidden="true" />}
+                endContent={<Search size={16} className={cn(theme.content('tertiary'), 'mr-1')} aria-hidden="true" />}
                 size="sm"
                 variant="bordered"
-                className={compose.button()}
+                className={cn(ds.animation.transition)}
                 classNames={{
-                  input: 'text-sm',
-                  inputWrapper: theme.surface(1),
+                  input: 'text-sm pr-9',
+                  inputWrapper: cn(theme.surface(1), 'min-h-[40px]'),
                 }}
                 aria-label="Search documentation"
               />
@@ -144,11 +155,11 @@ export const Navbar = () => {
                 to="/docs"
                 variant="light"
                 color="default"
-                className="justify-start"
+                className={cn('justify-start h-12', ds.animation.transition)}
                 onPress={() => setIsMobileMenuOpen(false)}
                 aria-label="Go to Documentation"
               >
-                <BookOpen size={20} className={cn(theme.content('primary'), 'mr-2')} aria-hidden="true" />
+                <BookOpen size={20} className={cn(theme.content('primary'), 'mr-3')} aria-hidden="true" />
                 Documentation
               </ButtonLink>
               <Button
@@ -158,10 +169,10 @@ export const Navbar = () => {
                 rel="noopener noreferrer"
                 variant="light"
                 color="default"
-                className={cn('justify-start', compose.button())}
+                className={cn('justify-start h-12', ds.animation.transition)}
                 aria-label="Visit GitHub repository (opens in new tab)"
               >
-                <Github size={20} className={cn(theme.content('primary'), 'mr-2')} aria-hidden="true" />
+                <Github size={20} className={cn(theme.content('primary'), 'mr-3')} aria-hidden="true" />
                 GitHub
               </Button>
             </nav>

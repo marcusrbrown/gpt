@@ -6,7 +6,7 @@ import {Footer} from './components/footer'
 import {Navbar} from './components/navbar'
 import {OpenAIProvider} from './contexts/openai-provider'
 import {StorageProvider} from './contexts/storage-provider'
-import {responsive} from './lib/design-system'
+import {cn, ds, responsive} from './lib/design-system'
 import {GPTEditorPage} from './pages/gpt-editor-page'
 import {GPTTestPage} from './pages/gpt-test-page'
 import {Providers} from './providers'
@@ -30,14 +30,14 @@ function App() {
         <Providers>
           <div className="relative flex flex-col min-h-screen">
             <Navbar />
-            <div className="flex-grow pt-[var(--header-height)]">
+            <div className="flex-grow">
               <Routes>
                 {/* Home page */}
                 <Route
                   path="/"
                   element={
-                    <main className="container mx-auto px-12">
-                      <h1 className={`${responsive.heading.responsive} text-center py-20`}>Custom GPTs</h1>
+                    <main className={cn(ds.layout.container, 'py-12')}>
+                      <h1 className={cn(responsive.heading.responsive, 'text-center mb-12')}>Custom GPTs</h1>
                       <CardGroup />
                     </main>
                   }

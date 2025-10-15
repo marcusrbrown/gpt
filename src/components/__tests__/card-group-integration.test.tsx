@@ -30,6 +30,11 @@ vi.mock('@/lib/design-system', () => ({
       large: 'text-xl sm:text-2xl lg:text-3xl font-semibold',
     },
   },
+  theme: {
+    surface: (level: number) => `bg-surface-${level}`,
+    border: (style?: string) => `border-border-${style || 'default'}`,
+    content: (level: string) => `text-content-${level}`,
+  },
 }))
 
 // Mock HeroUI components
@@ -224,7 +229,14 @@ describe('cardGroup Integration Tests', () => {
 
       // Verify empty state styling
       const emptyState = screen.getByText("You haven't created any GPTs yet.").closest('div')
-      expect(emptyState).toHaveClass('bg-surface-secondary', 'rounded-lg', 'p-8', 'text-center')
+      expect(emptyState).toHaveClass(
+        'rounded-lg',
+        'p-8',
+        'text-center',
+        'border',
+        'bg-surface-1',
+        'border-border-default',
+      )
 
       // Verify create button is present
       expect(screen.getByText('Create Your First GPT')).toBeInTheDocument()

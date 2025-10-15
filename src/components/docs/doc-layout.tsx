@@ -43,7 +43,7 @@ export function DocLayout({children, sidebar}: DocLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   return (
-    <div className={cn('flex min-h-[calc(100vh-var(--header-height))]', theme.surface(0))}>
+    <div className={cn('flex min-h-screen', theme.surface(0))}>
       {/* Mobile sidebar backdrop */}
       {isSidebarOpen && (
         <div
@@ -56,7 +56,7 @@ export function DocLayout({children, sidebar}: DocLayoutProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-[var(--header-height)] bottom-0 left-0 z-40 w-[var(--sidebar-width)] border-r lg:static transform transition-transform duration-300',
+          'fixed top-0 bottom-0 left-0 z-40 w-[var(--sidebar-width)] border-r lg:static transform transition-transform duration-300',
           theme.border(),
           theme.surface(0),
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
