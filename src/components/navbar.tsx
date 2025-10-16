@@ -55,7 +55,7 @@ export const Navbar = () => {
             isIconOnly
             variant="light"
             color="default"
-            className={cn('lg:hidden min-w-[40px] h-[40px]', ds.animation.transition)}
+            className={cn('lg:hidden min-w-[40px] h-[40px] flex items-center justify-center', ds.animation.transition)}
             onPress={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
@@ -99,7 +99,7 @@ export const Navbar = () => {
             isIconOnly
             variant="light"
             color="default"
-            className={cn('min-w-[40px] h-[40px]')}
+            className={cn('min-w-[40px] h-[40px] flex items-center justify-center')}
             aria-label="Documentation"
           >
             <BookOpen size={20} className={theme.content('primary')} />
@@ -113,7 +113,7 @@ export const Navbar = () => {
             variant="light"
             color="default"
             className={cn(
-              'min-w-[40px] h-[40px] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
+              'min-w-[40px] h-[40px] flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
             )}
             aria-label="GitHub repository"
           >

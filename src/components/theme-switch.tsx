@@ -14,7 +14,7 @@ export const ThemeSwitch: FC = () => {
       variant="light"
       color="default"
       className={cn(
-        'min-w-[40px] h-[40px] focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
+        'min-w-[40px] h-[40px] flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
       )}
       aria-label={`Switch to ${currentTheme === 'dark' ? 'light' : 'dark'} mode`}
     >

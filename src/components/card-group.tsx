@@ -3,7 +3,7 @@ import mine from '@/assets/mine.json'
 import {Card} from '@/components/card'
 import {UserGPTCard} from '@/components/user-gpt-card'
 import {useStorage} from '@/hooks/use-storage'
-import {cn, ds, responsive, theme} from '@/lib/design-system'
+import {cn, ds, responsive} from '@/lib/design-system'
 import {Button} from '@heroui/react'
 import {Plus} from 'lucide-react'
 import {Link} from 'react-router-dom'
@@ -27,7 +27,7 @@ export const CardGroup: FC<CardGroupProps> = () => {
             color="primary"
             variant="solid"
             startContent={<Plus size={16} />}
-            className={cn('w-fit', ds.animation.transition)}
+            className={cn('w-fit flex items-center', ds.animation.transition)}
             size="md"
           >
             Create New GPT
@@ -41,8 +41,14 @@ export const CardGroup: FC<CardGroupProps> = () => {
             ))}
           </div>
         ) : (
-          <div className={cn('rounded-lg p-8 text-center border', theme.surface(1), theme.border())}>
-            <p className={cn(ds.text.body.large, theme.content('secondary'), 'mb-6')}>
+          <div
+            className={cn(
+              'rounded-xl p-12 text-center border-2 shadow-sm',
+              'bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-950 dark:to-primary-900',
+              'border-primary-200 dark:border-primary-800',
+            )}
+          >
+            <p className={cn(ds.text.body.large, 'text-content-primary mb-6 font-medium')}>
               You haven't created any GPTs yet.
             </p>
             <Button
@@ -50,9 +56,9 @@ export const CardGroup: FC<CardGroupProps> = () => {
               to="/gpt/new"
               color="primary"
               variant="solid"
-              startContent={<Plus size={16} />}
-              className={cn(ds.animation.transition)}
-              size="md"
+              size="lg"
+              startContent={<Plus size={20} />}
+              className={cn('flex items-center', ds.animation.transition, 'shadow-md')}
             >
               Create Your First GPT
             </Button>
