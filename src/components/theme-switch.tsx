@@ -11,6 +11,8 @@ export const ThemeSwitch: FC = () => {
       onPress={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
       isIconOnly
       variant="light"
+      size="md"
+      className="h-10 w-10 min-w-10 flex items-center justify-center"
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
     >
       {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}

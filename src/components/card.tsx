@@ -32,7 +32,8 @@ export const Card: FC<CardProps> = ({
       as="div"
       className={cn(
         compose.card('max-w-sm'),
-        'p-0', // Override compose.card padding since HeroUI Card handles internal spacing
+        'p-0 border-2', // Override compose.card padding since HeroUI Card handles internal spacing
+        'hover:border-primary-300 dark:hover:border-primary-600',
         ds.animation.transition,
         ds.focus.ring,
         isLoading && ds.state.loading,
@@ -40,6 +41,7 @@ export const Card: FC<CardProps> = ({
       )}
       isHoverable={!isLoading && !error}
       isPressable={!isLoading && !error}
+      shadow="sm"
       data-testid="example-gpt-card"
     >
       {error ? (
@@ -91,7 +93,7 @@ export const Card: FC<CardProps> = ({
             {isLoading ? (
               <Skeleton className="h-4 w-32 rounded-lg" />
             ) : (
-              <Link href={gptUrl.toString()} isExternal showAnchorIcon>
+              <Link href={gptUrl.toString()} isExternal showAnchorIcon color="primary" className="font-medium">
                 Open in ChatGPT
               </Link>
             )}

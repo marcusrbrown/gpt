@@ -40,15 +40,18 @@ export const CardGroup: FC<CardGroupProps> = () => {
             ))}
           </div>
         ) : (
-          <div className="bg-surface-secondary rounded-lg p-8 text-center border border-border-default">
-            <p className={cn(ds.text.body.large, 'text-content-secondary mb-4')}>You haven't created any GPTs yet.</p>
+          <div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-950 dark:to-primary-900 rounded-xl p-12 text-center border-2 border-primary-200 dark:border-primary-800 shadow-sm">
+            <p className={cn(ds.text.body.large, 'text-content-primary mb-6 font-medium')}>
+              You haven't created any GPTs yet.
+            </p>
             <Button
               as={Link}
               to="/gpt/new"
               color="primary"
               variant="solid"
-              startContent={<Plus size={16} />}
-              className={cn(ds.animation.transition)}
+              size="lg"
+              startContent={<Plus size={20} />}
+              className={cn(ds.animation.transition, 'shadow-md')}
             >
               Create Your First GPT
             </Button>

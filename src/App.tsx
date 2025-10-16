@@ -6,7 +6,7 @@ import {Footer} from './components/footer'
 import {Navbar} from './components/navbar'
 import {OpenAIProvider} from './contexts/openai-provider'
 import {StorageProvider} from './contexts/storage-provider'
-import {responsive} from './lib/design-system'
+import {cn, ds, responsive, theme} from './lib/design-system'
 import {GPTEditorPage} from './pages/gpt-editor-page'
 import {GPTTestPage} from './pages/gpt-test-page'
 import {Providers} from './providers'
@@ -36,16 +36,39 @@ function App() {
                 <Route
                   path="/"
                   element={
-                    <main className="container mx-auto px-12">
-                      <h1 className={`${responsive.heading.responsive} text-center py-20`}>Custom GPTs</h1>
+                    <main className="container mx-auto px-12 py-8">
+                      <div className="text-center py-12 mb-8">
+                        <h1
+                          className={`${responsive.heading.responsive} mb-4 bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent`}
+                        >
+                          Custom GPTs
+                        </h1>
+                        <p className={cn(ds.text.body.large, theme.content('secondary'))}>
+                          Build, test, and deploy your AI agents with complete data sovereignty
+                        </p>
+                      </div>
                       <CardGroup />
                     </main>
                   }
                 />
 
                 {/* GPT Editor routes */}
-                <Route path="/gpt/new" element={<GPTEditorPage />} />
-                <Route path="/gpt/edit/:gptId" element={<GPTEditorPage />} />
+                <Route
+                  path="/gpt/new"
+                  element={
+                    <main className="h-[calc(100vh-var(--header-height))]">
+                      <GPTEditorPage />
+                    </main>
+                  }
+                />
+                <Route
+                  path="/gpt/edit/:gptId"
+                  element={
+                    <main className="h-[calc(100vh-var(--header-height))]">
+                      <GPTEditorPage />
+                    </main>
+                  }
+                />
 
                 {/* GPT Test route */}
                 <Route path="/gpt/test/:gptId" element={<GPTTestPage />} />

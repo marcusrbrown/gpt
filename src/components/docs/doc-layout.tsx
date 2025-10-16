@@ -15,7 +15,16 @@ type BreadcrumbLinkProps = {
 } & Omit<LinkProps, keyof {to: string; className: string}>
 
 const BreadcrumbLink = ({to, children, className, ...props}: BreadcrumbLinkProps) => (
-  <Link to={to} className={cn(ds.text.body.small, ds.animation.transition, 'hover:text-primary', className)} {...props}>
+  <Link
+    to={to}
+    className={cn(
+      ds.text.body.small,
+      ds.animation.transition,
+      'hover:text-primary-600 dark:hover:text-primary-400 font-medium',
+      className,
+    )}
+    {...props}
+  >
     {children}
   </Link>
 )

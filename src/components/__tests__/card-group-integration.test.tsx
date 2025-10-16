@@ -224,7 +224,7 @@ describe('cardGroup Integration Tests', () => {
 
       // Verify empty state styling
       const emptyState = screen.getByText("You haven't created any GPTs yet.").closest('div')
-      expect(emptyState).toHaveClass('bg-surface-secondary', 'rounded-lg', 'p-8', 'text-center')
+      expect(emptyState).toHaveClass('rounded-xl', 'p-12', 'text-center')
 
       // Verify create button is present
       expect(screen.getByText('Create Your First GPT')).toBeInTheDocument()
