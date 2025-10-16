@@ -48,12 +48,13 @@ export const Navbar = () => {
     >
       <div className={cn('flex items-center justify-between h-full', ds.layout.container)}>
         {/* Left section - Logo */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 h-10">
           <Button
             isIconOnly
             variant="light"
             color="default"
-            className={cn('lg:hidden', compose.button())}
+            size="md"
+            className={cn('lg:hidden h-10 w-10 min-w-10 flex items-center justify-center', compose.button())}
             onPress={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
           >
@@ -63,27 +64,30 @@ export const Navbar = () => {
               <Menu size={20} className={theme.content('primary')} />
             )}
           </Button>
-          <RouterLink to="/" className="flex items-center gap-2" aria-label="GPT Agent Framework - Go to homepage">
-            <span className={cn(ds.text.heading.h4, 'font-bold')}>GPT</span>
-            <span className={cn(ds.text.body.base, 'font-medium hidden sm:inline', theme.content('secondary'))}>
+          <RouterLink to="/" className="flex items-center gap-2 h-10" aria-label="GPT Agent Framework - Go to homepage">
+            <span className={cn(ds.text.heading.h4, 'font-bold leading-none')}>GPT</span>
+            <span className={cn(ds.text.body.base, 'font-medium hidden sm:inline leading-none', theme.content('secondary'))}>
               Agent Framework
             </span>
           </RouterLink>
         </div>
 
         {/* Center section - Search */}
-        <div className="flex-1 max-w-2xl mx-4">
+        <div className="flex-1 max-w-2xl mx-4 flex items-center">
           <div className="relative w-full">
             <Input
               type="search"
               placeholder="Search documentation..."
               startContent={<Search className={theme.content('tertiary')} size={16} aria-hidden="true" />}
-              size="sm"
+              size="md"
               variant="bordered"
               className={compose.button()}
               classNames={{
+                base: 'h-10',
                 input: 'text-sm',
-                inputWrapper: theme.surface(1),
+                inputWrapper: cn(theme.surface(1), 'h-10 flex items-center'),
+                innerWrapper: 'flex items-center',
+                mainWrapper: 'h-10',
               }}
               aria-label="Search documentation"
             />
@@ -91,8 +95,16 @@ export const Navbar = () => {
         </div>
 
         {/* Right section - Navigation */}
-        <nav className="flex items-center gap-2" aria-label="Main navigation">
-          <ButtonLink to="/docs" isIconOnly variant="light" color="default" aria-label="Documentation">
+        <nav className="flex items-center gap-2 h-10" aria-label="Main navigation">
+          <ButtonLink
+            to="/docs"
+            isIconOnly
+            variant="light"
+            color="default"
+            size="md"
+            className="h-10 w-10 min-w-10 flex items-center justify-center"
+            aria-label="Documentation"
+          >
             <BookOpen size={20} className={theme.content('primary')} />
           </ButtonLink>
           <Button
@@ -103,7 +115,8 @@ export const Navbar = () => {
             isIconOnly
             variant="light"
             color="default"
-            className={compose.button()}
+            size="md"
+            className={cn(compose.button(), 'h-10 w-10 min-w-10 flex items-center justify-center')}
             aria-label="GitHub repository"
           >
             <Github size={20} className={theme.content('primary')} />

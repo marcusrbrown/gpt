@@ -98,48 +98,72 @@ export function GPTEditorPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen">
-      <div className="flex-none p-4 bg-gray-100 border-b">
-        <div className="flex justify-between items-center">
+    <div className="flex flex-col h-[calc(100vh-var(--header-height))]">
+      {/* Page Header */}
+      <div className={cn('flex-none p-6 border-b', 'bg-surface-secondary', 'border-border-default')}>
+        <div className="flex justify-between items-center mb-4">
           <h1 className={cn(ds.text.heading.h2)}>{gptConfig?.name || 'New GPT'}</h1>
           {gptConfig && (
-            <Button color="primary" startContent={<Play size={16} />} onPress={handleTestGpt}>
+            <Button
+              color="primary"
+              size="lg"
+              startContent={<Play size={18} />}
+              onPress={handleTestGpt}
+              className="shadow-sm"
+            >
               Test GPT
             </Button>
           )}
         </div>
-        <div className="flex mt-2">
-          <button
-            type="button"
-            onClick={toggleSettings}
-            className={cn(ds.text.body.small, 'text-primary-600 hover:underline')}
+        <div className="flex">
+          <Button
+            variant="light"
+            color="primary"
+            size="sm"
+            onPress={toggleSettings}
+            className={cn(ds.animation.transition)}
           >
             {showSettings ? 'Hide API Settings' : 'Show API Settings'}
-          </button>
+          </Button>
         </div>
         {showSettings && (
-          <div className="mt-4">
+          <div className={cn('mt-4 p-4 rounded-lg', 'bg-surface-primary', 'border border-border-default')}>
             <APISettings />
           </div>
         )}
       </div>
 
+      {/* Split Layout */}
       <div className="flex flex-1 overflow-hidden">
         {/* Editor Panel - 60% width */}
-        <div className="w-3/5 overflow-auto p-4 border-r">
+        <div className={cn('w-3/5 overflow-auto p-6 border-r', 'bg-surface-primary', 'border-border-default')}>
           {gptConfig ? <GPTEditor gptId={gptConfig.id} onSave={handleSaveGpt} /> : null}
         </div>
 
         {/* Test Panel - 40% width */}
-        <div className="w-2/5 overflow-auto">
+        <div className={cn('w-2/5 overflow-auto', 'bg-surface-primary')}>
           {!apiKey && isInitialized ? (
-            <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-              <p className={cn(ds.text.body.base, 'text-content-secondary mb-4')}>
-                To test your GPT, please set your OpenAI API key in the settings.
-              </p>
-              <Button color="primary" variant="solid" onPress={toggleSettings} className={cn(ds.animation.transition)}>
-                Open API Settings
-              </Button>
+            <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+              <div
+                className={cn(
+                  'p-8 rounded-xl border-2',
+                  'bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-950 dark:to-primary-900',
+                  'border-primary-200 dark:border-primary-800',
+                )}
+              >
+                <p className={cn(ds.text.body.large, 'text-content-primary mb-6 font-medium')}>
+                  To test your GPT, please set your OpenAI API key in the settings.
+                </p>
+                <Button
+                  color="primary"
+                  variant="solid"
+                  size="lg"
+                  onPress={toggleSettings}
+                  className={cn(ds.animation.transition, 'shadow-md')}
+                >
+                  Open API Settings
+                </Button>
+              </div>
             </div>
           ) : (
             <GPTTestPane gptConfig={gptConfig} apiKey={apiKey || undefined} />
