@@ -38,7 +38,9 @@ function App() {
                   element={
                     <main className="container mx-auto px-12 py-8">
                       <div className="text-center py-12 mb-8">
-                        <h1 className={`${responsive.heading.responsive} mb-4 bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent`}>
+                        <h1
+                          className={`${responsive.heading.responsive} mb-4 bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent`}
+                        >
                           Custom GPTs
                         </h1>
                         <p className={cn(ds.text.body.large, theme.content('secondary'))}>

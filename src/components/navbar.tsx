@@ -66,7 +66,9 @@ export const Navbar = () => {
           </Button>
           <RouterLink to="/" className="flex items-center gap-2 h-10" aria-label="GPT Agent Framework - Go to homepage">
             <span className={cn(ds.text.heading.h4, 'font-bold leading-none')}>GPT</span>
-            <span className={cn(ds.text.body.base, 'font-medium hidden sm:inline leading-none', theme.content('secondary'))}>
+            <span
+              className={cn(ds.text.body.base, 'font-medium hidden sm:inline leading-none', theme.content('secondary'))}
+            >
               Agent Framework
             </span>
           </RouterLink>
