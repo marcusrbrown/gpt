@@ -1,21 +1,28 @@
 import type {FC} from 'react'
+import {cn, theme} from '@/lib/design-system'
 import {Button} from '@heroui/react'
 import {Moon, Sun} from 'lucide-react'
 import {useTheme} from 'next-themes'
 
 export const ThemeSwitch: FC = () => {
-  const {theme, setTheme} = useTheme()
+  const {theme: currentTheme, setTheme} = useTheme()
 
   return (
     <Button
-      onPress={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+      onPress={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')}
       isIconOnly
       variant="light"
-      size="md"
-      className="h-10 w-10 min-w-10 flex items-center justify-center"
-      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+      color="default"
+      className={cn(
+        'min-w-[40px] h-[40px] flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
+      )}
+      aria-label={`Switch to ${currentTheme === 'dark' ? 'light' : 'dark'} mode`}
     >
-      {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+      {currentTheme === 'dark' ? (
+        <Sun size={20} className={theme.content('primary')} />
+      ) : (
+        <Moon size={20} className={theme.content('primary')} />
+      )}
     </Button>
   )
 }

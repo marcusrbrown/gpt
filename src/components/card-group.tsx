@@ -19,7 +19,7 @@ export const CardGroup: FC<CardGroupProps> = () => {
     <div className="space-y-8">
       {/* User's GPTs section */}
       <div>
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
           <h2 className={responsive.heading.large}>Your GPTs</h2>
           <Button
             as={Link}
@@ -27,7 +27,8 @@ export const CardGroup: FC<CardGroupProps> = () => {
             color="primary"
             variant="solid"
             startContent={<Plus size={16} />}
-            className={cn(ds.animation.transition)}
+            className={cn('w-fit flex items-center', ds.animation.transition)}
+            size="md"
           >
             Create New GPT
           </Button>
@@ -40,7 +41,13 @@ export const CardGroup: FC<CardGroupProps> = () => {
             ))}
           </div>
         ) : (
-          <div className="bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-950 dark:to-primary-900 rounded-xl p-12 text-center border-2 border-primary-200 dark:border-primary-800 shadow-sm">
+          <div
+            className={cn(
+              'rounded-xl p-12 text-center border-2 shadow-sm',
+              'bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-950 dark:to-primary-900',
+              'border-primary-200 dark:border-primary-800',
+            )}
+          >
             <p className={cn(ds.text.body.large, 'text-content-primary mb-6 font-medium')}>
               You haven't created any GPTs yet.
             </p>
@@ -51,7 +58,7 @@ export const CardGroup: FC<CardGroupProps> = () => {
               variant="solid"
               size="lg"
               startContent={<Plus size={20} />}
-              className={cn(ds.animation.transition, 'shadow-md')}
+              className={cn('flex items-center', ds.animation.transition, 'shadow-md')}
             >
               Create Your First GPT
             </Button>
@@ -61,7 +68,7 @@ export const CardGroup: FC<CardGroupProps> = () => {
 
       {/* Example GPTs section */}
       <div>
-        <h2 className={`${responsive.heading.large} mb-4`}>Example GPTs</h2>
+        <h2 className={cn(responsive.heading.large, 'mb-6')}>Example GPTs</h2>
         <div className={responsive.cardGrid.threeColumn}>
           {mine.map(card => (
             <Card key={card.name} {...card} />

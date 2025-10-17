@@ -27,7 +27,7 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
       shadow="sm"
       data-testid="user-gpt-card"
     >
-      <CardHeader className="flex gap-4">
+      <CardHeader className="flex gap-4 pb-3">
         {error ? (
           <div className="flex flex-col">
             <p className={cn(ds.text.heading.h4, 'text-danger')}>Error Loading GPT</p>
@@ -62,11 +62,11 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
         )}
       </CardBody>
       <Divider />
-      <CardFooter className="flex justify-between">
+      <CardFooter className="flex justify-between gap-3">
         {error || isLoading ? (
           <>
-            <Skeleton className="h-9 w-20 rounded-lg" />
-            <Skeleton className="h-9 w-20 rounded-lg" />
+            <Skeleton className="h-10 w-20 rounded-lg" />
+            <Skeleton className="h-10 w-20 rounded-lg" />
           </>
         ) : (
           <>
@@ -76,7 +76,8 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
               variant="flat"
               color="primary"
               startContent={<Edit size={16} />}
-              className={cn(ds.animation.transition)}
+              className={cn('flex items-center', ds.animation.transition)}
+              size="sm"
             >
               Edit
             </Button>
@@ -86,7 +87,8 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
               variant="solid"
               color="primary"
               startContent={<Play size={16} />}
-              className={cn(ds.animation.transition)}
+              className={cn('flex items-center', ds.animation.transition)}
+              size="sm"
             >
               Test
             </Button>

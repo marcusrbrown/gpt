@@ -9,7 +9,7 @@ import {GPTTestPane} from '../components/gpt-test-pane'
 import {APISettings} from '../components/settings/api-settings'
 import {useOpenAI} from '../contexts/openai-provider'
 import {useStorage} from '../hooks/use-storage'
-import {cn, ds} from '../lib/design-system'
+import {cn, ds, theme} from '../lib/design-system'
 
 export function GPTEditorPage() {
   const {gptId} = useParams()
@@ -100,7 +100,7 @@ export function GPTEditorPage() {
   return (
     <div className="flex flex-col h-[calc(100vh-var(--header-height))]">
       {/* Page Header */}
-      <div className={cn('flex-none p-6 border-b', 'bg-surface-secondary', 'border-border-default')}>
+      <div className={cn('flex-none p-6 border-b', theme.surface(1), theme.border())}>
         <div className="flex justify-between items-center mb-4">
           <h1 className={cn(ds.text.heading.h2)}>{gptConfig?.name || 'New GPT'}</h1>
           {gptConfig && (
@@ -109,7 +109,7 @@ export function GPTEditorPage() {
               size="lg"
               startContent={<Play size={18} />}
               onPress={handleTestGpt}
-              className="shadow-sm"
+              className="flex items-center shadow-sm"
             >
               Test GPT
             </Button>
@@ -127,7 +127,7 @@ export function GPTEditorPage() {
           </Button>
         </div>
         {showSettings && (
-          <div className={cn('mt-4 p-4 rounded-lg', 'bg-surface-primary', 'border border-border-default')}>
+          <div className={cn('mt-4 p-4 rounded-lg border', theme.surface(0), theme.border())}>
             <APISettings />
           </div>
         )}
@@ -136,17 +136,17 @@ export function GPTEditorPage() {
       {/* Split Layout */}
       <div className="flex flex-1 overflow-hidden">
         {/* Editor Panel - 60% width */}
-        <div className={cn('w-3/5 overflow-auto p-6 border-r', 'bg-surface-primary', 'border-border-default')}>
+        <div className={cn('w-3/5 overflow-auto p-6 border-r', theme.surface(0), theme.border())}>
           {gptConfig ? <GPTEditor gptId={gptConfig.id} onSave={handleSaveGpt} /> : null}
         </div>
 
         {/* Test Panel - 40% width */}
-        <div className={cn('w-2/5 overflow-auto', 'bg-surface-primary')}>
+        <div className={cn('w-2/5 overflow-auto', theme.surface(0))}>
           {!apiKey && isInitialized ? (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
               <div
                 className={cn(
-                  'p-8 rounded-xl border-2',
+                  'p-8 rounded-xl border-2 shadow-sm',
                   'bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-950 dark:to-primary-900',
                   'border-primary-200 dark:border-primary-800',
                 )}
@@ -159,7 +159,7 @@ export function GPTEditorPage() {
                   variant="solid"
                   size="lg"
                   onPress={toggleSettings}
-                  className={cn(ds.animation.transition, 'shadow-md')}
+                  className={cn('flex items-center', ds.animation.transition, 'shadow-md')}
                 >
                   Open API Settings
                 </Button>

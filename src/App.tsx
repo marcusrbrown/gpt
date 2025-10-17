@@ -30,16 +30,19 @@ function App() {
         <Providers>
           <div className="relative flex flex-col min-h-screen">
             <Navbar />
-            <div className="flex-grow pt-[var(--header-height)]">
+            <div className="flex-grow">
               <Routes>
                 {/* Home page */}
                 <Route
                   path="/"
                   element={
-                    <main className="container mx-auto px-12 py-8">
+                    <main className={cn(ds.layout.container, 'py-12')}>
                       <div className="text-center py-12 mb-8">
                         <h1
-                          className={`${responsive.heading.responsive} mb-4 bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent`}
+                          className={cn(
+                            responsive.heading.responsive,
+                            'mb-4 bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent',
+                          )}
                         >
                           Custom GPTs
                         </h1>

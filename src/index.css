@@ -70,7 +70,8 @@ body {
 
 @layer base {
   body {
-    @apply bg-[var(--background-primary)] text-[var(--text-primary)];
+    background-color: hsl(var(--surface-primary));
+    color: hsl(var(--content-primary));
   }
 
   /* Smooth transitions for theme changes using design system timing */
@@ -100,74 +101,128 @@ body {
 
   /* Cards - using design system animation utilities */
   .card {
-    @apply rounded-lg border-0 bg-[var(--background-secondary)] p-6 shadow-sm transition-all duration-200 ease-in-out hover:shadow-md;
+    @apply rounded-lg border-0 p-6 shadow-sm transition-all duration-200 ease-in-out hover:shadow-md;
+    background-color: hsl(var(--surface-secondary));
   }
 
   .card-link {
-    @apply block rounded-lg border-0 bg-[var(--background-secondary)] p-6 shadow-md transition-all duration-200 ease-in-out hover:shadow-lg hover:scale-[1.02];
+    @apply block rounded-lg border-0 p-6 shadow-md transition-all duration-200 ease-in-out hover:shadow-lg hover:scale-[1.02];
+    background-color: hsl(var(--surface-secondary));
   }
 
   /* Search */
   .search-input {
-    @apply w-64 px-4 py-1.5 rounded-md bg-[var(--background-tertiary)] border border-[var(--border-color)] text-sm text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] focus:border-transparent;
+    @apply w-64 px-4 py-1.5 rounded-md text-sm focus:outline-none;
+    background-color: hsl(var(--surface-tertiary));
+    border: 1px solid hsl(var(--border-default));
+    color: hsl(var(--content-primary));
+  }
+
+  .search-input:focus {
+    border-color: transparent;
+    box-shadow: 0 0 0 2px #3b82f6;
+  }
+
+  .search-input::placeholder {
+    color: hsl(var(--content-tertiary));
   }
 
   /* Navigation - using design system animation utilities */
   .nav-link {
-    @apply p-2 text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 ease-in-out;
+    @apply p-2 transition-colors duration-200 ease-in-out;
+    color: hsl(var(--content-secondary));
+  }
+
+  .nav-link:hover {
+    color: hsl(var(--content-primary));
   }
 
   .nav-link-active {
-    @apply text-[var(--accent-color)];
+    color: #3b82f6;
   }
 
   /* Typography */
   h1 {
-    @apply text-4xl font-bold mb-4 text-[var(--text-primary)];
+    @apply text-4xl font-bold mb-4;
+    color: hsl(var(--content-primary));
   }
 
   h2 {
-    @apply text-2xl font-semibold mb-3 text-[var(--text-primary)];
+    @apply text-2xl font-semibold mb-3;
+    color: hsl(var(--content-primary));
   }
 
   h3 {
-    @apply text-xl font-semibold mb-2 text-[var(--text-primary)];
+    @apply text-xl font-semibold mb-2;
+    color: hsl(var(--content-primary));
   }
 
   p {
-    @apply text-[var(--text-secondary)] leading-relaxed;
+    @apply leading-relaxed;
+    color: hsl(var(--content-secondary));
   }
 
   /* Links - using design system animation utilities */
   .link {
-    @apply text-[var(--accent-color)] hover:text-[var(--accent-hover)] transition-colors duration-200 ease-in-out;
+    @apply transition-colors duration-200 ease-in-out;
+    color: #3b82f6;
+  }
+
+  .link:hover {
+    color: #2563eb;
   }
 
   /* Documentation */
   .doc-content {
-    @apply prose prose-lg dark:prose-invert max-w-none prose-headings:text-[var(--text-primary)] prose-p:text-[var(--text-secondary)] prose-a:text-[var(--accent-color)] prose-a:no-underline hover:prose-a:text-[var(--accent-hover)];
+    @apply prose prose-lg dark:prose-invert max-w-none prose-a:no-underline;
+  }
+
+  .doc-content :where(h1, h2, h3, h4, h5, h6) {
+    color: hsl(var(--content-primary));
+  }
+
+  .doc-content :where(p) {
+    color: hsl(var(--content-secondary));
+  }
+
+  .doc-content :where(a) {
+    color: #3b82f6;
+  }
+
+  .doc-content :where(a):hover {
+    color: #2563eb;
   }
 
   /* Code blocks */
   pre {
-    @apply bg-[var(--background-tertiary)] p-4 rounded-lg overflow-x-auto border border-[var(--border-color)];
+    @apply p-4 rounded-lg overflow-x-auto;
+    background-color: hsl(var(--surface-tertiary));
+    border: 1px solid hsl(var(--border-default));
   }
 
   code {
-    @apply font-mono text-sm text-[var(--text-primary)];
+    @apply font-mono text-sm;
+    color: hsl(var(--content-primary));
   }
 
   /* Sidebar */
   .sidebar-nav {
-    @apply flex flex-col gap-1 text-[var(--text-secondary)];
+    @apply flex flex-col gap-1;
+    color: hsl(var(--content-secondary));
   }
 
   .sidebar-link {
-    @apply px-3 py-2 rounded-md hover:bg-[var(--background-secondary)] hover:text-[var(--text-primary)] transition-colors duration-200 ease-in-out;
+    @apply px-3 py-2 rounded-md transition-colors duration-200 ease-in-out;
+  }
+
+  .sidebar-link:hover {
+    background-color: hsl(var(--surface-secondary));
+    color: hsl(var(--content-primary));
   }
 
   .sidebar-link-active {
-    @apply bg-[var(--background-secondary)] text-[var(--text-primary)];
+    background-color: hsl(var(--surface-secondary));
+    color: hsl(var(--content-primary));
   }
 
   /* Breadcrumbs */
@@ -176,11 +231,11 @@ body {
   }
 
   .breadcrumb-item {
-    @apply text-[var(--text-tertiary)];
+    color: hsl(var(--content-tertiary));
   }
 
   .breadcrumb-separator {
-    @apply text-[var(--text-tertiary)];
+    color: hsl(var(--content-tertiary));
   }
 
   /* Tables */
@@ -190,10 +245,11 @@ body {
 
   th,
   td {
-    @apply border border-[var(--border-color)] p-2 text-left;
+    @apply p-2 text-left;
+    border: 1px solid hsl(var(--border-default));
   }
 
   th {
-    @apply bg-[var(--background-secondary)];
+    background-color: hsl(var(--surface-secondary));
   }
 }
