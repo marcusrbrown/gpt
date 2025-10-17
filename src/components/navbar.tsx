@@ -74,18 +74,21 @@ export const Navbar = () => {
         </div>
 
         {/* Center section - Search */}
-        <div className="flex-1 max-w-2xl mx-4">
+        <div className="flex-1 max-w-2xl mx-4 flex items-center">
           <div className="relative w-full">
             <Input
               type="search"
               placeholder="Search documentation..."
-              endContent={<Search size={16} className={cn(theme.content('tertiary'), 'mr-1')} aria-hidden="true" />}
-              size="sm"
+              startContent={<Search className={cn(theme.content('tertiary'), 'mr-1')} size={16} aria-hidden="true" />}
+              size="md"
               variant="bordered"
               className={cn(ds.animation.transition)}
               classNames={{
+                base: 'h-10',
                 input: 'text-sm pr-9',
-                inputWrapper: cn(theme.surface(1), 'min-h-[40px]'),
+                inputWrapper: cn(theme.surface(1), 'h-10 flex items-center'),
+                innerWrapper: 'flex items-center',
+                mainWrapper: 'h-10',
               }}
               aria-label="Search documentation"
             />
@@ -141,7 +144,7 @@ export const Navbar = () => {
               <Input
                 type="search"
                 placeholder="Search documentation..."
-                endContent={<Search size={16} className={cn(theme.content('tertiary'), 'mr-1')} aria-hidden="true" />}
+                startContent={<Search className={cn(theme.content('tertiary'), 'mr-1')} size={16} aria-hidden="true" />}
                 size="sm"
                 variant="bordered"
                 className={cn(ds.animation.transition)}
