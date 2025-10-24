@@ -31,7 +31,7 @@
   "dependencies": {
     "@bfra.me/prettier-config": "0.16.1",
     "@heroui/react": "2.8.5",
-    "@langchain/anthropic": "0.3.31",
+    "@langchain/anthropic": "0.3.32",
     "@langchain/core": "0.3.78",
     "@langchain/langgraph": "0.4.9",
     "@langchain/openai": "0.6.16",
