@@ -23,7 +23,8 @@ export function GPTEditorPage() {
     if (gptId) {
       const savedGpt = storage.getGPT(gptId)
       if (savedGpt) {
-        setGptConfig(savedGpt)
+        // Defer state update to avoid synchronous setState inside effect
+        queueMicrotask(() => setGptConfig(savedGpt))
       } else {
         // Create a default configuration if the gptId is not found
         const defaultGpt: GPTConfiguration = {
@@ -48,7 +49,8 @@ export function GPTEditorPage() {
           updatedAt: new Date(),
           version: 1,
         }
-        setGptConfig(defaultGpt)
+        // Defer state update to avoid synchronous setState inside effect
+        queueMicrotask(() => setGptConfig(defaultGpt))
       }
     } else {
       // Create a new GPT configuration
@@ -74,7 +76,8 @@ export function GPTEditorPage() {
         updatedAt: new Date(),
         version: 1,
       }
-      setGptConfig(newGpt)
+      // Defer state update to avoid synchronous setState inside effect
+      queueMicrotask(() => setGptConfig(newGpt))
     }
   }, [gptId, storage])
 

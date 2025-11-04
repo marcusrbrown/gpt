@@ -1,6 +1,6 @@
 import {cn, ds, theme} from '@/lib/design-system'
 import {ChevronDown} from 'lucide-react'
-import {useCallback, useEffect, useState} from 'react'
+import {useCallback, useState} from 'react'
 import {NavLink, useLocation, type NavLinkProps} from 'react-router-dom'
 
 interface NavItem {
@@ -67,20 +67,17 @@ const NAV_ITEMS: NavItem[] = [
 
 function NavItemComponent({item}: {item: NavItem}) {
   const {pathname} = useLocation()
-  const [isExpanded, setIsExpanded] = useState(false)
+  const [isExpandedByUser, setIsExpandedByUser] = useState(false)
 
-  // Auto-expand the section that contains the current page
-  useEffect(() => {
-    if (pathname.startsWith(item.path) || item.items?.some(subItem => pathname.startsWith(subItem.path))) {
-      setIsExpanded(true)
-    }
-  }, [pathname, item.path, item.items])
+  // Derive automatic expansion from the current pathname so we don't set state synchronously inside an effect.
+  const autoExpanded = pathname.startsWith(item.path) || item.items?.some(subItem => pathname.startsWith(subItem.path))
+  const isExpanded = isExpandedByUser || autoExpanded
 
   const toggleExpand = useCallback(
     (e: React.MouseEvent) => {
       if (item.items) {
         e.preventDefault()
-        setIsExpanded(prev => !prev)
+        setIsExpandedByUser(prev => !prev)
       }
     },
     [item.items],
