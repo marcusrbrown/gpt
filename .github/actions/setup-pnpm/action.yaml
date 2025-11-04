@@ -29,7 +29,7 @@ runs:
         run_install: false
 
     - name: Install dependencies
-      run: pnpm install${{ outputs.setup-node.cache-hit == 'true' && ' --prefer-offline' || '' }}
+      run: pnpm install ${{ steps.setup-node.outputs.cache-hit == 'true' && ' --prefer-offline' || '' }}
       shell: 'bash -Eeuo pipefail {0}'
 
     - if: ${{ inputs.install-playwright == 'true' }}
