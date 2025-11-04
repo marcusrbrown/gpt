@@ -246,7 +246,6 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
     if (gptId) {
       const existing = getGPT(gptId)
       if (existing) {
-        // eslint-disable-next-line @eslint-react/hooks-extra/no-direct-set-state-in-use-effect
         setGpt(prev => {
           // Only update if different to avoid infinite loops
           if (JSON.stringify(prev) !== JSON.stringify(existing)) {
