@@ -1,2 +1,14 @@
+autoInstallPeers: true
+
 onlyBuiltDependencies:
+  - '@heroui/shared-utils'
+  - '@tailwindcss/oxide'
+  - esbuild
+  - simple-git-hooks
   - unrs-resolver
+
+savePrefix: ''
+
+shamefullyHoist: true
+
+shellEmulator: true
