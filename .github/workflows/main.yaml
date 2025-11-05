@@ -62,9 +62,7 @@ jobs:
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           key: test-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml', 'package.json', 'src/**/*.{ts,tsx}', '**/tests/**/*.{ts,tsx}', '**/tsconfig*.json') }}
-          path: |
-            **/.vite
-            coverage
+          path: coverage
 
       - if: github.event_name == 'workflow_dispatch' || steps.cache-test.outputs.cache-hit != 'true'
         name: Test
@@ -86,9 +84,7 @@ jobs:
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
         with:
           key: build-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml', 'src/**/*.ts', 'index.html', 'package.json', 'public/**', '**/tsconfig*.json') }}
-          path: |
-            **/.vite
-            dist
+          path: dist
 
       - if: github.event_name == 'workflow_dispatch' || steps.cache-build.outputs.cache-hit != 'true'
         name: Build
