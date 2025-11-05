@@ -3,6 +3,7 @@ name: Main
 
 on:
   pull_request:
+    branches: [main]
     types: [opened, ready_for_review, reopened, synchronize]
   push:
     branches: [main]
@@ -56,7 +57,17 @@ jobs:
       - name: Setup pnpm
         uses: ./.github/actions/setup-pnpm
 
-      - name: Test
+      - id: cache-test
+        name: Cache test artifacts
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          key: test-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml', 'package.json', 'src/**/*.{ts,tsx}', '**/tests/**/*.{ts,tsx}', '**/tsconfig*.json') }}
+          path: |
+            **/.vite
+            coverage
+
+      - if: github.event_name == 'workflow_dispatch' || steps.cache-test.outputs.cache-hit != 'true'
+        name: Test
         run: pnpm run test:coverage -- --ci --reporter=github-actions
 
   build:
@@ -70,7 +81,17 @@ jobs:
       - name: Setup pnpm
         uses: ./.github/actions/setup-pnpm
 
-      - name: Build
+      - id: cache-build
+        name: Cache build artifacts
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          key: build-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml', 'src/**/*.ts', 'index.html', 'package.json', 'public/**', '**/tsconfig*.json') }}
+          path: |
+            **/.vite
+            dist
+
+      - if: github.event_name == 'workflow_dispatch' || steps.cache-build.outputs.cache-hit != 'true'
+        name: Build
         run: pnpm run build
 
       - if: github.ref =='refs/heads/main'

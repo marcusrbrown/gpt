@@ -9,11 +9,6 @@ inputs:
     default: 'false'
     required: false
 
-outputs:
-  development-cache-hit:
-    description: Whether the development cache was hit
-    value: ${{ steps.cache-development.outputs.cache-hit }}
-
 runs:
   steps:
     - name: Setup pnpm
@@ -36,17 +31,5 @@ runs:
       name: Install Playwright browsers
       run: pnpm exec playwright install --with-deps chromium
       shell: 'bash -Eeuo pipefail {0}'
-
-    - id: cache-development
-      name: Restore development caches
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-      with:
-        key: development-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml', '**/*.ts', 'package.json', 'pnpm-workspace.yaml', '**/tsconfig*.json') }}
-        path: |
-          **/.cache
-          **/.vite
-          **/coverage
-          **/tsconfig.tsbuildinfo
-        restore-keys: development-cache-${{ runner.os }}-
 
   using: composite
