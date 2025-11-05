@@ -8,6 +8,7 @@
     "dev": "vite",
     "build": "tsgo && vite build",
     "test": "vitest run",
+    "prepare": "simple-git-hooks",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
@@ -23,9 +24,17 @@
     "test:accessibility:ui": "playwright test tests/accessibility/ --ui",
     "test:accessibility:debug": "playwright test tests/accessibility/ --debug",
     "test:accessibility:headed": "playwright test tests/accessibility/ --headed",
-    "fix": "pnpm run lint --fix",
-    "lint": "eslint .",
+    "fix": "eslint --fix",
+    "lint": "eslint",
     "preview": "vite preview"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm exec nano-staged"
+  },
+  "nano-staged": {
+    "*.{ts,js,jsx,tsx,css,md,json,toml,yaml,yml}": [
+      "eslint --fix"
+    ]
   },
   "prettier": "@bfra.me/prettier-config/120-proof",
   "dependencies": {
@@ -78,24 +87,14 @@
     "eslint-plugin-react-refresh": "0.4.24",
     "jiti": "2.6.1",
     "jsdom": "27.1.0",
+    "nano-staged": "0.8.0",
     "prettier": "3.6.2",
+    "simple-git-hooks": "2.13.1",
     "tailwindcss": "4.1.16",
     "typescript": "5.9.3",
     "vite": "7.1.12",
     "vite-tsconfig-paths": "5.1.4",
     "vitest": "4.0.6"
   },
-  "packageManager": "pnpm@10.20.0",
-  "pnpm": {
-    "overrides": {
-      "jiti": "<2.7.0"
-    },
-    "onlyBuiltDependencies": [
-      "@heroui/shared-utils",
-      "@swc/core",
-      "@tailwindcss/oxide",
-      "esbuild",
-      "unrs-resolver"
-    ]
-  }
+  "packageManager": "pnpm@10.20.0"
 }
