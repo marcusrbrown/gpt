@@ -78,7 +78,7 @@
     "@vitest/coverage-v8": "4.0.6",
     "@vitest/eslint-plugin": "1.4.0",
     "autoprefixer": "10.4.21",
-    "eslint": "9.39.0",
+    "eslint": "9.39.1",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-no-only-tests": "3.3.0",
     "eslint-plugin-prettier": "5.5.4",
