@@ -33,6 +33,7 @@ function App() {
           <div className="relative flex flex-col min-h-screen">
             <Navbar />
             <div className="grow">
+              {/* Key by pathname to trigger page transition animations on route changes */}
               <Routes key={location.pathname}>
                 {/* Home page */}
                 <Route

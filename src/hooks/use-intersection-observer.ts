@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from 'react'
+import {useEffect, useMemo, useRef, useState} from 'react'
 
 export interface UseIntersectionObserverOptions {
   threshold?: number | number[]
@@ -21,14 +21,16 @@ export function useIntersectionObserver<T extends Element = HTMLDivElement>(
 
   const elementRef = useRef<T | null>(null)
 
-  // Check if matchMedia is available (not available in test environments)
-  const prefersReducedMotion =
-    typeof window !== 'undefined' && window.matchMedia
-      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      : false
+  // Determine if animations should be disabled (computed once per render)
+  const shouldBeVisible = useMemo(() => {
+    const prefersReducedMotion =
+      typeof window !== 'undefined' && window.matchMedia
+        ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        : false
 
-  // Default to visible if IntersectionObserver or reduced motion
-  const shouldBeVisible = typeof IntersectionObserver === 'undefined' || prefersReducedMotion
+    return typeof IntersectionObserver === 'undefined' || prefersReducedMotion
+  }, [])
+
   const [isIntersecting, setIsIntersecting] = useState(shouldBeVisible)
 
   useEffect(() => {

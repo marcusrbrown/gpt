@@ -20,10 +20,10 @@ export const CardGroup: FC<CardGroupProps> = () => {
 
   return (
     <div className="space-y-8">
-      {/* User's GPTs section */}
+      {/* User's GPTs section - fades in on scroll */}
       <div
         ref={userSectionRef}
-        className={cn('transition-opacity duration-700', isUserSectionVisible ? 'opacity-100' : 'opacity-0')}
+        className={cn(ds.animation.transition, 'duration-700', isUserSectionVisible ? 'opacity-100' : 'opacity-0')}
       >
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
           <h2 className={responsive.heading.large}>Your GPTs</h2>
@@ -74,10 +74,10 @@ export const CardGroup: FC<CardGroupProps> = () => {
         )}
       </div>
 
-      {/* Example GPTs section */}
+      {/* Example GPTs section - fades in on scroll */}
       <div
         ref={exampleSectionRef}
-        className={cn('transition-opacity duration-700', isExampleSectionVisible ? 'opacity-100' : 'opacity-0')}
+        className={cn(ds.animation.transition, 'duration-700', isExampleSectionVisible ? 'opacity-100' : 'opacity-0')}
       >
         <h2 className={cn(responsive.heading.large, 'mb-6')}>Example GPTs</h2>
         <div className={responsive.cardGrid.threeColumn}>

@@ -83,13 +83,26 @@ export const ds = {
     scaleIn: 'motion-safe:animate-in motion-safe:zoom-in-95 motion-safe:duration-200',
     transition: 'motion-safe:transition-all motion-safe:duration-200 motion-safe:ease-in-out',
 
-    // Micro-interaction feedback patterns - simplified on reduced motion
-    buttonPress:
-      'motion-safe:active:scale-[0.98] motion-safe:active:shadow-sm motion-safe:transition-transform motion-safe:duration-100',
-    cardHover:
-      'motion-safe:hover:scale-[1.02] motion-safe:hover:shadow-lg motion-safe:transition-all motion-safe:duration-200',
-    formFocus:
-      'motion-safe:focus:border-primary-500 motion-safe:focus:ring-2 motion-safe:focus:ring-primary-500/20 motion-safe:transition-colors motion-safe:duration-200',
+    // Micro-interaction feedback patterns
+    buttonPress: [
+      'motion-safe:active:scale-[0.98]',
+      'motion-safe:active:shadow-sm',
+      'motion-safe:transition-transform',
+      'motion-safe:duration-100',
+    ].join(' '),
+    cardHover: [
+      'motion-safe:hover:scale-[1.02]',
+      'motion-safe:hover:shadow-lg',
+      'motion-safe:transition-all',
+      'motion-safe:duration-200',
+    ].join(' '),
+    formFocus: [
+      'motion-safe:focus:border-primary-500',
+      'motion-safe:focus:ring-2',
+      'motion-safe:focus:ring-primary-500/20',
+      'motion-safe:transition-colors',
+      'motion-safe:duration-200',
+    ].join(' '),
 
     // Reduced motion alternatives - instant state changes without animation
     reducedMotion: {
