@@ -3,45 +3,43 @@ import {expect, test} from '@playwright/test'
 /**
  * Animation Performance Tests
  *
- * Validates animation smoothness at 60fps across all animated components.
- * Uses Playwright's Performance API and Chrome DevTools Protocol to measure:
- * - Frame rate (target: 60fps)
- * - Animation timing consistency
- * - Layout stability during animations
- * - Memory usage during animations
+ * Validates 60fps animation smoothness across components using Playwright's
+ * Performance API and Chrome DevTools Protocol.
  *
- * Requirements:
- * - TEST-001: Animation performance tests ensuring 60fps smooth animations
- * - REQ-002: Animation performance must not degrade user experience
- * - A11Y-002: Animations respect user preferences for reduced motion
+ * Requirements: TEST-001, REQ-002, A11Y-002
  */
 
 /**
- * Performance metrics baseline thresholds
+ * Thresholds based on Web Vitals recommendations and user perception research:
+ * - 60fps maintains smooth appearance to human eye
+ * - 20% variance accounts for browser scheduling variability
+ * - 30fps (33ms) is absolute minimum before jank becomes noticeable
+ * - 50MB memory allows animations without causing garbage collection
+ * - 0.1 CLS prevents layout shift impact on reading flow
  */
 const PERFORMANCE_THRESHOLDS = {
-  // Target frame rate (60fps = ~16.67ms per frame)
   targetFrameTime: 16.67,
-  // Allow up to 20% deviation from target (acceptable: 13-20ms per frame)
   frameTimeVariance: 0.2,
-  // Maximum acceptable frame time (30fps fallback = ~33ms per frame)
   maxFrameTime: 33,
-  // Minimum acceptable frame rate
   minFps: 50,
-  // Maximum memory increase during animations (MB)
   maxMemoryIncrease: 50,
-  // Layout shift threshold (Cumulative Layout Shift)
   maxLayoutShift: 0.1,
 } as const
 
-/**
- * Measure frame rate during animation using requestAnimationFrame
- */
+interface AnimationMetrics {
+  avgFrameTime: number
+  minFrameTime: number
+  maxFrameTime: number
+  frameCount: number
+  droppedFrames: number
+  fps: number
+}
+
 async function measureAnimationFrameRate(
   page: import('@playwright/test').Page,
   animationSelector: string,
   durationMs = 1000,
-) {
+): Promise<AnimationMetrics> {
   return page.evaluate(
     async ({selector, duration}) => {
       const element = document.querySelector(selector)
@@ -53,14 +51,7 @@ async function measureAnimationFrameRate(
       let lastFrameTime = performance.now()
       let animationStartTime = 0
 
-      return new Promise<{
-        avgFrameTime: number
-        minFrameTime: number
-        maxFrameTime: number
-        frameCount: number
-        droppedFrames: number
-        fps: number
-      }>(resolve => {
+      return new Promise<AnimationMetrics>(resolve => {
         function measureFrame() {
           const currentTime = performance.now()
 
@@ -75,11 +66,11 @@ async function measureAnimationFrameRate(
           if (currentTime - animationStartTime < duration) {
             requestAnimationFrame(measureFrame)
           } else {
-            // Calculate metrics
             const avgFrameTime = frameTimes.reduce((a, b) => a + b, 0) / frameTimes.length
             const minFrameTime = Math.min(...frameTimes)
             const maxFrameTime = Math.max(...frameTimes)
             const fps = 1000 / avgFrameTime
+            // 33ms = 30fps threshold where dropped frames become noticeable
             const droppedFrames = frameTimes.filter(ft => ft > 33).length
 
             resolve({
@@ -93,7 +84,6 @@ async function measureAnimationFrameRate(
           }
         }
 
-        // Trigger animation (hover for card animations)
         if (element instanceof HTMLElement) {
           element.dispatchEvent(new MouseEvent('mouseenter', {bubbles: true}))
         }
@@ -105,9 +95,11 @@ async function measureAnimationFrameRate(
   )
 }
 
-/**
- * Measure layout stability during animation
- */
+interface LayoutShiftEntry extends PerformanceEntry {
+  hadRecentInput: boolean
+  value: number
+}
+
 async function measureLayoutStability(page: import('@playwright/test').Page): Promise<number> {
   return page.evaluate(async () => {
     return new Promise<number>(resolve => {
@@ -115,14 +107,17 @@ async function measureLayoutStability(page: import('@playwright/test').Page): Pr
 
       const observer = new PerformanceObserver(list => {
         for (const entry of list.getEntries()) {
-          if (entry.entryType === 'layout-shift' && !(entry as any).hadRecentInput) {
-            cls += (entry as any).value
+          const shiftEntry = entry as LayoutShiftEntry
+          // Ignore shifts caused by user input (typing, clicking)
+          if (entry.entryType === 'layout-shift' && !shiftEntry.hadRecentInput) {
+            cls += shiftEntry.value
           }
         }
       })
 
       observer.observe({type: 'layout-shift', buffered: true})
 
+      // 2s window captures animation completion and settling
       setTimeout(() => {
         observer.disconnect()
         resolve(cls)
@@ -140,16 +135,13 @@ test.describe('Animation Performance Tests', () => {
   test.describe('Card Animation Performance', () => {
     test('should maintain 60fps during card hover animations', async ({page}) => {
       await test.step('Measure card hover animation frame rate', async () => {
-        // Find first GPT card
         const card = page.locator('[data-testid="user-gpt-card"]').first()
         await expect(card).toBeVisible()
 
-        // Get card selector for performance measurement
         const cardId = await card.getAttribute('data-testid')
-
-        // Measure animation performance
         const metrics = await measureAnimationFrameRate(page, `[data-testid="${cardId}"]`, 1000)
 
+        // Log detailed metrics for debugging performance issues in CI/CD
         console.warn('Card Animation Performance:', {
           fps: metrics.fps.toFixed(2),
           avgFrameTime: `${metrics.avgFrameTime.toFixed(2)}ms`,
@@ -157,11 +149,11 @@ test.describe('Animation Performance Tests', () => {
           droppedFrames: metrics.droppedFrames,
         })
 
-        // Validate performance thresholds
         expect(metrics.fps, 'Frame rate should be at least 50fps').toBeGreaterThanOrEqual(PERFORMANCE_THRESHOLDS.minFps)
         expect(metrics.avgFrameTime, 'Average frame time should be under 20ms').toBeLessThanOrEqual(
           PERFORMANCE_THRESHOLDS.targetFrameTime * (1 + PERFORMANCE_THRESHOLDS.frameTimeVariance),
         )
+        // 10% dropped frames allows for occasional browser scheduling delays
         expect(metrics.droppedFrames, 'Should have minimal dropped frames').toBeLessThanOrEqual(
           metrics.frameCount * 0.1,
         )
@@ -173,12 +165,10 @@ test.describe('Animation Performance Tests', () => {
         const card = page.locator('[data-testid="user-gpt-card"]').first()
         await expect(card).toBeVisible()
 
-        // Trigger hover animation
         await card.hover()
-
-        // Measure cumulative layout shift
         const cls = await measureLayoutStability(page)
 
+        // Log CLS for monitoring layout shift trends over time
         console.warn('Card Animation Layout Stability:', {
           cumulativeLayoutShift: cls.toFixed(4),
         })

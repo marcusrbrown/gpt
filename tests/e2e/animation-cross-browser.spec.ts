@@ -3,18 +3,10 @@ import {expect, test} from '@playwright/test'
 /**
  * Cross-Browser Animation Consistency Tests
  *
- * Validates animation behavior is consistent across major browsers.
- * These tests run against all browser projects defined in playwright.config.ts:
- * - Chromium (Chrome/Edge)
- * - Firefox
- * - WebKit (Safari)
+ * Validates animation behavior is consistent across Chromium, Firefox, and WebKit.
+ * Tests run against all browser projects in playwright.config.ts.
  *
- * Run with: pnpm test:e2e animation-cross-browser
- *
- * Requirements:
- * - TEST-003: Cross-browser animation consistency tests
- * - REQ-002: Animation performance must not degrade user experience
- * - PAT-001: Consistent animation timing and easing functions
+ * Requirements: TEST-003, REQ-002, PAT-001
  */
 
 test.describe('Cross-Browser Animation Consistency', () => {
@@ -28,7 +20,6 @@ test.describe('Cross-Browser Animation Consistency', () => {
       const card = page.locator('[data-testid="user-gpt-card"]').first()
       await expect(card).toBeVisible()
 
-      // Get initial state
       const initialState = await card.evaluate(el => {
         const styles = window.getComputedStyle(el)
         return {
@@ -37,11 +28,10 @@ test.describe('Cross-Browser Animation Consistency', () => {
         }
       })
 
-      // Hover card
       await card.hover()
+      // 250ms ensures animation completes across all browser engines
       await page.waitForTimeout(250)
 
-      // Get hover state
       const hoverState = await card.evaluate(el => {
         const styles = window.getComputedStyle(el)
         return {
@@ -50,9 +40,9 @@ test.describe('Cross-Browser Animation Consistency', () => {
         }
       })
 
+      // Log for cross-browser animation comparison debugging
       console.warn(`${browserName} Card Animation:`, {initial: initialState, hover: hoverState})
 
-      // Transform or shadow should change on hover
       const hasAnimation =
         hoverState.transform !== initialState.transform || hoverState.boxShadow !== initialState.boxShadow
 

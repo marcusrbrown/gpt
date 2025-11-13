@@ -4,18 +4,9 @@ import {getAccessibilityConfig} from '../accessibility/utils/accessibility-confi
 /**
  * Animation Accessibility Tests
  *
- * Validates animations meet WCAG 2.1 AA accessibility standards:
- * - Focus indicators are visible and properly styled
- * - Keyboard navigation works correctly during animations
- * - Reduced motion preferences are respected
- * - Screen readers can access animated content
- * - Color contrast is maintained during animation states
+ * Validates WCAG 2.1 AA compliance for animated components.
  *
- * Requirements:
- * - TEST-002: Accessibility tests for focus indicators, keyboard navigation, reduced motion support
- * - A11Y-001: Proper focus indicators that meet WCAG 2.1 accessibility standards
- * - A11Y-002: Animations respect user preferences for reduced motion (prefers-reduced-motion)
- * - A11Y-003: Maintain keyboard navigation functionality with proper focus management
+ * Requirements: TEST-002, A11Y-001, A11Y-002, A11Y-003
  */
 
 test.describe('Animation Accessibility Tests', () => {
@@ -30,11 +21,9 @@ test.describe('Animation Accessibility Tests', () => {
         const card = page.locator('[data-testid="user-gpt-card"]').first()
         await expect(card).toBeVisible()
 
-        // Focus the card
         await card.focus()
         await expect(card).toBeFocused()
 
-        // Check focus indicator styles
         const hasFocusRing = await card.evaluate(el => {
           const styles = window.getComputedStyle(el)
           return (
@@ -46,13 +35,10 @@ test.describe('Animation Accessibility Tests', () => {
 
         expect(hasFocusRing, 'Card should have visible focus indicator').toBeTruthy()
 
-        // Trigger hover animation while focused
         await card.hover()
-
-        // Wait for animation to start
+        // 100ms allows animation to start while avoiding timing flakiness
         await page.waitForTimeout(100)
 
-        // Focus indicator should still be visible during animation
         const hasFocusRingDuringAnimation = await card.evaluate(el => {
           const styles = window.getComputedStyle(el)
           return (
@@ -71,11 +57,9 @@ test.describe('Animation Accessibility Tests', () => {
         const createButton = page.locator('button:has-text("Create"), button:has-text("New GPT")').first()
         await expect(createButton).toBeVisible()
 
-        // Focus button
         await createButton.focus()
         await expect(createButton).toBeFocused()
 
-        // Check focus indicator
         const hasFocusIndicator = await createButton.evaluate(el => {
           const styles = window.getComputedStyle(el)
           return (
@@ -87,13 +71,11 @@ test.describe('Animation Accessibility Tests', () => {
 
         expect(hasFocusIndicator, 'Button should have visible focus indicator').toBeTruthy()
 
-        // Simulate button press (trigger animation)
         await createButton.dispatchEvent('mousedown')
+        // 50ms catches mid-animation state for button press
         await page.waitForTimeout(50)
 
-        // Focus should be maintained during press animation
         await expect(createButton).toBeFocused()
-
         await createButton.dispatchEvent('mouseup')
       })
     })

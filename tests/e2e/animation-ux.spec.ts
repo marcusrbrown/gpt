@@ -3,14 +3,9 @@ import {expect, test} from '@playwright/test'
 /**
  * Animation User Experience Tests
  *
- * Validates that animations enhance rather than distract from user tasks.
- * Tests animation timing, appropriateness, and impact on user workflows.
+ * Validates animations enhance rather than distract from user tasks.
  *
- * Requirements:
- * - TEST-008: User experience tests ensuring animations enhance usability
- * - REQ-002: Animation performance must not degrade user experience
- * - CON-002: Animation performance must not degrade user experience on slower devices
- * - CON-003: Loading states must clearly communicate system status without being distracting
+ * Requirements: TEST-008, REQ-002, CON-002, CON-003
  */
 
 test.describe('Animation User Experience Tests', () => {
@@ -25,20 +20,17 @@ test.describe('Animation User Experience Tests', () => {
         const card = page.locator('[data-testid="user-gpt-card"]').first()
         await expect(card).toBeVisible()
 
-        // Measure animation duration
         const startTime = Date.now()
-
         await card.hover()
-
-        // Wait for animation to complete
         await page.waitForTimeout(300)
-
         const endTime = Date.now()
         const animationDuration = endTime - startTime
 
+        // Log timing for detecting responsiveness regressions
         console.warn('Card Hover Animation Duration:', `${animationDuration}ms`)
 
-        // Animations should complete within 300ms to feel responsive
+        // 300ms threshold based on Nielsen's usability research: users perceive
+        // delays under 100ms as instant, under 1s as acceptable, over 1s as slow
         expect(animationDuration, 'Hover animation should complete within 300ms').toBeLessThanOrEqual(300)
       })
     })
@@ -49,19 +41,15 @@ test.describe('Animation User Experience Tests', () => {
         await expect(createButton).toBeVisible()
 
         const startTime = Date.now()
-
-        // Click button
         await createButton.click()
-
-        // Wait for navigation or action
         await page.waitForTimeout(500)
-
         const endTime = Date.now()
         const responseDuration = endTime - startTime
 
+        // Log response time for monitoring interaction delays
         console.warn('Button Response Time:', `${responseDuration}ms`)
 
-        // User action should complete quickly
+        // 1s threshold prevents animation blocking from impacting perceived responsiveness
         expect(responseDuration, 'Button action should complete within 1 second').toBeLessThanOrEqual(1000)
       })
     })
@@ -69,18 +57,16 @@ test.describe('Animation User Experience Tests', () => {
     test('should transition between pages smoothly without delay', async ({page}) => {
       await test.step('Measure page transition timing', async () => {
         const startTime = Date.now()
-
-        // Navigate to different page
         await page.click('a[href="/test"]')
         await page.waitForURL('/test')
         await page.waitForLoadState('networkidle')
-
         const endTime = Date.now()
         const transitionDuration = endTime - startTime
 
+        // Log transition time for detecting navigation performance issues
         console.warn('Page Transition Duration:', `${transitionDuration}ms`)
 
-        // Page transitions should feel smooth (under 2 seconds)
+        // 2s threshold allows for network + animation while maintaining flow
         expect(transitionDuration, 'Page transition should complete within 2 seconds').toBeLessThanOrEqual(2000)
       })
     })

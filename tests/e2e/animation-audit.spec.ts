@@ -3,14 +3,9 @@ import {expect, test} from '@playwright/test'
 /**
  * Animation Consistency Audit Tests
  *
- * Validates that all components use design system animation patterns consistently.
- * Audits animation implementation, timing, and adherence to design system standards.
+ * Validates components use design system animation patterns consistently.
  *
- * Requirements:
- * - TEST-009: Animation consistency audit ensuring all components use design system patterns
- * - REQ-006: Use design system animation patterns (ds.animation.*)
- * - PAT-001: Apply consistent animation timing and easing functions
- * - PAT-002: Use design system composition utilities for common animation patterns
+ * Requirements: TEST-009, REQ-006, PAT-001, PAT-002
  */
 
 test.describe('Animation Consistency Audit', () => {
@@ -32,14 +27,12 @@ test.describe('Animation Consistency Audit', () => {
             const className = el.getAttribute('class') || ''
             const styles = window.getComputedStyle(el)
 
-            // Check if element has transitions or animations
             const hasTransition = styles.transition && styles.transition !== 'all 0s ease 0s'
             const hasAnimation = styles.animation && styles.animation !== 'none'
 
             if (hasTransition || hasAnimation) {
               elementsWithTransition++
 
-              // Check for motion-safe or motion-reduce classes
               if (className.includes('motion-safe') || className.includes('motion-reduce')) {
                 elementsWithMotionSafe++
               } else {
@@ -56,6 +49,7 @@ test.describe('Animation Consistency Audit', () => {
           }
         })
 
+        // Log compliance metrics for tracking accessibility improvements
         console.warn('Motion Safety Audit:', {
           total: audit.elementsWithTransition,
           compliant: audit.elementsWithMotionSafe,
@@ -63,7 +57,7 @@ test.describe('Animation Consistency Audit', () => {
           complianceRate: `${audit.complianceRate.toFixed(1)}%`,
         })
 
-        // Most animated elements should have motion-safe classes
+        // 50% threshold allows gradual migration while ensuring new animations are compliant
         expect(audit.complianceRate, 'Most animated elements should support reduced motion').toBeGreaterThanOrEqual(50)
       })
     })
@@ -89,9 +83,10 @@ test.describe('Animation Consistency Audit', () => {
           }
         })
 
+        // Log duration distribution for identifying inconsistent timing
         console.warn('Transition Duration Audit:', auditResults)
 
-        // Should have limited number of unique durations (design system consistency)
+        // 5 max durations allows for: instant, quick, medium, slow, extra-slow timing scales
         expect(
           auditResults.uniqueDurations.length,
           'Should use consistent transition durations (max 5 different values)',
@@ -120,9 +115,10 @@ test.describe('Animation Consistency Audit', () => {
           }
         })
 
+        // Log easing distribution for detecting motion inconsistencies
         console.warn('Easing Function Audit:', auditResults)
 
-        // Should have consistent easing functions
+        // 4 max easings covers: ease, ease-in, ease-out, ease-in-out standard set
         expect(
           auditResults.uniqueEasings.length,
           'Should use consistent easing functions (max 4 different values)',
