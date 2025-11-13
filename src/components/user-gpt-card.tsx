@@ -77,7 +77,7 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
               variant="flat"
               color="primary"
               startContent={<Edit size={16} />}
-              className={cn('flex items-center', ds.animation.transition, ds.animation.buttonPress)}
+              className={cn('flex items-center', ds.animation.buttonPress)}
               size="sm"
             >
               Edit
@@ -88,7 +88,7 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
               variant="solid"
               color="primary"
               startContent={<Play size={16} />}
-              className={cn('flex items-center', ds.animation.transition, ds.animation.buttonPress)}
+              className={cn('flex items-center', ds.animation.buttonPress)}
               size="sm"
             >
               Test

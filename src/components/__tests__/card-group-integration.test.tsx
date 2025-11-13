@@ -231,7 +231,7 @@ describe('cardGroup Integration Tests', () => {
       const emptyState = screen.getByText("You haven't created any GPTs yet.").closest('div')
       expect(emptyState).toHaveClass('rounded-xl', 'p-12', 'text-center', 'border-2', 'shadow-sm')
       // Verify gradient background classes
-      expect(emptyState?.className).toContain('bg-gradient-to-br')
+      expect(emptyState?.className).toContain('bg-linear-to-br')
       expect(emptyState?.className).toContain('from-primary-50')
       expect(emptyState?.className).toContain('to-primary-100')
 

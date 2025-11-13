@@ -631,7 +631,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   variant="solid"
                   onPress={() => importGptRef.current?.click()}
                   isDisabled={isSubmitting}
-                  className={cn(ds.animation.transition, ds.animation.buttonPress)}
+                  className={cn(ds.animation.buttonPress)}
                 >
                   Import
                 </Button>
@@ -640,7 +640,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   variant="solid"
                   onPress={handleExportGPT}
                   isDisabled={isSubmitting || isExporting}
-                  className={cn(ds.animation.transition, ds.animation.buttonPress)}
+                  className={cn(ds.animation.buttonPress)}
                 >
                   {isExporting ? <Spinner size="sm" /> : 'Export'}
                 </Button>
@@ -649,7 +649,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   variant="solid"
                   onPress={() => handleSubmit(new Event('submit') as unknown as React.FormEvent)}
                   isDisabled={isSubmitting}
-                  className={cn(ds.animation.transition, ds.animation.buttonPress)}
+                  className={cn(ds.animation.buttonPress)}
                 >
                   {isSubmitting ? <Spinner size="sm" /> : 'Save'}
                 </Button>
@@ -922,7 +922,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                 color="primary"
                 isLoading={isTesting}
                 disabled={!testMessage.trim() || isTesting}
-                className={cn(ds.animation.transition, ds.animation.buttonPress)}
+                className={cn(ds.animation.buttonPress)}
               >
                 {isTesting ? 'Sending...' : 'Send'}
               </Button>
