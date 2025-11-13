@@ -392,7 +392,7 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
             label="Conversation Name"
             value={conversationName}
             onChange={handleConversationNameChange}
-            className={cn(ds.focus.ring, ds.animation.transition)}
+            className={cn(ds.focus.ring, ds.animation.formFocus)}
             placeholder="Enter a name for this conversation"
             description="Give your conversation a descriptive name for easy reference"
             aria-label="Enter conversation name"
@@ -406,7 +406,7 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
               color={isSaved ? 'success' : 'primary'}
               isDisabled={isLoading || messages.length === 0 || isSaving}
               onPress={handleSaveConversation}
-              className={cn(ds.focus.ring, ds.animation.transition)}
+              className={cn(ds.focus.ring, ds.animation.buttonPress)}
             >
               {isSaving ? <Spinner size="sm" /> : <Save size={18} />}
             </Button>
@@ -418,7 +418,7 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
               color="secondary"
               isDisabled={messages.length === 0}
               onPress={handleExportConversation}
-              className={cn(ds.focus.ring, ds.animation.transition)}
+              className={cn(ds.focus.ring, ds.animation.buttonPress)}
             >
               <Download size={18} />
             </Button>
@@ -430,7 +430,7 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
               color="danger"
               isDisabled={messages.length === 0 || isLoading}
               onPress={handleClearConversation}
-              className={cn(ds.focus.ring, ds.animation.transition)}
+              className={cn(ds.focus.ring, ds.animation.buttonPress)}
             >
               <Trash size={18} />
             </Button>
@@ -538,7 +538,7 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
             value={userInput}
             onChange={handleInputChange}
             placeholder="Type your message..."
-            className={cn('flex-1', ds.focus.ring, ds.animation.transition)}
+            className={cn('flex-1', ds.focus.ring, ds.animation.formFocus)}
             isDisabled={isLoading}
             onKeyDown={handleKeyPress}
             aria-label="Enter your message to send to the GPT"
@@ -549,7 +549,7 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
             color="primary"
             isDisabled={!userInput.trim() || isLoading}
             isIconOnly
-            className={cn(ds.focus.ring, ds.animation.transition)}
+            className={cn(ds.focus.ring, ds.animation.buttonPress)}
             aria-label="Send message to GPT assistant"
           >
             <Send size={18} />

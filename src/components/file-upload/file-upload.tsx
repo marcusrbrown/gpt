@@ -119,13 +119,20 @@ export function FileUpload({
           // Disabled or loading state
           (disabled || isLoading) &&
             cn('border-border-subtle', theme.surface(0), ds.state.disabled, 'cursor-not-allowed'),
-          // Dragging state (when not disabled/loading)
-          isDragging && !disabled && !isLoading && cn('border-primary-500', theme.surface(1), 'shadow-md'),
+          // Dragging state (when not disabled/loading) - enhanced with scale
+          isDragging &&
+            !disabled &&
+            !isLoading &&
+            cn('border-primary-500', theme.surface(1), 'shadow-md scale-[1.02] bg-primary-50 dark:bg-primary-950'),
           // Default state (when not dragging, disabled, or loading)
           !isDragging &&
             !disabled &&
             !isLoading &&
-            cn('border-border-default hover:border-border-strong', theme.surface(0), 'hover:shadow-md'),
+            cn(
+              'border-border-default hover:border-border-strong',
+              theme.surface(0),
+              'hover:shadow-md hover:scale-[1.01]',
+            ),
         )}
         onDragOver={disabled || isLoading ? undefined : handleDragOver}
         onDragLeave={disabled || isLoading ? undefined : handleDragLeave}
@@ -189,6 +196,7 @@ export function FileUpload({
                   'w-8 h-8',
                   ds.animation.transition,
                   disabled ? 'text-content-tertiary' : 'text-content-secondary',
+                  isDragging && 'text-primary-500 scale-110',
                 )}
               />
 
