@@ -75,10 +75,12 @@ body {
   }
 
   /* Smooth transitions for theme changes using design system timing */
-  *,
-  *::before,
-  *::after {
-    @apply transition-colors duration-200 ease-in-out;
+  @media (prefers-reduced-motion: no-preference) {
+    *,
+    *::before,
+    *::after {
+      @apply transition-colors duration-200 ease-in-out;
+    }
   }
 
   /* Custom scrollbar */
