@@ -77,16 +77,26 @@ export const ds = {
 
   // Animation classes
   animation: {
-    // Component entrance animations
-    fadeIn: 'animate-in fade-in duration-300',
-    slideIn: 'animate-in slide-in-from-bottom-4 duration-300',
-    scaleIn: 'animate-in zoom-in-95 duration-200',
-    transition: 'transition-all duration-200 ease-in-out',
+    // Component entrance animations - respect prefers-reduced-motion
+    fadeIn: 'motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300',
+    slideIn: 'motion-safe:animate-in motion-safe:slide-in-from-bottom-4 motion-safe:duration-300',
+    scaleIn: 'motion-safe:animate-in motion-safe:zoom-in-95 motion-safe:duration-200',
+    transition: 'motion-safe:transition-all motion-safe:duration-200 motion-safe:ease-in-out',
 
-    // Micro-interaction feedback patterns
-    buttonPress: 'active:scale-[0.98] active:shadow-sm transition-transform duration-100',
-    cardHover: 'hover:scale-[1.02] hover:shadow-lg transition-all duration-200',
-    formFocus: 'focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-colors duration-200',
+    // Micro-interaction feedback patterns - simplified on reduced motion
+    buttonPress:
+      'motion-safe:active:scale-[0.98] motion-safe:active:shadow-sm motion-safe:transition-transform motion-safe:duration-100',
+    cardHover:
+      'motion-safe:hover:scale-[1.02] motion-safe:hover:shadow-lg motion-safe:transition-all motion-safe:duration-200',
+    formFocus:
+      'motion-safe:focus:border-primary-500 motion-safe:focus:ring-2 motion-safe:focus:ring-primary-500/20 motion-safe:transition-colors motion-safe:duration-200',
+
+    // Reduced motion alternatives - instant state changes without animation
+    reducedMotion: {
+      fadeIn: 'motion-reduce:opacity-100',
+      slideIn: 'motion-reduce:translate-y-0',
+      scaleIn: 'motion-reduce:scale-100',
+    },
   },
 
   // Focus styles for accessibility

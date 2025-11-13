@@ -20,7 +20,7 @@ function ThemeScript() {
 
 export const Providers = ({children}: ProvidersProps): React.ReactElement => {
   return (
-    <NextThemesProvider attribute="data-theme" defaultTheme="system" enableSystem={true} disableTransitionOnChange>
+    <NextThemesProvider attribute="data-theme" defaultTheme="system" enableSystem={true}>
       <HeroUIProvider>
         <ThemeScript />
         <StorageProvider>

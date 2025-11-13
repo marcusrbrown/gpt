@@ -120,30 +120,32 @@ function NavItemComponent({item}: {item: NavItem}) {
       {item.items && (
         <div
           className={cn(
-            'overflow-hidden',
+            'grid overflow-hidden',
             ds.animation.transition,
-            isExpanded ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0',
+            isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
           )}
         >
-          <div className={cn('ml-3 pl-3 mt-1', theme.border('default'), 'border-l')}>
-            {item.items.map(subItem => (
-              <SidebarLink
-                key={subItem.path}
-                to={subItem.path}
-                className={({isActive}) =>
-                  cn(
-                    'block py-1 px-3 rounded-md',
-                    ds.animation.transition,
-                    ds.text.body.small,
-                    isActive
-                      ? 'text-primary bg-default-100'
-                      : cn(theme.content('secondary'), 'hover:text-content-primary'),
-                  )
-                }
-              >
-                {subItem.title}
-              </SidebarLink>
-            ))}
+          <div className="min-h-0">
+            <div className={cn('ml-3 pl-3 mt-1', theme.border('default'), 'border-l')}>
+              {item.items.map(subItem => (
+                <SidebarLink
+                  key={subItem.path}
+                  to={subItem.path}
+                  className={({isActive}) =>
+                    cn(
+                      'block py-1 px-3 rounded-md',
+                      ds.animation.transition,
+                      ds.text.body.small,
+                      isActive
+                        ? 'text-primary bg-default-100'
+                        : cn(theme.content('secondary'), 'hover:text-content-primary'),
+                    )
+                  }
+                >
+                  {subItem.title}
+                </SidebarLink>
+              ))}
+            </div>
           </div>
         </div>
       )}

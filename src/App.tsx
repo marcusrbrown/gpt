@@ -1,6 +1,6 @@
 import {Spinner} from '@heroui/react'
 import {lazy, Suspense} from 'react'
-import {Route, Routes} from 'react-router-dom'
+import {Route, Routes, useLocation} from 'react-router-dom'
 import {CardGroup} from './components/card-group'
 import {Footer} from './components/footer'
 import {Navbar} from './components/navbar'
@@ -24,24 +24,26 @@ const AgentTutorial = lazy(async () =>
 const ApiReference = lazy(async () => import('@/components/docs/api-reference').then(m => ({default: m.ApiReference})))
 
 function App() {
+  const location = useLocation()
+
   return (
     <OpenAIProvider>
       <StorageProvider>
         <Providers>
           <div className="relative flex flex-col min-h-screen">
             <Navbar />
-            <div className="flex-grow">
-              <Routes>
+            <div className="grow">
+              <Routes key={location.pathname}>
                 {/* Home page */}
                 <Route
                   path="/"
                   element={
-                    <main className={cn(ds.layout.container, 'py-12')}>
+                    <main className={cn(ds.layout.container, 'py-12', ds.animation.fadeIn)}>
                       <div className="text-center py-12 mb-8">
                         <h1
                           className={cn(
                             responsive.heading.responsive,
-                            'mb-4 bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent',
+                            'mb-4 bg-linear-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent',
                           )}
                         >
                           Custom GPTs
@@ -59,7 +61,7 @@ function App() {
                 <Route
                   path="/gpt/new"
                   element={
-                    <main className="h-[calc(100vh-var(--header-height))]">
+                    <main className={cn('h-[calc(100vh-var(--header-height))]', ds.animation.slideIn)}>
                       <GPTEditorPage />
                     </main>
                   }
@@ -67,14 +69,21 @@ function App() {
                 <Route
                   path="/gpt/edit/:gptId"
                   element={
-                    <main className="h-[calc(100vh-var(--header-height))]">
+                    <main className={cn('h-[calc(100vh-var(--header-height))]', ds.animation.slideIn)}>
                       <GPTEditorPage />
                     </main>
                   }
                 />
 
                 {/* GPT Test route */}
-                <Route path="/gpt/test/:gptId" element={<GPTTestPage />} />
+                <Route
+                  path="/gpt/test/:gptId"
+                  element={
+                    <div className={ds.animation.slideIn}>
+                      <GPTTestPage />
+                    </div>
+                  }
+                />
 
                 {/* Documentation routes */}
                 <Route
@@ -82,20 +91,22 @@ function App() {
                   element={
                     <Suspense
                       fallback={
-                        <div className="flex-grow flex items-center justify-center">
+                        <div className="grow flex items-center justify-center">
                           <Spinner size="lg" color="primary" />
                         </div>
                       }
                     >
-                      <DocLayout sidebar={<DocsSidebar />}>
-                        <Routes>
-                          <Route index element={<DocsIndex />} />
-                          <Route path="getting-started" element={<GettingStarted />} />
-                          <Route path="api" element={<ApiReference />} />
-                          <Route path="tutorials/first-agent" element={<AgentTutorial />} />
-                          {/* Add more doc routes as needed */}
-                        </Routes>
-                      </DocLayout>
+                      <div className={ds.animation.fadeIn}>
+                        <DocLayout sidebar={<DocsSidebar />}>
+                          <Routes>
+                            <Route index element={<DocsIndex />} />
+                            <Route path="getting-started" element={<GettingStarted />} />
+                            <Route path="api" element={<ApiReference />} />
+                            <Route path="tutorials/first-agent" element={<AgentTutorial />} />
+                            {/* Add more doc routes as needed */}
+                          </Routes>
+                        </DocLayout>
+                      </div>
                     </Suspense>
                   }
                 />

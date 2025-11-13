@@ -2,6 +2,7 @@ import type {FC} from 'react'
 import mine from '@/assets/mine.json'
 import {Card} from '@/components/card'
 import {UserGPTCard} from '@/components/user-gpt-card'
+import {useIntersectionObserver} from '@/hooks/use-intersection-observer'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds, responsive} from '@/lib/design-system'
 import {Button} from '@heroui/react'
@@ -12,13 +13,18 @@ export interface CardGroupProps {}
 
 export const CardGroup: FC<CardGroupProps> = () => {
   const {getAllGPTs} = useStorage()
+  const [userSectionRef, isUserSectionVisible] = useIntersectionObserver<HTMLDivElement>({triggerOnce: true})
+  const [exampleSectionRef, isExampleSectionVisible] = useIntersectionObserver<HTMLDivElement>({triggerOnce: true})
 
   const userGPTs = getAllGPTs()
 
   return (
     <div className="space-y-8">
       {/* User's GPTs section */}
-      <div>
+      <div
+        ref={userSectionRef}
+        className={cn('transition-opacity duration-700', isUserSectionVisible ? 'opacity-100' : 'opacity-0')}
+      >
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
           <h2 className={responsive.heading.large}>Your GPTs</h2>
           <Button
@@ -36,8 +42,10 @@ export const CardGroup: FC<CardGroupProps> = () => {
 
         {userGPTs.length > 0 ? (
           <div className={responsive.cardGrid.threeColumn}>
-            {userGPTs.map(gpt => (
-              <UserGPTCard key={gpt.id} gpt={gpt} />
+            {userGPTs.map((gpt, index) => (
+              <div key={gpt.id} className={ds.animation.fadeIn} style={{animationDelay: `${index * 50}ms`}}>
+                <UserGPTCard gpt={gpt} />
+              </div>
             ))}
           </div>
         ) : (
@@ -67,11 +75,16 @@ export const CardGroup: FC<CardGroupProps> = () => {
       </div>
 
       {/* Example GPTs section */}
-      <div>
+      <div
+        ref={exampleSectionRef}
+        className={cn('transition-opacity duration-700', isExampleSectionVisible ? 'opacity-100' : 'opacity-0')}
+      >
         <h2 className={cn(responsive.heading.large, 'mb-6')}>Example GPTs</h2>
         <div className={responsive.cardGrid.threeColumn}>
-          {mine.map(card => (
-            <Card key={card.name} {...card} />
+          {mine.map((card, index) => (
+            <div key={card.name} className={ds.animation.fadeIn} style={{animationDelay: `${index * 50}ms`}}>
+              <Card {...card} />
+            </div>
           ))}
         </div>
       </div>
