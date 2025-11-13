@@ -43,8 +43,9 @@ export const FeatureCard: FC<FeatureCardProps> = ({
         compose.card(),
         'max-w-sm',
         'cursor-pointer',
-        'group', // Add group class for hover effects
+        'group',
         ds.focus.ring,
+        ds.animation.cardHover,
         isLoading && ds.state.loading,
         error && ds.state.error,
       )}

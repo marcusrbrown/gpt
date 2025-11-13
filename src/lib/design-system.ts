@@ -81,6 +81,10 @@ export const ds = {
     slideIn: 'animate-in slide-in-from-bottom-4 duration-300',
     scaleIn: 'animate-in zoom-in-95 duration-200',
     transition: 'transition-all duration-200 ease-in-out',
+    // Micro-interaction patterns
+    buttonPress: 'active:scale-[0.98] active:shadow-sm transition-transform duration-100',
+    cardHover: 'hover:scale-[1.02] hover:shadow-lg transition-all duration-200',
+    formFocus: 'focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-colors duration-200',
   },
 
   // Focus styles for accessibility
@@ -159,11 +163,18 @@ export const compose = {
   button: (isLoading?: boolean, isDisabledOrClassName?: boolean | string, className?: string) => {
     // Handle backward compatibility: button(isLoading, className)
     if (typeof isDisabledOrClassName === 'string') {
-      return cn(ds.animation.transition, ds.focus.ring, isLoading && ds.state.loading, isDisabledOrClassName)
+      return cn(
+        ds.animation.transition,
+        ds.animation.buttonPress,
+        ds.focus.ring,
+        isLoading && ds.state.loading,
+        isDisabledOrClassName,
+      )
     }
     // New signature: button(isLoading, isDisabled, className)
     return cn(
       ds.animation.transition,
+      ds.animation.buttonPress,
       ds.focus.ring,
       isLoading && ds.state.loading,
       isDisabledOrClassName && ds.state.disabled,

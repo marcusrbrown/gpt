@@ -17,9 +17,10 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
     <Card
       className={cn(
         compose.card('max-w-sm'),
-        'p-0 border-2', // Override compose.card padding since HeroUI Card handles internal spacing
+        'p-0 border-2',
         'hover:border-primary-300 dark:hover:border-primary-600',
         ds.focus.ring,
+        ds.animation.cardHover,
         isLoading && ds.state.loading,
         error && ds.state.error,
       )}
@@ -76,7 +77,7 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
               variant="flat"
               color="primary"
               startContent={<Edit size={16} />}
-              className={cn('flex items-center', ds.animation.transition)}
+              className={cn('flex items-center', ds.animation.transition, ds.animation.buttonPress)}
               size="sm"
             >
               Edit
@@ -87,7 +88,7 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
               variant="solid"
               color="primary"
               startContent={<Play size={16} />}
-              className={cn('flex items-center', ds.animation.transition)}
+              className={cn('flex items-center', ds.animation.transition, ds.animation.buttonPress)}
               size="sm"
             >
               Test

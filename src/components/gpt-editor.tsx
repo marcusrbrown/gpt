@@ -130,7 +130,7 @@ function VectorKnowledge({
             id="storeName"
             value={newStoreName}
             onChange={e => setNewStoreName(e.target.value)}
-            className="mt-1"
+            className={cn('mt-1', ds.animation.formFocus)}
             placeholder="My Knowledge Base"
             isDisabled={isCreating}
           />
@@ -170,6 +170,7 @@ function VectorKnowledge({
           color="primary"
           onPress={handleCreateStore}
           isDisabled={isCreating || selectedFiles.length === 0 || !newStoreName.trim()}
+          className={cn(ds.animation.buttonPress)}
         >
           {isCreating ? <Spinner size="sm" /> : 'Create Vector Store'}
         </Button>
@@ -190,7 +191,13 @@ function VectorKnowledge({
                     {store.fileIds.length} files indexed
                   </p>
                 </div>
-                <Button color="danger" size="sm" variant="ghost" onPress={() => onDeleteVectorStore(store.id)}>
+                <Button
+                  color="danger"
+                  size="sm"
+                  variant="ghost"
+                  onPress={() => onDeleteVectorStore(store.id)}
+                  className={cn(ds.animation.buttonPress)}
+                >
                   Remove
                 </Button>
               </div>
@@ -624,7 +631,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   variant="solid"
                   onPress={() => importGptRef.current?.click()}
                   isDisabled={isSubmitting}
-                  className={cn(ds.animation.transition)}
+                  className={cn(ds.animation.transition, ds.animation.buttonPress)}
                 >
                   Import
                 </Button>
@@ -633,7 +640,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   variant="solid"
                   onPress={handleExportGPT}
                   isDisabled={isSubmitting || isExporting}
-                  className={cn(ds.animation.transition)}
+                  className={cn(ds.animation.transition, ds.animation.buttonPress)}
                 >
                   {isExporting ? <Spinner size="sm" /> : 'Export'}
                 </Button>
@@ -642,7 +649,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   variant="solid"
                   onPress={() => handleSubmit(new Event('submit') as unknown as React.FormEvent)}
                   isDisabled={isSubmitting}
-                  className={cn(ds.animation.transition)}
+                  className={cn(ds.animation.transition, ds.animation.buttonPress)}
                 >
                   {isSubmitting ? <Spinner size="sm" /> : 'Save'}
                 </Button>
@@ -697,7 +704,11 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                   isInvalid={!!errors.name}
                   errorMessage={errors.name}
                   isRequired
-                  className={cn(hasFieldSuccess('name') && !errors.name && ds.state.success, ds.animation.transition)}
+                  className={cn(
+                    hasFieldSuccess('name') && !errors.name && ds.state.success,
+                    ds.animation.transition,
+                    ds.animation.formFocus,
+                  )}
                 />
               </div>
               <div>
@@ -721,6 +732,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                     ds.form.fieldGroup,
                     hasFieldSuccess('description') && !errors.description && ds.state.success,
                     ds.animation.transition,
+                    ds.animation.formFocus,
                   )}
                 />
               </div>
@@ -745,6 +757,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                     ds.form.fieldGroup,
                     hasFieldSuccess('systemPrompt') && !errors.systemPrompt && ds.state.success,
                     ds.animation.transition,
+                    ds.animation.formFocus,
                   )}
                 />
               </div>
@@ -781,12 +794,20 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                         ))}
                       </div>
                       <div className="mt-2">
-                        <Button onClick={() => fileInputRef.current?.click()}>Add File</Button>
+                        <Button onClick={() => fileInputRef.current?.click()} className={cn(ds.animation.buttonPress)}>
+                          Add File
+                        </Button>
                         {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
                         <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} multiple />
                       </div>
                     </div>
-                    <Button onPress={handleAddUrl} size="sm" color="primary" variant="flat">
+                    <Button
+                      onPress={handleAddUrl}
+                      size="sm"
+                      color="primary"
+                      variant="flat"
+                      className={cn(ds.animation.buttonPress)}
+                    >
                       Add URL
                     </Button>
                   </div>
@@ -803,9 +824,15 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                           value={url}
                           onChange={e => handleUrlChange(index, e.target.value)}
                           placeholder="https://example.com"
-                          className="flex-1"
+                          className={cn('flex-1', ds.animation.formFocus)}
                         />
-                        <Button onPress={() => handleRemoveUrl(index)} size="sm" color="danger" variant="light">
+                        <Button
+                          onPress={() => handleRemoveUrl(index)}
+                          size="sm"
+                          color="danger"
+                          variant="light"
+                          className={cn(ds.animation.buttonPress)}
+                        >
                           Remove
                         </Button>
                       </div>
@@ -887,7 +914,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                 onChange={e => setTestMessage(e.target.value)}
                 placeholder="Type your message..."
                 disabled={isTesting}
-                className="flex-1"
+                className={cn('flex-1', ds.animation.formFocus)}
                 {...(isTesting ? {'aria-describedby': 'test-loading-status'} : {})}
               />
               <Button
@@ -895,7 +922,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                 color="primary"
                 isLoading={isTesting}
                 disabled={!testMessage.trim() || isTesting}
-                className={cn(ds.animation.transition)}
+                className={cn(ds.animation.transition, ds.animation.buttonPress)}
               >
                 {isTesting ? 'Sending...' : 'Send'}
               </Button>
@@ -937,7 +964,13 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                     className="flex items-center justify-between py-1"
                   >
                     <span>{file.name}</span>
-                    <Button size="sm" variant="ghost" onClick={() => handleRemoveFile(index)} aria-label="Remove file">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleRemoveFile(index)}
+                      aria-label="Remove file"
+                      className={cn(ds.animation.buttonPress)}
+                    >
                       Remove
                     </Button>
                   </li>

@@ -27,7 +27,7 @@ export const CardGroup: FC<CardGroupProps> = () => {
             color="primary"
             variant="solid"
             startContent={<Plus size={16} />}
-            className={cn('w-fit flex items-center', ds.animation.transition)}
+            className={cn('w-fit flex items-center', ds.animation.transition, ds.animation.buttonPress)}
             size="md"
           >
             Create New GPT
@@ -44,7 +44,7 @@ export const CardGroup: FC<CardGroupProps> = () => {
           <div
             className={cn(
               'rounded-xl p-12 text-center border-2 shadow-sm',
-              'bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-950 dark:to-primary-900',
+              'bg-linear-to-br from-primary-50 to-primary-100 dark:from-primary-950 dark:to-primary-900',
               'border-primary-200 dark:border-primary-800',
             )}
           >
@@ -58,7 +58,7 @@ export const CardGroup: FC<CardGroupProps> = () => {
               variant="solid"
               size="lg"
               startContent={<Plus size={20} />}
-              className={cn('flex items-center', ds.animation.transition, 'shadow-md')}
+              className={cn('flex items-center', ds.animation.transition, ds.animation.buttonPress, 'shadow-md')}
             >
               Create Your First GPT
             </Button>
