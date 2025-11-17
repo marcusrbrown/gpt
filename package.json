@@ -40,10 +40,10 @@
   "dependencies": {
     "@bfra.me/prettier-config": "0.16.1",
     "@heroui/react": "2.8.5",
-    "@langchain/anthropic": "1.0.0",
-    "@langchain/core": "1.0.4",
+    "@langchain/anthropic": "1.0.1",
+    "@langchain/core": "1.0.5",
     "@langchain/langgraph": "1.0.2",
-    "@langchain/openai": "1.1.0",
+    "@langchain/openai": "1.1.1",
     "@monaco-editor/react": "4.7.0",
     "@react-aria/ssr": "3.9.10",
     "clsx": "2.1.1",
