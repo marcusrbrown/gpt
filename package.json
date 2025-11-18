@@ -24,6 +24,7 @@
     "test:accessibility:ui": "playwright test tests/accessibility/ --ui",
     "test:accessibility:debug": "playwright test tests/accessibility/ --debug",
     "test:accessibility:headed": "playwright test tests/accessibility/ --headed",
+    "test:performance": "playwright test --config=playwright-performance.config.ts",
     "fix": "eslint --fix",
     "lint": "eslint",
     "preview": "vite preview"
@@ -85,7 +86,9 @@
     "eslint-plugin-react-refresh": "0.4.24",
     "jiti": "2.6.1",
     "jsdom": "27.2.0",
+    "lighthouse": "13.0.1",
     "lint-staged": "16.2.6",
+    "playwright-lighthouse": "4.0.0",
     "prettier": "3.6.2",
     "simple-git-hooks": "2.13.1",
     "tailwindcss": "4.1.17",
