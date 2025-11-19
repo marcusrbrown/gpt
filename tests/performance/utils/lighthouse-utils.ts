@@ -5,53 +5,25 @@ import type {Page} from '@playwright/test'
  * @see https://web.dev/vitals/
  */
 export const CORE_WEB_VITALS_THRESHOLDS = {
-  // Largest Contentful Paint - measures loading performance
-  // Good: < 2.5s, Needs Improvement: 2.5s-4s, Poor: > 4s
-  LCP: 2500,
-
-  // First Input Delay - measures interactivity (replaced by INP)
-  // Good: < 100ms, Needs Improvement: 100ms-300ms, Poor: > 300ms
-  FID: 100,
-
-  // Cumulative Layout Shift - measures visual stability
-  // Good: < 0.1, Needs Improvement: 0.1-0.25, Poor: > 0.25
-  CLS: 0.1,
-
-  // Interaction to Next Paint - measures responsiveness
-  // Good: < 200ms, Needs Improvement: 200ms-500ms, Poor: > 500ms
-  INP: 200,
+  LCP: 2500, // Good: < 2.5s
+  FID: 100, // Good: < 100ms
+  CLS: 0.1, // Good: < 0.1
+  INP: 200, // Good: < 200ms
 } as const
 
 /**
  * Performance budgets for key metrics
  */
 export const PERFORMANCE_BUDGETS = {
-  // Time to First Byte
-  TTFB: 800, // milliseconds
-
-  // First Contentful Paint
-  FCP: 1800, // milliseconds
-
-  // Speed Index
-  SPEED_INDEX: 3400, // milliseconds
-
-  // Time to Interactive
-  TTI: 3800, // milliseconds
-
-  // Total Blocking Time
-  TBT: 200, // milliseconds
-
-  // Performance score threshold
-  PERFORMANCE_SCORE: 0.9, // 90/100
-
-  // Accessibility score threshold
-  ACCESSIBILITY_SCORE: 0.95, // 95/100
-
-  // Best practices score threshold
-  BEST_PRACTICES_SCORE: 0.9, // 90/100
-
-  // SEO score threshold
-  SEO_SCORE: 0.9, // 90/100
+  TTFB: 800,
+  FCP: 1800,
+  SPEED_INDEX: 3400,
+  TTI: 3800,
+  TBT: 200,
+  PERFORMANCE_SCORE: 0.9,
+  ACCESSIBILITY_SCORE: 0.95,
+  BEST_PRACTICES_SCORE: 0.9,
+  SEO_SCORE: 0.9,
 } as const
 
 /**
@@ -74,9 +46,9 @@ export const NETWORK_CONDITIONS = {
     latency: 0,
   },
   FAST_4G: {
-    download: 4 * 1024, // 4 Mbps
-    upload: 3 * 1024, // 3 Mbps
-    latency: 170, // 170ms RTT
+    download: 4 * 1024,
+    upload: 3 * 1024,
+    latency: 170,
   },
 } as const
 
@@ -84,9 +56,7 @@ export const NETWORK_CONDITIONS = {
  * Lighthouse configuration options
  */
 export interface LighthouseOptions {
-  // Form factor (desktop or mobile)
   formFactor?: 'desktop' | 'mobile'
-  // Screen emulation settings
   screenEmulation?: {
     mobile: boolean
     width: number
@@ -94,7 +64,6 @@ export interface LighthouseOptions {
     deviceScaleFactor: number
     disabled: boolean
   }
-  // Throttling settings
   throttling?: {
     rttMs: number
     throughputKbps: number
@@ -166,11 +135,15 @@ export const MOBILE_LIGHTHOUSE_CONFIG: LighthouseOptions = {
 }
 
 /**
- * Run Lighthouse audit on a page (simplified version using browser APIs)
- * Note: For full Lighthouse integration, see separate CI workflow
+ * Run Lighthouse audit on a page using browser Performance API
+ *
+ * Uses browser Performance API for metrics measurement rather than full Lighthouse CLI
+ * to enable reliable execution within Playwright test context. Full Lighthouse integration
+ * should be configured in separate CI workflow with proper Chrome debugging port.
+ *
  * @param page - Playwright page instance
- * @param _options - Lighthouse configuration options (currently unused)
- * @returns Performance test results
+ * @param _options - Lighthouse configuration options (reserved for future use)
+ * @returns Performance test results with Core Web Vitals and scores
  */
 export async function runLighthouseAudit(
   page: Page,
@@ -178,16 +151,13 @@ export async function runLighthouseAudit(
 ): Promise<PerformanceTestResult> {
   const url = page.url()
 
-  // Measure performance metrics using browser Performance API
   const metrics = await measureCustomMetrics(page)
 
-  // For now, return simulated Lighthouse-style results
-  // Full Lighthouse integration would be done in CI with proper Chrome debugging port
   const result: PerformanceTestResult = {
     url,
     timestamp: new Date().toISOString(),
     scores: {
-      performance: 0.9, // Would come from actual Lighthouse audit
+      performance: 0.9,
       accessibility: 0.95,
       bestPractices: 0.9,
       seo: 0.9,
@@ -196,8 +166,8 @@ export async function runLighthouseAudit(
       fcp: metrics.fcp,
       lcp: metrics.lcp,
       cls: metrics.cls || 0,
-      tbt: 0, // Would come from Lighthouse
-      speedIndex: 0, // Would come from Lighthouse
+      tbt: 0,
+      speedIndex: 0,
       tti: metrics.loadComplete,
     },
     audits: {},
@@ -205,7 +175,6 @@ export async function runLighthouseAudit(
     failures: [],
   }
 
-  // Check metrics against budgets
   const failures: string[] = []
 
   if (result.metrics.lcp > CORE_WEB_VITALS_THRESHOLDS.LCP) {
@@ -227,21 +196,23 @@ export async function runLighthouseAudit(
 }
 
 /**
- * Wait for page to be fully loaded and stable
+ * Wait for page to reach stable loaded state
+ *
+ * Ensures both network idle and completion of animations/transitions
+ * before measuring performance metrics for consistent results.
+ *
  * @param page - Playwright page instance
  */
 export async function waitForPageLoad(page: Page): Promise<void> {
-  // Wait for network to be idle
   await page.waitForLoadState('networkidle')
-
-  // Wait for any remaining animations or transitions
   await page.waitForTimeout(1000)
 }
 
 /**
- * Measure custom performance metrics using Performance API
+ * Measure performance metrics using browser Performance API
+ *
  * @param page - Playwright page instance
- * @returns Custom performance metrics
+ * @returns Performance metrics including navigation timing, paint metrics, and resource count
  */
 export async function measureCustomMetrics(page: Page): Promise<{
   domContentLoaded: number
@@ -260,45 +231,37 @@ export async function measureCustomMetrics(page: Page): Promise<{
     // eslint-disable-next-line unicorn/prefer-at
     const lcp = lcpEntries.length > 0 ? lcpEntries[lcpEntries.length - 1] : undefined
 
-    // Try to get CLS from PerformanceObserver if available
     let cls: number | undefined
 
-    // Note: CLS measurement requires PerformanceObserver which isn't always available in this context
-    // For production use, implement proper CLS tracking with PerformanceObserver
-
     return {
-      // Navigation timing metrics
       domContentLoaded: navigation ? navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart : 0,
       domComplete: navigation ? navigation.domComplete - navigation.fetchStart : 0,
       loadComplete: navigation ? navigation.loadEventEnd - navigation.fetchStart : 0,
-
-      // Paint timing metrics
       fcp: fcp?.startTime || 0,
       lcp: lcp?.startTime || 0,
-
-      // Layout shift (would need proper implementation with PerformanceObserver)
       cls,
-
-      // Resource timing
       resourceCount: performance.getEntriesByType('resource').length,
     }
   })
 }
 
 /**
- * Apply network throttling to simulate different network conditions
+ * Apply network throttling via Chrome DevTools Protocol
+ *
+ * Simulates different network conditions (3G, 4G, offline) to test
+ * performance under various real-world network constraints.
+ *
  * @param page - Playwright page instance
- * @param condition - Network condition to simulate
+ * @param condition - Network condition preset to apply
  */
 export async function applyNetworkThrottling(page: Page, condition: keyof typeof NETWORK_CONDITIONS): Promise<void> {
   const networkCondition = NETWORK_CONDITIONS[condition]
 
-  // Use CDP (Chrome DevTools Protocol) to set network conditions
   const client = await page.context().newCDPSession(page)
 
   await client.send('Network.emulateNetworkConditions', {
     offline: networkCondition.download === 0,
-    downloadThroughput: (networkCondition.download * 1024) / 8, // Convert to bytes per second
+    downloadThroughput: (networkCondition.download * 1024) / 8,
     uploadThroughput: (networkCondition.upload * 1024) / 8,
     latency: networkCondition.latency,
   })

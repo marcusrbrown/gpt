@@ -1,6 +1,9 @@
 /**
  * Performance budgets configuration
- * Defines thresholds for key performance metrics across different pages
+ *
+ * Defines thresholds for key performance metrics across different pages.
+ * Budgets are based on Google's Core Web Vitals "Good" thresholds and
+ * adjusted per page complexity.
  *
  * @see https://web.dev/performance-budgets-101/
  */
@@ -42,27 +45,20 @@ export const PERFORMANCE_BUDGETS: PageBudget[] = [
     name: 'Homepage',
     path: '/',
     budgets: {
-      // Core Web Vitals - target "Good" thresholds
-      lcp: 2500, // < 2.5s
-      fid: 100, // < 100ms
-      cls: 0.1, // < 0.1
-      inp: 200, // < 200ms
-
-      // Loading metrics
-      fcp: 1800, // < 1.8s
-      ttfb: 800, // < 800ms
-      tti: 3800, // < 3.8s
-      tbt: 200, // < 200ms
-      speedIndex: 3400, // < 3.4s
-
-      // Lighthouse scores
-      performanceScore: 0.9, // 90/100
-      accessibilityScore: 0.95, // 95/100
-      bestPracticesScore: 0.9, // 90/100
-      seoScore: 0.9, // 90/100
-
-      // Resource budgets
-      maxBundleSize: 500, // 500 KB
+      lcp: 2500,
+      fid: 100,
+      cls: 0.1,
+      inp: 200,
+      fcp: 1800,
+      ttfb: 800,
+      tti: 3800,
+      tbt: 200,
+      speedIndex: 3400,
+      performanceScore: 0.9,
+      accessibilityScore: 0.95,
+      bestPracticesScore: 0.9,
+      seoScore: 0.9,
+      maxBundleSize: 500,
       maxResourceCount: 50,
     },
   },
@@ -70,27 +66,20 @@ export const PERFORMANCE_BUDGETS: PageBudget[] = [
     name: 'GPT Editor',
     path: '/gpt/new',
     budgets: {
-      // Core Web Vitals - slightly relaxed for editor complexity
-      lcp: 3000, // < 3s
-      fid: 100, // < 100ms
-      cls: 0.1, // < 0.1
-      inp: 200, // < 200ms
-
-      // Loading metrics
-      fcp: 2000, // < 2s
-      ttfb: 800, // < 800ms
-      tti: 4500, // < 4.5s
-      tbt: 300, // < 300ms
-      speedIndex: 4000, // < 4s
-
-      // Lighthouse scores
-      performanceScore: 0.85, // 85/100 (editor is more complex)
-      accessibilityScore: 0.95, // 95/100
-      bestPracticesScore: 0.9, // 90/100
-      seoScore: 0.85, // 85/100
-
-      // Resource budgets
-      maxBundleSize: 800, // 800 KB (Monaco editor included)
+      lcp: 3000,
+      fid: 100,
+      cls: 0.1,
+      inp: 200,
+      fcp: 2000,
+      ttfb: 800,
+      tti: 4500,
+      tbt: 300,
+      speedIndex: 4000,
+      performanceScore: 0.85,
+      accessibilityScore: 0.95,
+      bestPracticesScore: 0.9,
+      seoScore: 0.85,
+      maxBundleSize: 800,
       maxResourceCount: 75,
     },
   },
@@ -98,27 +87,20 @@ export const PERFORMANCE_BUDGETS: PageBudget[] = [
     name: 'GPT Test Playground',
     path: '/gpt/test',
     budgets: {
-      // Core Web Vitals
-      lcp: 2800, // < 2.8s
-      fid: 100, // < 100ms
-      cls: 0.1, // < 0.1
-      inp: 200, // < 200ms
-
-      // Loading metrics
-      fcp: 1900, // < 1.9s
-      ttfb: 800, // < 800ms
-      tti: 4000, // < 4s
-      tbt: 250, // < 250ms
-      speedIndex: 3700, // < 3.7s
-
-      // Lighthouse scores
-      performanceScore: 0.88, // 88/100
-      accessibilityScore: 0.95, // 95/100
-      bestPracticesScore: 0.9, // 90/100
-      seoScore: 0.85, // 85/100
-
-      // Resource budgets
-      maxBundleSize: 600, // 600 KB
+      lcp: 2800,
+      fid: 100,
+      cls: 0.1,
+      inp: 200,
+      fcp: 1900,
+      ttfb: 800,
+      tti: 4000,
+      tbt: 250,
+      speedIndex: 3700,
+      performanceScore: 0.88,
+      accessibilityScore: 0.95,
+      bestPracticesScore: 0.9,
+      seoScore: 0.85,
+      maxBundleSize: 600,
       maxResourceCount: 60,
     },
   },
@@ -126,27 +108,20 @@ export const PERFORMANCE_BUDGETS: PageBudget[] = [
     name: 'Settings Page',
     path: '/settings',
     budgets: {
-      // Core Web Vitals
-      lcp: 2300, // < 2.3s
-      fid: 100, // < 100ms
-      cls: 0.1, // < 0.1
-      inp: 200, // < 200ms
-
-      // Loading metrics
-      fcp: 1700, // < 1.7s
-      ttfb: 800, // < 800ms
-      tti: 3500, // < 3.5s
-      tbt: 200, // < 200ms
-      speedIndex: 3200, // < 3.2s
-
-      // Lighthouse scores
-      performanceScore: 0.92, // 92/100
-      accessibilityScore: 0.95, // 95/100
-      bestPracticesScore: 0.9, // 90/100
-      seoScore: 0.88, // 88/100
-
-      // Resource budgets
-      maxBundleSize: 450, // 450 KB
+      lcp: 2300,
+      fid: 100,
+      cls: 0.1,
+      inp: 200,
+      fcp: 1700,
+      ttfb: 800,
+      tti: 3500,
+      tbt: 200,
+      speedIndex: 3200,
+      performanceScore: 0.92,
+      accessibilityScore: 0.95,
+      bestPracticesScore: 0.9,
+      seoScore: 0.88,
+      maxBundleSize: 450,
       maxResourceCount: 45,
     },
   },
@@ -173,8 +148,12 @@ export function getBudgetForPage(path: string): PageBudget {
 }
 
 /**
- * Validate performance results against budget
- * @param metrics - Performance metrics object containing optional metric values
+ * Validate performance metrics against budget thresholds
+ *
+ * Compares actual measured metrics with defined budget limits to identify
+ * performance regressions. Each violation includes specific measured vs. budget values.
+ *
+ * @param metrics - Measured performance metrics
  * @param metrics.lcp - Largest Contentful Paint in milliseconds
  * @param metrics.fcp - First Contentful Paint in milliseconds
  * @param metrics.cls - Cumulative Layout Shift score
@@ -186,7 +165,7 @@ export function getBudgetForPage(path: string): PageBudget {
  * @param metrics.bestPracticesScore - Lighthouse best practices score (0-1)
  * @param metrics.seoScore - Lighthouse SEO score (0-1)
  * @param budget - Performance budget to validate against
- * @returns Array of budget violations
+ * @returns Array of budget violations (empty if all metrics pass)
  */
 export function validateAgainstBudget(
   metrics: {
@@ -205,7 +184,6 @@ export function validateAgainstBudget(
 ): string[] {
   const violations: string[] = []
 
-  // Check Core Web Vitals
   if (metrics.lcp && metrics.lcp > budget.budgets.lcp) {
     violations.push(`LCP ${metrics.lcp}ms exceeds budget ${budget.budgets.lcp}ms`)
   }
@@ -214,7 +192,6 @@ export function validateAgainstBudget(
     violations.push(`CLS ${metrics.cls} exceeds budget ${budget.budgets.cls}`)
   }
 
-  // Check loading metrics
   if (metrics.fcp && metrics.fcp > budget.budgets.fcp) {
     violations.push(`FCP ${metrics.fcp}ms exceeds budget ${budget.budgets.fcp}ms`)
   }
@@ -231,7 +208,6 @@ export function validateAgainstBudget(
     violations.push(`TTI ${metrics.tti}ms exceeds budget ${budget.budgets.tti}ms`)
   }
 
-  // Check Lighthouse scores
   if (metrics.performanceScore && metrics.performanceScore < budget.budgets.performanceScore) {
     violations.push(`Performance score ${metrics.performanceScore} below budget ${budget.budgets.performanceScore}`)
   }
