@@ -25,6 +25,7 @@
     "test:accessibility:debug": "playwright test tests/accessibility/ --debug",
     "test:accessibility:headed": "playwright test tests/accessibility/ --headed",
     "test:performance": "playwright test --config=playwright-performance.config.ts",
+    "test:aggregate": "tsx scripts/aggregate-test-results.ts",
     "fix": "eslint --fix",
     "lint": "eslint",
     "preview": "vite preview"

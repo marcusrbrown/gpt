@@ -68,6 +68,16 @@ jobs:
         name: Test
         run: pnpm run test:coverage -- --ci --reporter=github-actions
 
+      - if: github.event_name == 'workflow_dispatch' || steps.cache-test.outputs.cache-hit != 'true'
+        name: Upload coverage to Codecov
+        uses: codecov/codecov-action@015f24e6818733317a2da2edd6290ab26238649a # v5.0.7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage/coverage-final.json,./coverage/lcov.info
+          flags: unit
+          fail_ci_if_error: false
+          verbose: true
+
   build:
     name: Build
     needs: prepare
