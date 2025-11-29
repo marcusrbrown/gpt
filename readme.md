@@ -30,6 +30,7 @@ The project combines modern AI frameworks with web technologies to create a flex
 - [Jupyter Notebooks](https://docs.deno.com/runtime/reference/cli/jupyter/) with Deno for TypeScript development
 - React-based web interface using [HeroUI](https://www.heroui.com/) components
 - GitHub Pages for hosting and GitHub Actions for CI/CD
+- Comprehensive testing with Playwright, Vitest, axe-core, and Lighthouse
 
 ## Development
 
@@ -48,6 +49,53 @@ For production builds:
 ```bash
 pnpm build
 ```
+
+## Testing
+
+The project includes comprehensive testing across multiple dimensions:
+
+### Unit Tests
+
+```bash
+pnpm test              # Run unit tests
+pnpm test:coverage     # Generate coverage reports
+```
+
+### End-to-End Tests
+
+```bash
+pnpm test:e2e          # Run E2E tests (headless)
+pnpm test:e2e:ui       # Run with interactive UI
+pnpm test:e2e:debug    # Debug tests step-by-step
+```
+
+### Visual Regression Tests
+
+```bash
+pnpm test:visual       # Run visual regression tests
+pnpm test:visual:update # Update baseline screenshots
+```
+
+### Accessibility Tests
+
+```bash
+pnpm test:accessibility # Run WCAG 2.1 AA compliance tests
+```
+
+### Performance Tests
+
+```bash
+pnpm test:performance  # Run Lighthouse performance audits
+```
+
+### Test Coverage Dashboard
+
+View detailed test coverage and quality metrics:
+
+- **Unit Test Coverage**: [Codecov Dashboard](https://codecov.io/gh/marcusrbrown/gpt)
+- **E2E Test Results**: Check workflow artifacts
+- **Accessibility Reports**: WCAG 2.1 AA compliance
+- **Performance Metrics**: Core Web Vitals tracking
 
 ## Notebooks
 
