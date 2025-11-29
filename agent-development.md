@@ -8,7 +8,7 @@ This guide provides a comprehensive framework for developing AI agents within th
 
 ### Agent Architecture
 
-An AI agent consists of three primary components [^1]:
+An AI agent consists of three primary components:
 
 1. **Sensors**: Input processors that handle text, structured data, code, or multimodal content
 2. **Reasoning Engine**: LLM-based decision-making system that processes inputs and determines actions
@@ -16,7 +16,7 @@ An AI agent consists of three primary components [^1]:
 
 ### Agent Types
 
-The project supports multiple agent types [^2]:
+The project supports multiple agent types:
 
 - **Reactive Agents**: Simple input-output processors
 - **Memory-Based Agents**: Agents with state management and context awareness
@@ -25,7 +25,7 @@ The project supports multiple agent types [^2]:
 
 ## Implementation Guide
 
-# Project Setup
+### Project Setup
 
 Install the required dependencies:
 
@@ -33,9 +33,9 @@ Install the required dependencies:
 pnpm add @langchain/core @langchain/langgraph @langchain/openai @langchain/community
 ```
 
-# Agent State Definition
+### Agent State Definition
 
-LangGraph uses state channels for managing agent state [^4]:
+LangGraph uses state channels for managing agent state:
 
 ```typescript
 import process from 'node:process';
@@ -76,9 +76,9 @@ const graph = new StateGraph({
 });
 ```
 
-# Tool Implementation
+### Tool Implementation
 
-Create platform-agnostic tools using LangGraph's ToolNode [^5]:
+Create platform-agnostic tools using LangGraph's ToolNode:
 
 ```typescript
 import type {Tool} from "@langchain/core/tools";
@@ -114,9 +114,9 @@ const createAnalysisTools = () => {
 };
 ```
 
-# Agent Workflow
+### Agent Workflow
 
-Define the agent's reasoning process using LangGraph's workflow system [^6]:
+Define the agent's reasoning process using LangGraph's workflow system:
 
 ```typescript
 import {ChatPromptTemplate, MessagesPlaceholder} from "@langchain/core/prompts";
@@ -157,9 +157,9 @@ const workflow = new StateGraph()
   });
 ```
 
-# Memory and Persistence
+### Memory and Persistence
 
-Implement durable state management using Postgres [^7]:
+Implement durable state management using Postgres:
 
 ```typescript
 import type {CheckpointerConfig} from "@langchain/core/checkpointers";
@@ -184,9 +184,9 @@ const checkpointer = new PostgresCheckpointer({
 const persistentWorkflow = workflow.withCheckpointer(checkpointer);
 ```
 
-# Monitoring and Debugging
+### Monitoring and Debugging
 
-Implement comprehensive monitoring [^8]:
+Implement comprehensive monitoring:
 
 ```typescript
 import type {BaseCallbackConfig} from "@langchain/core/callbacks/manager";
@@ -216,9 +216,9 @@ const monitoredAgent = await persistentWorkflow.compile({
 });
 ```
 
-# API Integration
+### API Integration
 
-Create a type-safe API interface using Fastify with Zod [^9]:
+Create a type-safe API interface using Fastify with Zod:
 
 ```typescript
 import {withTypeProvider, type FastifyZod} from "@fastify/type-provider-zod";
