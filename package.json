@@ -50,7 +50,7 @@
     "clsx": "2.1.1",
     "langchain": "1.1.1",
     "lru-cache": "11.2.2",
-    "lucide-react": "0.548.0",
+    "lucide-react": "0.555.0",
     "next-themes": "0.4.6",
     "openai": "6.9.1",
     "react": "19.2.0",
