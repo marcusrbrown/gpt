@@ -215,7 +215,7 @@ jobs:
       # Create a pull request when triggered from the main branch
       - name: Create pull request
         id: create-pr
-        uses: peter-evans/create-pull-request@d4f3be6ce6f4083b7ac7490ab98b48a62db1ee41 # v7.0.10
+        uses: peter-evans/create-pull-request@22a9089034f40e5a961c8808d113e2c98fb63676 # v7.0.11
         if: github.ref == 'refs/heads/main'
         with:
           assignees: marcusrbrown
