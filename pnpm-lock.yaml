@@ -71,7 +71,7 @@ importers:
         version: 4.11.0(playwright-core@1.57.0)
       '@bfra.me/eslint-config':
         specifier: 0.47.3
-        version: 0.47.3(@eslint-react/eslint-plugin@2.3.12(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/eslint-plugin@8.48.1(@typescript-eslint/parser@8.48.1(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/utils@8.48.1(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(@vitest/eslint-plugin@1.5.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.2.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2)))(eslint-config-prettier@10.1.8(eslint@9.39.1(jiti@2.6.1)))(eslint-plugin-prettier@5.5.4(eslint-config-prettier@10.1.8(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))(prettier@3.7.4))(eslint-plugin-react-hooks@7.0.1(eslint@9.39.1(jiti@2.6.1)))(eslint-plugin-react-refresh@0.4.24(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
+        version: 0.47.3(@eslint-react/eslint-plugin@2.3.12(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/eslint-plugin@8.48.1(@typescript-eslint/parser@8.48.1(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/utils@8.48.1(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(@vitest/eslint-plugin@1.5.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2)))(eslint-config-prettier@10.1.8(eslint@9.39.1(jiti@2.6.1)))(eslint-plugin-prettier@5.5.4(eslint-config-prettier@10.1.8(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))(prettier@3.7.4))(eslint-plugin-react-hooks@7.0.1(eslint@9.39.1(jiti@2.6.1)))(eslint-plugin-react-refresh@0.4.24(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
       '@eslint-react/eslint-plugin':
         specifier: 2.3.12
         version: 2.3.12(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
@@ -116,10 +116,10 @@ importers:
         version: 4.2.2(@swc/helpers@0.5.17)(vite@7.2.7(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.2))
       '@vitest/coverage-v8':
         specifier: 4.0.15
-        version: 4.0.15(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.2.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2))
+        version: 4.0.15(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2))
       '@vitest/eslint-plugin':
         specifier: 1.5.2
-        version: 1.5.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.2.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2))
+        version: 1.5.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2))
       autoprefixer:
         specifier: 10.4.22
         version: 10.4.22(postcss@8.5.6)
@@ -142,8 +142,8 @@ importers:
         specifier: 2.6.1
         version: 2.6.1
       jsdom:
-        specifier: 27.2.0
-        version: 27.2.0(postcss@8.5.6)
+        specifier: 27.3.0
+        version: 27.3.0(postcss@8.5.6)
       lighthouse:
         specifier: 13.0.1
         version: 13.0.1
@@ -173,7 +173,7 @@ importers:
         version: 5.1.4(typescript@5.9.3)(vite@7.2.7(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.2))
       vitest:
         specifier: 4.0.15
-        version: 4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.2.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2)
+        version: 4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2)
 
 packages:
 
@@ -3770,8 +3770,8 @@ packages:
     resolution: {integrity: sha512-+LexoTRyYui5iOhJGn13N9ZazL23nAHGkXsa1p/C8yeq79WRfLBag6ZZ0FQG2aRoc9yfo59JT9EYCQonOkHKkQ==}
     engines: {node: '>=20.0.0'}
 
-  jsdom@27.2.0:
-    resolution: {integrity: sha512-454TI39PeRDW1LgpyLPyURtB4Zx1tklSr6+OFOipsxGUH1WMTvk6C65JQdrj455+DP2uJ1+veBEHTGFKWVLFoA==}
+  jsdom@27.3.0:
+    resolution: {integrity: sha512-GtldT42B8+jefDUC4yUKAvsaOrH7PDHmZxZXNgF2xMmymjUbRYJvpAybZAKEmXDGTM0mCsz8duOa4vTm5AY2Kg==}
     engines: {node: ^20.19.0 || ^22.12.0 || >=24.0.0}
     peerDependencies:
       canvas: ^3.0.0
@@ -5302,7 +5302,7 @@ snapshots:
     dependencies:
       is-in-ci: 2.0.0
 
-  '@bfra.me/eslint-config@0.47.3(@eslint-react/eslint-plugin@2.3.12(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/eslint-plugin@8.48.1(@typescript-eslint/parser@8.48.1(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/utils@8.48.1(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(@vitest/eslint-plugin@1.5.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.2.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2)))(eslint-config-prettier@10.1.8(eslint@9.39.1(jiti@2.6.1)))(eslint-plugin-prettier@5.5.4(eslint-config-prettier@10.1.8(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))(prettier@3.7.4))(eslint-plugin-react-hooks@7.0.1(eslint@9.39.1(jiti@2.6.1)))(eslint-plugin-react-refresh@0.4.24(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)':
+  '@bfra.me/eslint-config@0.47.3(@eslint-react/eslint-plugin@2.3.12(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/eslint-plugin@8.48.1(@typescript-eslint/parser@8.48.1(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(@typescript-eslint/utils@8.48.1(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(@vitest/eslint-plugin@1.5.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2)))(eslint-config-prettier@10.1.8(eslint@9.39.1(jiti@2.6.1)))(eslint-plugin-prettier@5.5.4(eslint-config-prettier@10.1.8(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))(prettier@3.7.4))(eslint-plugin-react-hooks@7.0.1(eslint@9.39.1(jiti@2.6.1)))(eslint-plugin-react-refresh@0.4.24(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)':
     dependencies:
       '@bfra.me/es': 0.1.0
       '@eslint-community/eslint-plugin-eslint-comments': 4.5.0(eslint@9.39.1(jiti@2.6.1))
@@ -5332,7 +5332,7 @@ snapshots:
       typescript-eslint: 8.48.1(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
     optionalDependencies:
       '@eslint-react/eslint-plugin': 2.3.12(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
-      '@vitest/eslint-plugin': 1.5.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.2.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2))
+      '@vitest/eslint-plugin': 1.5.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2))
       eslint-config-prettier: 10.1.8(eslint@9.39.1(jiti@2.6.1))
       eslint-plugin-prettier: 5.5.4(eslint-config-prettier@10.1.8(eslint@9.39.1(jiti@2.6.1)))(eslint@9.39.1(jiti@2.6.1))(prettier@3.7.4)
       eslint-plugin-react-hooks: 7.0.1(eslint@9.39.1(jiti@2.6.1))
@@ -8447,7 +8447,7 @@ snapshots:
     transitivePeerDependencies:
       - '@swc/helpers'
 
-  '@vitest/coverage-v8@4.0.15(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.2.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2))':
+  '@vitest/coverage-v8@4.0.15(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2))':
     dependencies:
       '@bcoe/v8-coverage': 1.0.2
       '@vitest/utils': 4.0.15
@@ -8460,18 +8460,18 @@ snapshots:
       obug: 2.1.1
       std-env: 3.10.0
       tinyrainbow: 3.0.3
-      vitest: 4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.2.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2)
+      vitest: 4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
 
-  '@vitest/eslint-plugin@1.5.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.2.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2))':
+  '@vitest/eslint-plugin@1.5.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)(vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2))':
     dependencies:
       '@typescript-eslint/scope-manager': 8.48.1
       '@typescript-eslint/utils': 8.48.1(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
       eslint: 9.39.1(jiti@2.6.1)
     optionalDependencies:
       typescript: 5.9.3
-      vitest: 4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.2.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2)
+      vitest: 4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2)
     transitivePeerDependencies:
       - supports-color
 
@@ -9661,7 +9661,7 @@ snapshots:
 
   jsdoc-type-pratt-parser@6.10.0: {}
 
-  jsdom@27.2.0(postcss@8.5.6):
+  jsdom@27.3.0(postcss@8.5.6):
     dependencies:
       '@acemir/cssom': 0.9.28
       '@asamuzakjp/dom-selector': 6.7.6
@@ -11073,7 +11073,7 @@ snapshots:
       lightningcss: 1.30.2
       yaml: 2.8.2
 
-  vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.2.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2):
+  vitest@4.0.15(@opentelemetry/api@1.9.0)(@types/node@24.10.1)(jiti@2.6.1)(jsdom@27.3.0(postcss@8.5.6))(lightningcss@1.30.2)(yaml@2.8.2):
     dependencies:
       '@vitest/expect': 4.0.15
       '@vitest/mocker': 4.0.15(vite@7.2.7(@types/node@24.10.1)(jiti@2.6.1)(lightningcss@1.30.2)(yaml@2.8.2))
@@ -11098,7 +11098,7 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
       '@types/node': 24.10.1
-      jsdom: 27.2.0(postcss@8.5.6)
+      jsdom: 27.3.0(postcss@8.5.6)
     transitivePeerDependencies:
       - jiti
       - less
