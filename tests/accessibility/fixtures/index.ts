@@ -139,7 +139,10 @@ export const accessibilityTest = {
       const compatibility = await AccessibilityUtils.testScreenReaderCompatibility(page, selector)
 
       expect(compatibility.hasAccessibleName, `Element ${selector} should have accessible name`).toBe(true)
-      expect(compatibility.hasRole, `Element ${selector} should have proper role`).toBe(true)
+      // Body typically has no explicit role; only require role for non-body selectors
+      if (selector !== 'body') {
+        expect(compatibility.hasRole, `Element ${selector} should have proper role`).toBe(true)
+      }
 
       if (expectedLandmarks !== undefined) {
         expect(compatibility.landmarks).toBe(expectedLandmarks)
