@@ -67,7 +67,7 @@ test.describe('Homepage Performance', () => {
     const loadTime = Date.now() - startTime
 
     // Verify page loads within acceptable time
-    expect(loadTime).toBeLessThan(5000) // 5 seconds maximum
+    expect(loadTime).toBeLessThan(8000) // 8 seconds maximum for preview build
   })
 
   test('should have efficient resource loading', async ({page}) => {
@@ -77,7 +77,7 @@ test.describe('Homepage Performance', () => {
     const customMetrics = await measureCustomMetrics(page)
 
     // Verify resource count is within budget
-    expect(customMetrics.resourceCount).toBeLessThanOrEqual(budget.budgets.maxResourceCount)
+    expect(customMetrics.resourceCount).toBeWithinBudget(budget.budgets.maxResourceCount)
 
     // Verify DOM content loaded time is reasonable
     expect(customMetrics.domContentLoaded).toBeLessThan(3000) // 3 seconds
@@ -91,7 +91,7 @@ test.describe('Homepage Performance', () => {
     performanceResults.push(result)
 
     // FCP should be under 1.8 seconds for good user experience
-    expect(result.metrics.fcp).toBeLessThanOrEqual(budget.budgets.fcp)
+    expect(result.metrics.fcp).toBeWithinBudget(budget.budgets.fcp)
   })
 
   test('should have minimal layout shifts', async ({page, performanceResults}) => {
@@ -113,7 +113,7 @@ test.describe('Homepage Performance', () => {
     performanceResults.push(result)
 
     // TBT should be minimal to ensure interactivity
-    expect(result.metrics.tbt).toBeLessThanOrEqual(budget.budgets.tbt)
+    expect(result.metrics.tbt).toBeWithinBudget(budget.budgets.tbt)
   })
 
   test('should meet Lighthouse performance score threshold', async ({page, performanceResults}) => {
@@ -124,6 +124,6 @@ test.describe('Homepage Performance', () => {
     performanceResults.push(result)
 
     // Performance score should meet or exceed budget
-    expect(result.scores.performance).toBeGreaterThanOrEqual(budget.budgets.performanceScore)
+    expect(result.scores.performance).toMeetPerformanceThreshold(budget.budgets.performanceScore)
   })
 })

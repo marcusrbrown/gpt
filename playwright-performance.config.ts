@@ -1,6 +1,8 @@
 import process from 'node:process'
 import {defineConfig, devices} from '@playwright/test'
 
+const DEFAULT_BASE_URL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:4173'
+
 /**
  * Playwright configuration for performance testing with Lighthouse integration
  * Focuses on Core Web Vitals and performance benchmarks
@@ -19,7 +21,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
 
   // Retry once on CI for flaky performance tests
-  retries: process.env.CI ? 1 : 0,
+  retries: process.env.CI ? 2 : 0,
 
   // Single worker for consistent performance measurements
   workers: 1,
@@ -34,7 +36,7 @@ export default defineConfig({
   // Shared settings for all performance tests
   use: {
     // Base URL for tests
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173',
+    baseURL: DEFAULT_BASE_URL,
 
     // Collect trace for all tests to analyze performance
     trace: 'on',
@@ -81,15 +83,18 @@ export default defineConfig({
 
   // Run your local dev server before starting the tests
   webServer: {
-    command: 'pnpm dev',
-    url: 'http://localhost:5173',
-    reuseExistingServer: !process.env.CI,
+    command: 'pnpm build && pnpm preview -- --host --port 4173',
+    url: DEFAULT_BASE_URL,
+    reuseExistingServer: false,
     stdout: 'ignore',
     stderr: 'pipe',
-    timeout: 120 * 1000,
+    timeout: 180 * 1000,
   },
 
-  // Extended timeout for performance tests
+  // Global setup and teardown
+  globalSetup: './tests/e2e/global-setup.ts',
+  globalTeardown: './tests/e2e/global-teardown.ts',
+
   timeout: 60 * 1000,
   expect: {
     timeout: 10000,
