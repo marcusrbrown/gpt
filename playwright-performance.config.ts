@@ -1,7 +1,10 @@
 import process from 'node:process'
+import {URL} from 'node:url'
 import {defineConfig, devices} from '@playwright/test'
 
 const DEFAULT_BASE_URL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:4173'
+const PREVIEW_URL = new URL(DEFAULT_BASE_URL)
+const PREVIEW_PORT = Number(PREVIEW_URL.port || (PREVIEW_URL.protocol === 'https:' ? 443 : 80))
 
 /**
  * Playwright configuration for performance testing with Lighthouse integration
@@ -83,7 +86,7 @@ export default defineConfig({
 
   // Run your local dev server before starting the tests
   webServer: {
-    command: 'pnpm build && pnpm preview -- --host --port 4173',
+    command: `pnpm build && pnpm preview -- --host --port ${PREVIEW_PORT}`,
     url: DEFAULT_BASE_URL,
     reuseExistingServer: false,
     stdout: 'ignore',

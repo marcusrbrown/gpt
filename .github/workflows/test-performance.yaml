@@ -83,7 +83,7 @@ jobs:
         run: pnpm run test:performance --project="${{ matrix.project }}"
         env:
           CI: true
-          PLAYWRIGHT_BASE_URL: http://localhost:5173
+          PLAYWRIGHT_BASE_URL: http://localhost:4173
 
       - name: Upload performance results
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
