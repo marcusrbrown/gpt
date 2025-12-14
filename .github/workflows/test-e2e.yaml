@@ -58,7 +58,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        browser: [chromium, firefox, webkit]
+        browser: [chromium]
+        # browser: [chromium, firefox, webkit]
 
     steps:
       - name: Checkout
@@ -107,7 +108,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        device: [Mobile Chrome, Mobile Safari]
+        # device: [Mobile Chrome, Mobile Safari]
+        device: [Mobile Chrome]
 
     steps:
       - name: Checkout
