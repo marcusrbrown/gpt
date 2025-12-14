@@ -151,7 +151,7 @@ jobs:
           path: test-results
 
       - name: Publish test results
-        uses: EnricoMi/publish-unit-test-result-action@e780361cd1fc1b1a170624547b3ffda64787d365 # v2.18.0
+        uses: EnricoMi/publish-unit-test-result-action@170bf24d20d201b842d7a52403b73ed297e6645b # v2.18.0
         if: always()
         with:
           check_name: E2E Test Results
