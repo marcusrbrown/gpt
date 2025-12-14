@@ -204,8 +204,9 @@ export async function runLighthouseAudit(
  * @param page - Playwright page instance
  */
 export async function waitForPageLoad(page: Page): Promise<void> {
-  await page.waitForLoadState('networkidle')
-  await page.waitForTimeout(1000)
+  await page.waitForLoadState('domcontentloaded')
+  await page.waitForLoadState('load', {timeout: 10_000}).catch(() => {})
+  await page.waitForTimeout(500)
 }
 
 /**

@@ -1,0 +1,71 @@
+# Codecov configuration for comprehensive test coverage reporting
+# https://docs.codecov.com/docs/codecov-yaml
+
+coverage:
+  precision: 2
+  round: down
+  range: 70..100
+
+  status:
+    project:
+      default:
+        target: 80%
+        threshold: 2%
+        if_ci_failed: error
+
+    patch:
+      default:
+        target: 80%
+        threshold: 5%
+
+comment:
+  layout: 'header, diff, flags, components, footer'
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+# Ignore test files and configuration files
+ignore:
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.spec.ts'
+  - '**/*.spec.tsx'
+  - 'src/test/**'
+  - 'tests/**'
+  - '**/*.config.ts'
+  - src/main.tsx
+  - src/vite-env.d.ts
+
+# Component configuration for different test types
+component_management:
+  individual_components:
+    - component_id: unit_tests
+      name: Unit Tests
+      paths:
+        - 'src/**/*.ts'
+        - 'src/**/*.tsx'
+
+    - component_id: components
+      name: React Components
+      paths:
+        - 'src/components/**'
+
+    - component_id: contexts
+      name: Context Providers
+      paths:
+        - 'src/contexts/**'
+
+    - component_id: services
+      name: Services
+      paths:
+        - 'src/services/**'
+
+    - component_id: hooks
+      name: Custom Hooks
+      paths:
+        - 'src/hooks/**'
+
+# GitHub Actions integration
+github_checks:
+  annotations: true

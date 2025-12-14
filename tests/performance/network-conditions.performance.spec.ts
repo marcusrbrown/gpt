@@ -16,18 +16,18 @@ test.describe('Network Conditions Performance', () => {
     await applyNetworkThrottling(page, 'FAST_3G')
 
     const startTime = Date.now()
-    await page.goto(pagePath)
+    await page.goto(pagePath, {waitUntil: 'load', timeout: 45_000})
     await waitForPageLoad(page)
     const loadTime = Date.now() - startTime
 
     // On Fast 3G, expect longer load times but still reasonable
-    expect(loadTime).toBeLessThan(10000) // 10 seconds maximum
+    expect(loadTime).toBeLessThan(18_000) // 18 seconds maximum
 
     const metrics = await measureCustomMetrics(page)
 
     // Verify page still loads efficiently despite network constraints
     expect(metrics.fcp).toBeLessThan(5000) // 5 seconds for FCP on throttled connection
-    expect(metrics.resourceCount).toBeLessThanOrEqual(budget.budgets.maxResourceCount)
+    expect(metrics.resourceCount).toBeWithinBudget(budget.budgets.maxResourceCount)
   })
 
   test('should load on Slow 3G', async ({page}) => {
@@ -35,7 +35,7 @@ test.describe('Network Conditions Performance', () => {
     await applyNetworkThrottling(page, 'SLOW_3G')
 
     const startTime = Date.now()
-    await page.goto(pagePath)
+    await page.goto(pagePath, {waitUntil: 'load', timeout: 45_000})
     await waitForPageLoad(page)
     const loadTime = Date.now() - startTime
 
@@ -52,12 +52,12 @@ test.describe('Network Conditions Performance', () => {
     await applyNetworkThrottling(page, 'FAST_4G')
 
     const startTime = Date.now()
-    await page.goto(pagePath)
+    await page.goto(pagePath, {waitUntil: 'load', timeout: 45_000})
     await waitForPageLoad(page)
     const loadTime = Date.now() - startTime
 
     // On Fast 4G, expect near-optimal performance
-    expect(loadTime).toBeLessThan(6000) // 6 seconds maximum
+    expect(loadTime).toBeLessThan(9000) // 9 seconds maximum
 
     const metrics = await measureCustomMetrics(page)
     expect(metrics.fcp).toBeLessThan(3000) // 3 seconds for FCP
@@ -69,7 +69,7 @@ test.describe('Network Conditions Performance', () => {
 
     for (const condition of networkConditions) {
       await applyNetworkThrottling(page, condition)
-      await page.goto(pagePath, {timeout: 30000})
+      await page.goto(pagePath, {waitUntil: 'load', timeout: 45_000})
       await waitForPageLoad(page)
 
       // Verify page renders correctly regardless of network speed

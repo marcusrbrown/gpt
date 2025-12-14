@@ -1,0 +1,171 @@
+---
+name: Performance Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    types: [opened, ready_for_review, reopened, synchronize]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 0' # Weekly on Sundays
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+defaults:
+  run:
+    shell: 'bash -Eeuo pipefail {0}'
+
+jobs:
+  prepare:
+    if: github.event_name != 'workflow_dispatch' && github.event_name != 'schedule' && github.event.pull_request.draft != true
+    name: Prepare
+    outputs:
+      changes: ${{ steps.filter.outputs.changes }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Filter changed files
+        id: filter
+        uses: dorny/paths-filter@de90cc6fb38fc0963ad72b210f1f284cd68cea36 # v3.0.2
+        with:
+          filters: |
+            changes:
+              - 'src/**'
+              - 'tests/performance/**'
+              - .github/workflows/test-performance.yml
+              - playwright-performance.config.ts
+              - package.json
+              - pnpm-lock.yaml
+              - vite.config.ts
+
+  performance-tests:
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event_name == 'pull_request' && needs.prepare.outputs.changes == 'true')
+    name: Run Performance Tests
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    strategy:
+      fail-fast: false
+      matrix:
+        device: [desktop, mobile]
+        include:
+          - device: desktop
+            project: chromium-desktop
+          - device: mobile
+            project: chromium-mobile
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5.0.1
+
+      - name: Setup pnpm
+        uses: ./.github/actions/setup-pnpm
+        with:
+          install-playwright: true
+
+      - name: Build application
+        run: pnpm run build
+
+      - name: Run performance tests
+        run: pnpm run test:performance --project="${{ matrix.project }}"
+        env:
+          CI: true
+          PLAYWRIGHT_BASE_URL: http://localhost:4173
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        if: always()
+        with:
+          name: performance-results-${{ matrix.device }}
+          path: |
+            playwright-report/performance/
+            test-results/performance-results.json
+            test-results/performance/
+          retention-days: 30
+
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
+        if: always()
+        with:
+          name: lighthouse-reports-${{ matrix.device }}
+          path: |
+            test-results/performance/**/lighthouse-*.json
+          retention-days: 30
+
+  report:
+    if: always() && needs.performance-tests.result != 'skipped'
+    name: Generate Performance Report
+    needs: [performance-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16 # v4.5.0
+        with:
+          path: test-results
+
+      - name: Analyze performance metrics
+        id: analyze
+        run: |
+          echo "## Performance Test Summary" > summary.md
+          echo "" >> summary.md
+
+          # Analyze Lighthouse results
+          for file in test-results/**/lighthouse-*.json; do
+            if [ -f "$file" ]; then
+              performance_score=$(jq '.categories.performance.score * 100' "$file" 2>/dev/null || echo 0)
+              accessibility_score=$(jq '.categories.accessibility.score * 100' "$file" 2>/dev/null || echo 0)
+              lcp=$(jq '.audits["largest-contentful-paint"].numericValue' "$file" 2>/dev/null || echo 0)
+              cls=$(jq '.audits["cumulative-layout-shift"].numericValue' "$file" 2>/dev/null || echo 0)
+
+              echo "### $(basename "$file" .json)" >> summary.md
+              echo "- **Performance Score**: ${performance_score}%" >> summary.md
+              echo "- **Accessibility Score**: ${accessibility_score}%" >> summary.md
+              echo "- **LCP**: ${lcp}ms" >> summary.md
+              echo "- **CLS**: $cls" >> summary.md
+              echo "" >> summary.md
+            fi
+          done
+
+          # Set failure if performance scores are below threshold
+          if [ $(echo "$performance_score < 85" | bc -l 2>/dev/null || echo 0) -eq 1 ]; then
+            echo "⚠️ Performance score below threshold (85%)" >> summary.md
+            echo "status=warning" >> $GITHUB_OUTPUT
+          else
+            echo "✅ All performance benchmarks met!" >> summary.md
+            echo "status=success" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Comment PR with performance results
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+
+            const summary = fs.readFileSync('summary.md', 'utf8');
+            const fullReport = `## ⚡ Performance Test Results\n\n${summary}\n\n` +
+              `### Core Web Vitals\n` +
+              `- **LCP** (Largest Contentful Paint): Target < 2.5s\n` +
+              `- **FID** (First Input Delay): Target < 100ms\n` +
+              `- **CLS** (Cumulative Layout Shift): Target < 0.1\n\n` +
+              `View detailed Lighthouse reports in the workflow artifacts.`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: fullReport
+            });

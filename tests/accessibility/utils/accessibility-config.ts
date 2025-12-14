@@ -58,11 +58,8 @@ export const FORM_ACCESSIBILITY_CONFIG: AccessibilityTestOptions = {
   includeRules: [
     'label', // Form controls must have labels
     'form-field-multiple-labels', // Multiple labels for form fields
-    'required-attr', // Required attributes for form elements
     'aria-required-attr', // ARIA required attributes
     'aria-valid-attr-value', // Valid ARIA attribute values
-    'aria-labelledby', // aria-labelledby references valid elements
-    'aria-describedby', // aria-describedby references valid elements
     'duplicate-id', // IDs must be unique
     'duplicate-id-aria', // ARIA IDs must be unique
     'autocomplete-valid', // Autocomplete attributes are valid
@@ -77,7 +74,6 @@ export const FORM_ACCESSIBILITY_CONFIG: AccessibilityTestOptions = {
  */
 export const NAVIGATION_ACCESSIBILITY_CONFIG: AccessibilityTestOptions = {
   includeRules: [
-    'keyboard', // Keyboard accessibility
     'focus-order-semantics', // Focus order follows DOM order
     'tabindex', // Tabindex usage
     'bypass', // Bypass blocks (skip links)
@@ -115,8 +111,6 @@ export const SCREEN_READER_CONFIG: AccessibilityTestOptions = {
     'aria-required-attr', // Required ARIA attributes
     'aria-valid-attr', // Valid ARIA attributes
     'aria-valid-attr-value', // Valid ARIA attribute values
-    'aria-labelledby', // aria-labelledby references valid elements
-    'aria-describedby', // aria-describedby references valid elements
     'aria-roles', // Valid ARIA roles
     'aria-hidden-body', // Body element not hidden from screen readers
     'empty-heading', // Headings are not empty

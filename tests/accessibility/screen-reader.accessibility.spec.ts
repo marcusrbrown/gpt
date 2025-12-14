@@ -54,7 +54,7 @@ test.describe('Screen Reader Compatibility', () => {
     test('should have proper landmark structure', async ({page}) => {
       await test.step('Test landmark accessibility', async () => {
         // Test screen reader landmark compatibility
-        await accessibilityTest.expectScreenReaderCompatible(page, 'body', 3)
+        await accessibilityTest.expectScreenReaderCompatible(page, 'body', 4)
 
         // Check for banner (header)
         const banner = page.locator('header, [role="banner"]')

@@ -280,11 +280,16 @@ export const AccessibilityUtils = {
     const hasRole = !!role
 
     // Count landmarks on page
-    const landmarks = await page
-      .locator(
-        '[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="search"], [role="form"]',
-      )
-      .count()
+    const landmarks =
+      (await page
+        .locator(
+          '[role="banner"], [role="navigation"], [role="main"], [role="contentinfo"], [role="complementary"], [role="search"], [role="form"]',
+        )
+        .count()) +
+      (await page.locator('header').count()) +
+      (await page.locator('nav').count()) +
+      (await page.locator('main').count()) +
+      (await page.locator('footer').count())
 
     return {
       hasAccessibleName,

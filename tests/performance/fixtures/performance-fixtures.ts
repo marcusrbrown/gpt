@@ -1,6 +1,6 @@
 import type {PerformanceTestResult} from '../utils/lighthouse-utils'
 
-import {test as base, expect} from '@playwright/test'
+import {test as base, expect as baseExpect} from '@playwright/test'
 
 /**
  * Performance test fixtures interface
@@ -16,7 +16,7 @@ interface PerformanceTestFixtures {
  */
 export const test = base.extend<PerformanceTestFixtures>({
   // Performance results fixture - stores results for later reporting
-  performanceResults: async (_context, use: (r: PerformanceTestResult[]) => Promise<void>) => {
+  performanceResults: async ({context: _}, use: (r: PerformanceTestResult[]) => Promise<void>) => {
     const results: PerformanceTestResult[] = []
     await use(results)
 
@@ -26,14 +26,9 @@ export const test = base.extend<PerformanceTestFixtures>({
 })
 
 /**
- * Re-export expect for convenience
- */
-export {expect}
-
-/**
  * Custom expect matchers for performance testing
  */
-expect.extend({
+export const expect = baseExpect.extend({
   /**
    * Assert that a performance score meets the threshold
    */
@@ -64,13 +59,3 @@ expect.extend({
     }
   },
 })
-
-/**
- * Extend TypeScript definitions for custom matchers
- */
-declare module '@playwright/test' {
-  interface Matchers<R> {
-    toMeetPerformanceThreshold: (threshold: number) => R
-    toBeWithinBudget: (budget: number) => R
-  }
-}
