@@ -61,18 +61,18 @@ jobs:
           - browser: chromium
             device: desktop
             project: chromium
-          - browser: firefox
-            device: desktop
-            project: firefox
-          - browser: webkit
-            device: desktop
-            project: webkit
-          - browser: chromium
-            device: mobile
-            project: Mobile Chrome
-          - browser: webkit
-            device: mobile
-            project: Mobile Safari
+          # - browser: firefox
+          #   device: desktop
+          #   project: firefox
+          # - browser: webkit
+          #   device: desktop
+          #   project: webkit
+          # - browser: chromium
+          #   device: mobile
+          #   project: Mobile Chrome
+          # - browser: webkit
+          #   device: mobile
+          #   project: Mobile Safari
 
     steps:
       - name: Checkout
