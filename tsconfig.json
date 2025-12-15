@@ -1,11 +1,12 @@
 {
-  "extends": "@tsconfig/strictest/tsconfig.json",
+  "extends": "@bfra.me/tsconfig",
   "compilerOptions": {
+    // Language and Environment
     "target": "ES2021",
     "jsx": "preserve",
     "lib": ["ES2021", "DOM", "DOM.Iterable"],
 
-    /* Bundler mode */
+    // Modules
     "moduleDetection": "force",
     "useDefineForClassFields": true,
     "module": "ESNext",
@@ -17,16 +18,23 @@
     "types": ["vite/client", "vitest/globals", "node"],
     "allowImportingTsExtensions": true,
 
-    /* Linting */
+    // Type Checking
     "strict": true,
     "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": false,
     "noPropertyAccessFromIndexSignature": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+
+    // Emit
     "noEmit": true,
+
+    // Interop Constraints
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
+
+    // Completeness
     "skipLibCheck": true
   },
   "references": [{"path": "./tsconfig.node.json"}],

@@ -1,3 +1,4 @@
+import type {CreateOpenAIService} from '../services/openai-service'
 import {useMemo} from 'react'
 import createOpenAIService from '../services/openai-service'
 
@@ -31,7 +32,7 @@ import createOpenAIService from '../services/openai-service'
  *
  * @returns OpenAI service for API interactions
  */
-export function useOpenAIService() {
+export function useOpenAIService(): CreateOpenAIService {
   // Create a memoized instance of the service to avoid recreating on each render
   const openAIService = useMemo(() => createOpenAIService(), [])
 

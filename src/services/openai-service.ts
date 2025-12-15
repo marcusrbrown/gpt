@@ -37,6 +37,8 @@ const ErrorTypes = {
 
 type ErrorType = (typeof ErrorTypes)[keyof typeof ErrorTypes]
 
+export type CreateOpenAIService = ReturnType<typeof createOpenAIService>
+
 /**
  * Creates a service for interacting with the OpenAI Assistants API
  * This service provides methods for creating assistants, threads, and runs
