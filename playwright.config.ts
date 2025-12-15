@@ -10,7 +10,7 @@ import {defineConfig, devices} from '@playwright/test'
 export default defineConfig({
   // Test directory structure - include e2e, visual, and accessibility tests
   testDir: './tests',
-  testMatch: '**/tests/e2e/**/*.spec.ts',
+  testMatch: '**/tests/**/*.spec.ts',
 
   // Run tests in files in parallel
   fullyParallel: true,
