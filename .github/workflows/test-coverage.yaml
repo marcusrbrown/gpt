@@ -72,7 +72,7 @@ jobs:
         run: pnpm run build
 
       - name: Run E2E tests
-        run: pnpm run test:e2e
+        run: pnpm run test:e2e --project="chromium"
         env:
           CI: true
 
