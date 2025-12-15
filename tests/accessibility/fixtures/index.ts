@@ -71,13 +71,6 @@ export const accessibilityTest = {
     const summary = AccessibilityUtils.analyzeViolations(results)
 
     await test.step('Analyzing accessibility violations', async () => {
-      const report = AccessibilityUtils.generateViolationReport(summary)
-
-      // Log detailed report for debugging using console.warn (allowed by linter)
-      console.warn('\n=== Accessibility Scan Report ===')
-      console.warn(report)
-      console.warn('=================================\n')
-
       // Assert compliance standards
       const meetsStandards = AccessibilityUtils.meetsComplianceStandards(summary, allowedCritical, allowedSerious)
 
