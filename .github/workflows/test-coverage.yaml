@@ -68,13 +68,8 @@ jobs:
         with:
           install-playwright: true
 
-      - name: Build application
-        run: pnpm run build
-
       - name: Run E2E tests
-        run: pnpm run test:e2e --project="chromium"
-        env:
-          CI: true
+        run: pnpm run test:e2e
 
       - name: Upload E2E test results
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0

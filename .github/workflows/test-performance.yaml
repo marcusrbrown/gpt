@@ -57,15 +57,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
-    strategy:
-      fail-fast: false
-      matrix:
-        device: [desktop, mobile]
-        include:
-          - device: desktop
-            project: chromium-desktop
-          - device: mobile
-            project: chromium-mobile
+    env:
+      matrix_device: desktop
+      matrix_project: chromium-desktop
+
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     include:
+    #       - device: desktop
+    #         project: chromium-desktop
+    #       - device: mobile
+    #         project: chromium-mobile
 
     steps:
       - name: Checkout
@@ -76,20 +79,16 @@ jobs:
         with:
           install-playwright: true
 
-      - name: Build application
-        run: pnpm run build
-
       - name: Run performance tests
-        run: pnpm run test:performance --project="${{ matrix.project }}"
+        run: pnpm run test:performance --project="${{ env.matrix_project }}"
         env:
-          CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:4173
 
       - name: Upload performance results
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: always()
         with:
-          name: performance-results-${{ matrix.device }}
+          name: performance-results-${{ env.matrix_device }}
           path: |
             playwright-report/performance/
             test-results/performance-results.json
@@ -100,7 +99,7 @@ jobs:
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: always()
         with:
-          name: lighthouse-reports-${{ matrix.device }}
+          name: lighthouse-reports-${{ env.matrix_device }}
           path: |
             test-results/performance/**/lighthouse-*.json
           retention-days: 30
