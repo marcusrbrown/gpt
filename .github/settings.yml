@@ -18,7 +18,22 @@ branches:
     protection:
       required_status_checks:
         strict: false
-        contexts: [Build, Deploy, Lint, Prepare, Renovate / Renovate, Run Tests, Run Visual Tests]
+        contexts:
+          - Aggregate Coverage
+          - Build
+          - Deploy
+          - E2E Test Coverage
+          - Generate Accessibility Report
+          - Generate Performance Report
+          - Lint
+          - Prepare
+          - Renovate / Renovate
+          - Run Accessibility Tests
+          - Run Performance Tests
+          - Run Tests
+          - Run Visual Tests
+          - Unit Test Coverage
+
       enforce_admins: true
       required_pull_request_reviews: null
       restrictions: null
