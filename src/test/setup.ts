@@ -2,7 +2,14 @@ import {cleanup} from '@testing-library/react'
 import {afterAll, afterEach, beforeAll, beforeEach, vi} from 'vitest'
 import '@testing-library/jest-dom'
 
-// Mock console methods to avoid noise in test output
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+globalThis.ResizeObserver = ResizeObserverMock
+
 const originalConsole = {...console}
 
 // Create a storage object to persist data between tests

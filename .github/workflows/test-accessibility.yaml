@@ -42,7 +42,7 @@ jobs:
             changes:
               - 'src/**'
               - 'tests/accessibility/**'
-              - .github/workflows/test-accessibility.yml
+              - .github/workflows/test-accessibility.yaml
               - playwright.config.ts
               - package.json
               - pnpm-lock.yaml
@@ -54,25 +54,30 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - browser: chromium
-            device: desktop
-            project: chromium
-          # - browser: firefox
-          #   device: desktop
-          #   project: firefox
-          # - browser: webkit
-          #   device: desktop
-          #   project: webkit
-          # - browser: chromium
-          #   device: mobile
-          #   project: Mobile Chrome
-          # - browser: webkit
-          #   device: mobile
-          #   project: Mobile Safari
+    env:
+      matrix_browser: chromium
+      matrix_device: desktop
+      matrix_project: chromium
+
+    # strategy:
+    #   fail-fast: false
+    #   matrix:
+    #     include:
+    #       - browser: chromium
+    #         device: desktop
+    #         project: chromium
+    #       - browser: firefox
+    #         device: desktop
+    #         project: firefox
+    #       - browser: webkit
+    #         device: desktop
+    #         project: webkit
+    #       - browser: chromium
+    #         device: mobile
+    #         project: Mobile Chrome
+    #       - browser: webkit
+    #         device: mobile
+    #         project: Mobile Safari
 
     steps:
       - name: Checkout
@@ -83,20 +88,16 @@ jobs:
         with:
           install-playwright: true
 
-      - name: Build application
-        run: pnpm run build
-
       - name: Run accessibility tests
-        run: pnpm run test:accessibility --project="${{ matrix.project }}"
+        run: pnpm run test:accessibility --project="${{ env.matrix_project }}"
         env:
-          CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:5173
 
       - name: Upload test results
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: always()
         with:
-          name: accessibility-results-${{ matrix.browser }}-${{ matrix.device }}
+          name: accessibility-results-${{ env.matrix_browser }}-${{ env.matrix_device }}
           path: |
             playwright-report/
             test-results/results.json
@@ -106,7 +107,7 @@ jobs:
         uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5.0.0
         if: failure()
         with:
-          name: accessibility-violations-${{ matrix.browser }}-${{ matrix.device }}
+          name: accessibility-violations-${{ env.matrix_browser }}-${{ env.matrix_device }}
           path: |
             test-results/**/accessibility-violations.json
           retention-days: 7
