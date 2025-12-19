@@ -110,61 +110,22 @@ jobs:
     needs: [performance-tests]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+
+      - name: Setup pnpm
+        uses: ./.github/actions/setup-pnpm
+
       - name: Download all artifacts
         uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
         with:
           path: test-results
 
-      - name: Analyze performance metrics
-        id: analyze
+      - name: Generate and post report
+        if: always()
         run: |
-          echo "## Performance Test Summary" > summary.md
-          echo "" >> summary.md
-
-          # Analyze Lighthouse results
-          for file in test-results/**/lighthouse-*.json; do
-            if [ -f "$file" ]; then
-              performance_score=$(jq '.categories.performance.score * 100' "$file" 2>/dev/null || echo 0)
-              accessibility_score=$(jq '.categories.accessibility.score * 100' "$file" 2>/dev/null || echo 0)
-              lcp=$(jq '.audits["largest-contentful-paint"].numericValue' "$file" 2>/dev/null || echo 0)
-              cls=$(jq '.audits["cumulative-layout-shift"].numericValue' "$file" 2>/dev/null || echo 0)
-
-              echo "### $(basename "$file" .json)" >> summary.md
-              echo "- **Performance Score**: ${performance_score}%" >> summary.md
-              echo "- **Accessibility Score**: ${accessibility_score}%" >> summary.md
-              echo "- **LCP**: ${lcp}ms" >> summary.md
-              echo "- **CLS**: $cls" >> summary.md
-              echo "" >> summary.md
-            fi
-          done
-
-          # Set failure if performance scores are below threshold
-          if [ $(echo "$performance_score < 85" | bc -l 2>/dev/null || echo 0) -eq 1 ]; then
-            echo "⚠️ Performance score below threshold (85%)" >> summary.md
-            echo "status=warning" >> $GITHUB_OUTPUT
-          else
-            echo "✅ All performance benchmarks met!" >> summary.md
-            echo "status=success" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Comment PR with performance results
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
-        if: github.event_name == 'pull_request'
-        with:
-          script: |
-            const fs = require('fs');
-
-            const summary = fs.readFileSync('summary.md', 'utf8');
-            const fullReport = `## ⚡ Performance Test Results\n\n${summary}\n\n` +
-              `### Core Web Vitals\n` +
-              `- **LCP** (Largest Contentful Paint): Target < 2.5s\n` +
-              `- **FID** (First Input Delay): Target < 100ms\n` +
-              `- **CLS** (Cumulative Layout Shift): Target < 0.1\n\n` +
-              `View detailed Lighthouse reports in the workflow artifacts.`;
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: fullReport
-            });
+          # Generate and post performance test report
+          node scripts/report-test-results.ts --type performance
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number || '' }}
