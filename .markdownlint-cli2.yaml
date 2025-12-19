@@ -6,5 +6,6 @@ globs:
   - '!**/node_modules'
   - '!.specstory/**'
   - '!.ai/**'
+  - '!.triage/**'
   - '!AGENTS.md'
   - '!CLAUDE.md'
