@@ -1,5 +1,8 @@
 import type {PerformanceTestResult} from '../utils/lighthouse-utils'
 
+import {existsSync, mkdirSync, writeFileSync} from 'node:fs'
+import {join} from 'node:path'
+import process from 'node:process'
 import {test as base, expect as baseExpect} from '@playwright/test'
 
 /**
@@ -8,6 +11,7 @@ import {test as base, expect as baseExpect} from '@playwright/test'
 interface PerformanceTestFixtures {
   // Store performance results for reporting
   performanceResults: PerformanceTestResult[]
+  deviceType: 'desktop' | 'mobile'
 }
 
 /**
@@ -15,13 +19,41 @@ interface PerformanceTestFixtures {
  * Provides utilities for performance measurement and reporting
  */
 export const test = base.extend<PerformanceTestFixtures>({
-  // Performance results fixture - stores results for later reporting
-  performanceResults: async ({context: _}, use: (r: PerformanceTestResult[]) => Promise<void>) => {
+  deviceType: ['desktop', {option: true}],
+
+  performanceResults: async ({context: _, deviceType}, use: (r: PerformanceTestResult[]) => Promise<void>) => {
     const results: PerformanceTestResult[] = []
     await use(results)
 
-    // After test completion, results are available for reporting
-    // This could be extended to write results to a file or database
+    if (results.length > 0) {
+      const resultsDir = join(process.cwd(), 'test-results')
+      if (!existsSync(resultsDir)) {
+        mkdirSync(resultsDir, {recursive: true})
+      }
+
+      const avgResult = results[0]
+      if (!avgResult) {
+        return
+      }
+
+      const lighthouseJson = {
+        categories: {
+          performance: {score: avgResult.scores.performance},
+          accessibility: {score: avgResult.scores.accessibility},
+        },
+        audits: {
+          'largest-contentful-paint': {numericValue: avgResult.metrics.lcp},
+          'cumulative-layout-shift': {numericValue: avgResult.metrics.cls},
+          'first-contentful-paint': {numericValue: avgResult.metrics.fcp},
+          'speed-index': {numericValue: avgResult.metrics.speedIndex},
+          interactive: {numericValue: avgResult.metrics.tti},
+        },
+      }
+
+      const outputPath = join(resultsDir, `lighthouse-${deviceType}.json`)
+      writeFileSync(outputPath, JSON.stringify(lighthouseJson, null, 2), 'utf-8')
+      console.log(`Performance results written to ${outputPath}`)
+    }
   },
 })
 

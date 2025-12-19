@@ -1,11 +1,26 @@
 {
   "compilerOptions": {
     "composite": true,
+    "lib": ["ESNext"],
     "module": "ESNext",
     "moduleResolution": "bundler",
+    "resolveJsonModule": true,
     "types": ["node"],
+    "allowImportingTsExtensions": true,
+    "strict": true,
+    "emitDeclarationOnly": true,
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true
   },
-  "include": ["eslint.config.ts", "tailwind.config.ts", "vite.config.ts", "vitest.config.ts", "playwright*.config.ts"]
+  "include": [
+    "eslint.config.ts",
+    "tailwind.config.ts",
+    "vite.config.ts",
+    "vitest.config.ts",
+    "playwright*.config.ts",
+    "scripts",
+    "tests"
+  ]
 }

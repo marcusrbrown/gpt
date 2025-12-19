@@ -62,13 +62,9 @@ jobs:
         with:
           install-playwright: true
 
-      - name: Build application
-        run: pnpm run build
-
       - name: Run visual tests
         run: pnpm run test:visual:ci
         env:
-          CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:5173
 
       - name: Upload visual test results
@@ -93,67 +89,13 @@ jobs:
             test-results/**/test-expected-*.png
           retention-days: 7
 
-      - name: Comment PR with visual test results
-        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
-        if: github.event_name == 'pull_request'
-        with:
-          script: |
-            const fs = require('fs');
-            const path = require('path');
-
-            // Check if visual results file exists
-            const resultsPath = 'test-results/visual-results.json';
-            if (!fs.existsSync(resultsPath)) {
-              console.log('No visual test results found');
-              return;
-            }
-
-            const results = JSON.parse(fs.readFileSync(resultsPath, 'utf8'));
-            const failed = results.stats.failed || 0;
-            const passed = results.stats.expected || 0;
-            const total = failed + passed;
-
-            let comment = `## 📸 Visual Regression Test Results\n\n`;
-
-            if (failed === 0) {
-              comment += `✅ **All ${total} visual tests passed!**\n\n`;
-              comment += `No visual regressions detected in this PR.`;
-            } else {
-              comment += `❌ **${failed} out of ${total} visual tests failed**\n\n`;
-              comment += `Visual regressions detected. Please review the uploaded artifacts.\n\n`;
-              comment += `### Failed Tests:\n`;
-
-              // Add failed test details if available
-              if (results.suites) {
-                const failedTests = [];
-                results.suites.forEach(suite => {
-                  suite.specs?.forEach(spec => {
-                    spec.tests?.forEach(test => {
-                      if (test.status === 'failed') {
-                        failedTests.push(`- ${test.title}`);
-                      }
-                    });
-                  });
-                });
-
-                if (failedTests.length > 0) {
-                  comment += failedTests.slice(0, 10).join('\n');
-                  if (failedTests.length > 10) {
-                    comment += `\n... and ${failedTests.length - 10} more`;
-                  }
-                }
-              }
-
-              comment += `\n\n📋 [View detailed results](${context.payload.pull_request.html_url}/checks)`;
-            }
-
-            // Post comment
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: comment
-            });
+      - name: Generate and post report
+        run: |
+          # Generate and post visual test report
+          node scripts/report-test-results.ts --type visual
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number || '' }}
 
   # Separate job for updating visual baselines (manual trigger only)
   update-baselines:
@@ -182,13 +124,9 @@ jobs:
         with:
           install-playwright: true
 
-      - name: Build application
-        run: pnpm run build
-
       - name: Update visual baselines
         run: pnpm run test:visual:ci --update-snapshots
         env:
-          CI: true
           PLAYWRIGHT_BASE_URL: http://localhost:5173
 
       - id: setup-bot-user
