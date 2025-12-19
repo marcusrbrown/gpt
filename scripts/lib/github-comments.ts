@@ -61,30 +61,24 @@ export class GitHubComments {
     try {
       if (existing) {
         console.info(`Updating existing comment ${existing.id}`)
-        execSync(
-          `gh api repos/${this.repo}/issues/comments/${existing.id} -X PATCH -f body="${this.escapeBody(commentBody)}"`,
-          {
-            encoding: 'utf-8',
-            stdio: 'inherit',
-          },
-        )
+        const payload = JSON.stringify({body: commentBody})
+        execSync(`gh api repos/${this.repo}/issues/comments/${existing.id} -X PATCH --input -`, {
+          input: payload,
+          encoding: 'utf-8',
+          stdio: ['pipe', 'inherit', 'inherit'],
+        })
       } else {
         console.info('Creating new comment')
-        execSync(
-          `gh api repos/${this.repo}/issues/${this.prNumber}/comments -f body="${this.escapeBody(commentBody)}"`,
-          {
-            encoding: 'utf-8',
-            stdio: 'inherit',
-          },
-        )
+        const payload = JSON.stringify({body: commentBody})
+        execSync(`gh api repos/${this.repo}/issues/${this.prNumber}/comments -X POST --input -`, {
+          input: payload,
+          encoding: 'utf-8',
+          stdio: ['pipe', 'inherit', 'inherit'],
+        })
       }
     } catch (error) {
       console.error('Error posting comment:', error)
       throw error
     }
-  }
-
-  private escapeBody(body: string): string {
-    return body.replaceAll('"', String.raw`\"`).replaceAll('\n', String.raw`\n`)
   }
 }

@@ -76,7 +76,7 @@ jobs:
           files: ./coverage/coverage-final.json,./coverage/lcov.info
           flags: unit
           fail_ci_if_error: false
-          verbose: true
+          slug: marcusrbrown/gpt
 
   build:
     name: Build

@@ -44,7 +44,7 @@ jobs:
           flags: unit
           name: unit-tests
           fail_ci_if_error: false
-          verbose: true
+          slug: marcusrbrown/gpt
 
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
@@ -145,7 +145,7 @@ jobs:
         run: |
           # Generate and post coverage report
           node scripts/report-test-results.ts \
-            --type coverage
+            --type coverage \
             --results-dir coverage/unit
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -158,3 +158,4 @@ jobs:
           flags: aggregated
           name: aggregated-coverage
           fail_ci_if_error: false
+          slug: marcusrbrown/gpt
