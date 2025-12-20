@@ -1,11 +1,15 @@
 CRDT
+cwd
 DALL
 Dexie
 dnd
 Fira
 GPT
 gpts
+GUD
+ipynb
 LLM
+LRU
 mrbro
 Ollama
 PRD
@@ -15,5 +19,6 @@ Pythonyx
 RTC
 Shiki
 Tauri
+ttl
 WCAG
 Yjs

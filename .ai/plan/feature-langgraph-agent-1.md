@@ -30,7 +30,7 @@ This implementation plan covers the development of a sophisticated LangGraph-bas
 - **CON-001**: Must work within existing React 19 and context provider architecture
 - **CON-002**: Limited to browser localStorage for persistence (no external databases)
 - **CON-003**: Must maintain compatibility with existing HeroUI design system
-- **GUD-001**: Follow established patterns from `agent-development.md` guide
+- **GUD-001**: Follow established patterns from `docs/agent-development.md` guide
 - **GUD-002**: Use existing testing infrastructure (Vitest, Playwright, accessibility)
 - **GUD-003**: Implement proper accessibility support following WCAG 2.1 AA standards
 - **PAT-001**: Use hierarchical context provider pattern for state management
@@ -168,11 +168,10 @@ This implementation plan covers the development of a sophisticated LangGraph-bas
 
 ## 8. Related Specifications / Further Reading
 
-- [Agent Development Guide](../../agent-development.md) - Comprehensive framework for AI agent development
-- [GPT AI Coding Instructions](../../.github/copilot-instructions.md) - Project architecture and development patterns
-- [Design System Guidelines](../../.cursor/rules/design-system.mdc) - UI component patterns and utilities
+- [Agent Development Guide](../../docs/agent-development.md) - Comprehensive framework for AI agent development
+- [GPT AI Coding Instructions](../../AGENTS.md) - Project architecture and development patterns
+- [Design System Guidelines](../../docs/design-system.md) - UI component patterns and utilities
 - [LangGraph Documentation](https://langchain-ai.github.io/langgraph/) - Official LangGraph development guide
-- [OpenAI Best Practices](../../.cursor/rules/openai-best-practices.mdc) - API integration guidelines
 - [BaseAgent Interface](../../src/types/agent.ts) - Core agent interface requirements
 - [Storage Service Patterns](../../src/services/storage.ts) - Local persistence implementation
 - [Interactive Notebook Component](../../src/components/docs/interactive-notebook.tsx) - Existing notebook patterns
