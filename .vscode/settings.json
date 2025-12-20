@@ -5,7 +5,15 @@
         }
     },
 
-    "cSpell.words": ["mrbro"],
+    "cSpell.customDictionaries": {
+        "project-words": {
+            "name": "project-words",
+            "path": "${workspaceRoot}/.vscode/spellright.dict",
+            "addWords": true
+        },
+        "custom": true,
+        "internal-terms": false
+    },
 
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": "explicit",
