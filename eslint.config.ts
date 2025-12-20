@@ -88,4 +88,12 @@ export default defineConfig(
       'unused-imports/no-unused-imports': 'off',
     },
   },
+
+  {
+    files: ['docs/prd.md'],
+    rules: {
+      'markdown/no-missing-label-refs': 'off',
+      'markdown/fenced-code-language': 'off',
+    },
+  },
 )
