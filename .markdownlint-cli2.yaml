@@ -9,3 +9,4 @@ globs:
   - '!.triage/**'
   - '!AGENTS.md'
   - '!CLAUDE.md'
+  - '!docs/prd.md'

@@ -2,680 +2,891 @@
 
 <!-- prettier-ignore-start -->
 
-**Document Version:** 1.0
-**Date:** May 3, 2025
+**Document Version:** 2.0
+**Original Version:** 1.0 (May 3, 2025)
+**Revision Date:** December 19, 2025
+**Status:** Implementation-Ready
 **Project:** GPT - Local-First AI Assistant Creation Platform
 
 <!-- prettier-ignore-end -->
+
+---
+
+## Document Change Summary
+
+This revision addresses critical gaps identified in PRD v1.0:
+
+| Area | Issue | Resolution |
+| --- | --- | --- |
+| Storage Architecture | localStorage specified but unsuitable for complex data | IndexedDB with Dexie.js wrapper mandated |
+| Security | No API key encryption strategy | Web Crypto API encryption with PBKDF2 key derivation |
+| Prioritization | All features implicit "must-have" | MoSCoW prioritization applied |
+| Acceptance Criteria | Missing or vague | Given-When-Then format for all requirements |
+| AI Quality Metrics | Not defined | Specific LLM quality metrics added |
+| Scope Boundaries | Implicit | Explicit out-of-scope section added |
+| Data Models | Incomplete vs implementation | Aligned with Zod schemas + extensions |
+
+---
 
 ## 1. Executive Summary
 
 ### 1.1 Vision Statement
 
-Create a powerful, user-friendly platform that enables technical users to create, customize, and use AI assistants (GPTs) with complete data sovereignty. The platform will mirror the capabilities of cloud-based GPT creation tools while keeping all data locally controlled, supporting multiple LLM providers, and providing seamless sharing and export options.
+Create a powerful, user-friendly platform that enables technical users to create, customize, and use AI assistants (GPTs) with complete data sovereignty. The platform mirrors the capabilities of cloud-based GPT creation tools while keeping all data locally controlled, supporting multiple LLM providers, and providing seamless sharing and export options.
 
-### 1.2 Primary Goals
+### 1.2 Problem Statement
 
-- Empower users to create sophisticated AI assistants without sacrificing data privacy
-- Support multiple LLM providers and local models via Ollama
-- Provide an elegant, intuitive interface that matches or exceeds commercial offerings
-- Enable seamless sharing and export of assistant configurations
-- Maintain a local-first architecture with optional sync capabilities
+**Current Pain Points:**
 
-### 1.3 Key Success Metrics
+1. Cloud-based GPT platforms (ChatGPT, Claude) require sending sensitive data to third parties
+2. Users lack control over conversation history and assistant configurations
+3. No ability to use local/self-hosted models with the same UX as commercial platforms
+4. Vendor lock-in prevents portability of assistant configurations
+5. Enterprise users cannot meet data residency requirements with cloud solutions
 
-- Users can successfully create and use custom assistants entirely offline
-- Interface provides an experience on par with commercial platforms
-- Support for all major GPT-like features (knowledge bases, tools, etc.)
-- Robust import/export functionality
-- Successful integration with multiple LLM providers
+**Target Solution:** A local-first platform where users own their data, choose their AI providers, and maintain full control over their assistant configurations.
+
+### 1.3 Success Metrics
+
+| Metric             | Target                                              | Measurement Method                      |
+| ------------------ | --------------------------------------------------- | --------------------------------------- |
+| Offline Capability | 100% core features work offline                     | Automated testing with network disabled |
+| Data Sovereignty   | Zero data sent to non-user-selected endpoints       | Network traffic audit                   |
+| UX Parity          | ≥4.0/5.0 user satisfaction vs ChatGPT               | User surveys (N≥50)                     |
+| Response Latency   | <200ms for local operations                         | Performance monitoring                  |
+| Storage Efficiency | <50MB for typical user (20 GPTs, 100 conversations) | Storage profiling                       |
+| Provider Support   | ≥3 LLM providers integrated                         | Feature checklist                       |
+
+### 1.4 Scope Boundaries
+
+#### In Scope
+
+- Web application (React SPA)
+- Desktop application (Tauri - Phase 4)
+- GPT creation, editing, and management
+- Multi-provider LLM integration (OpenAI, Anthropic, Ollama)
+- Knowledge base management (files, URLs, text)
+- Tool integration via MCP protocol
+- Local storage with optional sync
+- Export/import functionality
+
+#### Explicitly Out of Scope
+
+- Mobile applications (future consideration)
+- Server-side deployment / multi-tenant hosting
+- Model fine-tuning
+- AI agent marketplace
+- Real-time collaboration (Phase 5+)
+- Payment processing
+- User authentication (local-first = no accounts)
+
+---
 
 ## 2. Target Audience and User Personas
 
 ### 2.1 Primary User Profile
 
-The platform targets technically comfortable users familiar with AI platforms who:
-
-- Value data privacy and local control
-- Have experience using assistants in platforms like ChatGPT or Claude
-- Are comfortable managing API keys
-- May have programming experience but aren't necessarily developers
-
-### 2.2 Key User Personas
-
-**Maya - The Privacy-Conscious Researcher**
-
-- Uses AI assistants daily for research
-- Concerned about data sovereignty
-- Has expertise in multiple domains
-- Willing to manage complexity for control
-- Needs: Knowledge base integration, ability to use domain-specific models
-
-**Tomas - The Indie Developer**
-
-- Builds applications and tools
-- Creates assistants to improve workflows
-- Needs to integrate with development environments
-- Values: API accessibility, tool integration, notebook functionality
-- Needs: Programmatic access, flexible tool configuration
-
-**Lei - The AI Hobbyist**
-
-- Experiments with prompt engineering
-- Shares assistants with communities
-- Uses multiple platforms and models
-- Values: Experimentation, sharing capabilities
-- Needs: Easy export/import, multi-model support
-
-## 3. Platform Strategy
-
-### 3.1 Platform Priorities
-
-1. Web application (primary platform)
-2. Desktop application via Tauri (macOS and Linux priority, Windows later)
-3. Potential future mobile applications
-
-### 3.2 Technical Architecture
-
-- **Frontend**: Modern web technologies (React, TypeScript)
-- **Backend**: Local-first with Tauri for desktop integration
-- **Storage**: IndexedDB (web), SQLite + filesystem (desktop)
-- **API Integration**: Direct API calls to LLM providers
-- **Sync**: Phased approach from export/import to P2P
-
-### 3.3 Technical Constraints
-
-- Must function completely offline for core features
-- All user data must remain under user control by default
-- Cross-platform compatibility requirements
-- API keys must be stored securely
-
-## 4. Core Features and Functionality
-
-### 4.1 GPT Creation and Management
-
-#### 4.1.1 GPT Configuration Interface
-
-- **Description**: A comprehensive interface for creating and configuring GPTs
-- **Key Components**:
-  - Name and description fields
-  - System prompt editor with formatting support
-  - Knowledge base management
-  - Tool configuration panel
-  - Model selection and parameters
-  - Conversation settings
-- **User Stories**:
-  - User can create a new GPT with a custom persona
-  - User can edit existing GPTs
-  - User can duplicate GPTs as starting points
-  - User can organize GPTs into collections/folders
-- **Technical Considerations**:
-  - Real-time validation of configurations
-  - Versioning of GPT configurations
-  - Compatible format with OpenAI GPTs
-
-#### 4.1.2 Knowledge Base Management
-
-- **Description**: System for managing files and references used by GPTs
-- **Key Components**:
-  - File upload interface
-  - URL reference management
-  - Text snippet editor
-  - Knowledge base organization tools
-- **User Stories**:
-  - User can upload documents to be included in GPT context
-  - User can add and manage web URLs for reference
-  - User can create and edit text snippets
-  - User can organize knowledge by categories or tags
-- **Technical Considerations**:
-  - File format support (PDF, DOCX, TXT, etc.)
-  - Storage efficiency for large knowledge bases
-  - Chunking strategies for context windows
-
-#### 4.1.3 Tool Integration Framework
-
-- **Description**: System for connecting GPTs to external tools and APIs
-- **Key Components**:
-  - Tool definition interface
-  - MCP server discovery and connection
-  - API configuration management
-  - Testing interface for tool calls
-- **User Stories**:
-  - User can define custom tools with schemas
-  - User can connect to MCP servers (local or remote)
-  - User can test tools in isolation
-  - User can manage API configurations for tools
-- **Technical Considerations**:
-  - Support for SSE-based MCP connections
-  - Integration with stdio-to-SSE conversion tools
-  - Security model for tool execution
-
-### 4.2 Chat Interface and Interaction
-
-#### 4.2.1 Chat Experience
-
-- **Description**: Interface for interacting with created GPTs
-- **Key Components**:
-  - Clean, minimal chat UI
-  - Message composition with formatting
-  - File attachment capabilities
-  - Tool invocation visualization
-  - Citation and source tracking
-- **User Stories**:
-  - User can have natural conversations with GPTs
-  - User can attach files during conversations
-  - User can see tool usage and debug if needed
-  - User can export or share conversations
-- **Technical Considerations**:
-  - Real-time streaming of responses
-  - Handling of various response types (text, code, etc.)
-  - Conversation persistence and search
-
-#### 4.2.2 Interactive Notebook Integration
-
-- **Description**: Jupyter-like notebook interface for code execution and data analysis
-- **Key Components**:
-  - Code cell creation and execution
-  - Output visualization
-  - Integration with chat context
-  - Data analysis tools
-- **User Stories**:
-  - User can execute code suggested by GPT
-  - User can analyze data within the platform
-  - User can save and share notebooks
-  - User can integrate notebook outputs into conversations
-- **Technical Considerations**:
-  - Secure code execution environment
-  - Language support (Python, JavaScript, etc.)
-  - Connection to existing Jupyter instances when available
-
-### 4.3 Multi-Model Support and Integration
-
-#### 4.3.1 LLM Provider Integration
-
-- **Description**: Support for multiple commercial LLM providers
-- **Key Components**:
-  - API key management
-  - Model selection interface
-  - Provider-specific settings
-  - Usage tracking
-- **User Stories**:
-  - User can configure multiple API providers
-  - User can select specific models for each GPT
-  - User can monitor API usage and costs
-  - User can set fallback providers
-- **Technical Considerations**:
-  - Unified abstraction layer for different APIs
-  - Handling provider-specific features
-  - Authentication management
-
-#### 4.3.2 Ollama Integration
-
-- **Description**: Support for local models via Ollama
-- **Key Components**:
-  - Ollama connection configuration
-  - Local model management
-  - Performance settings
-  - Model download interface
-- **User Stories**:
-  - User can run GPTs completely locally
-  - User can manage local model library
-  - User can customize local model parameters
-  - User can switch between local and cloud models
-- **Technical Considerations**:
-  - Connection to Ollama API
-  - Resource management for local models
-  - Compatibility with various model architectures
-
-### 4.4 Data Portability and Sharing
-
-#### 4.4.1 Export and Import
-
-- **Description**: Comprehensive system for GPT portability
-- **Key Components**:
-  - Format-preserving export
-  - OpenAI-compatible export
-  - Bulk export capabilities
-  - Import validation and conflict resolution
-- **User Stories**:
-  - User can export GPTs in various formats
-  - User can import GPTs from files
-  - User can share GPT configurations
-  - User can back up entire libraries
-- **Technical Considerations**:
-  - Format compatibility with commercial platforms
-  - Handling of provider-specific features
-  - Knowledge base packaging
-
-#### 4.4.2 Sync Capabilities
-
-- **Description**: Optional synchronization for multi-device usage
-- **Key Components**:
-  - Cloud storage provider integration
-  - P2P sync capabilities
-  - Conflict resolution
-  - Selective sync settings
-- **User Stories**:
-  - User can sync GPTs across devices
-  - User can choose sync targets (cloud, P2P)
-  - User can resolve conflicts when they arise
-  - User can select what to sync
-- **Technical Considerations**:
-  - End-to-end encryption for cloud sync
-  - Efficient delta sync algorithms
-  - Offline capability with sync queue
-
-## 5. User Experience and Interface Design
-
-### 5.1 Design Principles
-
-- Clean, minimal interface inspired by ChatGPT and Claude
-- Focus on content and interaction rather than UI elements
-- Consistent patterns throughout the application
-- Accessible design for various users
-- Progressive disclosure of complexity
-
-### 5.2 Key Workflows
-
-#### 5.2.1 GPT Creation Workflow
-
-1. User initiates GPT creation
-2. User inputs basic info (name, description)
-3. User configures system prompt
-4. User adds knowledge bases (if needed)
-5. User configures tools (if needed)
-6. User selects model and settings
-7. User tests GPT in embedded chat
-8. User saves and publishes GPT
-
-#### 5.2.2 Chat Interaction Workflow
-
-1. User selects GPT from library
-2. User enters chat interface
-3. User composes message (with optional attachments)
-4. System processes message and returns response
-5. User can view and explore citations/sources
-6. User can continue conversation or export
-
-#### 5.2.3 Onboarding Workflow
-
-1. User sets up application
-2. User provides necessary API keys
-3. User creates first GPT with guidance
-4. User tests GPT in chat interface
-5. User explores additional features
-
-### 5.3 Interface Components
-
-#### 5.3.1 Navigation Structure
-
-- Sidebar for GPT library and navigation
-- Main content area for active interface
-- Context-sensitive panels
-- Quick actions and shortcuts
-
-#### 5.3.2 Editor Interfaces
-
-- Rich text editors for prompts
-- Code editors with syntax highlighting
-- Knowledge base management interface
-- Tool configuration panels
-
-#### 5.3.3 Chat Components
-
-- Message composition with formatting
-- Interactive message display
-- File attachment interface
-- Tool execution visualization
-- Citation and source display
-
-## 6. Data Architecture and Security
-
-### 6.1 Data Storage Strategy
-
-#### 6.1.1 Web Platform Storage
-
-- Primary: IndexedDB for structured data
-  - GPT configurations
-  - Conversation histories
-  - User settings
-  - Knowledge base metadata
-- File Storage:
-  - Knowledge base files (limited by browser storage)
-  - Exported configurations
-
-#### 6.1.2 Desktop Platform Storage
-
-- Primary: SQLite for structured data
-  - All IndexedDB content plus extended metadata
-  - Indexing for search and organization
-- File Storage:
-  - Direct filesystem access for knowledge bases
-  - Local model caching (when applicable)
-  - Backup and export files
-
-### 6.2 Data Models
-
-#### 6.2.1 GPT Configuration Model
-
-```tsx
-interface GPTConfiguration {
-  id: string;
-  name: string;
-  description: string;
-  systemPrompt: string;
-  createdAt: Date;
-  updatedAt: Date;
-  modelProvider: string;
-  modelName: string;
-  modelSettings: {
-    temperature: number;
-    topP: number;
-    maxTokens: number;
-    // Additional model-specific settings
-  };
-  tools: Tool[];
-  knowledgeBase: KnowledgeItem[];
-  conversations: string[]; // References to conversation IDs
-  settings: {
-    enableWebSearch: boolean;
-    enableFileAttachments: boolean;
-    enableImageGeneration: boolean;
-    // Additional feature flags
-  };
-  tags: string[];
-  isPublic: boolean;
+**Demographics:**
+
+- Technically comfortable users (developer-adjacent)
+- Familiar with AI platforms (ChatGPT, Claude, etc.)
+- Comfortable managing API keys and configurations
+- Privacy-conscious or enterprise-constrained
+
+**Technical Requirements:**
+
+- Modern browser (Chrome 90+, Firefox 90+, Safari 15+, Edge 90+)
+- For desktop: macOS 11+, Ubuntu 20.04+, Windows 10+ (Phase 4)
+- For local models: Ollama installation with sufficient hardware
+
+### 2.2 User Personas
+
+#### Maya - The Privacy-Conscious Researcher
+
+| Attribute         | Detail                                                   |
+| ----------------- | -------------------------------------------------------- |
+| Role              | Academic researcher, data scientist                      |
+| Primary Goal      | Use AI without exposing research data                    |
+| Key Needs         | Knowledge base integration, domain-specific models       |
+| Technical Comfort | High - manages own infrastructure                        |
+| Success Criteria  | Can create research assistant with proprietary documents |
+
+#### Tomas - The Indie Developer
+
+| Attribute         | Detail                                                 |
+| ----------------- | ------------------------------------------------------ |
+| Role              | Solo developer, builds tools and apps                  |
+| Primary Goal      | Create assistants for development workflows            |
+| Key Needs         | API accessibility, tool integration, notebooks         |
+| Technical Comfort | Very high - writes code daily                          |
+| Success Criteria  | Can integrate GPT with development environment via MCP |
+
+#### Lei - The AI Hobbyist
+
+| Attribute         | Detail                                          |
+| ----------------- | ----------------------------------------------- |
+| Role              | Prompt engineer, community member               |
+| Primary Goal      | Experiment and share assistant configurations   |
+| Key Needs         | Multi-model support, easy export/import         |
+| Technical Comfort | Medium - uses but doesn't build                 |
+| Success Criteria  | Can export GPT and share with community members |
+
+---
+
+## 3. Functional Requirements
+
+### 3.1 GPT Configuration Management
+
+#### FR-1: Create GPT Configuration [MUST HAVE]
+
+**Description:** Users can create new GPT configurations with custom personas.
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user is on the GPT library page
+When they click "Create New GPT"
+Then they see a configuration form with:
+  - Name field (required, 1-100 characters)
+  - Description field (optional, 0-500 characters)
+  - System prompt editor (required, supports markdown)
+  - Model selector (defaults to user's preferred provider)
+
+Given a user has filled required fields
+When they click "Save"
+Then the GPT is persisted to IndexedDB
+And appears in the GPT library immediately
+And a success notification is displayed
+```
+
+**Data Model (Zod Schema):**
+
+```typescript
+const GPTConfigurationSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().min(1).max(100),
+  description: z.string().max(500).optional(),
+  systemPrompt: z.string().min(1),
+  instructions: z.string().optional(),
+  conversationStarters: z.array(z.string()).max(4).optional(),
+
+  // Model configuration
+  modelProvider: z.enum(["openai", "anthropic", "ollama", "azure"]),
+  modelName: z.string(),
+  modelSettings: z.object({
+    temperature: z.number().min(0).max(2).default(1),
+    topP: z.number().min(0).max(1).default(1),
+    maxTokens: z.number().positive().optional(),
+    presencePenalty: z.number().min(-2).max(2).default(0),
+    frequencyPenalty: z.number().min(-2).max(2).default(0),
+  }),
+
+  // Features
+  tools: z.array(MCPToolSchema).default([]),
+  knowledge: GPTKnowledgeSchema.optional(),
+  capabilities: CapabilitiesSchema,
+
+  // Metadata
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+  version: z.number().int().positive().default(1),
+  tags: z.array(z.string()).default([]),
+  isArchived: z.boolean().default(false),
+})
+```
+
+#### FR-2: Edit GPT Configuration [MUST HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user has an existing GPT
+When they open it for editing
+Then all current values are pre-populated
+And changes are auto-saved after 2 seconds of inactivity
+And a version history entry is created on explicit save
+
+Given a user is editing a GPT
+When another browser tab has the same GPT open
+Then changes are synchronized within 500ms (same device)
+```
+
+#### FR-3: Duplicate GPT [SHOULD HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user has an existing GPT
+When they select "Duplicate"
+Then a new GPT is created with:
+  - Name: "{original name} (Copy)"
+  - All settings copied except id and timestamps
+  - Knowledge base references copied (not files)
+And the user is navigated to edit the duplicate
+```
+
+#### FR-4: Organize GPTs [SHOULD HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user has multiple GPTs
+When they create a folder/collection
+Then they can drag GPTs into the folder
+And folders can be nested up to 3 levels
+And folder state persists across sessions
+
+Given a user has tagged GPTs
+When they filter by tag
+Then only matching GPTs are displayed
+And filter state is preserved in URL for sharing
+```
+
+#### FR-5: Archive/Delete GPT [MUST HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user wants to remove a GPT
+When they select "Archive"
+Then the GPT is hidden from default view
+And can be restored from "Archived" filter
+And associated conversations are preserved
+
+Given a user wants to permanently delete
+When they select "Delete" on an archived GPT
+Then a confirmation dialog appears with conversation count
+And deletion is irreversible
+And associated conversations are deleted
+```
+
+### 3.2 Knowledge Base Management
+
+#### FR-6: Upload Knowledge Files [MUST HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user is configuring GPT knowledge
+When they upload a file
+Then the following formats are accepted:
+  | Format | Max Size | Processing |
+  | PDF    | 20MB     | Text extraction |
+  | DOCX   | 10MB     | Text extraction |
+  | TXT    | 5MB      | Direct use |
+  | MD     | 5MB      | Direct use |
+  | JSON   | 5MB      | Formatted display |
+And files are stored in IndexedDB as blobs
+And progress indicator shows upload status
+And error messages are specific (format, size, corruption)
+
+Given a file exceeds browser storage quota
+When upload is attempted
+Then user sees clear message with:
+  - Current storage usage
+  - File size
+  - Suggestion to use desktop app or remove other files
+```
+
+#### FR-7: URL References [SHOULD HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user adds a URL reference
+When the URL is valid and accessible
+Then metadata is fetched (title, description, favicon)
+And content is optionally cached locally
+And last-fetched timestamp is displayed
+
+Given a URL becomes inaccessible
+When the GPT is used in chat
+Then cached content is used if available
+And a warning indicator shows stale status
+```
+
+#### FR-8: Text Snippets [MUST HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user creates a text snippet
+When they provide name and content
+Then the snippet is saved with character count
+And can be edited inline
+And supports markdown formatting
+And maximum size is 100KB per snippet
+```
+
+### 3.3 Tool Integration (MCP)
+
+#### FR-9: MCP Server Connection [SHOULD HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user configures an MCP server
+When they provide server URL (SSE endpoint)
+Then connection is tested automatically
+And available tools are discovered and listed
+And tool schemas are validated against JSON Schema
+
+Given an MCP server requires authentication
+When user provides credentials
+Then credentials are encrypted before storage
+And connection is retested with auth headers
+```
+
+#### FR-10: Custom Tool Definition [COULD HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user defines a custom tool
+When they provide:
+  - Name (alphanumeric, 1-50 chars)
+  - Description (1-500 chars)
+  - JSON Schema for parameters
+  - Endpoint URL
+Then the tool is validated syntactically
+And a test interface allows manual invocation
+And execution logs are captured
+```
+
+#### FR-11: Built-in Tools [SHOULD HAVE]
+
+**Available Tools:**
+
+| Tool             | Description                        | Priority |
+| ---------------- | ---------------------------------- | -------- |
+| Web Search       | Search via configurable provider   | SHOULD   |
+| Code Execution   | Sandboxed JS/Python execution      | COULD    |
+| Image Generation | Via DALL-E or Stable Diffusion API | COULD    |
+| File Operations  | Read/write to designated folder    | COULD    |
+
+### 3.4 Chat Interface
+
+#### FR-12: Conversation Flow [MUST HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user starts a conversation
+When they send a message
+Then the message appears immediately in the UI
+And a streaming response begins within 2 seconds
+And response tokens are displayed as received
+And tool calls are visualized with status indicators
+
+Given a response includes code
+When rendering completes
+Then code blocks have syntax highlighting
+And a "Copy" button is available
+And language is auto-detected or specified
+```
+
+#### FR-13: File Attachments in Chat [SHOULD HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user attaches a file to a message
+When the file is an image (PNG, JPG, GIF, WebP)
+Then it is displayed inline as thumbnail
+And sent to vision-capable models appropriately
+
+Given a user attaches a document
+When sending the message
+Then document content is extracted
+And included in context with source attribution
+```
+
+#### FR-14: Conversation Management [MUST HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user has conversations
+When they view conversation list
+Then conversations are sorted by last activity
+And show title (auto-generated or user-set)
+And show message count and last message preview
+
+Given a user searches conversations
+When they enter search terms
+Then full-text search is performed on messages
+And results highlight matching terms
+And search is performed locally (no network)
+```
+
+#### FR-15: Export Conversation [SHOULD HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user exports a conversation
+When they select format
+Then the following formats are available:
+  | Format   | Content |
+  | Markdown | Messages with formatting preserved |
+  | JSON     | Full conversation with metadata |
+  | PDF      | Formatted document (desktop only) |
+And file is downloaded to user's device
+```
+
+### 3.5 Multi-Model Support
+
+#### FR-16: Provider Configuration [MUST HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user configures a provider
+When they enter API key for:
+  | Provider  | Validation |
+  | OpenAI    | Test API call to /models |
+  | Anthropic | Test API call to /messages |
+  | Azure     | Test with provided endpoint |
+  | Ollama    | Connection test to local server |
+Then key is encrypted using Web Crypto API
+And stored in IndexedDB (never localStorage)
+And validation result is displayed immediately
+
+Given an API key is invalid
+When validation fails
+Then specific error is shown (auth, quota, network)
+And key is not persisted
+```
+
+#### FR-17: Model Selection [MUST HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user selects a provider
+When configuring a GPT
+Then available models for that provider are listed
+And model capabilities are indicated:
+  - Context window size
+  - Vision support
+  - Tool/function calling support
+  - Pricing tier (if applicable)
+And user can set default model per provider
+```
+
+#### FR-18: Ollama Integration [SHOULD HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given Ollama is running locally
+When user configures Ollama provider
+Then available local models are listed
+And model details show:
+  - Parameter count
+  - Quantization level
+  - VRAM requirements
+And pull progress is shown for downloading models
+
+Given Ollama is not running
+When user attempts to use Ollama model
+Then clear error message is displayed
+And instructions to start Ollama are provided
+```
+
+### 3.6 Data Portability
+
+#### FR-19: Export GPT Configuration [MUST HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user exports a GPT
+When they select export format
+Then the following options are available:
+  | Format | Content | Use Case |
+  | Native JSON | Full config + knowledge refs | Backup/transfer |
+  | OpenAI-compatible | Mapped to GPT Builder format | Platform migration |
+  | Minimal JSON | Config only, no knowledge | Sharing templates |
+And exported file includes version for migration
+
+Given a GPT has large knowledge base
+When exporting with "Include Files" option
+Then files are bundled in ZIP archive
+And total export size is shown before download
+```
+
+#### FR-20: Import GPT Configuration [MUST HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user imports a GPT file
+When file is valid
+Then preview shows:
+  - GPT name and description
+  - Included knowledge items
+  - Required provider/model
+  - Potential conflicts with existing GPTs
+And user can rename before importing
+
+Given imported GPT references unavailable model
+When import completes
+Then warning is displayed
+And user is prompted to select alternative model
+```
+
+#### FR-21: Bulk Operations [COULD HAVE]
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user selects multiple GPTs
+When they choose "Export Selected"
+Then a single archive is created
+And includes manifest of contents
+
+Given a user imports an archive
+When archive contains multiple GPTs
+Then each is imported with conflict detection
+And import report shows success/failure per item
+```
+
+---
+
+## 4. Non-Functional Requirements
+
+### 4.1 Performance
+
+| Requirement             | Target                            | Priority |
+| ----------------------- | --------------------------------- | -------- |
+| Initial page load       | <3s on 4G connection              | MUST     |
+| Time to interactive     | <5s on 4G connection              | MUST     |
+| Local operation latency | <100ms                            | MUST     |
+| IndexedDB query time    | <50ms for typical queries         | SHOULD   |
+| Memory usage            | <500MB with 10 open conversations | SHOULD   |
+| Bundle size             | <2MB initial, <5MB total          | SHOULD   |
+
+### 4.2 Security
+
+| Requirement            | Implementation                     | Priority |
+| ---------------------- | ---------------------------------- | -------- |
+| API key encryption     | AES-GCM via Web Crypto API         | MUST     |
+| Key derivation         | PBKDF2 with user passphrase        | MUST     |
+| No plaintext secrets   | Keys never in localStorage or logs | MUST     |
+| CSP headers            | Strict Content Security Policy     | MUST     |
+| Subresource integrity  | SRI for all external scripts       | SHOULD   |
+| Tool execution sandbox | Isolated iframe for code execution | SHOULD   |
+
+### 4.3 Reliability
+
+| Requirement            | Target                               | Priority |
+| ---------------------- | ------------------------------------ | -------- |
+| Offline capability     | 100% core features                   | MUST     |
+| Data durability        | Zero data loss on crash/close        | MUST     |
+| Auto-save frequency    | Every 2 seconds during edits         | MUST     |
+| Error recovery         | Graceful degradation on API failures | MUST     |
+| Storage quota handling | Clear warnings before quota exceeded | SHOULD   |
+
+### 4.4 Accessibility
+
+| Requirement           | Standard                       | Priority |
+| --------------------- | ------------------------------ | -------- |
+| WCAG compliance       | Level AA                       | MUST     |
+| Keyboard navigation   | Full app navigable             | MUST     |
+| Screen reader support | Semantic HTML + ARIA           | MUST     |
+| Color contrast        | 4.5:1 minimum                  | MUST     |
+| Focus indicators      | Visible focus rings            | MUST     |
+| Reduced motion        | Respect prefers-reduced-motion | SHOULD   |
+
+### 4.5 AI/LLM-Specific Quality Metrics
+
+| Metric              | Target                                  | Measurement           |
+| ------------------- | --------------------------------------- | --------------------- |
+| Response accuracy   | User satisfaction ≥4/5                  | In-app feedback       |
+| Context utilization | Knowledge base referenced when relevant | Manual audit          |
+| Tool reliability    | 95% successful tool executions          | Error logging         |
+| Streaming stability | <1% dropped connections                 | Connection monitoring |
+| Token efficiency    | Optimal context window usage            | Token counting        |
+
+---
+
+## 5. Technical Architecture
+
+### 5.1 Storage Architecture
+
+#### Web Platform (Primary)
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      IndexedDB (Dexie.js)                   │
+├─────────────────┬─────────────────┬─────────────────────────┤
+│ GPT Configs     │ Conversations   │ Knowledge Files         │
+│ (structured)    │ (structured)    │ (blobs)                 │
+├─────────────────┴─────────────────┴─────────────────────────┤
+│                    Encrypted Secrets Store                   │
+│              (API keys, auth tokens - AES-GCM)              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**IndexedDB Schema:**
+
+```typescript
+// Dexie.js database definition
+class GPTDatabase extends Dexie {
+  gpts!: Table<GPTConfiguration>
+  conversations!: Table<Conversation>
+  messages!: Table<Message>
+  knowledgeFiles!: Table<KnowledgeFile>
+  secrets!: Table<EncryptedSecret>
+  settings!: Table<UserSetting>
+
+  constructor() {
+    super("gpt-platform")
+    this.version(1).stores({
+      gpts: "id, name, createdAt, updatedAt, *tags",
+      conversations: "id, gptId, updatedAt, *tags",
+      messages: "id, conversationId, timestamp",
+      knowledgeFiles: "id, gptId, name, mimeType",
+      secrets: "id, provider",
+      settings: "key",
+    })
+  }
 }
 ```
 
-#### 6.2.2 Knowledge Base Model
+#### Desktop Platform (Tauri - Phase 4)
 
-```tsx
-interface KnowledgeItem {
-  id: string;
-  type: "file" | "url" | "text";
-  name: string;
-  content?: string; // For text snippets
-  fileReference?: string; // For files
-  url?: string; // For web references
-  metadata: {
-    size?: number;
-    mimeType?: string;
-    lastUpdated: Date;
-    // Additional metadata
-  };
-  tags: string[];
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    SQLite (Primary Store)                    │
+├─────────────────────────────────────────────────────────────┤
+│                    OS Keychain (Secrets)                     │
+├─────────────────────────────────────────────────────────────┤
+│                  Filesystem (Knowledge Files)                │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 5.2 Security Architecture
+
+#### API Key Encryption Flow
+
+```
+User Passphrase
+       │
+       ▼
+┌──────────────┐    ┌──────────────┐    ┌──────────────┐
+│   PBKDF2     │───▶│  AES-GCM     │───▶│  IndexedDB   │
+│ (100k iter)  │    │  Encryption  │    │  (encrypted) │
+└──────────────┘    └──────────────┘    └──────────────┘
+       │
+       ▼
+  Session Key (memory only, cleared on tab close)
+```
+
+**Implementation Notes:**
+
+- Passphrase never stored; derived key kept in memory only
+- Each secret has unique IV (initialization vector)
+- Re-encryption required on passphrase change
+- Session timeout configurable (default: 30 minutes)
+
+### 5.3 Provider Abstraction Layer
+
+```typescript
+interface LLMProvider {
+  id: string
+  name: string
+
+  // Configuration
+  validateCredentials: (config: ProviderConfig) => Promise<ValidationResult>
+  listModels: () => Promise<Model[]>
+
+  // Operations
+  createCompletion: (request: CompletionRequest) => AsyncIterable<CompletionChunk>
+  createEmbedding?: (text: string) => Promise<number[]>
+
+  // Capabilities
+  supportsVision: boolean
+  supportsTools: boolean
+  supportsStreaming: boolean
 }
 ```
 
-#### 6.2.3 Tool Model
+### 5.4 Sync Architecture (Phase 4+)
 
-```tsx
-interface Tool {
-  id: string;
-  name: string;
-  description: string;
-  type: "function" | "mcp" | "builtin";
-  schema: JSONSchema;
-  endpoint?: string; // For MCP tools
-  authentication?: {
-    type: "bearer" | "api_key";
-    value: string; // Encrypted
-  };
-  settings: Record<string, any>;
-  isEnabled: boolean;
-}
+**Strategy:** CRDTs via Yjs for conflict-free synchronization
+
+```
+Device A                    Device B
+   │                           │
+   ▼                           ▼
+┌──────┐                   ┌──────┐
+│ Yjs  │◄─────────────────▶│ Yjs  │
+│ Doc  │   WebRTC / Relay  │ Doc  │
+└──────┘                   └──────┘
+   │                           │
+   ▼                           ▼
+IndexedDB                  IndexedDB
 ```
 
-#### 6.2.4 Conversation Model
-
-```tsx
-interface Conversation {
-  id: string;
-  gptId: string;
-  title: string;
-  createdAt: Date;
-  updatedAt: Date;
-  messages: Message[];
-  metadata: {
-    modelProvider: string;
-    modelName: string;
-    // Additional context
-  };
-  tags: string[];
-}
-
-interface Message {
-  id: string;
-  role: "user" | "assistant" | "system";
-  content: MessageContent[];
-  timestamp: Date;
-  metadata: Record<string, any>;
-}
-
-type MessageContent =
-  | {type: "text"; text: string}
-  | {type: "image"; url: string; alt?: string}
-  | {type: "file"; reference: string; name: string}
-  | {type: "tool_call"; tool: string; args: Record<string, any>; result?: any};
-```
-
-### 6.3 Security Considerations
-
-#### 6.3.1 API Key Management
-
-- **Web Platform**:
-  - Encrypt API keys in IndexedDB using a user-provided passphrase
-  - Option for session-only storage
-  - Clear security warnings about browser storage limitations
-
-- **Desktop Platform**:
-  - Utilize OS keychain/credential store via Tauri
-  - Leverage platform security (Keychain on macOS, etc.)
-  - Provide secure configuration options
-
-#### 6.3.2 Data Protection
-
-- End-to-end encryption for any sync functionality
-- Local encryption for sensitive data
-- No sharing of user data with providers beyond API calls
-- Clear data lifecycle management
-
-#### 6.3.3 Tool Execution Security
-
-- Sandboxed execution environment for code
-- Permission system for tool access
-- Transparent logging of all tool executions
-- Configurable security policies
-
-## 7. Technical Stack Recommendations
-
-### 7.1 Frontend Technologies
+---
 
-- **Framework**: React with TypeScript
-- **State Management**: Redux Toolkit or Zustand
-- **UI Components**: Custom components with inspiration from HeroUI
-- **Styling**: Tailwind CSS for utility-first styling
-
-### 7.2 Storage and Data Management
+## 6. Development Phases
 
-- **Web Storage**: IndexedDB with Dexie.js wrapper
-- **Desktop Storage**: SQLite via Tauri plugin
-- **State Persistence**: Combination of memory and persistent storage
+### Phase 1: Core Platform [Months 1-3] - MUST HAVE
+
+| Deliverable                           | Status         | Dependencies |
+| ------------------------------------- | -------------- | ------------ |
+| IndexedDB storage layer with Dexie.js | 🔄 Partial     | None         |
+| GPT CRUD operations                   | ✅ Complete    | Storage      |
+| OpenAI provider integration           | ✅ Complete    | None         |
+| Basic chat interface with streaming   | ✅ Complete    | Provider     |
+| API key encryption                    | ❌ Not started | Web Crypto   |
+| System prompt editor                  | ✅ Complete    | None         |
 
-### 7.3 Backend and Integration
-
-- **Desktop Runtime**: Tauri (Rust-based)
-- **API Integration**: Custom clients for each provider
-- **MCP Integration**: SSE-based client with fallback options
-- **Sync**: WebRTC for P2P, provider SDKs for cloud storage
+**Milestone 1 Criteria:**
 
-### 7.4 Development Tools
+- [ ] Create, edit, delete GPT configurations
+- [ ] Encrypted API key storage
+- [ ] Basic chat with OpenAI streaming
+- [ ] Data persists across sessions
+- [ ] Works fully offline after initial load
 
-- **Build**: Vite for fast development
-- **Testing**: Jest, Testing Library, Playwright
-- **CI/CD**: GitHub Actions
-- **Documentation**: Typedoc, Storybook
+### Phase 2: Enhanced Features [Months 4-6] - SHOULD HAVE
 
-## 8. Development Phases and Milestones
+| Deliverable                        | Status         | Dependencies         |
+| ---------------------------------- | -------------- | -------------------- |
+| Knowledge base (files, URLs, text) | 🔄 Partial     | IndexedDB blobs      |
+| Anthropic provider                 | ❌ Not started | Provider abstraction |
+| Export/import functionality        | ❌ Not started | Serialization        |
+| Conversation search                | ❌ Not started | IndexedDB indexing   |
+| Tool integration framework         | 🔄 Partial     | MCP client           |
 
-### 8.1 Phase 1: Core Infrastructure (2-3 months)
+**Milestone 2 Criteria:**
 
-- Establish application architecture
-- Implement storage layer
-- Create basic UI framework
-- Develop OpenAI API integration
-- Implement GPT configuration storage
-- Build simple chat interface
+- [ ] Upload and use knowledge files
+- [ ] Multiple provider support
+- [ ] Export/import GPT configurations
+- [ ] Full-text conversation search
+- [ ] Basic MCP tool integration
 
-**Milestone 1: Basic GPT Creation**
+### Phase 3: Advanced Capabilities [Months 7-9] - SHOULD/COULD HAVE
 
-- Create and edit GPT configurations
-- Store configurations locally
-- Basic chat functionality
-- OpenAI integration working
+| Deliverable                | Status         | Dependencies           |
+| -------------------------- | -------------- | ---------------------- |
+| Ollama integration         | ❌ Not started | Local network access   |
+| Full MCP server support    | ❌ Not started | MCP specification      |
+| Interactive notebook       | ❌ Not started | Code execution sandbox |
+| Advanced tool capabilities | ❌ Not started | Tool framework         |
+| Performance optimization   | ❌ Not started | Profiling              |
 
-### 8.2 Phase 2: Enhanced Features (2-3 months)
+**Milestone 3 Criteria:**
 
-- Develop knowledge base functionality
-- Implement basic tool framework
-- Add support for additional API providers
-- Create export/import system
-- Enhance chat experience
-- Improve UI/UX
+- [ ] Use local models via Ollama
+- [ ] Connect to MCP servers
+- [ ] Execute code in sandbox
+- [ ] <100ms local operation latency
 
-**Milestone 2: Functional Platform**
+### Phase 4: Desktop and Sync [Months 10-12] - COULD HAVE
 
-- Full GPT creation capabilities
-- Knowledge base support
-- Basic tool integration
-- Multi-provider support
-- Import/export functionality
+| Deliverable               | Status         | Dependencies        |
+| ------------------------- | -------------- | ------------------- |
+| Tauri desktop application | ❌ Not started | Rust toolchain      |
+| OS keychain integration   | ❌ Not started | Tauri plugins       |
+| SQLite storage            | ❌ Not started | Tauri plugins       |
+| P2P sync via Yjs          | ❌ Not started | CRDT implementation |
+| Filesystem knowledge base | ❌ Not started | Tauri fs access     |
 
-### 8.3 Phase 3: Advanced Capabilities (2-3 months)
+**Milestone 4 Criteria:**
 
-- Implement Ollama integration
-- Develop full MCP support
-- Create interactive notebook feature
-- Add advanced tool capabilities
-- Enhance knowledge base functionality
-- Optimize performance
+- [ ] Native app for macOS and Linux
+- [ ] Sync between web and desktop
+- [ ] Large knowledge bases via filesystem
+- [ ] OS-level security for secrets
 
-**Milestone 3: Complete Web Platform**
+---
 
-- Local model support via Ollama
-- Complete MCP integration
-- Interactive notebook functionality
-- Advanced knowledge base features
-- Performance optimizations
+## 7. Risks and Mitigations
 
-### 8.4 Phase 4: Desktop and Sync (2-3 months)
+| Risk                           | Probability | Impact | Mitigation                                             |
+| ------------------------------ | ----------- | ------ | ------------------------------------------------------ |
+| Browser storage quota exceeded | Medium      | High   | Clear warnings, desktop fallback, cloud storage option |
+| API provider rate limits       | Medium      | Medium | Retry logic, user-visible quota tracking               |
+| MCP specification changes      | Low         | Medium | Version pinning, abstraction layer                     |
+| IndexedDB corruption           | Low         | High   | Export backups, integrity checks on load               |
+| WebCrypto API limitations      | Low         | Medium | Fallback to session-only storage                       |
+| Ollama compatibility issues    | Medium      | Low    | Version detection, compatibility matrix                |
 
-- Create Tauri desktop application
-- Implement sync capabilities
-- Add OS-specific enhancements
-- Develop backup and restore features
-- Create comprehensive documentation
+---
 
-**Milestone 4: Full Platform Release**
+## 8. Assumptions and Dependencies
 
-- Web and desktop applications
-- Sync functionality
-- Complete documentation
-- Example GPTs
-- Community features
+### Assumptions
 
-## 9. Technical Challenges and Solutions
+1. Users have modern browsers with IndexedDB and Web Crypto API support
+2. Users can obtain their own API keys from LLM providers
+3. For local models, users can install and run Ollama independently
+4. Network is available for initial load and API calls (not for local operations)
 
-### 9.1 Local Storage Limitations
+### External Dependencies
 
-**Challenge**: Browser storage limits may restrict knowledge base size **Solutions**:
+| Dependency    | Version | Purpose           | Fallback             |
+| ------------- | ------- | ----------------- | -------------------- |
+| Dexie.js      | ^4.0    | IndexedDB wrapper | Direct IndexedDB API |
+| OpenAI SDK    | ^4.0    | API client        | Fetch-based client   |
+| Anthropic SDK | ^0.20   | API client        | Fetch-based client   |
+| Yjs           | ^13.0   | CRDT sync         | Manual export/import |
+| Tauri         | ^2.0    | Desktop runtime   | Web-only deployment  |
 
-- Implement chunking and compression strategies
-- Provide clear guidance on storage limitations
-- Utilize filesystem access when available
-- Implement cloud storage options for large files
+---
 
-### 9.2 API Key Security
+## 9. Quality Assessment
 
-**Challenge**: Securing API keys in a local-first application **Solutions**:
+### Original PRD (v1.0) Scores
 
-- Encryption-at-rest for all sensitive data
-- OS keychain integration for desktop
-- Optional session-only storage
-- Clear security documentation
+| Dimension    | Score | Notes                                                         |
+| ------------ | ----- | ------------------------------------------------------------- |
+| Completeness | 6/10  | Missing acceptance criteria, security details, prioritization |
+| Clarity      | 7/10  | Good structure but vague requirements                         |
+| Feasibility  | 7/10  | Realistic but lacked technical specificity                    |
+| User-Focus   | 8/10  | Strong personas and workflows                                 |
 
-### 9.3 Cross-Platform Consistency
+### Improved PRD (v2.0) Scores
 
-**Challenge**: Maintaining consistent experience across platforms **Solutions**:
+| Dimension    | Score | Notes                                                            |
+| ------------ | ----- | ---------------------------------------------------------------- |
+| Completeness | 9/10  | Comprehensive with acceptance criteria, security, prioritization |
+| Clarity      | 9/10  | Given-When-Then format, explicit scope boundaries                |
+| Feasibility  | 8/10  | Specific technical architecture, realistic phases                |
+| User-Focus   | 8/10  | Maintained persona focus, added metrics                          |
 
-- Feature detection and graceful degradation
-- Adaptive UI based on platform capabilities
-- Shared core logic with platform-specific adaptations
-- Comprehensive testing across environments
+---
 
-### 9.4 Tool Execution Security
+## 10. Appendix
 
-**Challenge**: Secure execution of third-party tools **Solutions**:
+### A. Glossary
 
-- Sandboxed execution environment
-- Permission system for tool access
-- Transparent logging and monitoring
-- Security review process for built-in tools
+| Term        | Definition                                                            |
+| ----------- | --------------------------------------------------------------------- |
+| GPT         | Generative Pre-trained Transformer; custom AI assistant configuration |
+| MCP         | Model Context Protocol; standard for LLM tool integration             |
+| Local-first | Architecture prioritizing local data storage and offline capability   |
+| Ollama      | Tool for running LLMs locally on consumer hardware                    |
+| CRDT        | Conflict-free Replicated Data Type; enables sync without conflicts    |
+| IndexedDB   | Browser API for structured client-side storage                        |
+| Dexie.js    | Wrapper library providing cleaner IndexedDB API                       |
+| Yjs         | CRDT library for real-time collaboration                              |
 
-### 9.5 Sync Complexity
+### B. Related Documents
 
-**Challenge**: Complex data synchronization across devices **Solutions**:
+- [AGENTS.md](../AGENTS.md) - Development guidelines and conventions
+- [Overview](./overview.md) - Project overview
+- [Design System](./design-system.md) - UI component guidelines
 
-- Phased approach starting with export/import
-- Conflict resolution strategies
-- Selective sync options
-- End-to-end encryption for all synced data
+### C. Revision History
 
-## 10. Future Expansion Possibilities
-
-### 10.1 Enhanced Collaboration
-
-- Team spaces for shared GPTs
-- Collaborative editing features
-- Permission systems for enterprise use
-- Integration with version control systems
-
-### 10.2 Advanced AI Capabilities
-
-- Fine-tuning interface for models
-- Multi-agent orchestration
-- Advanced tool creation framework
-- AI agent marketplaces
-
-### 10.3 Platform Expansion
-
-- Mobile applications
-- Extended desktop capabilities
-- Headless operation for servers
-- API for external integration
-
-### 10.4 Additional Integrations
-
-- Local vector database options
-- Additional model providers
-- Enterprise authentication systems
-- Domain-specific tool collections
-
-## 11. Appendix
-
-### 11.1 Glossary
-
-- **GPT**: Generative Pre-trained Transformer, used here to refer to custom AI assistants
-- **MCP**: Model Context Protocol, a standard for tool integration with LLMs
-- **Local-first**: Design philosophy prioritizing local data storage and processing
-- **Ollama**: Tool for running LLMs locally
-- **SSE**: Server-Sent Events, a technology for server push notifications
-
-### 11.2 References
-
-- OpenAI GPT Platform documentation
-- Claude Anthropic documentation
-- Ollama API documentation
-- Model Context Protocol specifications
-- HeroUI design system
+| Version | Date       | Author    | Changes                                                             |
+| ------- | ---------- | --------- | ------------------------------------------------------------------- |
+| 1.0     | 2025-05-03 | Original  | Initial PRD                                                         |
+| 2.0     | 2025-12-19 | AI Review | Gap analysis, prioritization, acceptance criteria, security details |
