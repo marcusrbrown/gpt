@@ -352,7 +352,7 @@ const pool = new pg.Pool({
 })
 
 // Initialize checkpointer (creates tables if needed)
-const checkpointer = PostgresSaver.fromConnString(process.env.DATABASE_URL!)
+const checkpointer = PostgresSaver.fromConnString(process.env.DATABASE_URL)
 await checkpointer.setup()
 
 // Compile with checkpointer
@@ -370,8 +370,8 @@ Abstract LLM providers for flexibility:
 
 ```typescript
 import {ChatAnthropic} from "@langchain/anthropic"
-import {ChatOllama} from "@langchain/ollama"
 import {BaseChatModel} from "@langchain/core/language_models/chat_models"
+import {ChatOllama} from "@langchain/ollama"
 import {ChatOpenAI} from "@langchain/openai"
 
 type Provider = "openai" | "anthropic" | "ollama"
@@ -415,9 +415,9 @@ class ResilientAgent {
   async invoke(messages: BaseMessage[]): Promise<AIMessage> {
     for (const provider of this.fallbackOrder) {
       try {
-        const model = this.models.get(provider)!
+        const model = this.models.get(provider)
         return (await model.invoke(messages)) as AIMessage
-      } catch (error) {
+      } catch {
         console.warn(`Provider ${provider} failed, trying next...`)
       }
     }
@@ -694,7 +694,7 @@ async function withRetry<T>(fn: () => Promise<T>, maxRetries = 3, baseDelay = 10
     } catch (error) {
       if (attempt === maxRetries - 1) throw error
 
-      const delay = baseDelay * Math.pow(2, attempt)
+      const delay = baseDelay * 2**attempt
       console.warn(`Attempt ${attempt + 1} failed, retrying in ${delay}ms...`)
       await new Promise(resolve => setTimeout(resolve, delay))
     }
@@ -718,13 +718,13 @@ async function agentWithFallback(state: typeof MessagesAnnotation.State) {
   try {
     const response = await primaryModel.invoke(state.messages)
     return {messages: [response]}
-  } catch (primaryError) {
+  } catch {
     console.warn("Primary model failed, using fallback")
 
     try {
       const fallbackResponse = await fallbackModel.invoke(state.messages)
       return {messages: [fallbackResponse]}
-    } catch (fallbackError) {
+    } catch {
       // Return a graceful error message
       return {
         messages: [new AIMessage("I apologize, but I'm temporarily unable to process your request. Please try again.")],
@@ -738,7 +738,7 @@ async function agentWithFallback(state: typeof MessagesAnnotation.State) {
 
 ### Example: Code Analysis Agent
 
-See [`notebooks/agents/analysis/code-analyzer.ipynb`](notebooks/agents/analysis/code-analyzer.ipynb) for a complete example demonstrating:
+See [`notebooks/agents/analysis/code-analyzer.ipynb`](../notebooks/agents/analysis/code-analyzer.ipynb) for a complete example demonstrating:
 
 - Platform-agnostic implementation
 - Type-safe configuration with Zod
@@ -747,7 +747,7 @@ See [`notebooks/agents/analysis/code-analyzer.ipynb`](notebooks/agents/analysis/
 
 ### Directory Structure
 
-```
+```txt
 src/
 ├── agents/
 │   ├── base.ts           # Base agent interfaces

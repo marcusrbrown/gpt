@@ -3,14 +3,6 @@ import {fileURLToPath} from 'node:url'
 import {defineConfig, type Config} from '@bfra.me/eslint-config'
 
 const tempIgnores: string[] = [
-  // 'src/components/__tests__/**',
-  // 'src/components/card.tsx',
-  // 'src/components/docs/doc-layout.tsx',
-  // 'src/components/docs/docs-sidebar.tsx',
-  // 'src/components/docs/interactive-notebook.tsx',
-  // 'src/components/feature-card.tsx',
-  // 'src/components/gpt-editor.tsx',
-  'agent-development.md/*.ts',
   'docs/**/*.md/*.tsx',
   'tests/visual/**.md/*.ts',
   // '**/forms/__tests__/form-field-wrapper.test.tsx',
