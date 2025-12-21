@@ -11,3 +11,4 @@ globs:
   - '!CLAUDE.md'
   - '!docs/prd.md'
   - '!docs/RULES.md'
+  - '!RFCs/**'

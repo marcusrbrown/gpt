@@ -49,6 +49,9 @@ coverage
 !.ai/plan/*
 !.ai/testing-reports/
 !.ai/testing-reports/*
+!RFCs/
+RFCs/*
+!RFCs/RFCS.md
 
 # Playwright
 test-results/
