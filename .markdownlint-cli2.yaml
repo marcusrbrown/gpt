@@ -10,3 +10,4 @@ globs:
   - '!AGENTS.md'
   - '!CLAUDE.md'
   - '!docs/prd.md'
+  - '!docs/RULES.md'

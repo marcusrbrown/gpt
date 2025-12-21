@@ -1,14 +1,15 @@
 # AGENTS.md
 
-React 19 + TypeScript + Vite | HeroUI + TailwindCSS 4 | Local-first (localStorage + Zod validation)
+React 19 + TypeScript + Vite | HeroUI + TailwindCSS 4 | Local-first (Zod validation)
 
 ## Commands
 
-- `pnpm install` - Install dependencies
 - `pnpm dev` - Start dev server (localhost:5173)
+- `pnpm build` - Type-check and build for production
 - `pnpm lint` - ESLint with auto-fix
 - `pnpm test` - Run all unit tests (Vitest)
-- `pnpm test -t "pattern"` - Run single test by name
+- `pnpm test src/path/to/file.test.ts` - Run single test file
+- `pnpm test -t "pattern"` - Run tests matching name pattern
 - `pnpm test:e2e` - Playwright E2E tests
 - `pnpm test:accessibility` - WCAG 2.1 AA audit
 
@@ -22,3 +23,5 @@ React 19 + TypeScript + Vite | HeroUI + TailwindCSS 4 | Local-first (localStorag
 - **UI**: Use HeroUI components (`@heroui/react`) and design system (`cn`, `ds`, `compose` from `@/lib/design-system`)
 - **Style tokens**: Use semantic colors (`surface-primary`, `content-primary`) - never hardcode colors
 - **Flow**: Prefer early returns over nested conditions; minimal changes only
+
+See [docs/RULES.md](docs/RULES.md) for comprehensive guidelines on architecture, security, testing, and feature priorities.

@@ -82,7 +82,7 @@ export default defineConfig(
   },
 
   {
-    files: ['docs/prd.md'],
+    files: ['docs/prd.md', 'docs/RULES.md'],
     rules: {
       'markdown/no-missing-label-refs': 'off',
       'markdown/fenced-code-language': 'off',
