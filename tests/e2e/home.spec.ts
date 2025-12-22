@@ -19,9 +19,7 @@ test.describe('Home Page Navigation', () => {
 
   test('should show empty state when no GPTs exist', async ({homePage}) => {
     // Clear any existing GPTs in localStorage
-    await homePage.evaluate(() => {
-      localStorage.clear()
-    })
+    await homePage.clearAppStorage()
 
     await homePage.reload()
     await homePage.waitForGPTCards()

@@ -1,6 +1,6 @@
-import type {GPTCapabilities} from '../types/gpt'
+import type {GPTCapabilities} from '@/types/gpt'
+import {cn, ds} from '@/lib/design-system'
 import {Checkbox} from '@heroui/react'
-import {cn, ds} from '../lib/design-system'
 
 interface CapabilitiesConfigurationProps {
   capabilities: GPTCapabilities

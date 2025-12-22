@@ -1,5 +1,5 @@
+import createOpenAIService from '@/services/openai-service'
 import React, {createContext, use, useCallback, useEffect, useMemo, useState, type ReactNode} from 'react'
-import createOpenAIService from '../services/openai-service'
 
 interface OpenAIContextValue {
   apiKey: string | null

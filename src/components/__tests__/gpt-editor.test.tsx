@@ -43,22 +43,27 @@ const mockGPT: Partial<GPTConfiguration> = {
   createdAt: new Date(),
   updatedAt: new Date(),
   version: 1,
+  tags: [],
+  isArchived: false,
 }
 
 const mockStorageContext = {
-  getGPT: vi.fn().mockImplementation(id => {
-    return id === 'test-gpt-id' ? mockGPT : undefined
+  getGPT: vi.fn().mockImplementation(async id => {
+    return Promise.resolve(id === 'test-gpt-id' ? mockGPT : undefined)
   }),
-  saveGPT: vi.fn(),
-  getAllGPTs: vi.fn().mockReturnValue([mockGPT]),
-  deleteGPT: vi.fn(),
-  getConversation: vi.fn(),
-  getConversationsForGPT: vi.fn(),
-  saveConversation: vi.fn(),
-  deleteConversation: vi.fn(),
-  clearAll: vi.fn(),
+  saveGPT: vi.fn().mockResolvedValue(undefined),
+  getAllGPTs: vi.fn().mockResolvedValue([mockGPT]),
+  deleteGPT: vi.fn().mockResolvedValue(undefined),
+  getConversation: vi.fn().mockResolvedValue(undefined),
+  getConversationsForGPT: vi.fn().mockResolvedValue([]),
+  saveConversation: vi.fn().mockResolvedValue(undefined),
+  deleteConversation: vi.fn().mockResolvedValue(undefined),
+  clearAll: vi.fn().mockResolvedValue(undefined),
+  getStorageUsage: vi.fn().mockResolvedValue({used: 0, quota: 100000000, percentUsed: 0}),
   isLoading: false,
+  isMigrating: false,
   error: null,
+  storageWarning: null,
 }
 
 describe('gPTEditor', () => {

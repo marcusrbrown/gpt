@@ -61,9 +61,7 @@ test.describe('GPT CRUD Operations', () => {
     const userGPTNames = await homePage.getUserGPTNames()
     expect(userGPTNames).toContain(testGPT.name)
 
-    await homePage.evaluate(() => {
-      localStorage.clear()
-    })
+    await homePage.clearAppStorage()
 
     await homePage.reload()
     await homePage.waitForGPTCards()

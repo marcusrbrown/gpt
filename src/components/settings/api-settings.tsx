@@ -1,7 +1,7 @@
+import {useOpenAI} from '@/contexts/openai-provider'
+import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
 import {Button, Input} from '@heroui/react'
 import {useState} from 'react'
-import {useOpenAI} from '../../contexts/openai-provider'
-import {cn, compose, ds, responsive, theme} from '../../lib/design-system'
 
 export function APISettings() {
   const {apiKey, setApiKey, clearApiKey} = useOpenAI()
@@ -62,7 +62,7 @@ export function APISettings() {
           <Button
             onPress={toggleShowApiKey}
             variant="bordered"
-            className={cn('min-w-[80px] px-3', ds.focus.ring, ds.animation.transition)}
+            className={cn('min-w-20 px-3', ds.focus.ring, ds.animation.transition)}
             aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
           >
             {showApiKey ? 'Hide' : 'Show'}

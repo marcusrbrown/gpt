@@ -1,115 +1,116 @@
-import type {GPTConfiguration} from '../../types/gpt'
-import {render, screen} from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import {v4 as uuidv4} from 'uuid'
-import {vi} from 'vitest'
-import {useStorage} from '../../hooks/use-storage'
+import type {GPTConfiguration} from '@/types/gpt'
+import {useStorage} from '@/hooks/use-storage'
+import {deleteDatabase} from '@/lib/database'
+import {act, render, screen, waitFor} from '@testing-library/react'
 import {StorageProvider} from '../storage-provider'
-import '@testing-library/jest-dom'
+import 'fake-indexeddb/auto'
 
-// Test component that uses the storage context
-function TestComponent() {
-  const {getAllGPTs, saveGPT} = useStorage()
-  const gpts = getAllGPTs()
-
-  return (
-    <div>
-      <div data-testid="gpt-count">{gpts.length}</div>
-      <button
-        type="button"
-        onClick={() => {
-          const newGPT: GPTConfiguration = {
-            id: uuidv4(),
-            name: 'Test GPT',
-            description: 'Test Description',
-            systemPrompt: 'You are a test assistant',
-            tools: [],
-            knowledge: {
-              files: [],
-              urls: [],
-            },
-            capabilities: {
-              codeInterpreter: false,
-              webBrowsing: false,
-              imageGeneration: false,
-              fileSearch: {
-                enabled: false,
-              },
-            },
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            version: 1,
-          }
-          saveGPT(newGPT)
-        }}
-      >
-        Add GPT
-      </button>
-    </div>
-  )
+function TestComponent({onMount}: {onMount?: (storage: ReturnType<typeof useStorage>) => void}) {
+  const storage = useStorage()
+  if (onMount) {
+    onMount(storage)
+  }
+  return <div data-testid="test-component">Loaded</div>
 }
 
-describe('storageContext', () => {
-  beforeEach(() => {
-    localStorage.clear()
+function createTestGPT(overrides: Partial<GPTConfiguration> = {}): GPTConfiguration {
+  return {
+    id: crypto.randomUUID(),
+    name: 'Test GPT',
+    description: 'A test GPT configuration',
+    systemPrompt: 'You are a helpful assistant.',
+    tools: [],
+    knowledge: {files: [], urls: []},
+    capabilities: {
+      codeInterpreter: false,
+      webBrowsing: false,
+      imageGeneration: false,
+      fileSearch: {enabled: false},
+    },
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    version: 1,
+    tags: [],
+    isArchived: false,
+    ...overrides,
+  }
+}
+
+describe('StorageContext', () => {
+  beforeEach(async () => {
+    await deleteDatabase()
   })
 
-  it('should provide storage context to children', () => {
+  it('provides storage context to children', async () => {
     render(
       <StorageProvider>
         <TestComponent />
       </StorageProvider>,
     )
 
-    expect(screen.getByTestId('gpt-count')).toHaveTextContent('0')
+    await waitFor(() => {
+      expect(screen.getByTestId('test-component')).toBeInTheDocument()
+    })
   })
 
-  it('should throw error when used outside provider', () => {
-    // Suppress console.error for this test
-    const consoleError = console.error
-    console.error = vi.fn()
+  it('initially returns empty GPT list', async () => {
+    let capturedStorage: ReturnType<typeof useStorage> | null = null
 
-    expect(() => render(<TestComponent />)).toThrow('useStorage must be used within a StorageProvider')
+    render(
+      <StorageProvider>
+        <TestComponent
+          onMount={storage => {
+            capturedStorage = storage
+          }}
+        />
+      </StorageProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('test-component')).toBeInTheDocument()
+    })
+
+    expect(capturedStorage).not.toBeNull()
+    const gpts = await capturedStorage!.getAllGPTs()
+    expect(gpts).toHaveLength(0)
+  })
+
+  it('can save and retrieve a GPT', async () => {
+    let capturedStorage: ReturnType<typeof useStorage> | null = null
+
+    render(
+      <StorageProvider>
+        <TestComponent
+          onMount={storage => {
+            capturedStorage = storage
+          }}
+        />
+      </StorageProvider>,
+    )
+
+    await waitFor(() => {
+      expect(screen.getByTestId('test-component')).toBeInTheDocument()
+    })
+
+    const testGPT = createTestGPT({name: 'My Test GPT'})
+
+    await act(async () => {
+      await capturedStorage!.saveGPT(testGPT)
+    })
+
+    const retrieved = await capturedStorage!.getGPT(testGPT.id)
+    expect(retrieved).toBeDefined()
+    expect(retrieved?.name).toBe('My Test GPT')
+  })
+
+  it('throws when used outside provider', () => {
+    const consoleError = console.error
+    console.error = () => {}
+
+    expect(() => {
+      render(<TestComponent />)
+    }).toThrow('useStorage must be used within a StorageProvider')
 
     console.error = consoleError
-  })
-
-  it('should handle state updates', async () => {
-    const user = userEvent.setup()
-    render(
-      <StorageProvider>
-        <TestComponent />
-      </StorageProvider>,
-    )
-
-    expect(screen.getByTestId('gpt-count')).toHaveTextContent('0')
-
-    // Click the button to add a new GPT
-    await user.click(screen.getByRole('button', {name: 'Add GPT'}))
-
-    expect(screen.getByTestId('gpt-count')).toHaveTextContent('1')
-  })
-
-  it('should persist state across renders', async () => {
-    const user = userEvent.setup()
-    const {unmount} = render(
-      <StorageProvider>
-        <TestComponent />
-      </StorageProvider>,
-    )
-
-    // Add a GPT
-    await user.click(screen.getByRole('button', {name: 'Add GPT'}))
-
-    // Unmount and remount to test persistence
-    unmount()
-
-    render(
-      <StorageProvider>
-        <TestComponent />
-      </StorageProvider>,
-    )
-
-    expect(screen.getByTestId('gpt-count')).toHaveTextContent('1')
   })
 })

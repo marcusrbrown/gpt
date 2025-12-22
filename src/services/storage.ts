@@ -1,26 +1,29 @@
+import type {Conversation, GPTConfiguration} from '@/types/gpt'
+import {
+  db,
+  fromISOString,
+  nowISO,
+  toISOString,
+  type ConversationDB,
+  type GPTConfigurationDB,
+  type MessageDB,
+} from '@/lib/database'
 import {LRUCache} from 'lru-cache'
-import {ConversationSchema, GPTConfigurationSchema, type Conversation, type GPTConfiguration} from '../types/gpt'
 
-/**
- * Storage keys for different data types
- */
 const STORAGE_KEYS = {
   GPTS: 'gpts',
   CONVERSATIONS: 'conversations',
-  SETTINGS: 'settings',
 } as const
 
-/**
- * Cache configuration for in-memory storage
- */
 const CACHE_CONFIG = {
-  max: 500, // Maximum number of items to store in memory
-  ttl: 1000 * 60 * 60, // 1 hour TTL
+  max: 500,
+  ttl: 1000 * 60 * 60,
 } as const
 
-/**
- * Custom error class for storage operations
- */
+const BROADCAST_CHANNEL_NAME = 'gpt-storage-sync'
+const DEBOUNCE_DELAY_MS = 2000
+const STORAGE_WARNING_THRESHOLD = 0.8
+
 export class StorageError extends Error {
   constructor(
     message: string,
@@ -31,307 +34,467 @@ export class StorageError extends Error {
   }
 }
 
-/**
- * Type for raw GPT data from storage
- */
-interface RawGPTData {
-  id: string
-  name: string
-  description: string
-  systemPrompt: string
-  tools: unknown[]
-  knowledge: {
-    files: unknown[]
-    urls: string[]
-  }
-  capabilities: {
-    codeInterpreter: boolean
-    webBrowsing: boolean
-    imageGeneration: boolean
-  }
-  createdAt: string | number
-  updatedAt: string | number
-  version: number
+export interface StorageEstimate {
+  used: number
+  quota: number
+  percentUsed: number
 }
 
-/**
- * Type for raw conversation data from storage
- */
-interface RawConversationData {
+export interface StorageChangeEvent {
+  type: 'DATA_CHANGED'
+  table: 'gpts' | 'conversations' | 'messages'
   id: string
-  gptId: string
-  messages: {
-    id: string
-    role: string
-    content: string
-    timestamp: string | number
-  }[]
-  createdAt: string | number
-  updatedAt: string | number
+  action: 'create' | 'update' | 'delete'
+  timestamp: number
 }
 
-/**
- * Local storage service for managing GPT configurations and conversations
- */
-export class LocalStorageService {
+export interface StorageWarning {
+  type: 'quota_warning' | 'quota_critical'
+  message: string
+  percentUsed: number
+}
+
+type ChangeCallback = () => void
+
+export class IndexedDBStorageService {
   private readonly gptsCache: LRUCache<string, GPTConfiguration>
   private readonly conversationsCache: LRUCache<string, Conversation>
+  private broadcastChannel: BroadcastChannel | null = null
+  private readonly changeCallbacks: Set<ChangeCallback> = new Set()
+  private readonly debounceTimers: Map<string, ReturnType<typeof setTimeout>> = new Map()
 
   constructor() {
     this.gptsCache = new LRUCache<string, GPTConfiguration>(CACHE_CONFIG)
     this.conversationsCache = new LRUCache<string, Conversation>(CACHE_CONFIG)
-    this.initializeFromStorage()
+    this.setupBroadcastChannel()
   }
 
-  /**
-   * Initialize cache from localStorage
-   */
-  private initializeFromStorage(): void {
-    try {
-      this.loadGPTs()
-      this.loadConversations()
-    } catch (error) {
-      console.error('Error initializing from storage:', error)
-      // Clear potentially corrupted data
-      localStorage.clear()
-      throw new StorageError('Failed to initialize storage', error)
-    }
-  }
-
-  /**
-   * Load GPTs from localStorage
-   */
-  private loadGPTs(): void {
-    const storedGpts = localStorage.getItem(STORAGE_KEYS.GPTS)
-    // Explicitly handle null/undefined and empty (or whitespace-only) strings
-    if (storedGpts == null || storedGpts.trim() === '') return
+  private setupBroadcastChannel(): void {
+    if (typeof BroadcastChannel === 'undefined') return
 
     try {
-      const gpts = JSON.parse(storedGpts) as Record<string, RawGPTData>
-      Object.entries(gpts).forEach(([id, gpt]) => {
-        try {
-          const validatedGpt = GPTConfigurationSchema.parse({
-            ...gpt,
-            createdAt: new Date(gpt.createdAt),
-            updatedAt: new Date(gpt.updatedAt),
-          })
-          this.gptsCache.set(id, validatedGpt)
-        } catch (parseError) {
-          console.error(`Error parsing GPT ${id}:`, parseError)
-          // Skip invalid GPT but continue processing others
-        }
+      this.broadcastChannel = new BroadcastChannel(BROADCAST_CHANNEL_NAME)
+      this.broadcastChannel.addEventListener('message', (event: MessageEvent<StorageChangeEvent>) => {
+        this.handleExternalChange(event.data)
       })
-    } catch (error) {
-      console.error('Error parsing GPTs from storage:', error)
-      localStorage.removeItem(STORAGE_KEYS.GPTS)
+    } catch {
+      // BroadcastChannel not supported, cross-tab sync disabled
     }
   }
 
-  /**
-   * Load conversations from localStorage
-   */
-  private loadConversations(): void {
-    const storedConversations = localStorage.getItem(STORAGE_KEYS.CONVERSATIONS)
-    // Explicitly handle null/undefined and empty (or whitespace-only) strings
-    if (storedConversations == null || storedConversations.trim() === '') return
+  private handleExternalChange(event: StorageChangeEvent): void {
+    if (event.table === 'gpts') {
+      this.gptsCache.delete(event.id)
+    } else if (event.table === 'conversations') {
+      this.conversationsCache.delete(event.id)
+    }
+    this.notifyChangeCallbacks()
+  }
+
+  private notifyChange(
+    table: 'gpts' | 'conversations' | 'messages',
+    id: string,
+    action: 'create' | 'update' | 'delete',
+  ): void {
+    const event: StorageChangeEvent = {
+      type: 'DATA_CHANGED',
+      table,
+      id,
+      action,
+      timestamp: Date.now(),
+    }
+    this.broadcastChannel?.postMessage(event)
+  }
+
+  private notifyChangeCallbacks(): void {
+    for (const callback of this.changeCallbacks) {
+      callback()
+    }
+  }
+
+  onDataChange(callback: ChangeCallback): () => void {
+    this.changeCallbacks.add(callback)
+    return () => {
+      this.changeCallbacks.delete(callback)
+    }
+  }
+
+  private gptToDB(gpt: GPTConfiguration): GPTConfigurationDB {
+    return {
+      id: gpt.id,
+      name: gpt.name,
+      description: gpt.description,
+      systemPrompt: gpt.systemPrompt,
+      instructions: gpt.instructions,
+      conversationStarters: gpt.conversationStarters,
+      modelProvider: gpt.modelProvider ?? 'openai',
+      modelName: gpt.modelName ?? 'gpt-4',
+      modelSettings: gpt.modelSettings ?? {},
+      tools: gpt.tools.map(tool => ({
+        name: tool.name,
+        description: tool.description,
+        schema: tool.schema,
+        endpoint: tool.endpoint,
+        authentication: tool.authentication,
+      })),
+      knowledge: {
+        files: gpt.knowledge.files.map(file => ({
+          name: file.name,
+          content: '',
+          type: file.type ?? 'text/plain',
+          size: file.size ?? 0,
+          lastModified: file.lastModified ?? Date.now(),
+        })),
+        urls: gpt.knowledge.urls,
+      },
+      capabilities: {
+        codeInterpreter: gpt.capabilities.codeInterpreter,
+        webBrowsing: gpt.capabilities.webBrowsing,
+        imageGeneration: gpt.capabilities.imageGeneration,
+        fileSearch: gpt.capabilities.fileSearch ?? {enabled: false},
+      },
+      createdAtISO: toISOString(gpt.createdAt),
+      updatedAtISO: toISOString(gpt.updatedAt),
+      version: gpt.version,
+      tags: gpt.tags ?? [],
+      isArchived: gpt.isArchived ?? false,
+    }
+  }
+
+  private dbToGPT(record: GPTConfigurationDB): GPTConfiguration {
+    return {
+      id: record.id,
+      name: record.name,
+      description: record.description,
+      systemPrompt: record.systemPrompt,
+      instructions: record.instructions,
+      conversationStarters: record.conversationStarters,
+      modelProvider: record.modelProvider,
+      modelName: record.modelName,
+      modelSettings: record.modelSettings,
+      tools: record.tools.map(tool => ({
+        name: tool.name,
+        description: tool.description,
+        schema: tool.schema,
+        endpoint: tool.endpoint,
+        authentication: tool.authentication,
+      })),
+      knowledge: {
+        files: record.knowledge.files.map(file => ({
+          name: file.name,
+          content: file.content,
+          type: file.type,
+          size: file.size,
+          lastModified: file.lastModified,
+        })),
+        urls: record.knowledge.urls,
+      },
+      capabilities: {
+        codeInterpreter: record.capabilities.codeInterpreter,
+        webBrowsing: record.capabilities.webBrowsing,
+        imageGeneration: record.capabilities.imageGeneration,
+        fileSearch: record.capabilities.fileSearch,
+      },
+      createdAt: fromISOString(record.createdAtISO),
+      updatedAt: fromISOString(record.updatedAtISO),
+      version: record.version,
+      tags: record.tags,
+      isArchived: record.isArchived,
+    }
+  }
+
+  private conversationToDB(conv: Conversation): {conversation: ConversationDB; messages: MessageDB[]} {
+    const messages: MessageDB[] = conv.messages.map(msg => ({
+      id: msg.id,
+      conversationId: conv.id,
+      role: msg.role,
+      content: msg.content,
+      timestampISO: toISOString(msg.timestamp),
+    }))
+
+    const lastMessage = conv.messages.at(-1)
+    const conversation: ConversationDB = {
+      id: conv.id,
+      gptId: conv.gptId,
+      title: conv.title,
+      createdAtISO: toISOString(conv.createdAt),
+      updatedAtISO: toISOString(conv.updatedAt),
+      messageCount: conv.messages.length,
+      lastMessagePreview: lastMessage?.content.slice(0, 100),
+      tags: conv.tags ?? [],
+    }
+
+    return {conversation, messages}
+  }
+
+  private async dbToConversation(record: ConversationDB): Promise<Conversation> {
+    const messages = await db.messages.where('conversationId').equals(record.id).sortBy('timestampISO')
+
+    return {
+      id: record.id,
+      gptId: record.gptId,
+      title: record.title,
+      messages: messages.map(msg => ({
+        id: msg.id,
+        role: msg.role,
+        content: msg.content,
+        timestamp: fromISOString(msg.timestampISO),
+      })),
+      createdAt: fromISOString(record.createdAtISO),
+      updatedAt: fromISOString(record.updatedAtISO),
+      messageCount: record.messageCount,
+      lastMessagePreview: record.lastMessagePreview,
+      tags: record.tags,
+    }
+  }
+
+  async getGPT(id: string): Promise<GPTConfiguration | undefined> {
+    const cached = this.gptsCache.get(id)
+    if (cached) return cached
 
     try {
-      const conversations = JSON.parse(storedConversations) as Record<string, RawConversationData>
-      Object.entries(conversations).forEach(([id, conversation]) => {
-        try {
-          const validatedConversation = ConversationSchema.parse({
-            ...conversation,
-            createdAt: new Date(conversation.createdAt),
-            updatedAt: new Date(conversation.updatedAt),
-            messages: conversation.messages.map(msg => ({
-              ...msg,
-              timestamp: new Date(msg.timestamp),
-            })),
-          })
-          this.conversationsCache.set(id, validatedConversation)
-        } catch (parseError) {
-          console.error(`Error parsing conversation ${id}:`, parseError)
-          // Skip invalid conversation but continue processing others
-        }
+      const record = await db.gpts.get(id)
+      if (!record) return undefined
+
+      const gpt = this.dbToGPT(record)
+      this.gptsCache.set(id, gpt)
+      return gpt
+    } catch (error_) {
+      throw new StorageError(`Failed to get GPT ${id}`, error_)
+    }
+  }
+
+  async getAllGPTs(): Promise<GPTConfiguration[]> {
+    try {
+      const records = await db.gpts.filter(gpt => !gpt.isArchived).toArray()
+      const gpts = records.map(record => this.dbToGPT(record))
+
+      for (const gpt of gpts) {
+        this.gptsCache.set(gpt.id, gpt)
+      }
+
+      return gpts
+    } catch (error_) {
+      throw new StorageError('Failed to get all GPTs', error_)
+    }
+  }
+
+  async saveGPT(gpt: GPTConfiguration): Promise<void> {
+    try {
+      const dbRecord = this.gptToDB({
+        ...gpt,
+        updatedAt: new Date(),
       })
-    } catch (error) {
-      console.error('Error parsing conversations from storage:', error)
-      localStorage.removeItem(STORAGE_KEYS.CONVERSATIONS)
-    }
-  }
 
-  /**
-   * Save cache to localStorage
-   * @throws Error with 'QuotaExceededError' message if storage quota is exceeded
-   * @throws StorageError for other persistence failures
-   */
-  private persistToStorage(): void {
-    try {
-      this.persistGPTs()
-      this.persistConversations()
-    } catch (error) {
-      console.error('Error persisting to storage:', error)
-      // Re-throw QuotaExceededError directly to maintain test compatibility
-      if (error instanceof Error && error.message.includes('QuotaExceededError')) {
-        throw error
+      await db.gpts.put(dbRecord)
+
+      const savedGpt = this.dbToGPT(dbRecord)
+      this.gptsCache.set(gpt.id, savedGpt)
+
+      this.notifyChange('gpts', gpt.id, 'update')
+      this.notifyChangeCallbacks()
+    } catch (error_) {
+      if (error_ instanceof Error && error_.name === 'QuotaExceededError') {
+        throw error_
       }
-      throw new StorageError('Failed to persist data to storage', error)
+      throw new StorageError('Failed to save GPT configuration', error_)
     }
   }
 
-  /**
-   * Persist GPTs to localStorage
-   * @throws Error if localStorage operation fails
-   */
-  private persistGPTs(): void {
-    const gptsMap = new Map<string, GPTConfiguration>()
-    for (const [key, value] of this.gptsCache.entries()) {
-      gptsMap.set(key, value)
-    }
-    localStorage.setItem(STORAGE_KEYS.GPTS, JSON.stringify(Object.fromEntries(gptsMap)))
-  }
-
-  /**
-   * Persist conversations to localStorage
-   * @throws Error if localStorage operation fails
-   */
-  private persistConversations(): void {
-    const conversationsMap = new Map<string, Conversation>()
-    for (const [key, value] of this.conversationsCache.entries()) {
-      conversationsMap.set(key, value)
-    }
-    localStorage.setItem(STORAGE_KEYS.CONVERSATIONS, JSON.stringify(Object.fromEntries(conversationsMap)))
-  }
-
-  /**
-   * Get a GPT configuration by ID
-   * @param id The ID of the GPT to retrieve
-   * @returns The GPT configuration or undefined if not found
-   */
-  getGPT(id: string): GPTConfiguration | undefined {
-    return this.gptsCache.get(id)
-  }
-
-  /**
-   * Get all GPT configurations
-   * @returns Array of all GPT configurations
-   */
-  getAllGPTs(): GPTConfiguration[] {
-    return Array.from(this.gptsCache.values())
-  }
-
-  /**
-   * Save a GPT configuration
-   * @param gpt The GPT configuration to save
-   * @throws StorageError if validation or persistence fails
-   * @throws Error with 'QuotaExceededError' message if storage quota is exceeded
-   */
-  saveGPT(gpt: GPTConfiguration): void {
+  async deleteGPT(id: string): Promise<void> {
     try {
-      const validatedGpt = GPTConfigurationSchema.parse(gpt)
-      this.gptsCache.set(gpt.id, validatedGpt)
-      this.persistToStorage()
-    } catch (error) {
-      console.error('Error saving GPT:', error)
-      if (error instanceof Error && error.message.includes('QuotaExceededError')) {
-        throw error // Re-throw the original error to maintain the original message
-      }
-      throw new StorageError('Failed to save GPT configuration', error)
-    }
-  }
-
-  /**
-   * Delete a GPT configuration
-   * @param id The ID of the GPT to delete
-   * @throws StorageError if persistence fails
-   * @throws Error with 'QuotaExceededError' message if storage quota is exceeded
-   */
-  deleteGPT(id: string): void {
-    try {
+      await db.gpts.delete(id)
       this.gptsCache.delete(id)
-      this.persistToStorage()
-    } catch (error) {
-      console.error('Error deleting GPT:', error)
-      if (error instanceof Error && error.message.includes('QuotaExceededError')) {
-        throw error // Re-throw the original error to maintain the original message
-      }
-      throw new StorageError('Failed to delete GPT configuration', error)
+
+      this.notifyChange('gpts', id, 'delete')
+      this.notifyChangeCallbacks()
+    } catch (error_) {
+      throw new StorageError(`Failed to delete GPT ${id}`, error_)
     }
   }
 
-  /**
-   * Get a conversation by ID
-   * @param id The ID of the conversation to retrieve
-   * @returns The conversation or undefined if not found
-   */
-  getConversation(id: string): Conversation | undefined {
-    return this.conversationsCache.get(id)
-  }
+  async getConversation(id: string): Promise<Conversation | undefined> {
+    const cached = this.conversationsCache.get(id)
+    if (cached) return cached
 
-  /**
-   * Get all conversations for a GPT
-   * @param gptId The ID of the GPT to get conversations for
-   * @returns Array of conversations for the specified GPT
-   */
-  getConversationsForGPT(gptId: string): Conversation[] {
-    return Array.from(this.conversationsCache.values()).filter(conversation => conversation.gptId === gptId)
-  }
-
-  /**
-   * Save a conversation
-   * @param conversation The conversation to save
-   * @throws StorageError if validation or persistence fails
-   * @throws Error with 'QuotaExceededError' message if storage quota is exceeded
-   */
-  saveConversation(conversation: Conversation): void {
     try {
-      const validatedConversation = ConversationSchema.parse(conversation)
-      this.conversationsCache.set(conversation.id, validatedConversation)
-      this.persistToStorage()
-    } catch (error) {
-      console.error('Error saving conversation:', error)
-      if (error instanceof Error && error.message.includes('QuotaExceededError')) {
-        throw error // Re-throw the original error to maintain the original message
-      }
-      throw new StorageError('Failed to save conversation', error)
+      const record = await db.conversations.get(id)
+      if (!record) return undefined
+
+      const conversation = await this.dbToConversation(record)
+      this.conversationsCache.set(id, conversation)
+      return conversation
+    } catch (error_) {
+      throw new StorageError(`Failed to get conversation ${id}`, error_)
     }
   }
 
-  /**
-   * Delete a conversation
-   * @param id The ID of the conversation to delete
-   * @throws StorageError if persistence fails
-   * @throws Error with 'QuotaExceededError' message if storage quota is exceeded
-   */
-  deleteConversation(id: string): void {
+  async getConversationsForGPT(gptId: string): Promise<Conversation[]> {
     try {
+      const records = await db.conversations.where('gptId').equals(gptId).reverse().sortBy('updatedAtISO')
+
+      const conversations = await Promise.all(records.map(async record => this.dbToConversation(record)))
+
+      for (const conv of conversations) {
+        this.conversationsCache.set(conv.id, conv)
+      }
+
+      return conversations
+    } catch (error_) {
+      throw new StorageError(`Failed to get conversations for GPT ${gptId}`, error_)
+    }
+  }
+
+  async saveConversation(conversation: Conversation): Promise<void> {
+    try {
+      const {conversation: convRecord, messages} = this.conversationToDB({
+        ...conversation,
+        updatedAt: new Date(),
+      })
+
+      await db.transaction('rw', [db.conversations, db.messages], async () => {
+        await db.conversations.put(convRecord)
+        await db.messages.where('conversationId').equals(conversation.id).delete()
+        await db.messages.bulkPut(messages)
+      })
+
+      this.conversationsCache.set(conversation.id, {
+        ...conversation,
+        updatedAt: new Date(),
+      })
+
+      this.notifyChange('conversations', conversation.id, 'update')
+      this.notifyChangeCallbacks()
+    } catch (error_) {
+      if (error_ instanceof Error && error_.name === 'QuotaExceededError') {
+        throw error_
+      }
+      throw new StorageError('Failed to save conversation', error_)
+    }
+  }
+
+  async deleteConversation(id: string): Promise<void> {
+    try {
+      await db.transaction('rw', [db.conversations, db.messages], async () => {
+        await db.messages.where('conversationId').equals(id).delete()
+        await db.conversations.delete(id)
+      })
+
       this.conversationsCache.delete(id)
-      this.persistToStorage()
-    } catch (error) {
-      console.error('Error deleting conversation:', error)
-      if (error instanceof Error && error.message.includes('QuotaExceededError')) {
-        throw error // Re-throw the original error to maintain the original message
-      }
-      throw new StorageError('Failed to delete conversation', error)
+
+      this.notifyChange('conversations', id, 'delete')
+      this.notifyChangeCallbacks()
+    } catch (error_) {
+      throw new StorageError(`Failed to delete conversation ${id}`, error_)
     }
   }
 
-  /**
-   * Clear all data from storage
-   * @throws StorageError if clearing fails
-   * @throws Error with 'QuotaExceededError' message if storage quota is exceeded
-   */
-  clearAll(): void {
+  async clearAll(): Promise<void> {
     try {
+      await db.transaction('rw', [db.gpts, db.conversations, db.messages, db.settings], async () => {
+        await db.gpts.clear()
+        await db.conversations.clear()
+        await db.messages.clear()
+        await db.settings.clear()
+      })
+
       this.gptsCache.clear()
       this.conversationsCache.clear()
-      localStorage.clear()
-    } catch (error) {
-      console.error('Error clearing storage:', error)
-      if (error instanceof Error && error.message.includes('QuotaExceededError')) {
-        throw error // Re-throw the original error to maintain the original message
-      }
-      throw new StorageError('Failed to clear storage', error)
+
+      this.notifyChangeCallbacks()
+    } catch (error_) {
+      throw new StorageError('Failed to clear storage', error_)
     }
   }
+
+  async getStorageEstimate(): Promise<StorageEstimate> {
+    if (typeof navigator === 'undefined' || !('storage' in navigator) || !('estimate' in navigator.storage)) {
+      return {used: 0, quota: 0, percentUsed: 0}
+    }
+
+    try {
+      const estimate = await navigator.storage.estimate()
+      const used = estimate.usage ?? 0
+      const quota = estimate.quota ?? 0
+      const percentUsed = quota > 0 ? (used / quota) * 100 : 0
+
+      return {used, quota, percentUsed}
+    } catch {
+      return {used: 0, quota: 0, percentUsed: 0}
+    }
+  }
+
+  async isStorageWarning(): Promise<boolean> {
+    const estimate = await this.getStorageEstimate()
+    return estimate.percentUsed >= STORAGE_WARNING_THRESHOLD * 100
+  }
+
+  createDebouncedSave<T>(
+    saveFn: (data: T) => Promise<void>,
+    key: string,
+    delayMs: number = DEBOUNCE_DELAY_MS,
+  ): (data: T) => void {
+    return (data: T) => {
+      const existingTimer = this.debounceTimers.get(key)
+      if (existingTimer) {
+        clearTimeout(existingTimer)
+      }
+
+      const timer = setTimeout(() => {
+        saveFn(data).catch(console.error)
+        this.debounceTimers.delete(key)
+      }, delayMs)
+
+      this.debounceTimers.set(key, timer)
+    }
+  }
+
+  async getSetting<T>(key: string): Promise<T | undefined> {
+    try {
+      const record = await db.settings.get(key)
+      return record?.value as T | undefined
+    } catch {
+      return undefined
+    }
+  }
+
+  async setSetting<T>(key: string, value: T): Promise<void> {
+    try {
+      await db.settings.put({key, value})
+    } catch (error_) {
+      throw new StorageError(`Failed to save setting ${key}`, error_)
+    }
+  }
+
+  hasLocalStorageData(): boolean {
+    try {
+      const gptsData = localStorage.getItem(STORAGE_KEYS.GPTS)
+      const conversationsData = localStorage.getItem(STORAGE_KEYS.CONVERSATIONS)
+      return (
+        (gptsData !== null && gptsData.trim() !== '') || (conversationsData !== null && conversationsData.trim() !== '')
+      )
+    } catch {
+      return false
+    }
+  }
+
+  clearLocalStorageData(): void {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.GPTS)
+      localStorage.removeItem(STORAGE_KEYS.CONVERSATIONS)
+    } catch {}
+  }
+
+  destroy(): void {
+    this.broadcastChannel?.close()
+    this.broadcastChannel = null
+    this.changeCallbacks.clear()
+
+    for (const timer of this.debounceTimers.values()) {
+      clearTimeout(timer)
+    }
+    this.debounceTimers.clear()
+  }
 }
+
+export {DEBOUNCE_DELAY_MS, nowISO}

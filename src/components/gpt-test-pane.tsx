@@ -1,11 +1,11 @@
-import type {ConversationMessage, GPTConfiguration} from '../types/gpt'
+import type {ConversationMessage, GPTConfiguration} from '@/types/gpt'
+import {useOpenAIService} from '@/hooks/use-openai-service'
+import {useStorage} from '@/hooks/use-storage'
+import {cn, ds} from '@/lib/design-system'
 import {Button, Input, Spinner, Tooltip} from '@heroui/react'
 import {AlertCircle, Download, Save, Send, Trash} from 'lucide-react'
 import React, {useCallback, useEffect, useRef, useState} from 'react'
 import {v4 as uuidv4} from 'uuid'
-import {useOpenAIService} from '../hooks/use-openai-service'
-import {useStorage} from '../hooks/use-storage'
-import {cn, ds} from '../lib/design-system'
 
 interface GPTTestPaneProps {
   gptConfig?: GPTConfiguration | undefined
@@ -112,7 +112,7 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
   }
 
   // Handle saving the conversation
-  const handleSaveConversation = () => {
+  const handleSaveConversation = async () => {
     if (!gptConfig || messages.length === 0) return
 
     setIsSaving(true)
@@ -124,12 +124,13 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
         messages,
         createdAt: new Date(),
         updatedAt: new Date(),
+        messageCount: messages.length,
+        tags: [],
       }
 
-      saveConversation(conversation)
+      await saveConversation(conversation)
       setIsSaved(true)
 
-      // Reset isSaved after 3 seconds
       setTimeout(() => {
         setIsSaved(false)
       }, 3000)
@@ -405,7 +406,9 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
               aria-label="Save current conversation to local storage"
               color={isSaved ? 'success' : 'primary'}
               isDisabled={isLoading || messages.length === 0 || isSaving}
-              onPress={handleSaveConversation}
+              onPress={() => {
+                handleSaveConversation().catch(console.error)
+              }}
               className={cn(ds.focus.ring, ds.animation.buttonPress)}
             >
               {isSaving ? <Spinner size="sm" /> : <Save size={18} />}

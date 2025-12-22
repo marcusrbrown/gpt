@@ -1,16 +1,61 @@
-import type {GPTConfiguration} from '../../types/gpt'
-import {render, screen} from '@testing-library/react'
+import type {GPTConfiguration} from '@/types/gpt'
+import {StorageProvider} from '@/contexts/storage-provider'
+import {useStorage} from '@/hooks/use-storage'
+import {deleteDatabase} from '@/lib/database'
+import {render, screen, waitFor} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import {useEffect, useState} from 'react'
 import {v4 as uuidv4} from 'uuid'
 import {vi} from 'vitest'
-import {useStorage} from '../../hooks/use-storage'
-import {StorageProvider} from '../storage-provider'
+import 'fake-indexeddb/auto'
 import '@testing-library/jest-dom'
 
-// Test component that uses the storage context
 function TestComponent() {
-  const {getAllGPTs, saveGPT} = useStorage()
-  const gpts = getAllGPTs()
+  const {getAllGPTs, saveGPT, isLoading: providerLoading} = useStorage()
+  const [gpts, setGpts] = useState<GPTConfiguration[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    if (providerLoading) return
+    getAllGPTs()
+      .then(setGpts)
+      .catch(console.error)
+      .finally(() => setIsLoading(false))
+  }, [getAllGPTs, providerLoading])
+
+  const handleAddGPT = async () => {
+    const newGPT: GPTConfiguration = {
+      id: uuidv4(),
+      name: 'Test GPT',
+      description: 'Test Description',
+      systemPrompt: 'You are a test assistant',
+      tools: [],
+      knowledge: {
+        files: [],
+        urls: [],
+      },
+      capabilities: {
+        codeInterpreter: false,
+        webBrowsing: false,
+        imageGeneration: false,
+        fileSearch: {
+          enabled: false,
+        },
+      },
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      version: 1,
+      tags: [],
+      isArchived: false,
+    }
+    await saveGPT(newGPT)
+    const updated = await getAllGPTs()
+    setGpts(updated)
+  }
+
+  if (isLoading) {
+    return <div data-testid="loading">Loading...</div>
+  }
 
   return (
     <div>
@@ -18,29 +63,7 @@ function TestComponent() {
       <button
         type="button"
         onClick={() => {
-          const newGPT: GPTConfiguration = {
-            id: uuidv4(),
-            name: 'Test GPT',
-            description: 'Test Description',
-            systemPrompt: 'You are a test assistant',
-            tools: [],
-            knowledge: {
-              files: [],
-              urls: [],
-            },
-            capabilities: {
-              codeInterpreter: false,
-              webBrowsing: false,
-              imageGeneration: false,
-              fileSearch: {
-                enabled: false,
-              },
-            },
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            version: 1,
-          }
-          saveGPT(newGPT)
+          handleAddGPT().catch(console.error)
         }}
       >
         Add GPT
@@ -50,22 +73,29 @@ function TestComponent() {
 }
 
 describe('storageContext', () => {
-  beforeEach(() => {
-    localStorage.clear()
+  beforeEach(async () => {
+    await deleteDatabase()
   })
 
-  it('should provide storage context to children', () => {
+  afterEach(async () => {
+    await deleteDatabase()
+  })
+
+  it('should provide storage context to children', async () => {
     render(
       <StorageProvider>
         <TestComponent />
       </StorageProvider>,
     )
 
+    await waitFor(() => {
+      expect(screen.queryByTestId('loading')).not.toBeInTheDocument()
+    })
+
     expect(screen.getByTestId('gpt-count')).toHaveTextContent('0')
   })
 
   it('should throw error when used outside provider', () => {
-    // Suppress console.error for this test
     const consoleError = console.error
     console.error = vi.fn()
 
@@ -82,12 +112,17 @@ describe('storageContext', () => {
       </StorageProvider>,
     )
 
+    await waitFor(() => {
+      expect(screen.queryByTestId('loading')).not.toBeInTheDocument()
+    })
+
     expect(screen.getByTestId('gpt-count')).toHaveTextContent('0')
 
-    // Click the button to add a new GPT
     await user.click(screen.getByRole('button', {name: 'Add GPT'}))
 
-    expect(screen.getByTestId('gpt-count')).toHaveTextContent('1')
+    await waitFor(() => {
+      expect(screen.getByTestId('gpt-count')).toHaveTextContent('1')
+    })
   })
 
   it('should persist state across renders', async () => {
@@ -98,10 +133,16 @@ describe('storageContext', () => {
       </StorageProvider>,
     )
 
-    // Add a GPT
+    await waitFor(() => {
+      expect(screen.queryByTestId('loading')).not.toBeInTheDocument()
+    })
+
     await user.click(screen.getByRole('button', {name: 'Add GPT'}))
 
-    // Unmount and remount to test persistence
+    await waitFor(() => {
+      expect(screen.getByTestId('gpt-count')).toHaveTextContent('1')
+    })
+
     unmount()
 
     render(
@@ -110,6 +151,12 @@ describe('storageContext', () => {
       </StorageProvider>,
     )
 
-    expect(screen.getByTestId('gpt-count')).toHaveTextContent('1')
+    await waitFor(() => {
+      expect(screen.queryByTestId('loading')).not.toBeInTheDocument()
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('gpt-count')).toHaveTextContent('1')
+    })
   })
 })

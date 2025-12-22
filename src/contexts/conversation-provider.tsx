@@ -1,4 +1,4 @@
-import type {Conversation, ConversationMessage, GPTConfiguration} from '../types/gpt'
+import type {Conversation, ConversationMessage} from '../types/gpt'
 import {use, useEffect, useState, type ReactNode} from 'react'
 import {v4 as uuid} from 'uuid'
 import {ConversationContext} from './conversation-context'
@@ -15,22 +15,20 @@ export function ConversationProvider({children}: ConversationProviderProps) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
 
-  // Initialize and load conversations
   useEffect(() => {
-    if (!storageContext) return
+    if (!storageContext || storageContext.isLoading) return
 
-    const loadData = (): void => {
+    const loadData = async (): Promise<void> => {
       try {
-        const allGpts = storageContext.getAllGPTs()
+        const allGpts = await storageContext.getAllGPTs()
         const allConversations: Conversation[] = []
 
-        // Gather all conversations for all GPTs
-        allGpts.forEach((gpt: GPTConfiguration) => {
-          const gptConversations = storageContext.getConversationsForGPT(gpt.id)
+        for (const gpt of allGpts) {
+          const gptConversations = await storageContext.getConversationsForGPT(gpt.id)
           if (gptConversations.length > 0) {
             allConversations.push(...gptConversations)
           }
-        })
+        }
 
         setConversations(allConversations)
       } catch (error_) {
@@ -40,8 +38,7 @@ export function ConversationProvider({children}: ConversationProviderProps) {
       }
     }
 
-    // Execute the loading function
-    loadData()
+    loadData().catch(console.error)
   }, [storageContext])
 
   const createConversation = async (gptId: string, initialMessage?: string): Promise<Conversation> => {
@@ -67,10 +64,11 @@ export function ConversationProvider({children}: ConversationProviderProps) {
         messages: initialMessages,
         createdAt: now,
         updatedAt: now,
+        messageCount: initialMessages.length,
+        tags: [],
       }
 
-      await Promise.resolve() // Adds await to make the async function valid
-      storageContext.saveConversation(newConversation)
+      await storageContext.saveConversation(newConversation)
       setConversations(prev => [...prev, newConversation])
       setCurrentConversation(newConversation)
 
@@ -87,13 +85,12 @@ export function ConversationProvider({children}: ConversationProviderProps) {
 
     try {
       setIsLoading(true)
-      const conversation = storageContext.getConversation(id)
+      const conversation = await storageContext.getConversation(id)
 
       if (!conversation) {
         throw new Error('Conversation not found')
       }
 
-      await Promise.resolve() // Adds await to make the async function valid
       setCurrentConversation(conversation)
     } catch (error_) {
       setError(error_ instanceof Error ? error_ : new Error('Failed to load conversation'))
@@ -117,18 +114,16 @@ export function ConversationProvider({children}: ConversationProviderProps) {
       }
 
       const updatedMessages = [...currentConversation.messages, newMessage]
-      const updatedConversation = {
+      const updatedConversation: Conversation = {
         ...currentConversation,
         messages: updatedMessages,
         updatedAt: now,
+        messageCount: updatedMessages.length,
       }
 
-      await Promise.resolve() // Adds await to make the async function valid
-      storageContext.saveConversation(updatedConversation as Conversation)
-      setCurrentConversation(updatedConversation as Conversation)
-      setConversations(prev =>
-        prev.map(conv => (conv.id === updatedConversation.id ? (updatedConversation as Conversation) : conv)),
-      )
+      await storageContext.saveConversation(updatedConversation)
+      setCurrentConversation(updatedConversation)
+      setConversations(prev => prev.map(conv => (conv.id === updatedConversation.id ? updatedConversation : conv)))
 
       return newMessage
     } catch (error_) {
@@ -141,8 +136,7 @@ export function ConversationProvider({children}: ConversationProviderProps) {
     if (!storageContext) throw new Error('Storage context is not available')
 
     try {
-      await Promise.resolve() // Adds await to make the async function valid
-      storageContext.deleteConversation(id)
+      await storageContext.deleteConversation(id)
       setConversations(prev => prev.filter(conv => conv.id !== id))
 
       if (currentConversation?.id === id) {
@@ -159,8 +153,7 @@ export function ConversationProvider({children}: ConversationProviderProps) {
   const exportConversation = async (id: string): Promise<string> => {
     if (!storageContext) throw new Error('Storage context is not available')
 
-    await Promise.resolve() // Adds await to make the async function valid
-    const conversation = storageContext.getConversation(id)
+    const conversation = await storageContext.getConversation(id)
 
     if (!conversation) {
       throw new Error('Conversation not found')
@@ -175,12 +168,10 @@ export function ConversationProvider({children}: ConversationProviderProps) {
     try {
       const importedConversation = JSON.parse(jsonData) as Conversation
 
-      // Validate required fields
       if (!importedConversation.id || !importedConversation.gptId) {
         throw new Error('Invalid conversation data')
       }
 
-      // Ensure dates are Date objects
       importedConversation.createdAt = new Date(importedConversation.createdAt)
       importedConversation.updatedAt = new Date()
 
@@ -189,13 +180,14 @@ export function ConversationProvider({children}: ConversationProviderProps) {
         timestamp: new Date(msg.timestamp),
       }))
 
-      const validatedConversation = {
+      const validatedConversation: Conversation = {
         ...importedConversation,
         messages: processedMessages,
-      } as Conversation
+        messageCount: processedMessages.length,
+        tags: importedConversation.tags ?? [],
+      }
 
-      await Promise.resolve() // Adds await to make the async function valid
-      storageContext.saveConversation(validatedConversation)
+      await storageContext.saveConversation(validatedConversation)
       setConversations(prev => [...prev, validatedConversation])
 
       return validatedConversation
