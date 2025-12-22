@@ -98,6 +98,26 @@ export abstract class BasePage {
   }
 
   /**
+   * Clear all persisted app storage (localStorage + IndexedDB)
+   */
+  async clearAppStorage(): Promise<void> {
+    await this.page.evaluate(async () => {
+      localStorage.clear()
+
+      if (typeof indexedDB === 'undefined') return
+
+      await new Promise<void>((resolve, reject) => {
+        const request = indexedDB.deleteDatabase('gpt-platform')
+
+        request.onsuccess = () => resolve()
+        request.onblocked = () => resolve()
+        // eslint-disable-next-line unicorn/prefer-add-event-listener
+        request.onerror = () => reject(request.error)
+      })
+    })
+  }
+
+  /**
    * Set viewport size
    */
   async setViewportSize(size: {width: number; height: number}): Promise<void> {
