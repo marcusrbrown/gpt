@@ -1,5 +1,5 @@
+import {StorageContext, type StorageContextType} from '@/contexts/storage-context'
 import {use} from 'react'
-import {StorageContext, type StorageContextType} from '../contexts/storage-context'
 
 /**
  * Hook to access storage management functionality

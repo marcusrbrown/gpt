@@ -1,6 +1,6 @@
-import type {MCPTool} from '../types/gpt'
+import type {MCPTool} from '@/types/gpt'
+import {cn, ds} from '@/lib/design-system'
 import {Button, Input, Select, SelectItem} from '@heroui/react'
-import {cn, ds} from '../lib/design-system'
 
 interface FormErrors {
   tools: {

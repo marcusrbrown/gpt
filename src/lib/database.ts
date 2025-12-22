@@ -1,0 +1,193 @@
+import Dexie, {type Table} from 'dexie'
+
+export interface ModelSettings {
+  temperature?: number
+  maxTokens?: number
+  topP?: number
+  frequencyPenalty?: number
+  presencePenalty?: number
+}
+
+export interface MCPToolDB {
+  name: string
+  description: string
+  schema: Record<string, unknown>
+  endpoint: string
+  authentication?: {
+    type: 'bearer' | 'api_key'
+    value: string
+  }
+}
+
+export interface GPTKnowledgeDB {
+  files: {
+    name: string
+    content: string
+    type: string
+    size: number
+    lastModified: number
+  }[]
+  urls: string[]
+  vectorStores?: {
+    id: string
+    name: string
+    fileIds: string[]
+    expiresAfter?: {
+      anchor: 'last_active_at'
+      days: number
+    }
+  }[]
+}
+
+export interface CapabilitiesDB {
+  codeInterpreter: boolean
+  webBrowsing: boolean
+  imageGeneration: boolean
+  fileSearch: {
+    enabled: boolean
+    maxChunkSizeTokens?: number
+    chunkOverlapTokens?: number
+    maxNumResults?: number
+    ranking?: {
+      ranker: 'auto' | 'default_2024_08_21'
+      scoreThreshold: number
+    }
+  }
+}
+
+export interface GPTConfigurationDB {
+  id: string
+  name: string
+  description: string
+  systemPrompt: string
+  instructions?: string
+  conversationStarters?: string[]
+  modelProvider?: 'openai' | 'anthropic' | 'ollama' | 'azure'
+  modelName?: string
+  modelSettings?: ModelSettings
+  tools: MCPToolDB[]
+  knowledge: GPTKnowledgeDB
+  capabilities: CapabilitiesDB
+  createdAtISO: string
+  updatedAtISO: string
+  version: number
+  tags: string[]
+  isArchived: boolean
+}
+
+export interface ConversationDB {
+  id: string
+  gptId: string
+  title?: string
+  createdAtISO: string
+  updatedAtISO: string
+  messageCount: number
+  lastMessagePreview?: string
+  tags: string[]
+}
+
+export interface MessageMetadata {
+  toolCallId?: string
+  toolName?: string
+  attachments?: {
+    fileId: string
+    name: string
+  }[]
+  model?: string
+  tokenUsage?: {
+    prompt: number
+    completion: number
+    total: number
+  }
+}
+
+export interface MessageDB {
+  id: string
+  conversationId: string
+  role: 'user' | 'assistant' | 'system' | 'tool'
+  content: string
+  timestampISO: string
+  metadata?: MessageMetadata
+}
+
+export interface KnowledgeFileDB {
+  id: string
+  gptId: string
+  name: string
+  mimeType: string
+  size: number
+  content: Blob
+  extractedText?: string
+  uploadedAtISO: string
+}
+
+export interface EncryptedSecretDB {
+  id: string
+  provider: string
+  encryptedKey: ArrayBuffer
+  iv: Uint8Array
+  createdAtISO: string
+}
+
+export interface UserSettingDB {
+  key: string
+  value: unknown
+}
+
+/**
+ * GPT Platform database. Schema v1 (RFC-001).
+ * Tables: gpts, conversations, messages, knowledgeFiles, secrets, settings
+ */
+export class GPTDatabase extends Dexie {
+  gpts!: Table<GPTConfigurationDB>
+  conversations!: Table<ConversationDB>
+  messages!: Table<MessageDB>
+  knowledgeFiles!: Table<KnowledgeFileDB>
+  secrets!: Table<EncryptedSecretDB>
+  settings!: Table<UserSettingDB>
+
+  constructor() {
+    super('gpt-platform')
+
+    this.version(1).stores({
+      gpts: 'id, name, createdAtISO, updatedAtISO, *tags, isArchived',
+      conversations: 'id, gptId, updatedAtISO, *tags',
+      messages: 'id, conversationId, timestampISO',
+      knowledgeFiles: 'id, gptId, name, mimeType',
+      secrets: 'id, provider',
+      settings: 'key',
+    })
+  }
+}
+
+export const db = new GPTDatabase()
+
+export function toISOString(date: Date): string {
+  return date.toISOString()
+}
+
+export function fromISOString(isoString: string): Date {
+  return new Date(isoString)
+}
+
+export function nowISO(): string {
+  return new Date().toISOString()
+}
+
+export function isIndexedDBAvailable(): boolean {
+  try {
+    return typeof indexedDB !== 'undefined' && indexedDB !== null
+  } catch {
+    return false
+  }
+}
+
+/** WARNING: Permanently deletes all data. Use only for testing or user-initiated reset. */
+export async function deleteDatabase(): Promise<void> {
+  await db.delete()
+  await db.open()
+}
+
+export function closeDatabase(): void {
+  db.close()
+}

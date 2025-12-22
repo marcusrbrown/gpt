@@ -1,10 +1,7 @@
-import {Button, Input, Spinner, Tab, Tabs, Textarea} from '@heroui/react'
-import {useEffect, useMemo, useRef, useState} from 'react'
-import {v4 as uuidv4} from 'uuid'
-import {useGPTValidation} from '../hooks/use-gpt-validation'
-import {useOpenAIService} from '../hooks/use-openai-service'
-import {useStorage} from '../hooks/use-storage'
-import {cn, ds, responsive} from '../lib/design-system'
+import {useGPTValidation} from '@/hooks/use-gpt-validation'
+import {useOpenAIService} from '@/hooks/use-openai-service'
+import {useStorage} from '@/hooks/use-storage'
+import {cn, ds, responsive} from '@/lib/design-system'
 import {
   GPTConfigurationSchema,
   type ConversationMessage,
@@ -13,7 +10,10 @@ import {
   type LocalFile,
   type MCPTool,
   type VectorStore,
-} from '../types/gpt'
+} from '@/types/gpt'
+import {Button, Input, Spinner, Tab, Tabs, Textarea} from '@heroui/react'
+import {useEffect, useMemo, useRef, useState} from 'react'
+import {v4 as uuidv4} from 'uuid'
 import {CapabilitiesConfiguration} from './capabilities-configuration'
 import {KnowledgeConfiguration} from './knowledge-configuration'
 import {ToolsConfiguration} from './tools-configuration'
@@ -43,6 +43,8 @@ const DEFAULT_GPT: Omit<GPTConfiguration, 'id'> = {
   createdAt: new Date(),
   updatedAt: new Date(),
   version: 1,
+  tags: [],
+  isArchived: false,
 }
 
 // Define update type for streamRun
@@ -213,13 +215,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
   const {getGPT, saveGPT} = useStorage()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const importGptRef = useRef<HTMLInputElement>(null)
-  const [gpt, setGpt] = useState<GPTConfiguration>(() => {
-    if (gptId) {
-      const existing = getGPT(gptId)
-      return existing || {...DEFAULT_GPT, id: uuidv4()}
-    }
-    return {...DEFAULT_GPT, id: uuidv4()}
-  })
+  const [gpt, setGpt] = useState<GPTConfiguration>(() => ({...DEFAULT_GPT, id: uuidv4(), tags: [], isArchived: false}))
   const {
     errors,
     validateForm,
@@ -248,20 +244,21 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
 
   const openAIService = useOpenAIService()
 
-  // Load existing GPT when gptId changes - use a callback pattern to avoid ESLint issues
   useEffect(() => {
-    if (gptId) {
-      const existing = getGPT(gptId)
-      if (existing) {
-        setGpt(prev => {
-          // Only update if different to avoid infinite loops
-          if (JSON.stringify(prev) !== JSON.stringify(existing)) {
-            return existing
-          }
-          return prev
-        })
+    const loadGpt = async () => {
+      if (gptId) {
+        const existing = await getGPT(gptId)
+        if (existing) {
+          setGpt(prev => {
+            if (JSON.stringify(prev) !== JSON.stringify(existing)) {
+              return existing
+            }
+            return prev
+          })
+        }
       }
     }
+    loadGpt().catch(console.error)
   }, [gptId, getGPT])
 
   // Calculate completion percentage for required fields
@@ -405,7 +402,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
     }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!validateForm(gpt)) {
       return
@@ -413,11 +410,10 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
 
     setIsSubmitting(true)
     try {
-      saveGPT(gpt)
+      await saveGPT(gpt)
       onSave?.(gpt)
     } catch (error: unknown) {
       console.error('Failed to save GPT:', error)
-      // You might want to show an error toast here
     } finally {
       setIsSubmitting(false)
     }
@@ -647,7 +643,9 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                 <Button
                   color="primary"
                   variant="solid"
-                  onPress={() => handleSubmit(new Event('submit') as unknown as React.FormEvent)}
+                  onPress={() => {
+                    handleSubmit(new Event('submit') as unknown as React.FormEvent).catch(console.error)
+                  }}
                   isDisabled={isSubmitting}
                   className={cn(ds.animation.buttonPress)}
                 >
@@ -659,7 +657,9 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
             {importError && <div className={cn(ds.state.error, 'p-2 my-2 rounded')}>{importError}</div>}
 
             <form
-              onSubmit={handleSubmit}
+              onSubmit={e => {
+                handleSubmit(e).catch(console.error)
+              }}
               className={cn('space-y-6 relative', (isSubmitting || isValidating) && ds.state.loading)}
               aria-busy={isSubmitting || isValidating}
               {...(isSubmitting || isValidating ? {'aria-describedby': 'form-loading-status'} : {})}

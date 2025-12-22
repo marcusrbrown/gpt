@@ -40,17 +40,20 @@ describe('gPTTestPane', () => {
   }
 
   const mockStorageContext = {
-    getGPT: vi.fn(),
-    getAllGPTs: vi.fn(),
-    saveGPT: vi.fn(),
-    deleteGPT: vi.fn(),
-    getConversation: vi.fn(),
-    getConversationsForGPT: vi.fn(),
-    saveConversation: vi.fn(),
-    deleteConversation: vi.fn(),
-    clearAll: vi.fn(),
+    getGPT: vi.fn().mockResolvedValue(undefined),
+    getAllGPTs: vi.fn().mockResolvedValue([]),
+    saveGPT: vi.fn().mockResolvedValue(undefined),
+    deleteGPT: vi.fn().mockResolvedValue(undefined),
+    getConversation: vi.fn().mockResolvedValue(undefined),
+    getConversationsForGPT: vi.fn().mockResolvedValue([]),
+    saveConversation: vi.fn().mockResolvedValue(undefined),
+    deleteConversation: vi.fn().mockResolvedValue(undefined),
+    clearAll: vi.fn().mockResolvedValue(undefined),
+    getStorageUsage: vi.fn().mockResolvedValue({used: 0, quota: 100000000, percentUsed: 0}),
     isLoading: false,
+    isMigrating: false,
     error: null,
+    storageWarning: null,
   }
 
   const mockConfig = {
@@ -70,11 +73,12 @@ describe('gPTTestPane', () => {
     knowledge: {
       files: [],
       urls: [],
-      vectorStores: [],
     },
     createdAt: new Date(),
     updatedAt: new Date(),
     version: 1,
+    tags: [],
+    isArchived: false,
   }
 
   const mockApiKey = 'test-api-key'

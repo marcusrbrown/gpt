@@ -1,5 +1,5 @@
+import {ConversationContext} from '@/contexts/conversation-context'
 import {use} from 'react'
-import {ConversationContext} from '../contexts/conversation-context'
 
 /**
  * Hook to access conversation management functionality

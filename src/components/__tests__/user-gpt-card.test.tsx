@@ -89,11 +89,12 @@ describe('userGPTCard', () => {
     knowledge: {
       files: [],
       urls: [],
-      vectorStores: [],
     },
     createdAt: new Date('2025-08-07T10:00:00.000Z'),
     updatedAt: new Date('2025-08-07T10:00:00.000Z'),
     version: 1,
+    tags: [],
+    isArchived: false,
   }
 
   const defaultProps: UserGPTCardProps = {

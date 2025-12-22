@@ -115,19 +115,20 @@ const mockGPTs: GPTConfiguration[] = [
     knowledge: {
       files: [],
       urls: [],
-      vectorStores: [],
     },
     capabilities: {
       codeInterpreter: true,
       webBrowsing: false,
       imageGeneration: false,
       fileSearch: {
-        enabled: true,
+        enabled: false,
       },
     },
     createdAt: new Date('2025-01-01'),
     updatedAt: new Date('2025-01-01'),
     version: 1,
+    tags: [],
+    isArchived: false,
   },
   {
     id: 'test-gpt-2',
@@ -138,7 +139,6 @@ const mockGPTs: GPTConfiguration[] = [
     knowledge: {
       files: [],
       urls: [],
-      vectorStores: [],
     },
     capabilities: {
       codeInterpreter: false,
@@ -151,6 +151,8 @@ const mockGPTs: GPTConfiguration[] = [
     createdAt: new Date('2025-01-02'),
     updatedAt: new Date('2025-01-02'),
     version: 1,
+    tags: [],
+    isArchived: false,
   },
 ]
 
@@ -169,7 +171,7 @@ describe('cardGroup Integration Tests', () => {
 
   describe('userGPTCard Integration', () => {
     it('renders UserGPTCard components for each user GPT', async () => {
-      mockGetAllGPTs.mockReturnValue(mockGPTs)
+      mockGetAllGPTs.mockResolvedValue(mockGPTs)
 
       renderCardGroup()
 
@@ -189,7 +191,7 @@ describe('cardGroup Integration Tests', () => {
     })
 
     it('passes correct gpt prop to UserGPTCard components', async () => {
-      mockGetAllGPTs.mockReturnValue(mockGPTs)
+      mockGetAllGPTs.mockResolvedValue(mockGPTs)
 
       renderCardGroup()
 
@@ -205,7 +207,7 @@ describe('cardGroup Integration Tests', () => {
     })
 
     it('applies responsive grid layout to user GPT cards', async () => {
-      mockGetAllGPTs.mockReturnValue(mockGPTs)
+      mockGetAllGPTs.mockResolvedValue(mockGPTs)
 
       renderCardGroup()
 
@@ -219,7 +221,7 @@ describe('cardGroup Integration Tests', () => {
 
   describe('empty State Handling', () => {
     it('displays empty state when no user GPTs exist', async () => {
-      mockGetAllGPTs.mockReturnValue([])
+      mockGetAllGPTs.mockResolvedValue([])
 
       renderCardGroup()
 
@@ -240,7 +242,7 @@ describe('cardGroup Integration Tests', () => {
     })
 
     it('still shows example GPTs section when user has no GPTs', async () => {
-      mockGetAllGPTs.mockReturnValue([])
+      mockGetAllGPTs.mockResolvedValue([])
 
       renderCardGroup()
 
@@ -256,7 +258,7 @@ describe('cardGroup Integration Tests', () => {
 
   describe('example GPTs Integration', () => {
     it('renders Card components for example GPTs from mine.json', async () => {
-      mockGetAllGPTs.mockReturnValue([])
+      mockGetAllGPTs.mockResolvedValue([])
 
       renderCardGroup()
 
@@ -276,7 +278,7 @@ describe('cardGroup Integration Tests', () => {
     })
 
     it('applies responsive grid layout to example GPT cards', async () => {
-      mockGetAllGPTs.mockReturnValue([])
+      mockGetAllGPTs.mockResolvedValue([])
 
       renderCardGroup()
 
@@ -290,7 +292,7 @@ describe('cardGroup Integration Tests', () => {
 
   describe('navigation Integration', () => {
     it('provides correct navigation links for creating new GPTs', async () => {
-      mockGetAllGPTs.mockReturnValue([])
+      mockGetAllGPTs.mockResolvedValue([])
 
       renderCardGroup()
 
@@ -311,7 +313,7 @@ describe('cardGroup Integration Tests', () => {
 
   describe('layout and Styling Integration', () => {
     it('applies correct spacing and layout structure', async () => {
-      mockGetAllGPTs.mockReturnValue(mockGPTs)
+      mockGetAllGPTs.mockResolvedValue(mockGPTs)
 
       renderCardGroup()
 
@@ -326,7 +328,7 @@ describe('cardGroup Integration Tests', () => {
     })
 
     it('maintains proper hierarchy with both user and example sections', async () => {
-      mockGetAllGPTs.mockReturnValue(mockGPTs)
+      mockGetAllGPTs.mockResolvedValue(mockGPTs)
 
       renderCardGroup()
 
@@ -357,7 +359,7 @@ describe('cardGroup Integration Tests', () => {
     it('handles missing mine.json data gracefully', async () => {
       // This test verifies the component structure remains intact
       // even if external data sources have issues
-      mockGetAllGPTs.mockReturnValue([])
+      mockGetAllGPTs.mockResolvedValue([])
 
       renderCardGroup()
 

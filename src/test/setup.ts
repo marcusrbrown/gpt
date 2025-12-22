@@ -1,5 +1,6 @@
 import {cleanup} from '@testing-library/react'
 import {afterAll, afterEach, beforeAll, beforeEach, vi} from 'vitest'
+import 'fake-indexeddb/auto'
 import '@testing-library/jest-dom'
 
 class ResizeObserverMock {

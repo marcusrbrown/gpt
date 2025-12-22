@@ -1,4 +1,4 @@
-import type {GPTConfiguration} from '../types/gpt'
+import type {GPTConfiguration} from '@/types/gpt'
 import OpenAI, {type ClientOptions} from 'openai'
 
 // Define types for tool calls

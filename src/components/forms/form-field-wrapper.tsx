@@ -1,7 +1,7 @@
+import {cn, ds} from '@/lib/design-system'
 import {Spinner} from '@heroui/react'
 import {AlertCircle, CheckCircle} from 'lucide-react'
 import React from 'react'
-import {cn, ds} from '../../lib/design-system'
 
 interface FormFieldWrapperProps {
   children: React.ReactNode
@@ -86,7 +86,7 @@ export function FormFieldWrapper({
           role="alert"
           aria-live="polite"
         >
-          <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+          <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
           <span>{error}</span>
         </div>
       )}
@@ -98,7 +98,7 @@ export function FormFieldWrapper({
           role="status"
           aria-live="polite"
         >
-          <CheckCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+          <CheckCircle className="w-4 h-4 mt-0.5 shrink-0" />
           <span>{success}</span>
         </div>
       )}

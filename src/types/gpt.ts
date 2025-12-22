@@ -74,19 +74,34 @@ export const GPTConfigurationSchema = z.object({
   name: z.string(),
   description: z.string(),
   systemPrompt: z.string(),
+  instructions: z.string().optional(),
+  conversationStarters: z.array(z.string()).optional(),
+  modelProvider: z.enum(['openai', 'anthropic', 'ollama', 'azure']).optional(),
+  modelName: z.string().optional(),
+  modelSettings: z
+    .object({
+      temperature: z.number().optional(),
+      maxTokens: z.number().optional(),
+      topP: z.number().optional(),
+      frequencyPenalty: z.number().optional(),
+      presencePenalty: z.number().optional(),
+    })
+    .optional(),
   tools: z.array(MCPToolSchema),
   knowledge: GPTKnowledgeSchema,
   capabilities: GPTCapabilitiesSchema,
   createdAt: z.date(),
   updatedAt: z.date(),
   version: z.number().default(1),
+  tags: z.array(z.string()).default([]),
+  isArchived: z.boolean().default(false),
 })
 
 export type GPTConfiguration = z.infer<typeof GPTConfigurationSchema>
 
 export const ConversationMessageSchema = z.object({
   id: z.string().uuid(),
-  role: z.enum(['user', 'assistant', 'system']),
+  role: z.enum(['user', 'assistant', 'system', 'tool']),
   content: z.string(),
   timestamp: z.date(),
 })
@@ -96,9 +111,13 @@ export type ConversationMessage = z.infer<typeof ConversationMessageSchema>
 export const ConversationSchema = z.object({
   id: z.string().uuid(),
   gptId: z.string().uuid(),
+  title: z.string().optional(),
   messages: z.array(ConversationMessageSchema),
   createdAt: z.date(),
   updatedAt: z.date(),
+  messageCount: z.number().default(0),
+  lastMessagePreview: z.string().optional(),
+  tags: z.array(z.string()).default([]),
 })
 
 export type Conversation = z.infer<typeof ConversationSchema>

@@ -1,22 +1,22 @@
-import type {Conversation, GPTConfiguration} from '../types/gpt'
+import type {StorageEstimate, StorageWarning} from '@/services/storage'
+import type {Conversation, GPTConfiguration} from '@/types/gpt'
 import {createContext} from 'react'
 
-/**
- * Interface for the storage context
- * Provides methods for managing GPT configurations and conversations
- */
 export interface StorageContextType {
-  getGPT: (id: string) => GPTConfiguration | undefined
-  getAllGPTs: () => GPTConfiguration[]
-  saveGPT: (gpt: GPTConfiguration) => void
-  deleteGPT: (id: string) => void
-  getConversation: (id: string) => Conversation | undefined
-  getConversationsForGPT: (gptId: string) => Conversation[]
-  saveConversation: (conversation: Conversation) => void
-  deleteConversation: (id: string) => void
-  clearAll: () => void
+  getGPT: (id: string) => Promise<GPTConfiguration | undefined>
+  getAllGPTs: () => Promise<GPTConfiguration[]>
+  saveGPT: (gpt: GPTConfiguration) => Promise<void>
+  deleteGPT: (id: string) => Promise<void>
+  getConversation: (id: string) => Promise<Conversation | undefined>
+  getConversationsForGPT: (gptId: string) => Promise<Conversation[]>
+  saveConversation: (conversation: Conversation) => Promise<void>
+  deleteConversation: (id: string) => Promise<void>
+  clearAll: () => Promise<void>
+  getStorageUsage: () => Promise<StorageEstimate>
   isLoading: boolean
+  isMigrating: boolean
   error: Error | null
+  storageWarning: StorageWarning | null
 }
 
 export const StorageContext = createContext<StorageContextType | undefined>(undefined)

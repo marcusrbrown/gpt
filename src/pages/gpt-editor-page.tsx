@@ -1,15 +1,15 @@
-import type {GPTConfiguration} from '../types/gpt'
+import type {GPTConfiguration} from '@/types/gpt'
+import {GPTEditor} from '@/components/gpt-editor'
+import {GPTTestPane} from '@/components/gpt-test-pane'
+import {APISettings} from '@/components/settings/api-settings'
+import {useOpenAI} from '@/contexts/openai-provider'
+import {useStorage} from '@/hooks/use-storage'
+import {cn, ds, theme} from '@/lib/design-system'
 import {Button} from '@heroui/react'
 import {Play} from 'lucide-react'
 import {useEffect, useState} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
 import {v4 as uuidv4} from 'uuid'
-import {GPTEditor} from '../components/gpt-editor'
-import {GPTTestPane} from '../components/gpt-test-pane'
-import {APISettings} from '../components/settings/api-settings'
-import {useOpenAI} from '../contexts/openai-provider'
-import {useStorage} from '../hooks/use-storage'
-import {cn, ds, theme} from '../lib/design-system'
 
 export function GPTEditorPage() {
   const {gptId} = useParams()
@@ -20,18 +20,44 @@ export function GPTEditorPage() {
   const [showSettings, setShowSettings] = useState(false)
 
   useEffect(() => {
-    if (gptId) {
-      const savedGpt = storage.getGPT(gptId)
-      if (savedGpt) {
-        // Defer state update to avoid synchronous setState inside effect
-        queueMicrotask(() => setGptConfig(savedGpt))
+    const loadGpt = async () => {
+      if (gptId) {
+        const savedGpt = await storage.getGPT(gptId)
+        if (savedGpt) {
+          queueMicrotask(() => setGptConfig(savedGpt))
+        } else {
+          const defaultGpt: GPTConfiguration = {
+            id: gptId,
+            name: 'New GPT',
+            description: '',
+            systemPrompt: '',
+            tools: [],
+            knowledge: {
+              files: [],
+              urls: [],
+            },
+            capabilities: {
+              codeInterpreter: false,
+              webBrowsing: false,
+              imageGeneration: false,
+              fileSearch: {
+                enabled: false,
+              },
+            },
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            version: 1,
+            tags: [],
+            isArchived: false,
+          }
+          queueMicrotask(() => setGptConfig(defaultGpt))
+        }
       } else {
-        // Create a default configuration if the gptId is not found
-        const defaultGpt: GPTConfiguration = {
-          id: gptId,
+        const newGpt: GPTConfiguration = {
+          id: uuidv4(),
           name: 'New GPT',
           description: '',
-          systemPrompt: '',
+          systemPrompt: 'You are a helpful assistant.',
           tools: [],
           knowledge: {
             files: [],
@@ -48,45 +74,21 @@ export function GPTEditorPage() {
           createdAt: new Date(),
           updatedAt: new Date(),
           version: 1,
+          tags: [],
+          isArchived: false,
         }
-        // Defer state update to avoid synchronous setState inside effect
-        queueMicrotask(() => setGptConfig(defaultGpt))
+        queueMicrotask(() => setGptConfig(newGpt))
       }
-    } else {
-      // Create a new GPT configuration
-      const newGpt: GPTConfiguration = {
-        id: uuidv4(),
-        name: 'New GPT',
-        description: '',
-        systemPrompt: 'You are a helpful assistant.',
-        tools: [],
-        knowledge: {
-          files: [],
-          urls: [],
-        },
-        capabilities: {
-          codeInterpreter: false,
-          webBrowsing: false,
-          imageGeneration: false,
-          fileSearch: {
-            enabled: false,
-          },
-        },
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        version: 1,
-      }
-      // Defer state update to avoid synchronous setState inside effect
-      queueMicrotask(() => setGptConfig(newGpt))
     }
+    loadGpt().catch(console.error)
   }, [gptId, storage])
 
-  const handleSaveGpt = (updatedGpt: GPTConfiguration) => {
+  const handleSaveGpt = async (updatedGpt: GPTConfiguration) => {
     const gptWithUpdatedTimestamp = {
       ...updatedGpt,
       updatedAt: new Date(),
     }
-    storage.saveGPT(gptWithUpdatedTimestamp)
+    await storage.saveGPT(gptWithUpdatedTimestamp)
     setGptConfig(gptWithUpdatedTimestamp)
   }
 
@@ -140,7 +142,14 @@ export function GPTEditorPage() {
       <div className="flex flex-1 overflow-hidden">
         {/* Editor Panel - 60% width */}
         <div className={cn('w-3/5 overflow-auto p-6 border-r', theme.surface(0), theme.border())}>
-          {gptConfig ? <GPTEditor gptId={gptConfig.id} onSave={handleSaveGpt} /> : null}
+          {gptConfig ? (
+            <GPTEditor
+              gptId={gptConfig.id}
+              onSave={gpt => {
+                handleSaveGpt(gpt).catch(console.error)
+              }}
+            />
+          ) : null}
         </div>
 
         {/* Test Panel - 40% width */}
@@ -150,7 +159,7 @@ export function GPTEditorPage() {
               <div
                 className={cn(
                   'p-8 rounded-xl border-2 shadow-sm',
-                  'bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-950 dark:to-primary-900',
+                  'bg-linear-to-br from-primary-50 to-primary-100 dark:from-primary-950 dark:to-primary-900',
                   'border-primary-200 dark:border-primary-800',
                 )}
               >

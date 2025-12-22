@@ -1,3 +1,4 @@
+import type {GPTConfiguration} from '@/types/gpt'
 import type {FC} from 'react'
 import mine from '@/assets/mine.json'
 import {Card} from '@/components/card'
@@ -7,16 +8,20 @@ import {useStorage} from '@/hooks/use-storage'
 import {cn, ds, responsive} from '@/lib/design-system'
 import {Button} from '@heroui/react'
 import {Plus} from 'lucide-react'
+import {useEffect, useState} from 'react'
 import {Link} from 'react-router-dom'
 
 export interface CardGroupProps {}
 
 export const CardGroup: FC<CardGroupProps> = () => {
   const {getAllGPTs} = useStorage()
+  const [userGPTs, setUserGPTs] = useState<GPTConfiguration[]>([])
   const [userSectionRef, isUserSectionVisible] = useIntersectionObserver<HTMLDivElement>({triggerOnce: true})
   const [exampleSectionRef, isExampleSectionVisible] = useIntersectionObserver<HTMLDivElement>({triggerOnce: true})
 
-  const userGPTs = getAllGPTs()
+  useEffect(() => {
+    getAllGPTs().then(setUserGPTs).catch(console.error)
+  }, [getAllGPTs])
 
   return (
     <div className="space-y-8">
