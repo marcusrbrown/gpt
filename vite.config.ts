@@ -1,11 +1,35 @@
+import type {Plugin} from 'vite'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react-swc'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import {defineConfig} from 'vitest/config'
 
+const cspPolicy = [
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "connect-src 'self' https://api.openai.com https://api.anthropic.com http://localhost:11434",
+  "img-src 'self' data: blob:",
+  "font-src 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'none'",
+  "form-action 'self'",
+  "base-uri 'self'",
+].join('; ')
+
+function cspPlugin(): Plugin {
+  return {
+    name: 'html-csp',
+    apply: 'build',
+    transformIndexHtml(html) {
+      return html.replace('<head>', `<head>\n    <meta http-equiv="Content-Security-Policy" content="${cspPolicy}" />`)
+    },
+  }
+}
+
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss(), tsconfigPaths({projectDiscovery: 'lazy'})],
+  plugins: [react(), tailwindcss(), tsconfigPaths({projectDiscovery: 'lazy'}), cspPlugin()],
   build: {
     rollupOptions: {
       output: {
