@@ -51,6 +51,7 @@ coverage
 !.ai/testing-reports/*
 !RFCs/
 RFCs/*
+!RFCs/RFC-*.md
 !RFCs/RFCS.md
 
 # Playwright
