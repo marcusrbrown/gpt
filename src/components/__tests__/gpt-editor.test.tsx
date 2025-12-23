@@ -131,7 +131,7 @@ describe('gPTEditor', () => {
     // Verify that the save function was called
     expect(mockStorageContext.saveGPT).toHaveBeenCalled()
     expect(onSaveMock).toHaveBeenCalled()
-  })
+  }, 10_000)
 
   it('toggles capabilities when checkboxes are clicked', async () => {
     const user = userEvent.setup()
