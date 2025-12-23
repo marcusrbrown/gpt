@@ -2,7 +2,7 @@ import type {GPTConfiguration} from '@/types/gpt'
 import {GPTEditor} from '@/components/gpt-editor'
 import {GPTTestPane} from '@/components/gpt-test-pane'
 import {APISettings} from '@/components/settings/api-settings'
-import {useOpenAI} from '@/contexts/openai-provider'
+import {useAIProvider} from '@/hooks/use-ai-provider'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds, theme} from '@/lib/design-system'
 import {Button} from '@heroui/react'
@@ -16,8 +16,11 @@ export function GPTEditorPage() {
   const navigate = useNavigate()
   const storage = useStorage()
   const [gptConfig, setGptConfig] = useState<GPTConfiguration | undefined>(undefined)
-  const {apiKey, isInitialized} = useOpenAI()
+  const {providers, isLoading} = useAIProvider()
   const [showSettings, setShowSettings] = useState(false)
+
+  const openAIConfig = providers.find(p => p.id === 'openai')
+  const isConfigured = openAIConfig?.isConfigured ?? false
 
   useEffect(() => {
     const loadGpt = async () => {
@@ -154,7 +157,7 @@ export function GPTEditorPage() {
 
         {/* Test Panel - 40% width */}
         <div className={cn('w-2/5 overflow-auto', theme.surface(0))}>
-          {!apiKey && isInitialized ? (
+          {!isConfigured && !isLoading ? (
             <div className="flex flex-col items-center justify-center h-full p-8 text-center">
               <div
                 className={cn(
@@ -178,7 +181,7 @@ export function GPTEditorPage() {
               </div>
             </div>
           ) : (
-            <GPTTestPane gptConfig={gptConfig} apiKey={apiKey || undefined} />
+            <GPTTestPane gptConfig={gptConfig} />
           )}
         </div>
       </div>

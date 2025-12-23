@@ -1,4 +1,5 @@
 import {z} from 'zod'
+import {ProviderIdSchema} from './provider'
 
 /**
  * Core types for GPT configurations and related entities
@@ -76,7 +77,7 @@ export const GPTConfigurationSchema = z.object({
   systemPrompt: z.string(),
   instructions: z.string().optional(),
   conversationStarters: z.array(z.string()).optional(),
-  modelProvider: z.enum(['openai', 'anthropic', 'ollama', 'azure']).optional(),
+  modelProvider: ProviderIdSchema.optional(),
   modelName: z.string().optional(),
   modelSettings: z
     .object({
