@@ -1,45 +1,59 @@
-import {useOpenAI} from '@/contexts/openai-provider'
+import {useAIProvider} from '@/hooks/use-ai-provider'
+import {useSession} from '@/hooks/use-session'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
 import {Button, Input} from '@heroui/react'
 import {useState} from 'react'
 
 export function APISettings() {
-  const {apiKey, setApiKey, clearApiKey} = useOpenAI()
-  const [inputKey, setInputKey] = useState(apiKey || '')
+  const {setSecret, deleteSecret, getSecret} = useSession()
+  const {validateProvider, providers} = useAIProvider()
+  const [inputKey, setInputKey] = useState('')
   const [showApiKey, setShowApiKey] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
+
+  const openAIConfig = providers.find(p => p.id === 'openai')
+  const isConfigured = openAIConfig?.isConfigured ?? false
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputKey(e.target.value)
     setSaveStatus('idle')
   }
 
-  const handleSaveKey = () => {
-    setApiKey(inputKey)
-      .then(() => {
+  const handleSaveKey = async () => {
+    try {
+      await setSecret('openai', inputKey)
+      const result = await validateProvider('openai', inputKey)
+      if (result.valid) {
         setSaveStatus('success')
-        // Reset status after 3 seconds
-        setTimeout(() => {
-          setSaveStatus('idle')
-        }, 3000)
-      })
-      .catch((error: unknown) => {
+        setTimeout(() => setSaveStatus('idle'), 3000)
+      } else {
         setSaveStatus('error')
-        console.error('Error saving API key:', error)
-      })
+      }
+    } catch (error_: unknown) {
+      setSaveStatus('error')
+      console.error('Error saving API key:', error_)
+    }
   }
 
-  const handleClearKey = () => {
-    clearApiKey()
-      .then(() => {
-        setInputKey('')
-        setSaveStatus('idle')
-      })
-      .catch(console.error)
+  const handleClearKey = async () => {
+    try {
+      await deleteSecret('openai')
+      setInputKey('')
+      setSaveStatus('idle')
+    } catch (error_: unknown) {
+      console.error('Error clearing API key:', error_)
+    }
   }
 
   const toggleShowApiKey = () => {
     setShowApiKey(!showApiKey)
+  }
+
+  const loadCurrentKey = async () => {
+    const key = await getSecret('openai')
+    if (key) {
+      setInputKey(key)
+    }
   }
 
   return (
@@ -52,11 +66,20 @@ export function APISettings() {
           and never sent to our servers.
         </p>
 
+        {isConfigured && (
+          <p className={cn(ds.text.body.small, 'mb-2 text-success-600')}>✓ API key is configured and validated</p>
+        )}
+
         <div className="flex items-center mb-2">
           <Input
             type={showApiKey ? 'text' : 'password'}
             value={inputKey}
             onChange={handleInputChange}
+            onFocus={() => {
+              if (!inputKey && isConfigured) {
+                loadCurrentKey().catch(console.error)
+              }
+            }}
             placeholder="sk-..."
             className={cn('flex-1 mr-2', ds.focus.ring, ds.animation.transition)}
             description="Your OpenAI API key for testing GPT configurations"
@@ -82,9 +105,11 @@ export function APISettings() {
 
         <div className={cn('flex mt-4 space-x-2', ds.form.fieldRow)}>
           <Button
-            onPress={handleSaveKey}
+            onPress={() => {
+              handleSaveKey().catch(console.error)
+            }}
             color="primary"
-            isDisabled={!inputKey.trim() || inputKey === apiKey}
+            isDisabled={!inputKey.trim()}
             className={cn(ds.focus.ring, ds.animation.transition)}
             aria-label="Save API key to local storage"
           >
@@ -92,10 +117,12 @@ export function APISettings() {
           </Button>
 
           <Button
-            onPress={handleClearKey}
+            onPress={() => {
+              handleClearKey().catch(console.error)
+            }}
             variant="bordered"
             color="danger"
-            isDisabled={!apiKey}
+            isDisabled={!isConfigured}
             className={cn(ds.focus.ring, ds.animation.transition)}
             aria-label="Clear saved API key from local storage"
           >

@@ -2,6 +2,7 @@ import {render, screen, waitFor} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
+import {SessionContext} from '../../contexts/session-context'
 import {StorageContext} from '../../contexts/storage-context'
 import * as useOpenAIServiceModule from '../../hooks/use-openai-service'
 import {GPTTestPane} from '../gpt-test-pane'
@@ -37,6 +38,26 @@ describe('gPTTestPane', () => {
     waitForRunCompletion: vi.fn(),
     createVectorStore: vi.fn(),
     addFilesToVectorStore: vi.fn(),
+  }
+
+  const mockSessionContext = {
+    status: 'unlocked' as const,
+    remainingSeconds: 1800,
+    isUnlocked: true,
+    isPassphraseSet: true,
+    isInitialized: true,
+    webCryptoAvailable: true,
+    unlock: vi.fn().mockResolvedValue(true),
+    lock: vi.fn(),
+    extendSession: vi.fn(),
+    setInitialPassphrase: vi.fn().mockResolvedValue(undefined),
+    changePassphrase: vi.fn().mockResolvedValue(undefined),
+    getSecret: vi.fn().mockResolvedValue('test-api-key'),
+    setSecret: vi.fn().mockResolvedValue(undefined),
+    deleteSecret: vi.fn().mockResolvedValue(undefined),
+    sessionConfig: {timeoutMinutes: 30, warningMinutes: 5},
+    updateSessionConfig: vi.fn().mockResolvedValue(undefined),
+    resetAllData: vi.fn().mockResolvedValue(undefined),
   }
 
   const mockStorageContext = {
@@ -81,21 +102,19 @@ describe('gPTTestPane', () => {
     isArchived: false,
   }
 
-  const mockApiKey = 'test-api-key'
-
-  // Helper function to render component with context
   const renderWithContext = (ui: React.ReactElement) => {
-    return render(<StorageContext value={mockStorageContext}>{ui}</StorageContext>)
+    return render(
+      <SessionContext value={mockSessionContext}>
+        <StorageContext value={mockStorageContext}>{ui}</StorageContext>
+      </SessionContext>,
+    )
   }
 
-  // Setup mocks before each test
   beforeEach(() => {
     vi.clearAllMocks()
 
-    // Reset the mocks
     vi.mocked(useOpenAIServiceModule.useOpenAIService).mockReturnValue(mockOpenAIService)
 
-    // Setup default mock implementations
     mockOpenAIService.createAssistant.mockResolvedValue({id: 'assistant-id'})
     mockOpenAIService.createThread.mockResolvedValue({id: 'thread-id'})
     mockOpenAIService.createRun.mockResolvedValue({id: 'run-id'})
@@ -119,9 +138,8 @@ describe('gPTTestPane', () => {
   })
 
   it('renders without crashing', () => {
-    renderWithContext(<GPTTestPane gptConfig={mockConfig} apiKey={mockApiKey} />)
+    renderWithContext(<GPTTestPane gptConfig={mockConfig} />)
 
-    // Check for basic UI elements
     expect(screen.getByLabelText('Enter conversation name')).toBeInTheDocument()
     expect(screen.getByLabelText('Save current conversation to local storage')).toBeInTheDocument()
     expect(screen.getByLabelText('Export conversation as JSON file')).toBeInTheDocument()
@@ -134,18 +152,16 @@ describe('gPTTestPane', () => {
   it('initializes assistant and thread when sending a message', async () => {
     const user = userEvent.setup()
 
-    renderWithContext(<GPTTestPane gptConfig={mockConfig} apiKey={mockApiKey} />)
+    renderWithContext(<GPTTestPane gptConfig={mockConfig} />)
 
-    // Type and send a message to trigger initialization
     const input = screen.getByLabelText('Enter your message to send to the GPT')
     await user.type(input, 'Hello')
 
     const sendButton = screen.getByLabelText('Send message to GPT assistant')
     await user.click(sendButton)
 
-    // Verify initialization happened
     await waitFor(() => {
-      expect(mockOpenAIService.setApiKey).toHaveBeenCalledWith(mockApiKey)
+      expect(mockOpenAIService.setApiKey).toHaveBeenCalledWith('test-api-key')
       expect(mockOpenAIService.createAssistant).toHaveBeenCalledWith(mockConfig)
       expect(mockOpenAIService.createThread).toHaveBeenCalled()
     })
@@ -154,64 +170,52 @@ describe('gPTTestPane', () => {
   it('adds user message to the conversation', async () => {
     const user = userEvent.setup()
 
-    // Force mock to resolve immediately
     mockOpenAIService.createAssistant.mockResolvedValueOnce({id: 'assistant-id'})
     mockOpenAIService.createThread.mockResolvedValueOnce({id: 'thread-id'})
 
-    renderWithContext(<GPTTestPane gptConfig={mockConfig} apiKey={mockApiKey} />)
+    renderWithContext(<GPTTestPane gptConfig={mockConfig} />)
 
-    // Type in the message input
     const input = screen.getByLabelText('Enter your message to send to the GPT')
     await user.type(input, 'Hello')
 
-    // Verify the input has the text
     expect(input).toHaveValue('Hello')
 
-    // Click the send button
     const sendButton = screen.getByLabelText('Send message to GPT assistant')
     await user.click(sendButton)
 
-    // Input should be cleared after sending
     await waitFor(() => {
       expect(input).toHaveValue('')
     })
   })
 
   it('displays proper accessibility attributes for HeroUI Input components', () => {
-    renderWithContext(<GPTTestPane gptConfig={mockConfig} apiKey={mockApiKey} />)
+    renderWithContext(<GPTTestPane gptConfig={mockConfig} />)
 
-    // Verify HeroUI Input components have proper accessibility attributes
     const conversationNameInput = screen.getByLabelText('Enter conversation name')
     const messageInput = screen.getByLabelText('Enter your message to send to the GPT')
 
-    // Check that inputs have proper ARIA attributes
     expect(conversationNameInput).toHaveAttribute('type', 'text')
     expect(messageInput).toBeInTheDocument()
 
-    // Verify inputs are accessible and have proper labeling
     expect(conversationNameInput).toHaveAccessibleName()
     expect(messageInput).toHaveAccessibleName()
   })
 
   it('handles keyboard navigation properly with HeroUI components', async () => {
     const user = userEvent.setup()
-    renderWithContext(<GPTTestPane gptConfig={mockConfig} apiKey={mockApiKey} />)
+    renderWithContext(<GPTTestPane gptConfig={mockConfig} />)
 
     const messageInput = screen.getByLabelText('Enter your message to send to the GPT')
 
-    // Focus the message input and type
     await user.click(messageInput)
     expect(messageInput).toHaveFocus()
 
-    // Type a message
     await user.type(messageInput, 'Test message')
     expect(messageInput).toHaveValue('Test message')
 
-    // Verify send button can be focused and activated
     const sendButton = screen.getByLabelText('Send message to GPT assistant')
     await user.click(sendButton)
 
-    // After sending, input should be cleared
     await waitFor(() => {
       expect(messageInput).toHaveValue('')
     })

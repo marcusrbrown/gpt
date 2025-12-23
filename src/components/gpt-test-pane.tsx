@@ -1,5 +1,6 @@
 import type {ConversationMessage, GPTConfiguration} from '@/types/gpt'
 import {useOpenAIService} from '@/hooks/use-openai-service'
+import {useSession} from '@/hooks/use-session'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds} from '@/lib/design-system'
 import {Button, Input, Spinner, Tooltip} from '@heroui/react'
@@ -9,10 +10,11 @@ import {v4 as uuidv4} from 'uuid'
 
 interface GPTTestPaneProps {
   gptConfig?: GPTConfiguration | undefined
-  apiKey?: string | undefined
 }
 
-export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
+export function GPTTestPane({gptConfig}: GPTTestPaneProps) {
+  const {getSecret} = useSession()
+  const [apiKey, setApiKey] = useState<string | null>(null)
   // State for managing the conversation
   const [messages, setMessages] = useState<ConversationMessage[]>([])
   const [userInput, setUserInput] = useState('')
@@ -50,12 +52,17 @@ export function GPTTestPane({gptConfig, apiKey}: GPTTestPaneProps) {
     scrollToBottom()
   }, [messages])
 
-  // Initialize API key
+  // Load API key from session storage on mount
   useEffect(() => {
-    if (apiKey) {
-      openAIService.setApiKey(apiKey)
+    const loadApiKey = async () => {
+      const key = await getSecret('openai')
+      if (key) {
+        setApiKey(key)
+        openAIService.setApiKey(key)
+      }
     }
-  }, [apiKey, openAIService])
+    loadApiKey().catch(console.error)
+  }, [getSecret, openAIService])
 
   // Cleanup function for polling
   const clearPollingInterval = useCallback(() => {
