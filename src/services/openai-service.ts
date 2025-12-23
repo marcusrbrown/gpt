@@ -73,7 +73,11 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
    * Set the API key for OpenAI
    */
   const setApiKey = (apiKey: string): void => {
-    state.apiKey = apiKey
+    state.apiKey = apiKey || null
+    if (!apiKey) {
+      client = null
+      return
+    }
     try {
       initClient()
     } catch (error) {

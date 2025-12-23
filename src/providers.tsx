@@ -2,6 +2,8 @@ import {HeroUIProvider} from '@heroui/react'
 import {ThemeProvider as NextThemesProvider} from 'next-themes'
 import {useEffect} from 'react'
 import {ConversationProvider} from './contexts/conversation-provider'
+import {OpenAIProvider} from './contexts/openai-provider'
+import {SessionProvider} from './contexts/session-context'
 import {StorageProvider} from './contexts/storage-provider'
 
 export interface ProvidersProps {
@@ -10,7 +12,6 @@ export interface ProvidersProps {
 
 function ThemeScript() {
   useEffect(() => {
-    // Apply the theme on initial load
     const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     document.documentElement.dataset.theme = isDark ? 'dark' : 'light'
   }, [])
@@ -24,7 +25,11 @@ export const Providers = ({children}: ProvidersProps): React.ReactElement => {
       <HeroUIProvider>
         <ThemeScript />
         <StorageProvider>
-          <ConversationProvider>{children}</ConversationProvider>
+          <SessionProvider>
+            <OpenAIProvider>
+              <ConversationProvider>{children}</ConversationProvider>
+            </OpenAIProvider>
+          </SessionProvider>
         </StorageProvider>
       </HeroUIProvider>
     </NextThemesProvider>

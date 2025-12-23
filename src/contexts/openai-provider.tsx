@@ -1,10 +1,11 @@
+import {useSession} from '@/hooks/use-session'
 import createOpenAIService from '@/services/openai-service'
-import React, {createContext, use, useCallback, useEffect, useMemo, useState, type ReactNode} from 'react'
+import {createContext, use, useCallback, useEffect, useMemo, useState, type ReactNode} from 'react'
 
 interface OpenAIContextValue {
   apiKey: string | null
-  setApiKey: (key: string) => void
-  clearApiKey: () => void
+  setApiKey: (key: string) => Promise<void>
+  clearApiKey: () => Promise<void>
   isInitialized: boolean
   service: ReturnType<typeof createOpenAIService>
 }
@@ -18,48 +19,59 @@ interface OpenAIProviderProps {
 export function OpenAIProvider({children}: OpenAIProviderProps) {
   const [apiKey, setApiKeyState] = useState<string | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
+  const {isUnlocked, getSecret, setSecret, deleteSecret} = useSession()
 
-  // Create the OpenAI service instance
   const service = useMemo(() => createOpenAIService(), [])
 
-  // Initialize API key from local storage
   useEffect(() => {
-    try {
-      const storedKey = localStorage.getItem('openai_api_key')
-      // Check explicitly for null and empty string to avoid treating falsy values like '' as valid keys
-      if (storedKey !== null && storedKey !== '') {
-        setApiKeyState(storedKey)
-        service.setApiKey(storedKey)
-      }
-    } catch (error) {
-      console.error('Error retrieving API key from storage:', error)
-    } finally {
-      setIsInitialized(true)
+    if (!isUnlocked) {
+      queueMicrotask(() => {
+        setApiKeyState(null)
+        service.setApiKey('')
+      })
+      return
     }
-  }, [service])
+
+    let cancelled = false
+
+    const loadKey = async () => {
+      try {
+        const storedKey = await getSecret('openai')
+        if (cancelled) return
+        if (storedKey) {
+          queueMicrotask(() => {
+            setApiKeyState(storedKey)
+            service.setApiKey(storedKey)
+          })
+        }
+      } catch {
+        if (!cancelled) queueMicrotask(() => setApiKeyState(null))
+      } finally {
+        if (!cancelled) queueMicrotask(() => setIsInitialized(true))
+      }
+    }
+
+    loadKey().catch(console.error)
+
+    return () => {
+      cancelled = true
+    }
+  }, [isUnlocked, getSecret, service])
 
   const setApiKey = useCallback(
-    (key: string) => {
-      try {
-        setApiKeyState(key)
-        service.setApiKey(key)
-        localStorage.setItem('openai_api_key', key)
-      } catch (error) {
-        console.error('Error storing API key:', error)
-      }
+    async (key: string) => {
+      await setSecret('openai', key)
+      setApiKeyState(key)
+      service.setApiKey(key)
     },
-    [service],
+    [service, setSecret],
   )
 
-  const clearApiKey = useCallback(() => {
-    try {
-      setApiKeyState(null)
-      service.setApiKey('')
-      localStorage.removeItem('openai_api_key')
-    } catch (error) {
-      console.error('Error clearing API key:', error)
-    }
-  }, [service])
+  const clearApiKey = useCallback(async () => {
+    await deleteSecret('openai')
+    setApiKeyState(null)
+    service.setApiKey('')
+  }, [service, deleteSecret])
 
   const contextValue = useMemo(
     () => ({

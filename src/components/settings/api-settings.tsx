@@ -15,24 +15,27 @@ export function APISettings() {
   }
 
   const handleSaveKey = () => {
-    try {
-      setApiKey(inputKey)
-      setSaveStatus('success')
-
-      // Reset status after 3 seconds
-      setTimeout(() => {
-        setSaveStatus('idle')
-      }, 3000)
-    } catch (error) {
-      setSaveStatus('error')
-      console.error('Error saving API key:', error)
-    }
+    setApiKey(inputKey)
+      .then(() => {
+        setSaveStatus('success')
+        // Reset status after 3 seconds
+        setTimeout(() => {
+          setSaveStatus('idle')
+        }, 3000)
+      })
+      .catch((error: unknown) => {
+        setSaveStatus('error')
+        console.error('Error saving API key:', error)
+      })
   }
 
   const handleClearKey = () => {
     clearApiKey()
-    setInputKey('')
-    setSaveStatus('idle')
+      .then(() => {
+        setInputKey('')
+        setSaveStatus('idle')
+      })
+      .catch(console.error)
   }
 
   const toggleShowApiKey = () => {
