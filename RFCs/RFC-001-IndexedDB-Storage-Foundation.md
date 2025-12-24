@@ -1,6 +1,10 @@
 # RFC-001: IndexedDB Storage Foundation
 
-**Status:** Pending **Priority:** MUST HAVE **Complexity:** High **Phase:** 1 **Created:** December 20, 2025
+**Status:** Pending
+**Priority:** MUST HAVE
+**Complexity:** High
+**Phase:** 1
+**Created:** December 20, 2025
 
 ---
 
