@@ -17,7 +17,7 @@ test.describe('Card Components Responsive Behavior', () => {
       await homePage.setViewportSize({width: viewport.width, height: viewport.height})
 
       await expect(homePage.pageTitle).toBeVisible()
-      await expect(homePage.yourGPTsSection).toBeVisible()
+      await expect(homePage.gptLibrary).toBeVisible()
       await expect(homePage.createNewGPTButton).toBeVisible()
 
       const userCardCount = await homePage.getUserGPTCount()

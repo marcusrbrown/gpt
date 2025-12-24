@@ -71,6 +71,7 @@ export function ArchiveDialog({gpt, mode, isOpen, onConfirm, onCancel, isLoading
             onPress={onConfirm}
             isLoading={isLoading}
             startContent={!isLoading && <Icon className="h-4 w-4" />}
+            data-testid={isDelete ? 'confirm-delete' : 'confirm-archive'}
           >
             {confirmText}
           </Button>

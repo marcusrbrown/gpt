@@ -133,11 +133,11 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full" data-testid="gpt-library">
       <div className="flex items-center justify-between mb-6">
         <Tabs selectedKey={viewMode} onSelectionChange={key => setViewMode(key as ViewMode)} aria-label="GPT view mode">
-          <Tab key="active" title="Active" />
-          <Tab key="archived" title="Archived" />
+          <Tab key="active" title="Active" data-testid="active-tab" />
+          <Tab key="archived" title="Archived" data-testid="archived-tab" />
         </Tabs>
 
         <Button
@@ -145,6 +145,7 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
           className="flex items-center gap-2"
           startContent={<Plus className="h-4 w-4" />}
           onPress={onCreateGPT}
+          data-testid="new-gpt-button"
         >
           New GPT
         </Button>
@@ -174,8 +175,8 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
           <Spinner size="lg" />
         </div>
       ) : filteredGPTs.length === 0 ? (
-        <div className={cn(ds.state.empty)}>
-          <p className={cn(ds.text.body.base)}>
+        <div className={cn(ds.state.empty)} data-testid="gpt-empty-state">
+          <p className={cn(ds.text.body.base)} data-testid="gpt-empty-message">
             {searchQuery ? 'No GPTs match your search' : viewMode === 'active' ? 'No GPTs yet' : 'No archived GPTs'}
           </p>
           {viewMode === 'active' && !searchQuery && (
@@ -184,23 +185,27 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
               color="primary"
               onPress={onCreateGPT}
               startContent={<Plus className="h-4 w-4" />}
+              data-testid="create-first-gpt-button"
             >
               Create your first GPT
             </Button>
           )}
         </div>
       ) : (
-        <div className={cn(responsive.cardGrid.threeColumn)}>
+        <div className={cn(responsive.cardGrid.threeColumn)} data-testid="gpt-list">
           {filteredGPTs.map(gpt => (
             <Card
               key={gpt.id}
               className={cn('border border-border-default', ds.animation.transition, 'hover:border-primary-300')}
               isPressable
               onPress={() => onSelectGPT(gpt.id)}
+              data-testid="user-gpt-card"
             >
               <CardHeader className="flex justify-between items-start">
                 <div className="flex-1 min-w-0">
-                  <h3 className={cn(ds.text.heading.h4, 'truncate')}>{gpt.name}</h3>
+                  <h3 className={cn(ds.text.heading.h4, 'truncate')} data-testid="gpt-name">
+                    {gpt.name}
+                  </h3>
                   <p className={cn(ds.text.body.small, 'truncate')}>{formatDate(gpt.updatedAt)}</p>
                 </div>
                 <Dropdown>
@@ -214,6 +219,7 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
                       key="edit"
                       startContent={<Edit className="h-4 w-4" />}
                       onPress={() => onSelectGPT(gpt.id)}
+                      data-testid="edit-gpt"
                     >
                       Edit
                     </DropdownItem>
@@ -223,6 +229,7 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
                       onPress={() => {
                         handleDuplicate(gpt).catch(() => {})
                       }}
+                      data-testid="duplicate-gpt"
                     >
                       Duplicate
                     </DropdownItem>
@@ -231,6 +238,7 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
                         key="archive"
                         startContent={<Archive className="h-4 w-4" />}
                         onPress={() => handleArchive(gpt)}
+                        data-testid="archive-gpt"
                       >
                         Archive
                       </DropdownItem>
@@ -241,6 +249,7 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
                         onPress={() => {
                           handleRestore(gpt).catch(() => {})
                         }}
+                        data-testid="restore-gpt"
                       >
                         Restore
                       </DropdownItem>
@@ -251,6 +260,7 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
                       color="danger"
                       startContent={<Trash2 className="h-4 w-4" />}
                       onPress={() => handleDelete(gpt)}
+                      data-testid="delete-gpt"
                     >
                       Delete
                     </DropdownItem>

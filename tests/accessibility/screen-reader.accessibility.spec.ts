@@ -24,8 +24,8 @@ test.describe('Screen Reader Compatibility', () => {
         // Should have only one main landmark
         await expect(main).toHaveCount(1)
 
-        // Test for navigation landmark
-        const nav = page.locator('nav, [role="navigation"]')
+        // Test for navigation landmark (at least one)
+        const nav = page.locator('nav, [role="navigation"]').first()
         await expect(nav).toBeVisible()
 
         // Test for proper heading structure
@@ -54,7 +54,7 @@ test.describe('Screen Reader Compatibility', () => {
     test('should have proper landmark structure', async ({page}) => {
       await test.step('Test landmark accessibility', async () => {
         // Test screen reader landmark compatibility
-        await accessibilityTest.expectScreenReaderCompatible(page, 'body', 4)
+        await accessibilityTest.expectScreenReaderCompatible(page, 'body', 6)
 
         // Check for banner (header)
         const banner = page.locator('header, [role="banner"]')
