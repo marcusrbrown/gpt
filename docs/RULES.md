@@ -167,27 +167,26 @@ export function Card({title, description, onSave}: CardProps) {
   const [isLoading, setIsLoading] = useState(false)
 
   // 4. Callbacks
-  const handleSubmit = useCallback(async (data: FormData) => {
-    setIsLoading(true)
-    try {
-      await onSave(data)
-    } catch (error_) {
-      // Handle error
-      throw error_
-    } finally {
-      setIsLoading(false)
-    }
-  }, [onSave])
+  const handleSubmit = useCallback(
+    async (data: FormData) => {
+      setIsLoading(true)
+      try {
+        await onSave(data)
+      } catch (error_) {
+        // Handle error
+        throw error_
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [onSave],
+  )
 
   // 5. Early returns for edge cases
   if (!title) return null
 
   // 6. Render
-  return (
-    <div className={cn(ds.surface.primary, ds.padding.md)}>
-      {/* ... */}
-    </div>
-  )
+  return <div className={cn(ds.surface.primary, ds.padding.md)}>{/* ... */}</div>
 }
 ```
 
@@ -234,6 +233,42 @@ import {cn, ds, theme} from '@/lib/design-system'
 <div className="bg-gray-800 border-gray-600">  // NEVER
 <div className="bg-[#1a1a2e]">                 // NEVER
 ```
+
+### HeroUI Component Styling (CRITICAL)
+
+HeroUI components with icons require explicit flex styling in TailwindCSS 4:
+
+```tsx
+// CORRECT: Button with icon - add flex alignment
+<Button
+  color="primary"
+  className="flex items-center gap-2"
+  startContent={<PlusIcon className="h-4 w-4" />}
+>
+  Create New
+</Button>
+
+// CORRECT: Input with icon - use classNames prop
+<Input
+  placeholder="Search..."
+  startContent={<SearchIcon className="h-4 w-4" />}
+  isClearable={searchQuery.length > 0}
+  classNames={{
+    inputWrapper: 'flex items-center',
+    innerWrapper: 'flex items-center',
+  }}
+/>
+
+// WRONG: Missing flex alignment causes icons to stack vertically
+<Button startContent={<PlusIcon />}>Create</Button>  // Icons appear ABOVE text
+<Input startContent={<SearchIcon />} />              // Icons appear ABOVE input
+```
+
+**Key Rules:**
+
+- **Buttons with `startContent`/`endContent`**: Add `className="flex items-center gap-2"`
+- **Input with `startContent`/`endContent`**: Add `classNames={{ inputWrapper: 'flex items-center', innerWrapper: 'flex items-center' }}`
+- **`isClearable` prop**: Use conditional `isClearable={value.length > 0}` to hide clear button when empty
 
 ### Color Tokens
 
@@ -398,26 +433,26 @@ pnpm test:performance      # Lighthouse audits
 
 ```tsx
 // Unit test structure
-describe('ComponentName', () => {
-  it('should render with required props', () => {
+describe("ComponentName", () => {
+  it("should render with required props", () => {
     render(<Component title="Test" />)
-    expect(screen.getByText('Test')).toBeInTheDocument()
+    expect(screen.getByText("Test")).toBeInTheDocument()
   })
 
-  it('should handle user interaction', async () => {
+  it("should handle user interaction", async () => {
     const user = userEvent.setup()
     const handleClick = vi.fn()
     render(<Component onClick={handleClick} />)
-    await user.click(screen.getByRole('button'))
+    await user.click(screen.getByRole("button"))
     expect(handleClick).toHaveBeenCalled()
   })
 })
 
 // E2E test with page objects
-test('should create new GPT', async ({page}) => {
+test("should create new GPT", async ({page}) => {
   const gptPage = new GPTEditorPage(page)
   await gptPage.navigate()
-  await gptPage.fillForm({name: 'My GPT', systemPrompt: '...'})
+  await gptPage.fillForm({name: "My GPT", systemPrompt: "..."})
   await gptPage.save()
   await expect(gptPage.successMessage).toBeVisible()
 })

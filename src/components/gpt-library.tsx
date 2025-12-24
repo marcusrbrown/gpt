@@ -140,20 +140,32 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
           <Tab key="archived" title="Archived" />
         </Tabs>
 
-        <Button color="primary" startContent={<Plus className="h-4 w-4" />} onPress={onCreateGPT}>
+        <Button
+          color="primary"
+          className="flex items-center gap-2"
+          startContent={<Plus className="h-4 w-4" />}
+          onPress={onCreateGPT}
+        >
           New GPT
         </Button>
       </div>
 
       <div className="mb-4">
         <Input
+          type="search"
           placeholder="Search GPTs..."
           value={searchQuery}
           onValueChange={setSearchQuery}
           startContent={<Search className="h-4 w-4 text-content-tertiary" />}
-          isClearable
-          onClear={() => setSearchQuery('')}
+          variant="bordered"
           aria-label="Search GPTs"
+          classNames={{
+            base: 'max-w-md',
+            input: 'text-sm',
+            inputWrapper: 'h-10 flex items-center',
+            innerWrapper: 'flex items-center',
+            mainWrapper: 'h-10',
+          }}
         />
       </div>
 
@@ -167,7 +179,12 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
             {searchQuery ? 'No GPTs match your search' : viewMode === 'active' ? 'No GPTs yet' : 'No archived GPTs'}
           </p>
           {viewMode === 'active' && !searchQuery && (
-            <Button className="mt-4" color="primary" onPress={onCreateGPT} startContent={<Plus className="h-4 w-4" />}>
+            <Button
+              className="mt-4 flex items-center gap-2"
+              color="primary"
+              onPress={onCreateGPT}
+              startContent={<Plus className="h-4 w-4" />}
+            >
               Create your first GPT
             </Button>
           )}

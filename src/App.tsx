@@ -1,12 +1,12 @@
 import {Spinner} from '@heroui/react'
 import {lazy, Suspense} from 'react'
 import {Route, Routes, useLocation} from 'react-router-dom'
-import {CardGroup} from './components/card-group'
 import {Footer} from './components/footer'
 import {Navbar} from './components/navbar'
 import {cn, ds} from './lib/design-system'
 import {GPTEditorPage} from './pages/gpt-editor-page'
 import {GPTTestPage} from './pages/gpt-test-page'
+import {HomePage} from './pages/home-page'
 import {Providers} from './providers'
 
 // Lazy load documentation components for better initial load performance
@@ -32,20 +32,7 @@ function App() {
           {/* Key by pathname to trigger page transition animations on route changes */}
           <Routes key={location.pathname}>
             {/* Home page */}
-            <Route
-              path="/"
-              element={
-                <main className={cn(ds.layout.container, 'py-12', ds.animation.fadeIn)}>
-                  <div className="text-center py-16 md:py-24 mb-8">
-                    <h1 className="text-5xl md:text-6xl font-bold text-content-primary mb-6">Custom GPTs</h1>
-                    <p className="text-xl text-content-secondary max-w-2xl mx-auto">
-                      Create and manage your own AI assistants, stored securely on your device
-                    </p>
-                  </div>
-                  <CardGroup />
-                </main>
-              }
-            />
+            <Route path="/" element={<HomePage />} />
 
             {/* GPT Editor routes */}
             <Route
