@@ -113,8 +113,7 @@ export default {
         light: {
           colors: {
             primary: {
-              ...brandColors,
-              DEFAULT: brandColors[500],
+              DEFAULT: '#000000',
               foreground: '#ffffff',
             },
           },
@@ -122,9 +121,8 @@ export default {
         dark: {
           colors: {
             primary: {
-              ...brandColors,
-              DEFAULT: brandColors[400],
-              foreground: '#ffffff',
+              DEFAULT: '#ffffff',
+              foreground: '#000000',
             },
           },
         },

@@ -4,7 +4,7 @@ import {Route, Routes, useLocation} from 'react-router-dom'
 import {CardGroup} from './components/card-group'
 import {Footer} from './components/footer'
 import {Navbar} from './components/navbar'
-import {cn, ds, responsive, theme} from './lib/design-system'
+import {cn, ds} from './lib/design-system'
 import {GPTEditorPage} from './pages/gpt-editor-page'
 import {GPTTestPage} from './pages/gpt-test-page'
 import {Providers} from './providers'
@@ -36,17 +36,10 @@ function App() {
               path="/"
               element={
                 <main className={cn(ds.layout.container, 'py-12', ds.animation.fadeIn)}>
-                  <div className="text-center py-12 mb-8">
-                    <h1
-                      className={cn(
-                        responsive.heading.responsive,
-                        'mb-4 bg-linear-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent',
-                      )}
-                    >
-                      Custom GPTs
-                    </h1>
-                    <p className={cn(ds.text.body.large, theme.content('secondary'))}>
-                      Build, test, and deploy your AI agents with complete data sovereignty
+                  <div className="text-center py-16 md:py-24 mb-8">
+                    <h1 className="text-5xl md:text-6xl font-bold text-content-primary mb-6">Custom GPTs</h1>
+                    <p className="text-xl text-content-secondary max-w-2xl mx-auto">
+                      Create and manage your own AI assistants, stored securely on your device
                     </p>
                   </div>
                   <CardGroup />

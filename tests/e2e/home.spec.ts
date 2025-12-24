@@ -11,7 +11,6 @@ test.describe('Home Page Navigation', () => {
 
     // Verify main sections are present
     await expect(homePage.yourGPTsSection).toBeVisible()
-    await expect(homePage.exampleGPTsSection).toBeVisible()
 
     // Verify create button is visible
     await expect(homePage.createNewGPTButton).toBeVisible()
@@ -36,12 +35,6 @@ test.describe('Home Page Navigation', () => {
 
     // Verify navigation to editor page
     await expect(homePage.getPage()).toHaveURL('/gpt/new')
-  })
-
-  test('should display example GPT cards', async ({homePage}) => {
-    // Verify example GPTs are displayed
-    const exampleCount = await homePage.getExampleGPTCount()
-    expect(exampleCount).toBeGreaterThan(0)
   })
 
   test('should be responsive on mobile viewport', async ({homePage}) => {

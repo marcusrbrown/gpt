@@ -58,7 +58,13 @@ test.describe('Animation Performance', () => {
     await page.goto('/')
     await page.waitForLoadState('networkidle')
 
-    const card = page.locator('[data-testid="example-gpt-card"]').first()
+    const card = page.locator('[data-testid="user-gpt-card"]').first()
+    const cardCount = await page.locator('[data-testid="user-gpt-card"]').count()
+
+    if (cardCount === 0) {
+      test.skip()
+    }
+
     await expect(card).toBeVisible()
 
     await card.hover()

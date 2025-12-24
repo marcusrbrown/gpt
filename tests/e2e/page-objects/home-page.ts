@@ -10,10 +10,8 @@ export class HomePage extends BasePage {
   readonly pageTitle: Locator
   readonly createNewGPTButton: Locator
   readonly yourGPTsSection: Locator
-  readonly exampleGPTsSection: Locator
   readonly emptyStateMessage: Locator
   readonly userGPTCards: Locator
-  readonly exampleGPTCards: Locator
 
   constructor(page: Page) {
     super(page)
@@ -22,14 +20,10 @@ export class HomePage extends BasePage {
     this.pageTitle = page.locator('h1').filter({hasText: 'Custom GPTs'})
     this.createNewGPTButton = page.locator('a[href="/gpt/new"]').first()
     this.yourGPTsSection = page.locator('h2').filter({hasText: 'Your GPTs'}).locator('..')
-    this.exampleGPTsSection = page.locator('h2').filter({hasText: 'Example GPTs'}).locator('..')
     this.emptyStateMessage = page.locator('p').filter({hasText: "You haven't created any GPTs yet."})
 
     // User GPT cards with test IDs
     this.userGPTCards = page.locator('[data-testid="user-gpt-card"]')
-
-    // Example GPT cards with test IDs
-    this.exampleGPTCards = page.locator('[data-testid="example-gpt-card"]')
   }
 
   /**
@@ -95,21 +89,6 @@ export class HomePage extends BasePage {
    */
   async hasEmptyState(): Promise<boolean> {
     return this.isVisible(this.emptyStateMessage)
-  }
-
-  /**
-   * Get the number of example GPT cards
-   */
-  async getExampleGPTCount(): Promise<number> {
-    return this.exampleGPTCards.count()
-  }
-
-  /**
-   * Click on an example GPT card by index
-   */
-  async clickExampleGPT(index: number): Promise<void> {
-    const card = this.exampleGPTCards.nth(index)
-    await this.clickElement(card)
   }
 
   /**

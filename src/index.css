@@ -14,19 +14,19 @@ body {
   --sidebar-width: 16rem;
 
   /* GPT Design System - Light Theme */
-  --surface-primary: 0 0% 100%;       /* #ffffff */
-  --surface-secondary: 0 0% 98%;      /* #fafafa */
-  --surface-tertiary: 0 0% 96%;       /* #f5f5f5 */
-  --surface-elevated: 0 0% 100%;      /* #ffffff */
+  --surface-primary: 0 0% 100%; /* #ffffff */
+  --surface-secondary: 0 0% 98%; /* #fafafa */
+  --surface-tertiary: 0 0% 96%; /* #f5f5f5 */
+  --surface-elevated: 0 0% 100%; /* #ffffff */
 
-  --content-primary: 220 9% 11%;      /* #1c1c1e */
-  --content-secondary: 220 9% 25%;    /* #3a3a3c */
-  --content-tertiary: 220 9% 42%;     /* #636366 */
-  --content-inverse: 0 0% 100%;       /* #ffffff */
+  --content-primary: 220 9% 11%; /* #1c1c1e */
+  --content-secondary: 220 9% 25%; /* #3a3a3c */
+  --content-tertiary: 220 9% 42%; /* #636366 */
+  --content-inverse: 0 0% 100%; /* #ffffff */
 
-  --border-default: 220 13% 91%;      /* #e5e5e7 */
-  --border-subtle: 220 13% 95%;       /* #f2f2f7 */
-  --border-strong: 220 13% 82%;       /* #c7c7cc */
+  --border-default: 220 13% 91%; /* #e5e5e7 */
+  --border-subtle: 220 13% 95%; /* #f2f2f7 */
+  --border-strong: 220 13% 82%; /* #c7c7cc */
 
   /* Legacy support - gradually migrate away from these */
   --background-primary: hsl(var(--surface-primary));
@@ -40,21 +40,21 @@ body {
   --accent-hover: #2563eb;
 }
 
-[data-theme='dark'] {
-  /* GPT Design System - Dark Theme */
-  --surface-primary: 220 13% 9%;       /* #17181c */
-  --surface-secondary: 220 13% 11%;    /* #1d1e23 */
-  --surface-tertiary: 220 13% 16%;     /* #28292e */
-  --surface-elevated: 220 13% 13%;     /* #212226 */
+.dark {
+  /* GPT Design System - Dark Theme (Gumroad Style) */
+  --surface-primary: 0 0% 0%; /* #000000 */
+  --surface-secondary: 0 0% 10%; /* #1a1a1a */
+  --surface-tertiary: 0 0% 13%; /* #212121 */
+  --surface-elevated: 0 0% 13%; /* #212121 */
 
-  --content-primary: 0 0% 98%;         /* #fafafa */
-  --content-secondary: 0 0% 85%;       /* #d9d9d9 */
-  --content-tertiary: 0 0% 62%;        /* #9e9e9e */
-  --content-inverse: 220 9% 11%;       /* #1c1c1e */
+  --content-primary: 0 0% 100%; /* #ffffff */
+  --content-secondary: 0 0% 70%; /* #b3b3b3 */
+  --content-tertiary: 0 0% 40%; /* #666666 */
+  --content-inverse: 0 0% 0%; /* #000000 */
 
-  --border-default: 220 13% 20%;       /* #30313a */
-  --border-subtle: 220 13% 17%;        /* #2a2b33 */
-  --border-strong: 220 13% 25%;        /* #3a3b45 */
+  --border-default: 0 0% 20%; /* #333333 */
+  --border-subtle: 0 0% 15%; /* #262626 */
+  --border-strong: 0 0% 30%; /* #4d4d4d */
 
   /* Legacy support - gradually migrate away from these */
   --background-primary: hsl(var(--surface-primary));
@@ -64,8 +64,8 @@ body {
   --text-secondary: hsl(var(--content-secondary));
   --text-tertiary: hsl(var(--content-tertiary));
   --border-color: hsl(var(--border-default));
-  --accent-color: #60a5fa;
-  --accent-hover: #93c5fd;
+  --accent-color: #ffffff; /* White accent for dark mode */
+  --accent-hover: #e5e5e5;
 }
 
 @layer base {
@@ -74,14 +74,7 @@ body {
     color: hsl(var(--content-primary));
   }
 
-  /* Smooth transitions for theme changes using design system timing */
-  @media (prefers-reduced-motion: no-preference) {
-    *,
-    *::before,
-    *::after {
-      @apply transition-colors duration-200 ease-in-out;
-    }
-  }
+  /* Theme transitions - only on specific properties to prevent flickering */
 
   /* Custom scrollbar */
   ::-webkit-scrollbar {
@@ -103,12 +96,12 @@ body {
 
   /* Cards - using design system animation utilities */
   .card {
-    @apply rounded-lg border-0 p-6 shadow-sm transition-all duration-200 ease-in-out hover:shadow-md;
+    @apply rounded-lg border-0 p-6 shadow-sm transition-shadow duration-200 ease-in-out hover:shadow-md;
     background-color: hsl(var(--surface-secondary));
   }
 
   .card-link {
-    @apply block rounded-lg border-0 p-6 shadow-md transition-all duration-200 ease-in-out hover:shadow-lg hover:scale-[1.02];
+    @apply block rounded-lg border-0 p-6 shadow-md transition-shadow duration-200 ease-in-out hover:shadow-lg;
     background-color: hsl(var(--surface-secondary));
   }
 
