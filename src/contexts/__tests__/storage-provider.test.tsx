@@ -47,6 +47,8 @@ function TestComponent() {
       version: 1,
       tags: [],
       isArchived: false,
+      folderId: null,
+      archivedAt: null,
     }
     await saveGPT(newGPT)
     const updated = await getAllGPTs()

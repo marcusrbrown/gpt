@@ -45,6 +45,8 @@ const mockGPT: Partial<GPTConfiguration> = {
   version: 1,
   tags: [],
   isArchived: false,
+  folderId: null,
+  archivedAt: null,
 }
 
 const mockStorageContext = {
@@ -64,6 +66,19 @@ const mockStorageContext = {
   isMigrating: false,
   error: null,
   storageWarning: null,
+  archiveGPT: vi.fn().mockResolvedValue(undefined),
+  restoreGPT: vi.fn().mockResolvedValue(undefined),
+  getArchivedGPTs: vi.fn().mockResolvedValue([]),
+  duplicateGPT: vi.fn().mockResolvedValue(undefined),
+  deleteGPTPermanently: vi.fn().mockResolvedValue(undefined),
+  createVersion: vi.fn().mockResolvedValue(undefined),
+  getVersions: vi.fn().mockResolvedValue([]),
+  restoreVersion: vi.fn().mockResolvedValue(undefined),
+  createFolder: vi.fn().mockResolvedValue(undefined),
+  renameFolder: vi.fn().mockResolvedValue(undefined),
+  deleteFolder: vi.fn().mockResolvedValue(undefined),
+  getFolderTree: vi.fn().mockResolvedValue([]),
+  moveGPTToFolder: vi.fn().mockResolvedValue(undefined),
 }
 
 describe('gPTEditor', () => {

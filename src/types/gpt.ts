@@ -96,6 +96,8 @@ export const GPTConfigurationSchema = z.object({
   version: z.number().default(1),
   tags: z.array(z.string()).default([]),
   isArchived: z.boolean().default(false),
+  folderId: z.string().uuid().nullable().default(null),
+  archivedAt: z.string().datetime().nullable().default(null),
 })
 
 export type GPTConfiguration = z.infer<typeof GPTConfigurationSchema>

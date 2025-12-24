@@ -1,3 +1,4 @@
+import {useAutoSave} from '@/hooks/use-auto-save'
 import {useGPTValidation} from '@/hooks/use-gpt-validation'
 import {useOpenAIService} from '@/hooks/use-openai-service'
 import {useStorage} from '@/hooks/use-storage'
@@ -12,11 +13,12 @@ import {
   type VectorStore,
 } from '@/types/gpt'
 import {Button, Input, Spinner, Tab, Tabs, Textarea} from '@heroui/react'
-import {useEffect, useMemo, useRef, useState} from 'react'
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {v4 as uuidv4} from 'uuid'
 import {CapabilitiesConfiguration} from './capabilities-configuration'
 import {KnowledgeConfiguration} from './knowledge-configuration'
 import {ToolsConfiguration} from './tools-configuration'
+import {VersionHistoryPanel} from './version-history-panel'
 
 interface GPTEditorProps {
   gptId?: string | undefined
@@ -45,6 +47,8 @@ const DEFAULT_GPT: Omit<GPTConfiguration, 'id'> = {
   version: 1,
   tags: [],
   isArchived: false,
+  folderId: null,
+  archivedAt: null,
 }
 
 // Define update type for streamRun
@@ -212,10 +216,11 @@ function VectorKnowledge({
 }
 
 export function GPTEditor({gptId, onSave}: GPTEditorProps) {
-  const {getGPT, saveGPT} = useStorage()
+  const {getGPT, saveGPT, createVersion, restoreVersion} = useStorage()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const importGptRef = useRef<HTMLInputElement>(null)
   const [gpt, setGpt] = useState<GPTConfiguration>(() => ({...DEFAULT_GPT, id: uuidv4(), tags: [], isArchived: false}))
+  const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false)
   const {
     errors,
     validateForm,
@@ -231,6 +236,27 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
     setValidationTiming('blur')
   }, [setValidationTiming])
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleAutoSave = useCallback(
+    async (gptToSave: GPTConfiguration) => {
+      if (gptToSave.id && gptToSave.name.trim()) {
+        await createVersion(gptToSave.id, 'Auto-save')
+        await saveGPT(gptToSave)
+      }
+    },
+    [createVersion, saveGPT],
+  )
+
+  const {isSaving, lastSaved, hasUnsavedChanges, trackValue} = useAutoSave<GPTConfiguration>(handleAutoSave, {
+    debounceMs: 2000,
+    isEqual: (a, b) => JSON.stringify(a) === JSON.stringify(b),
+  })
+
+  useEffect(() => {
+    if (gptId && gpt.name.trim()) {
+      trackValue(gpt)
+    }
+  }, [gpt, gptId, trackValue])
   const [activeTab, setActiveTab] = useState('edit')
   const [testMessage, setTestMessage] = useState('')
   const [testMessages, setTestMessages] = useState<ConversationMessage[]>([])
@@ -773,6 +799,28 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                 <div className="flex items-center justify-between">
                   <label className={cn('block', ds.text.heading.h4, 'text-content-primary')}>Knowledge Base</label>
                   <div className="flex gap-2">
+                    <div className={cn('flex items-center gap-2 px-3', ds.text.body.small)}>
+                      {isSaving ? (
+                        <span className="text-warning-500 flex items-center gap-1">
+                          <Spinner size="sm" />
+                          Saving...
+                        </span>
+                      ) : hasUnsavedChanges ? (
+                        <span className="text-warning-500">Unsaved changes</span>
+                      ) : lastSaved ? (
+                        <span className="text-success-500">Saved</span>
+                      ) : null}
+                    </div>
+                    {gptId && (
+                      <Button
+                        color="secondary"
+                        variant="flat"
+                        onPress={() => setIsVersionHistoryOpen(true)}
+                        className={cn(ds.animation.buttonPress)}
+                      >
+                        Version History
+                      </Button>
+                    )}
                     <div className="mb-4">
                       <h3 className={cn(ds.text.heading.h4, 'mb-2')}>Knowledge Files</h3>
                       <div className="space-y-2">
@@ -987,6 +1035,24 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
             </div>
           )}
         </>
+      )}
+
+      {gptId && (
+        <VersionHistoryPanel
+          gptId={gptId}
+          isOpen={isVersionHistoryOpen}
+          onClose={() => setIsVersionHistoryOpen(false)}
+          onRestore={version => {
+            restoreVersion(version.id)
+              .then(restored => {
+                if (restored) {
+                  setGpt(restored)
+                }
+                setIsVersionHistoryOpen(false)
+              })
+              .catch(() => {})
+          }}
+        />
       )}
     </div>
   )

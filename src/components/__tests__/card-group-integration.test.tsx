@@ -129,6 +129,8 @@ const mockGPTs: GPTConfiguration[] = [
     version: 1,
     tags: [],
     isArchived: false,
+    folderId: null,
+    archivedAt: null,
   },
   {
     id: 'test-gpt-2',
@@ -153,6 +155,8 @@ const mockGPTs: GPTConfiguration[] = [
     version: 1,
     tags: [],
     isArchived: false,
+    folderId: null,
+    archivedAt: null,
   },
 ]
 

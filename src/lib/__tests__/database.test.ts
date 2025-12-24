@@ -31,6 +31,8 @@ describe('GPTDatabase', () => {
     it('should have all required tables', () => {
       expect(db.tables.map(t => t.name).sort()).toEqual([
         'conversations',
+        'folders',
+        'gptVersions',
         'gpts',
         'knowledgeFiles',
         'messages',
@@ -39,8 +41,8 @@ describe('GPTDatabase', () => {
       ])
     })
 
-    it('should be at version 1', () => {
-      expect(db.verno).toBe(1)
+    it('should be at version 2', () => {
+      expect(db.verno).toBe(2)
     })
   })
 
@@ -74,6 +76,8 @@ describe('GPTDatabase', () => {
       version: 1,
       tags: ['test', 'example'],
       isArchived: false,
+      folderId: null,
+      archivedAtISO: null,
     }
 
     it('should add and retrieve a GPT', async () => {

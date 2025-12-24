@@ -32,6 +32,8 @@ function createTestGPT(overrides: Partial<GPTConfiguration> = {}): GPTConfigurat
     version: 1,
     tags: [],
     isArchived: false,
+    folderId: null,
+    archivedAt: null,
     ...overrides,
   }
 }

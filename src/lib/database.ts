@@ -73,6 +73,8 @@ export interface GPTConfigurationDB {
   version: number
   tags: string[]
   isArchived: boolean
+  folderId: string | null
+  archivedAtISO: string | null
 }
 
 export interface ConversationDB {
@@ -134,6 +136,23 @@ export interface UserSettingDB {
   value: unknown
 }
 
+export interface GPTVersionDB {
+  id: string
+  gptId: string
+  version: number
+  snapshot: string
+  createdAtISO: string
+  changeDescription?: string
+}
+
+export interface GPTFolderDB {
+  id: string
+  name: string
+  parentId: string | null
+  order: number
+  createdAtISO: string
+}
+
 /**
  * GPT Platform database. Schema v1 (RFC-001).
  * Tables: gpts, conversations, messages, knowledgeFiles, secrets, settings
@@ -145,6 +164,8 @@ export class GPTDatabase extends Dexie {
   knowledgeFiles!: Table<KnowledgeFileDB>
   secrets!: Table<EncryptedSecretDB>
   settings!: Table<UserSettingDB>
+  gptVersions!: Table<GPTVersionDB>
+  folders!: Table<GPTFolderDB>
 
   constructor() {
     super('gpt-platform')
@@ -157,6 +178,27 @@ export class GPTDatabase extends Dexie {
       secrets: 'id, provider',
       settings: 'key',
     })
+
+    this.version(2)
+      .stores({
+        gpts: 'id, name, createdAtISO, updatedAtISO, *tags, isArchived, folderId, archivedAtISO',
+        conversations: 'id, gptId, updatedAtISO, *tags',
+        messages: 'id, conversationId, timestampISO',
+        knowledgeFiles: 'id, gptId, name, mimeType',
+        secrets: 'id, provider',
+        settings: 'key',
+        gptVersions: 'id, gptId, version, createdAtISO',
+        folders: 'id, parentId, name, order',
+      })
+      .upgrade(async tx => {
+        return tx
+          .table('gpts')
+          .toCollection()
+          .modify(gpt => {
+            if (gpt.folderId === undefined) gpt.folderId = null
+            if (gpt.archivedAtISO === undefined) gpt.archivedAtISO = null
+          })
+      })
   }
 }
 

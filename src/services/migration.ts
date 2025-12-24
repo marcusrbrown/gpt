@@ -128,6 +128,8 @@ function transformGPTForDB(raw: RawGPTData): GPTConfigurationDB {
     version: raw.version ?? 1,
     tags: raw.tags ?? [],
     isArchived: raw.isArchived ?? false,
+    folderId: null,
+    archivedAtISO: null,
   }
 }
 

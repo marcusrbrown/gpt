@@ -95,6 +95,8 @@ describe('userGPTCard', () => {
     version: 1,
     tags: [],
     isArchived: false,
+    folderId: null,
+    archivedAt: null,
   }
 
   const defaultProps: UserGPTCardProps = {
