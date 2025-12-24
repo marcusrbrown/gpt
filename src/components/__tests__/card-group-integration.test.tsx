@@ -231,62 +231,17 @@ describe('cardGroup Integration Tests', () => {
 
       // Verify empty state styling - enhanced with gradient and larger padding
       const emptyState = screen.getByText("You haven't created any GPTs yet.").closest('div')
-      expect(emptyState).toHaveClass('rounded-xl', 'p-12', 'text-center', 'border-2', 'shadow-sm')
-      // Verify gradient background classes
-      expect(emptyState?.className).toContain('bg-linear-to-br')
-      expect(emptyState?.className).toContain('from-primary-50')
-      expect(emptyState?.className).toContain('to-primary-100')
+      expect(emptyState).toHaveClass(
+        'rounded-xl',
+        'p-12',
+        'text-center',
+        'border',
+        'border-border-default',
+        'bg-surface-secondary',
+      )
 
       // Verify create button is present
       expect(screen.getByText('Create Your First GPT')).toBeInTheDocument()
-    })
-
-    it('still shows example GPTs section when user has no GPTs', async () => {
-      mockGetAllGPTs.mockResolvedValue([])
-
-      renderCardGroup()
-
-      await waitFor(() => {
-        expect(screen.getByText('Example GPTs')).toBeInTheDocument()
-      })
-
-      // Verify example cards are still rendered
-      const exampleCards = screen.getAllByTestId('example-gpt-card')
-      expect(exampleCards).toHaveLength(2)
-    })
-  })
-
-  describe('example GPTs Integration', () => {
-    it('renders Card components for example GPTs from mine.json', async () => {
-      mockGetAllGPTs.mockResolvedValue([])
-
-      renderCardGroup()
-
-      await waitFor(() => {
-        expect(screen.getByText('Example GPTs')).toBeInTheDocument()
-      })
-
-      // Verify example GPT cards are rendered
-      const exampleCards = screen.getAllByTestId('example-gpt-card')
-      expect(exampleCards).toHaveLength(2)
-
-      // Verify example GPT content
-      expect(screen.getByText('Example GPT 1')).toBeInTheDocument()
-      expect(screen.getByText('Example GPT 2')).toBeInTheDocument()
-      expect(screen.getByText('Test example GPT')).toBeInTheDocument()
-      expect(screen.getByText('Another test example GPT')).toBeInTheDocument()
-    })
-
-    it('applies responsive grid layout to example GPT cards', async () => {
-      mockGetAllGPTs.mockResolvedValue([])
-
-      renderCardGroup()
-
-      await waitFor(() => {
-        const gridContainer = screen.getByText('Example GPT 1').closest('.grid-cols-1')
-        expect(gridContainer).toBeInTheDocument()
-        expect(gridContainer).toHaveClass('md:grid-cols-2', 'lg:grid-cols-3', 'gap-6')
-      })
     })
   })
 
@@ -298,15 +253,11 @@ describe('cardGroup Integration Tests', () => {
 
       await waitFor(() => {
         // The text "Create" appears in multiple places, so be more specific
-        expect(screen.getByText('Create New GPT')).toBeInTheDocument()
         expect(screen.getByText('Create Your First GPT')).toBeInTheDocument()
       })
 
-      // Verify both create buttons link to /gpt/new
-      const headerButton = screen.getByText('Create New GPT').closest('a')
       const emptyStateButton = screen.getByText('Create Your First GPT').closest('a')
 
-      expect(headerButton).toHaveAttribute('href', '/gpt/new')
       expect(emptyStateButton).toHaveAttribute('href', '/gpt/new')
     })
   })
@@ -324,7 +275,6 @@ describe('cardGroup Integration Tests', () => {
 
       // Verify section structure
       expect(screen.getByText('Your GPTs')).toHaveClass('text-xl sm:text-2xl lg:text-3xl font-semibold')
-      expect(screen.getByText('Example GPTs')).toHaveClass('text-xl sm:text-2xl lg:text-3xl font-semibold')
     })
 
     it('maintains proper hierarchy with both user and example sections', async () => {
@@ -333,14 +283,10 @@ describe('cardGroup Integration Tests', () => {
       renderCardGroup()
 
       await waitFor(() => {
-        // Verify both sections are present
         expect(screen.getByText('Your GPTs')).toBeInTheDocument()
-        expect(screen.getByText('Example GPTs')).toBeInTheDocument()
 
-        // Verify user GPTs appear before example GPTs
         const sections = screen.getAllByRole('heading', {level: 2})
         expect(sections[0]).toHaveTextContent('Your GPTs')
-        expect(sections[1]).toHaveTextContent('Example GPTs')
       })
     })
   })
@@ -365,7 +311,6 @@ describe('cardGroup Integration Tests', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Your GPTs')).toBeInTheDocument()
-        expect(screen.getByText('Example GPTs')).toBeInTheDocument()
       })
     })
   })

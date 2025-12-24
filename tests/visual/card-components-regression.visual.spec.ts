@@ -486,7 +486,7 @@ visualTest.describe('Card Components - Visual Regression Tests', () => {
         `)
 
         await page.waitForLoadState('networkidle')
-        const card = page.locator('[data-testid="example-gpt-card"]').first()
+        const card = page.locator('[data-testid="example-gpt-card"], [data-testid="user-gpt-card"]').first()
         await visualHelper.takeComponentScreenshot(card, 'generic-card-with-avatar')
       },
     )
@@ -532,7 +532,7 @@ visualTest.describe('Card Components - Visual Regression Tests', () => {
         `)
 
         await page.waitForLoadState('networkidle')
-        const card = page.locator('[data-testid="example-gpt-card"]').first()
+        const card = page.locator('[data-testid="example-gpt-card"], [data-testid="user-gpt-card"]').first()
 
         // Test hover state
         await card.hover()

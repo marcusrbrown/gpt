@@ -20,9 +20,9 @@ test.describe('Card Components Responsive Behavior', () => {
       await expect(homePage.yourGPTsSection).toBeVisible()
       await expect(homePage.createNewGPTButton).toBeVisible()
 
-      const exampleCardCount = await homePage.getExampleGPTCount()
-      if (exampleCardCount > 0) {
-        const firstCard = homePage.exampleGPTCards.first()
+      const userCardCount = await homePage.getUserGPTCount()
+      if (userCardCount > 0) {
+        const firstCard = homePage.userGPTCards.first()
         await expect(firstCard).toBeVisible()
 
         const cardBox = await firstCard.boundingBox()
@@ -48,9 +48,9 @@ test.describe('Card Components Responsive Behavior', () => {
     for (const {width, minColumns} of gridTests) {
       await homePage.setViewportSize({width, height: 900})
 
-      const cardCount = await homePage.getExampleGPTCount()
+      const cardCount = await homePage.getUserGPTCount()
       if (cardCount >= minColumns) {
-        const cards = homePage.exampleGPTCards
+        const cards = homePage.userGPTCards
         const cardBoxes = []
 
         for (let i = 0; i < Math.min(minColumns, cardCount); i++) {
@@ -71,9 +71,9 @@ test.describe('Card Components Responsive Behavior', () => {
   test('should maintain touch targets on mobile', async ({homePage}) => {
     await homePage.setViewportSize({width: 375, height: 667})
 
-    const cardCount = await homePage.getExampleGPTCount()
+    const cardCount = await homePage.getUserGPTCount()
     if (cardCount > 0) {
-      const firstCard = homePage.exampleGPTCards.first()
+      const firstCard = homePage.userGPTCards.first()
       const interactiveElements = await firstCard.locator('button, a, [role="button"]').all()
 
       for (const element of interactiveElements) {
