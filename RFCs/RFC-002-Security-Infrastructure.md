@@ -1,6 +1,10 @@
 # RFC-002: Security Infrastructure
 
-**Status:** Pending **Priority:** MUST HAVE **Complexity:** High **Phase:** 1 **Created:** December 20, 2025
+**Status:** Pending
+**Priority:** MUST HAVE
+**Complexity:** High
+**Phase:** 1
+**Created:** December 20, 2025
 
 ---
 

@@ -1,6 +1,9 @@
 # RFC-004: GPT Configuration Management Completion
 
-**Status:** Draft **Priority:** MUST HAVE (Phase 1) **Complexity:** Medium **Estimated Effort:** 1-2 weeks
+**Status:** Draft
+**Priority:** MUST HAVE (Phase 1)
+**Complexity:** Medium
+**Estimated Effort:** 1-2 weeks
 
 ---
 
