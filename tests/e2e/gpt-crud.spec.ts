@@ -27,9 +27,13 @@ test.describe('GPT CRUD Operations', () => {
     await homePage.navigate()
     await homePage.waitForGPTCards()
 
-    const editLink = page.locator(`a[href^="/gpt/edit/"]`).first()
-    await expect(editLink).toBeVisible()
-    await editLink.click()
+    const gptCard = page.locator('[data-testid="user-gpt-card"]').filter({hasText: testGPT.name})
+    const menuButton = gptCard.locator('[aria-label="GPT actions"]')
+    await menuButton.click()
+
+    const editOption = page.locator('[data-testid="edit-gpt"]')
+    await expect(editOption).toBeVisible()
+    await editOption.click()
 
     await page.waitForURL(/\/gpt\/edit\//)
     expect(await gptEditorPage.isLoaded()).toBe(true)

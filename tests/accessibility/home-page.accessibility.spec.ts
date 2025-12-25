@@ -32,8 +32,8 @@ test.describe('Home Page Accessibility', () => {
       const mainLandmark = page.locator('main, [role="main"]')
       await expect(mainLandmark).toBeVisible()
 
-      // Verify navigation landmark exists
-      const navLandmark = page.locator('nav, [role="navigation"]')
+      // Verify navigation landmark exists (at least one)
+      const navLandmark = page.locator('nav, [role="navigation"]').first()
       await expect(navLandmark).toBeVisible()
 
       // Check for proper heading structure
@@ -48,7 +48,7 @@ test.describe('Home Page Accessibility', () => {
     await accessibilityTest.expectScreenReaderCompatible(
       page,
       'body',
-      4, // Expected landmarks: header, nav, main, footer
+      6, // Expected landmarks: header, nav (main), nav (sidebar), main, aside (sidebar), footer
     )
   })
 

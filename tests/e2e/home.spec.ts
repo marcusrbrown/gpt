@@ -9,8 +9,8 @@ test.describe('Home Page Navigation', () => {
     // Verify page is loaded
     await expect(homePage.pageTitle).toBeVisible()
 
-    // Verify main sections are present
-    await expect(homePage.yourGPTsSection).toBeVisible()
+    // Verify GPT library section is present
+    await expect(homePage.gptLibrary).toBeVisible()
 
     // Verify create button is visible
     await expect(homePage.createNewGPTButton).toBeVisible()

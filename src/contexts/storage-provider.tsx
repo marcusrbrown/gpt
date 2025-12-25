@@ -1,6 +1,9 @@
 import type {Conversation, GPTConfiguration} from '@/types/gpt'
+import type {DeleteResult, FolderTreeNode, GPTFolder, GPTVersion} from '@/types/gpt-extensions'
+import {FolderService} from '@/services/folder-service'
 import {migrateFromLocalStorage, needsMigration} from '@/services/migration'
 import {IndexedDBStorageService, type StorageWarning} from '@/services/storage'
+import {VersionHistoryService} from '@/services/version-history'
 import {useCallback, useEffect, useRef, useState, type ReactNode} from 'react'
 import {StorageContext} from './storage-context'
 
@@ -10,6 +13,8 @@ interface StorageProviderProps {
 
 export function StorageProvider({children}: StorageProviderProps) {
   const storageServiceRef = useRef<IndexedDBStorageService | null>(null)
+  const versionHistoryRef = useRef<VersionHistoryService | null>(null)
+  const folderServiceRef = useRef<FolderService | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isMigrating, setIsMigrating] = useState(false)
   const [error, setError] = useState<Error | null>(null)
@@ -24,6 +29,8 @@ export function StorageProvider({children}: StorageProviderProps) {
 
         const service = new IndexedDBStorageService()
         storageServiceRef.current = service
+        versionHistoryRef.current = new VersionHistoryService()
+        folderServiceRef.current = new FolderService()
 
         if (needsMigration()) {
           setIsMigrating(true)
@@ -181,15 +188,108 @@ export function StorageProvider({children}: StorageProviderProps) {
     }
   }, [])
 
+  const archiveGPT = useCallback(async (id: string): Promise<void> => {
+    if (!storageServiceRef.current) throw new Error('Storage not initialized')
+    await storageServiceRef.current.archiveGPT(id)
+    setVersion(v => v + 1)
+  }, [])
+
+  const restoreGPT = useCallback(async (id: string): Promise<void> => {
+    if (!storageServiceRef.current) throw new Error('Storage not initialized')
+    await storageServiceRef.current.restoreGPT(id)
+    setVersion(v => v + 1)
+  }, [])
+
+  const getArchivedGPTs = useCallback(async (): Promise<GPTConfiguration[]> => {
+    if (!storageServiceRef.current) return []
+    return storageServiceRef.current.getArchivedGPTs()
+  }, [])
+
+  const duplicateGPT = useCallback(async (id: string, newName?: string): Promise<GPTConfiguration> => {
+    if (!storageServiceRef.current) throw new Error('Storage not initialized')
+    const duplicate = await storageServiceRef.current.duplicateGPT(id, newName)
+    setVersion(v => v + 1)
+    return duplicate
+  }, [])
+
+  const deleteGPTPermanently = useCallback(async (id: string): Promise<DeleteResult> => {
+    if (!storageServiceRef.current) throw new Error('Storage not initialized')
+    const result = await storageServiceRef.current.deleteGPTPermanently(id)
+    setVersion(v => v + 1)
+    return result
+  }, [])
+
+  const createVersion = useCallback(async (gptId: string, changeDescription?: string): Promise<GPTVersion> => {
+    if (!versionHistoryRef.current) throw new Error('Version history not initialized')
+    return versionHistoryRef.current.createVersion(gptId, changeDescription)
+  }, [])
+
+  const getVersions = useCallback(async (gptId: string): Promise<GPTVersion[]> => {
+    if (!versionHistoryRef.current) return []
+    return versionHistoryRef.current.getVersions(gptId)
+  }, [])
+
+  const restoreVersion = useCallback(async (versionId: string): Promise<GPTConfiguration> => {
+    if (!versionHistoryRef.current) throw new Error('Version history not initialized')
+    const restored = await versionHistoryRef.current.restoreVersion(versionId)
+    setVersion(v => v + 1)
+    return restored
+  }, [])
+
+  const createFolder = useCallback(async (name: string, parentId?: string | null): Promise<GPTFolder> => {
+    if (!folderServiceRef.current) throw new Error('Folder service not initialized')
+    const folder = await folderServiceRef.current.createFolder(name, parentId ?? null)
+    setVersion(v => v + 1)
+    return folder
+  }, [])
+
+  const renameFolder = useCallback(async (id: string, name: string): Promise<void> => {
+    if (!folderServiceRef.current) throw new Error('Folder service not initialized')
+    await folderServiceRef.current.renameFolder(id, name)
+    setVersion(v => v + 1)
+  }, [])
+
+  const deleteFolder = useCallback(async (id: string): Promise<void> => {
+    if (!folderServiceRef.current) throw new Error('Folder service not initialized')
+    await folderServiceRef.current.deleteFolder(id)
+    setVersion(v => v + 1)
+  }, [])
+
+  const getFolderTree = useCallback(async (): Promise<FolderTreeNode[]> => {
+    if (!folderServiceRef.current) return []
+    return folderServiceRef.current.getFolderTree()
+  }, [])
+
+  const moveGPTToFolder = useCallback(async (gptId: string, folderId: string | null): Promise<void> => {
+    if (!storageServiceRef.current) throw new Error('Storage not initialized')
+    const gpt = await storageServiceRef.current.getGPT(gptId)
+    if (!gpt) throw new Error(`GPT ${gptId} not found`)
+    await storageServiceRef.current.saveGPT({...gpt, folderId, updatedAt: new Date()})
+    setVersion(v => v + 1)
+  }, [])
+
   const value = {
     getGPT,
     getAllGPTs,
     saveGPT,
     deleteGPT,
+    archiveGPT,
+    restoreGPT,
+    getArchivedGPTs,
+    duplicateGPT,
+    deleteGPTPermanently,
     getConversation,
     getConversationsForGPT,
     saveConversation,
     deleteConversation,
+    createVersion,
+    getVersions,
+    restoreVersion,
+    createFolder,
+    renameFolder,
+    deleteFolder,
+    getFolderTree,
+    moveGPTToFolder,
     clearAll,
     getStorageUsage,
     isLoading,

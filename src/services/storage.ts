@@ -1,4 +1,5 @@
 import type {Conversation, GPTConfiguration} from '@/types/gpt'
+import type {DeleteResult} from '@/types/gpt-extensions'
 import {
   db,
   fromISOString,
@@ -158,6 +159,8 @@ export class IndexedDBStorageService {
       version: gpt.version,
       tags: gpt.tags ?? [],
       isArchived: gpt.isArchived ?? false,
+      folderId: gpt.folderId ?? null,
+      archivedAtISO: gpt.archivedAt ? toISOString(new Date(gpt.archivedAt)) : null,
     }
   }
 
@@ -200,6 +203,8 @@ export class IndexedDBStorageService {
       version: record.version,
       tags: record.tags,
       isArchived: record.isArchived,
+      folderId: record.folderId ?? null,
+      archivedAt: record.archivedAtISO ?? null,
     }
   }
 
@@ -494,6 +499,125 @@ export class IndexedDBStorageService {
       clearTimeout(timer)
     }
     this.debounceTimers.clear()
+  }
+
+  async archiveGPT(id: string): Promise<void> {
+    try {
+      const gpt = await this.getGPT(id)
+      if (!gpt) {
+        throw new StorageError(`GPT ${id} not found`)
+      }
+
+      const archivedAt = new Date().toISOString()
+      await db.gpts.update(id, {
+        isArchived: true,
+        archivedAtISO: archivedAt,
+        updatedAtISO: nowISO(),
+      })
+
+      this.gptsCache.delete(id)
+      this.notifyChange('gpts', id, 'update')
+      this.notifyChangeCallbacks()
+    } catch (error_) {
+      if (error_ instanceof StorageError) throw error_
+      throw new StorageError(`Failed to archive GPT ${id}`, error_)
+    }
+  }
+
+  async restoreGPT(id: string): Promise<void> {
+    try {
+      const record = await db.gpts.get(id)
+      if (!record) {
+        throw new StorageError(`GPT ${id} not found`)
+      }
+
+      await db.gpts.update(id, {
+        isArchived: false,
+        archivedAtISO: null,
+        updatedAtISO: nowISO(),
+      })
+
+      this.gptsCache.delete(id)
+      this.notifyChange('gpts', id, 'update')
+      this.notifyChangeCallbacks()
+    } catch (error_) {
+      if (error_ instanceof StorageError) throw error_
+      throw new StorageError(`Failed to restore GPT ${id}`, error_)
+    }
+  }
+
+  async getArchivedGPTs(): Promise<GPTConfiguration[]> {
+    try {
+      const records = await db.gpts.filter(gpt => gpt.isArchived === true).toArray()
+      return records.map(record => this.dbToGPT(record))
+    } catch (error_) {
+      throw new StorageError('Failed to get archived GPTs', error_)
+    }
+  }
+
+  async duplicateGPT(id: string, newName?: string): Promise<GPTConfiguration> {
+    try {
+      const original = await this.getGPT(id)
+      if (!original) {
+        throw new StorageError(`GPT ${id} not found`)
+      }
+
+      const now = new Date()
+      const duplicate: GPTConfiguration = {
+        ...original,
+        id: crypto.randomUUID(),
+        name: newName ?? `${original.name} (Copy)`,
+        createdAt: now,
+        updatedAt: now,
+        version: 1,
+        isArchived: false,
+        archivedAt: null,
+      }
+
+      await this.saveGPT(duplicate)
+      return duplicate
+    } catch (error_) {
+      if (error_ instanceof StorageError) throw error_
+      throw new StorageError(`Failed to duplicate GPT ${id}`, error_)
+    }
+  }
+
+  async deleteGPTPermanently(id: string): Promise<DeleteResult> {
+    try {
+      const result: DeleteResult = {
+        deletedConversations: 0,
+        deletedMessages: 0,
+        deletedKnowledge: 0,
+        deletedVersions: 0,
+      }
+
+      await db.transaction(
+        'rw',
+        [db.gpts, db.conversations, db.messages, db.gptVersions, db.knowledgeFiles],
+        async () => {
+          const conversations = await db.conversations.where('gptId').equals(id).toArray()
+          result.deletedConversations = conversations.length
+
+          for (const conv of conversations) {
+            result.deletedMessages += await db.messages.where('conversationId').equals(conv.id).delete()
+          }
+          await db.conversations.where('gptId').equals(id).delete()
+
+          result.deletedKnowledge = await db.knowledgeFiles.where('gptId').equals(id).delete()
+          result.deletedVersions = await db.gptVersions.where('gptId').equals(id).delete()
+
+          await db.gpts.delete(id)
+        },
+      )
+
+      this.gptsCache.delete(id)
+      this.notifyChange('gpts', id, 'delete')
+      this.notifyChangeCallbacks()
+
+      return result
+    } catch (error_) {
+      throw new StorageError(`Failed to permanently delete GPT ${id}`, error_)
+    }
   }
 }
 

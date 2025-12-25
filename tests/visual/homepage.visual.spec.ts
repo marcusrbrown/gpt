@@ -66,7 +66,7 @@ visualTest.describe('Home Page Visual Tests', () => {
   visualTest(
     'navbar component visual test',
     async ({page, visualHelper}: {page: Page; visualHelper: VisualTestHelper}) => {
-      const navbar = page.locator('nav')
+      const navbar = page.locator('nav[aria-label="Main navigation"]')
       await visualHelper.takeComponentScreenshot(navbar, 'navbar')
     },
   )
@@ -95,6 +95,7 @@ visualTest.describe('Home Page Visual Tests', () => {
 
   visualTest('create new GPT button', async ({page, visualHelper}) => {
     await page.goto('/')
-    await visualHelper.takeComponentScreenshot(page.locator('a[href="/gpt/new"]').first(), 'create-new-gpt-button.png')
+    const newGptButton = page.locator('[data-testid="new-gpt-button"], [data-testid="create-first-gpt-button"]').first()
+    await visualHelper.takeComponentScreenshot(newGptButton, 'create-new-gpt-button.png')
   })
 })

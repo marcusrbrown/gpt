@@ -52,6 +52,8 @@ export function GPTEditorPage() {
             version: 1,
             tags: [],
             isArchived: false,
+            folderId: null,
+            archivedAt: null,
           }
           queueMicrotask(() => setGptConfig(defaultGpt))
         }
@@ -79,6 +81,8 @@ export function GPTEditorPage() {
           version: 1,
           tags: [],
           isArchived: false,
+          folderId: null,
+          archivedAt: null,
         }
         queueMicrotask(() => setGptConfig(newGpt))
       }

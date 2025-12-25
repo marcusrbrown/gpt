@@ -9,7 +9,7 @@ export class HomePage extends BasePage {
   // Page elements
   readonly pageTitle: Locator
   readonly createNewGPTButton: Locator
-  readonly yourGPTsSection: Locator
+  readonly gptLibrary: Locator
   readonly emptyStateMessage: Locator
   readonly userGPTCards: Locator
 
@@ -18,9 +18,11 @@ export class HomePage extends BasePage {
 
     // Initialize locators based on actual HTML structure
     this.pageTitle = page.locator('h1').filter({hasText: 'Custom GPTs'})
-    this.createNewGPTButton = page.locator('a[href="/gpt/new"]').first()
-    this.yourGPTsSection = page.locator('h2').filter({hasText: 'Your GPTs'}).locator('..')
-    this.emptyStateMessage = page.locator('p').filter({hasText: "You haven't created any GPTs yet."})
+    this.createNewGPTButton = page
+      .locator('[data-testid="new-gpt-button"], [data-testid="create-first-gpt-button"]')
+      .first()
+    this.gptLibrary = page.locator('[data-testid="gpt-library"]')
+    this.emptyStateMessage = page.locator('[data-testid="gpt-empty-message"]')
 
     // User GPT cards with test IDs
     this.userGPTCards = page.locator('[data-testid="user-gpt-card"]')
@@ -98,10 +100,13 @@ export class HomePage extends BasePage {
     // Wait for the page to be in a stable state
     // Try to wait for either user cards or empty state, with timeout handling
     try {
-      await this.page.waitForSelector('[data-testid="user-gpt-card"], .empty-state, [data-testid="gpt-list"]', {
-        timeout: 5000,
-        state: 'visible',
-      })
+      await this.page.waitForSelector(
+        '[data-testid="user-gpt-card"], [data-testid="gpt-empty-state"], [data-testid="gpt-list"]',
+        {
+          timeout: 5000,
+          state: 'visible',
+        },
+      )
     } catch {
       // If specific selectors fail, just wait for page to be loaded
       await this.waitForLoad()
