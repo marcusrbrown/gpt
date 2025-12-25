@@ -208,6 +208,31 @@ Each RFC completion requires:
 
 ---
 
+## RFC Documents
+
+### Phase 1: Foundation & Core
+
+- [RFC-001: IndexedDB Storage Foundation](./RFC-001-IndexedDB-Storage-Foundation.md)
+- [RFC-002: Security Infrastructure](./RFC-002-Security-Infrastructure.md)
+- [RFC-003: Provider Abstraction Layer](./RFC-003-Provider-Abstraction-Layer.md)
+- [RFC-004: GPT Configuration Management](./RFC-004-GPT-Configuration-Management.md)
+- [RFC-005: Conversation Management](./RFC-005-Conversation-Management.md)
+
+### Phase 2: Enhanced Features
+
+- [RFC-006: Knowledge Base Enhancement](./RFC-006-Knowledge-Base-Enhancement.md)
+- [RFC-007: Export/Import System](./RFC-007-Export-Import-System.md)
+- [RFC-008: Anthropic Provider Integration](./RFC-008-Anthropic-Provider-Integration.md)
+- [RFC-009: MCP Tool Integration](./RFC-009-MCP-Tool-Integration.md)
+
+### Phase 3-4: Advanced Capabilities
+
+- [RFC-010: Ollama Local Models](./RFC-010-Ollama-Local-Models.md)
+- [RFC-011: Advanced Tools & Sandbox](./RFC-011-Advanced-Tools-Sandbox.md)
+- [RFC-012: Tauri Desktop Application](./RFC-012-Tauri-Desktop-Application.md)
+
+---
+
 ## Related Documents
 
 - [PRD v2.0](../docs/prd.md) - Full product requirements
