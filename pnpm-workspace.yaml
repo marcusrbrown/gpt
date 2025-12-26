@@ -2,6 +2,7 @@ autoInstallPeers: true
 
 onlyBuiltDependencies:
   - '@heroui/shared-utils'
+  - '@swc/core'
   - '@tailwindcss/oxide'
   - esbuild
   - simple-git-hooks
