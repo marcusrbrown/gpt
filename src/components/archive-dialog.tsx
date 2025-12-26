@@ -22,10 +22,20 @@ export function ArchiveDialog({gpt, mode, isOpen, onConfirm, onCancel, isLoading
   const confirmColor = isDelete ? 'danger' : 'warning'
 
   return (
-    <Modal isOpen={isOpen} onClose={onCancel} size="md">
+    <Modal
+      isOpen={isOpen}
+      onClose={onCancel}
+      size="md"
+      placement="center"
+      backdrop="opaque"
+      classNames={{
+        backdrop: 'bg-black/50',
+        base: 'border border-border-default shadow-xl',
+      }}
+    >
       <ModalContent>
-        <ModalHeader className="flex items-center gap-2">
-          <Icon className={cn('h-5 w-5', isDelete ? 'text-danger' : 'text-warning')} />
+        <ModalHeader className="flex items-center gap-2 pr-12">
+          <Icon className={cn('h-5 w-5 flex-shrink-0', isDelete ? 'text-danger' : 'text-warning')} />
           <span>{title}</span>
         </ModalHeader>
         <ModalBody>

@@ -159,6 +159,10 @@ function transformConversationForDB(raw: RawConversationData): {
       messageCount: messages.length,
       lastMessagePreview: lastMessage?.content?.slice(0, 100),
       tags: raw.tags ?? [],
+      isPinned: false,
+      isArchived: false,
+      pinnedAtISO: null,
+      archivedAtISO: null,
     },
     messages,
   }

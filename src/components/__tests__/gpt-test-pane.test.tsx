@@ -88,6 +88,13 @@ describe('gPTTestPane', () => {
     deleteFolder: vi.fn().mockResolvedValue(undefined),
     getFolderTree: vi.fn().mockResolvedValue([]),
     moveGPTToFolder: vi.fn().mockResolvedValue(undefined),
+    pinConversation: vi.fn().mockResolvedValue(undefined),
+    archiveConversation: vi.fn().mockResolvedValue(undefined),
+    updateConversationTitle: vi.fn().mockResolvedValue(undefined),
+    bulkPinConversations: vi.fn().mockResolvedValue(undefined),
+    bulkArchiveConversations: vi.fn().mockResolvedValue(undefined),
+    bulkDeleteConversations: vi.fn().mockResolvedValue(undefined),
+    getConversations: vi.fn().mockResolvedValue([]),
   }
 
   const mockConfig = {

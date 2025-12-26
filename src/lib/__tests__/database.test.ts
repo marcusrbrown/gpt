@@ -41,8 +41,8 @@ describe('GPTDatabase', () => {
       ])
     })
 
-    it('should be at version 2', () => {
-      expect(db.verno).toBe(2)
+    it('should be at version 3', () => {
+      expect(db.verno).toBe(3)
     })
   })
 
@@ -126,6 +126,10 @@ describe('GPTDatabase', () => {
       messageCount: 0,
       lastMessagePreview: '',
       tags: [],
+      isPinned: false,
+      isArchived: false,
+      pinnedAtISO: null,
+      archivedAtISO: null,
     }
 
     it('should add and retrieve a conversation', async () => {

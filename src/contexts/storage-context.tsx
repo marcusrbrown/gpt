@@ -1,4 +1,4 @@
-import type {StorageEstimate, StorageWarning} from '@/services/storage'
+import type {GetConversationsOptions, StorageEstimate, StorageWarning} from '@/services/storage'
 import type {Conversation, GPTConfiguration} from '@/types/gpt'
 import type {DeleteResult, FolderTreeNode, GPTFolder, GPTVersion} from '@/types/gpt-extensions'
 import {createContext} from 'react'
@@ -17,6 +17,13 @@ export interface StorageContextType {
   getConversationsForGPT: (gptId: string) => Promise<Conversation[]>
   saveConversation: (conversation: Conversation) => Promise<void>
   deleteConversation: (id: string) => Promise<void>
+  pinConversation: (id: string, pinned: boolean) => Promise<void>
+  archiveConversation: (id: string, archived: boolean) => Promise<void>
+  updateConversationTitle: (id: string, title: string) => Promise<void>
+  bulkPinConversations: (ids: string[], pinned: boolean) => Promise<void>
+  bulkArchiveConversations: (ids: string[], archived: boolean) => Promise<void>
+  bulkDeleteConversations: (ids: string[]) => Promise<void>
+  getConversations: (options?: GetConversationsOptions) => Promise<Conversation[]>
   createVersion: (gptId: string, changeDescription?: string) => Promise<GPTVersion>
   getVersions: (gptId: string) => Promise<GPTVersion[]>
   restoreVersion: (versionId: string) => Promise<GPTConfiguration>
