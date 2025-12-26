@@ -2,9 +2,9 @@ import type {Conversation, GPTConfiguration} from '@/types/gpt'
 import type {DeleteResult, FolderTreeNode, GPTFolder, GPTVersion} from '@/types/gpt-extensions'
 import {FolderService} from '@/services/folder-service'
 import {migrateFromLocalStorage, needsMigration} from '@/services/migration'
-import {IndexedDBStorageService, type StorageWarning} from '@/services/storage'
+import {IndexedDBStorageService, type GetConversationsOptions, type StorageWarning} from '@/services/storage'
 import {VersionHistoryService} from '@/services/version-history'
-import {useCallback, useEffect, useRef, useState, type ReactNode} from 'react'
+import {useCallback, useEffect, useMemo, useRef, useState, type ReactNode} from 'react'
 import {StorageContext} from './storage-context'
 
 interface StorageProviderProps {
@@ -48,13 +48,13 @@ export function StorageProvider({children}: StorageProviderProps) {
         const usage = await service.getStorageEstimate()
         if (usage.percentUsed >= 90) {
           setStorageWarning({
-            type: 'quota_critical',
+            type: 'critical_limit',
             message: `Storage is ${usage.percentUsed.toFixed(0)}% full. Consider deleting unused data.`,
             percentUsed: usage.percentUsed,
           })
         } else if (usage.percentUsed >= 80) {
           setStorageWarning({
-            type: 'quota_warning',
+            type: 'approaching_limit',
             message: `Storage is ${usage.percentUsed.toFixed(0)}% full.`,
             percentUsed: usage.percentUsed,
           })
@@ -268,35 +268,121 @@ export function StorageProvider({children}: StorageProviderProps) {
     setVersion(v => v + 1)
   }, [])
 
-  const value = {
-    getGPT,
-    getAllGPTs,
-    saveGPT,
-    deleteGPT,
-    archiveGPT,
-    restoreGPT,
-    getArchivedGPTs,
-    duplicateGPT,
-    deleteGPTPermanently,
-    getConversation,
-    getConversationsForGPT,
-    saveConversation,
-    deleteConversation,
-    createVersion,
-    getVersions,
-    restoreVersion,
-    createFolder,
-    renameFolder,
-    deleteFolder,
-    getFolderTree,
-    moveGPTToFolder,
-    clearAll,
-    getStorageUsage,
-    isLoading,
-    isMigrating,
-    error,
-    storageWarning,
-  }
+  const pinConversation = useCallback(async (id: string, pinned: boolean): Promise<void> => {
+    if (!storageServiceRef.current) throw new Error('Storage not initialized')
+    await storageServiceRef.current.pinConversation(id, pinned)
+    setVersion(v => v + 1)
+  }, [])
+
+  const archiveConversation = useCallback(async (id: string, archived: boolean): Promise<void> => {
+    if (!storageServiceRef.current) throw new Error('Storage not initialized')
+    await storageServiceRef.current.archiveConversation(id, archived)
+    setVersion(v => v + 1)
+  }, [])
+
+  const updateConversationTitle = useCallback(async (id: string, title: string): Promise<void> => {
+    if (!storageServiceRef.current) throw new Error('Storage not initialized')
+    await storageServiceRef.current.updateConversationTitle(id, title)
+    setVersion(v => v + 1)
+  }, [])
+
+  const bulkPinConversations = useCallback(async (ids: string[], pinned: boolean): Promise<void> => {
+    if (!storageServiceRef.current) throw new Error('Storage not initialized')
+    await storageServiceRef.current.bulkPinConversations(ids, pinned)
+    setVersion(v => v + 1)
+  }, [])
+
+  const bulkArchiveConversations = useCallback(async (ids: string[], archived: boolean): Promise<void> => {
+    if (!storageServiceRef.current) throw new Error('Storage not initialized')
+    await storageServiceRef.current.bulkArchiveConversations(ids, archived)
+    setVersion(v => v + 1)
+  }, [])
+
+  const bulkDeleteConversations = useCallback(async (ids: string[]): Promise<void> => {
+    if (!storageServiceRef.current) throw new Error('Storage not initialized')
+    await storageServiceRef.current.bulkDeleteConversations(ids)
+    setVersion(v => v + 1)
+  }, [])
+
+  const getConversations = useCallback(async (options?: GetConversationsOptions): Promise<Conversation[]> => {
+    if (!storageServiceRef.current) return []
+    return storageServiceRef.current.getConversations(options)
+  }, [])
+
+  const value = useMemo(
+    () => ({
+      getGPT,
+      getAllGPTs,
+      saveGPT,
+      deleteGPT,
+      archiveGPT,
+      restoreGPT,
+      getArchivedGPTs,
+      duplicateGPT,
+      deleteGPTPermanently,
+      getConversation,
+      getConversationsForGPT,
+      saveConversation,
+      deleteConversation,
+      createVersion,
+      getVersions,
+      restoreVersion,
+      createFolder,
+      renameFolder,
+      deleteFolder,
+      getFolderTree,
+      moveGPTToFolder,
+      pinConversation,
+      archiveConversation,
+      updateConversationTitle,
+      bulkPinConversations,
+      bulkArchiveConversations,
+      bulkDeleteConversations,
+      getConversations,
+      clearAll,
+      getStorageUsage,
+      isLoading,
+      isMigrating,
+      error,
+      storageWarning,
+    }),
+    [
+      getGPT,
+      getAllGPTs,
+      saveGPT,
+      deleteGPT,
+      archiveGPT,
+      restoreGPT,
+      getArchivedGPTs,
+      duplicateGPT,
+      deleteGPTPermanently,
+      getConversation,
+      getConversationsForGPT,
+      saveConversation,
+      deleteConversation,
+      createVersion,
+      getVersions,
+      restoreVersion,
+      createFolder,
+      renameFolder,
+      deleteFolder,
+      getFolderTree,
+      moveGPTToFolder,
+      pinConversation,
+      archiveConversation,
+      updateConversationTitle,
+      bulkPinConversations,
+      bulkArchiveConversations,
+      bulkDeleteConversations,
+      getConversations,
+      clearAll,
+      getStorageUsage,
+      isLoading,
+      isMigrating,
+      error,
+      storageWarning,
+    ],
+  )
 
   return <StorageContext value={value}>{children}</StorageContext>
 }

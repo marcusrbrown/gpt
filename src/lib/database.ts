@@ -86,11 +86,23 @@ export interface ConversationDB {
   messageCount: number
   lastMessagePreview?: string
   tags: string[]
+  isPinned: boolean
+  isArchived: boolean
+  pinnedAtISO: string | null
+  archivedAtISO: string | null
 }
 
 export interface MessageMetadata {
   toolCallId?: string
   toolName?: string
+  toolCalls?: {
+    id: string
+    name: string
+    arguments: string
+    status: 'pending' | 'success' | 'error'
+    result?: string
+  }[]
+  isStreaming?: boolean
   attachments?: {
     fileId: string
     name: string
@@ -197,6 +209,30 @@ export class GPTDatabase extends Dexie {
           .modify(gpt => {
             if (gpt.folderId === undefined) gpt.folderId = null
             if (gpt.archivedAtISO === undefined) gpt.archivedAtISO = null
+          })
+      })
+
+    // RFC-005: Conversation Management - add pin/archive support
+    this.version(3)
+      .stores({
+        gpts: 'id, name, createdAtISO, updatedAtISO, *tags, isArchived, folderId, archivedAtISO',
+        conversations: 'id, gptId, updatedAtISO, *tags, isPinned, isArchived',
+        messages: 'id, conversationId, timestampISO',
+        knowledgeFiles: 'id, gptId, name, mimeType',
+        secrets: 'id, provider',
+        settings: 'key',
+        gptVersions: 'id, gptId, version, createdAtISO',
+        folders: 'id, parentId, name, order',
+      })
+      .upgrade(async tx => {
+        return tx
+          .table('conversations')
+          .toCollection()
+          .modify(conv => {
+            if (conv.isPinned === undefined) conv.isPinned = false
+            if (conv.isArchived === undefined) conv.isArchived = false
+            if (conv.pinnedAtISO === undefined) conv.pinnedAtISO = null
+            if (conv.archivedAtISO === undefined) conv.archivedAtISO = null
           })
       })
   }

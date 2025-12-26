@@ -50,9 +50,17 @@ export interface StorageChangeEvent {
 }
 
 export interface StorageWarning {
-  type: 'quota_warning' | 'quota_critical'
+  type: 'approaching_limit' | 'critical_limit'
   message: string
   percentUsed: number
+}
+
+export interface GetConversationsOptions {
+  gptId?: string
+  includeArchived?: boolean
+  pinnedOnly?: boolean
+  limit?: number
+  offset?: number
 }
 
 type ChangeCallback = () => void
@@ -227,6 +235,10 @@ export class IndexedDBStorageService {
       messageCount: conv.messages.length,
       lastMessagePreview: lastMessage?.content.slice(0, 100),
       tags: conv.tags ?? [],
+      isPinned: conv.isPinned ?? false,
+      isArchived: conv.isArchived ?? false,
+      pinnedAtISO: conv.pinnedAt ? toISOString(conv.pinnedAt) : null,
+      archivedAtISO: conv.archivedAt ? toISOString(conv.archivedAt) : null,
     }
 
     return {conversation, messages}
@@ -250,6 +262,10 @@ export class IndexedDBStorageService {
       messageCount: record.messageCount,
       lastMessagePreview: record.lastMessagePreview,
       tags: record.tags,
+      isPinned: record.isPinned ?? false,
+      isArchived: record.isArchived ?? false,
+      pinnedAt: record.pinnedAtISO ? fromISOString(record.pinnedAtISO) : null,
+      archivedAt: record.archivedAtISO ? fromISOString(record.archivedAtISO) : null,
     }
   }
 
@@ -617,6 +633,244 @@ export class IndexedDBStorageService {
       return result
     } catch (error_) {
       throw new StorageError(`Failed to permanently delete GPT ${id}`, error_)
+    }
+  }
+
+  async pinConversation(id: string, pinned: boolean): Promise<void> {
+    try {
+      const record = await db.conversations.get(id)
+      if (!record) {
+        throw new StorageError(`Conversation ${id} not found`)
+      }
+
+      await db.conversations.update(id, {
+        isPinned: pinned,
+        pinnedAtISO: pinned ? nowISO() : null,
+        updatedAtISO: nowISO(),
+      })
+
+      this.conversationsCache.delete(id)
+      this.notifyChange('conversations', id, 'update')
+      this.notifyChangeCallbacks()
+    } catch (error_) {
+      if (error_ instanceof StorageError) throw error_
+      throw new StorageError(`Failed to ${pinned ? 'pin' : 'unpin'} conversation ${id}`, error_)
+    }
+  }
+
+  async archiveConversation(id: string, archived: boolean): Promise<void> {
+    try {
+      const record = await db.conversations.get(id)
+      if (!record) {
+        throw new StorageError(`Conversation ${id} not found`)
+      }
+
+      await db.conversations.update(id, {
+        isArchived: archived,
+        archivedAtISO: archived ? nowISO() : null,
+        updatedAtISO: nowISO(),
+      })
+
+      this.conversationsCache.delete(id)
+      this.notifyChange('conversations', id, 'update')
+      this.notifyChangeCallbacks()
+    } catch (error_) {
+      if (error_ instanceof StorageError) throw error_
+      throw new StorageError(`Failed to ${archived ? 'archive' : 'unarchive'} conversation ${id}`, error_)
+    }
+  }
+
+  async updateConversationTitle(id: string, title: string): Promise<void> {
+    try {
+      const record = await db.conversations.get(id)
+      if (!record) {
+        throw new StorageError(`Conversation ${id} not found`)
+      }
+
+      await db.conversations.update(id, {
+        title,
+        updatedAtISO: nowISO(),
+      })
+
+      this.conversationsCache.delete(id)
+      this.notifyChange('conversations', id, 'update')
+      this.notifyChangeCallbacks()
+    } catch (error_) {
+      if (error_ instanceof StorageError) throw error_
+      throw new StorageError(`Failed to update conversation title ${id}`, error_)
+    }
+  }
+
+  async bulkPinConversations(ids: string[], pinned: boolean): Promise<void> {
+    try {
+      const pinnedAtISO = pinned ? nowISO() : null
+      const updatedAtISO = nowISO()
+
+      await db.transaction('rw', db.conversations, async () => {
+        for (const id of ids) {
+          await db.conversations.update(id, {
+            isPinned: pinned,
+            pinnedAtISO,
+            updatedAtISO,
+          })
+        }
+      })
+
+      for (const id of ids) {
+        this.conversationsCache.delete(id)
+        this.notifyChange('conversations', id, 'update')
+      }
+      this.notifyChangeCallbacks()
+    } catch (error_) {
+      throw new StorageError(`Failed to bulk ${pinned ? 'pin' : 'unpin'} conversations`, error_)
+    }
+  }
+
+  async bulkArchiveConversations(ids: string[], archived: boolean): Promise<void> {
+    try {
+      const archivedAtISO = archived ? nowISO() : null
+      const updatedAtISO = nowISO()
+
+      await db.transaction('rw', db.conversations, async () => {
+        for (const id of ids) {
+          await db.conversations.update(id, {
+            isArchived: archived,
+            archivedAtISO,
+            updatedAtISO,
+          })
+        }
+      })
+
+      for (const id of ids) {
+        this.conversationsCache.delete(id)
+        this.notifyChange('conversations', id, 'update')
+      }
+      this.notifyChangeCallbacks()
+    } catch (error_) {
+      throw new StorageError(`Failed to bulk ${archived ? 'archive' : 'unarchive'} conversations`, error_)
+    }
+  }
+
+  async bulkDeleteConversations(ids: string[]): Promise<void> {
+    try {
+      await db.transaction('rw', [db.conversations, db.messages], async () => {
+        for (const id of ids) {
+          await db.messages.where('conversationId').equals(id).delete()
+          await db.conversations.delete(id)
+        }
+      })
+
+      for (const id of ids) {
+        this.conversationsCache.delete(id)
+        this.notifyChange('conversations', id, 'delete')
+      }
+      this.notifyChangeCallbacks()
+    } catch (error_) {
+      throw new StorageError('Failed to bulk delete conversations', error_)
+    }
+  }
+
+  async getConversations(
+    options: {
+      gptId?: string
+      includeArchived?: boolean
+      pinnedOnly?: boolean
+      limit?: number
+      offset?: number
+    } = {},
+  ): Promise<Conversation[]> {
+    try {
+      let collection = db.conversations.orderBy('updatedAtISO').reverse()
+
+      if (options.gptId) {
+        collection = db.conversations.where('gptId').equals(options.gptId).reverse()
+      }
+
+      let records = await collection.toArray()
+
+      if (!options.includeArchived) {
+        records = records.filter(r => !r.isArchived)
+      }
+
+      if (options.pinnedOnly) {
+        records = records.filter(r => r.isPinned)
+      }
+
+      records.sort((a, b) => {
+        if (a.isPinned && !b.isPinned) return -1
+        if (!a.isPinned && b.isPinned) return 1
+        return b.updatedAtISO.localeCompare(a.updatedAtISO)
+      })
+
+      if (options.offset) {
+        records = records.slice(options.offset)
+      }
+
+      if (options.limit) {
+        records = records.slice(0, options.limit)
+      }
+
+      const conversations = await Promise.all(records.map(async r => this.dbToConversation(r)))
+
+      for (const conv of conversations) {
+        this.conversationsCache.set(conv.id, conv)
+      }
+
+      return conversations
+    } catch (error_) {
+      throw new StorageError('Failed to get conversations', error_)
+    }
+  }
+
+  async searchConversations(
+    query: string,
+    options: {gptId?: string; includeArchived?: boolean} = {},
+  ): Promise<Conversation[]> {
+    try {
+      if (!query.trim()) {
+        return []
+      }
+
+      const normalizedQuery = query.toLowerCase().trim()
+      let records = await db.conversations.toArray()
+
+      if (options.gptId) {
+        records = records.filter(r => r.gptId === options.gptId)
+      }
+
+      if (!options.includeArchived) {
+        records = records.filter(r => !r.isArchived)
+      }
+
+      const matchingConversations: Conversation[] = []
+
+      for (const record of records) {
+        const titleMatch = record.title?.toLowerCase().includes(normalizedQuery)
+
+        if (titleMatch) {
+          const conv = await this.dbToConversation(record)
+          matchingConversations.push(conv)
+          continue
+        }
+
+        const messages = await db.messages.where('conversationId').equals(record.id).toArray()
+        const messageMatch = messages.some(msg => msg.content.toLowerCase().includes(normalizedQuery))
+
+        if (messageMatch) {
+          const conv = await this.dbToConversation(record)
+          matchingConversations.push(conv)
+        }
+      }
+
+      matchingConversations.sort((a, b) => {
+        if (a.isPinned && !b.isPinned) return -1
+        if (!a.isPinned && b.isPinned) return 1
+        return b.updatedAt.getTime() - a.updatedAt.getTime()
+      })
+
+      return matchingConversations
+    } catch (error_) {
+      throw new StorageError('Failed to search conversations', error_)
     }
   }
 }

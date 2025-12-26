@@ -102,11 +102,47 @@ export const GPTConfigurationSchema = z.object({
 
 export type GPTConfiguration = z.infer<typeof GPTConfigurationSchema>
 
+export const ConversationMessageMetadataSchema = z.object({
+  toolCallId: z.string().optional(),
+  toolName: z.string().optional(),
+  toolCalls: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        arguments: z.string(),
+        status: z.enum(['pending', 'success', 'error']),
+        result: z.string().optional(),
+      }),
+    )
+    .optional(),
+  isStreaming: z.boolean().optional(),
+  attachments: z
+    .array(
+      z.object({
+        fileId: z.string(),
+        name: z.string(),
+      }),
+    )
+    .optional(),
+  model: z.string().optional(),
+  tokenUsage: z
+    .object({
+      prompt: z.number(),
+      completion: z.number(),
+      total: z.number(),
+    })
+    .optional(),
+})
+
+export type ConversationMessageMetadata = z.infer<typeof ConversationMessageMetadataSchema>
+
 export const ConversationMessageSchema = z.object({
   id: z.string().uuid(),
   role: z.enum(['user', 'assistant', 'system', 'tool']),
   content: z.string(),
   timestamp: z.date(),
+  metadata: ConversationMessageMetadataSchema.optional(),
 })
 
 export type ConversationMessage = z.infer<typeof ConversationMessageSchema>
@@ -121,6 +157,10 @@ export const ConversationSchema = z.object({
   messageCount: z.number().default(0),
   lastMessagePreview: z.string().optional(),
   tags: z.array(z.string()).default([]),
+  isPinned: z.boolean().default(false),
+  isArchived: z.boolean().default(false),
+  pinnedAt: z.date().nullable().default(null),
+  archivedAt: z.date().nullable().default(null),
 })
 
 export type Conversation = z.infer<typeof ConversationSchema>

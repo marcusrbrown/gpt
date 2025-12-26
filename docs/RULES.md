@@ -2,8 +2,8 @@
 
 <!-- prettier-ignore-start -->
 
-**Version:** 1.0
-**Last Updated:** December 20, 2025
+**Version:** 1.1
+**Last Updated:** December 25, 2025
 **Source:** PRD v2.0, Features List v1.0, Codebase Analysis
 
 <!-- prettier-ignore-end -->
@@ -269,6 +269,142 @@ HeroUI components with icons require explicit flex styling in TailwindCSS 4:
 - **Buttons with `startContent`/`endContent`**: Add `className="flex items-center gap-2"`
 - **Input with `startContent`/`endContent`**: Add `classNames={{ inputWrapper: 'flex items-center', innerWrapper: 'flex items-center' }}`
 - **`isClearable` prop**: Use conditional `isClearable={value.length > 0}` to hide clear button when empty
+
+### HeroUI Interactive Components (CRITICAL)
+
+Avoid nested interactive elements which cause HTML validation errors and React hydration failures:
+
+```tsx
+// WRONG: Card isPressable creates a <button> wrapper, containing another button
+<Card isPressable onPress={handleSelect}>
+  <CardBody>
+    <Button onPress={handleAction}>Action</Button>  // NESTED BUTTON ERROR
+  </CardBody>
+</Card>
+
+// CORRECT: Remove isPressable, use dedicated clickable areas
+<Card>
+  <CardHeader>
+    <button
+      type="button"
+      onClick={handleSelect}
+      className="flex-1 text-left cursor-pointer"
+    >
+      <span className="font-semibold">{title}</span>
+    </button>
+    <Button onPress={handleAction}>Action</Button>
+  </CardHeader>
+</Card>
+
+// CORRECT: Alternative - use role="group" with separate interactive children
+<Card className="group">
+  <CardBody
+    role="button"
+    tabIndex={0}
+    onClick={handleSelect}
+    onKeyDown={(e) => e.key === 'Enter' && handleSelect()}
+  >
+    {content}
+  </CardBody>
+  <CardFooter>
+    <Button onPress={handleAction}>Action</Button>
+  </CardFooter>
+</Card>
+```
+
+**Key Rules:**
+
+- **Never use `isPressable` on Card** when the card contains buttons, dropdowns, checkboxes, or other interactive elements
+- **Separate selection from actions**: Use a dedicated clickable area (title, body section) for selection, keep action buttons outside that area
+- **Stop propagation when needed**: Action handlers should call `e.stopPropagation()` if they're inside a clickable container
+
+### HeroUI Dropdown Styling
+
+Dropdown menus need explicit styling to ensure proper appearance:
+
+```tsx
+// CORRECT: Dropdown with explicit styling
+<Dropdown placement="bottom-end">
+  <DropdownTrigger>
+    <Button variant="light" isIconOnly>
+      <MoreVerticalIcon />
+    </Button>
+  </DropdownTrigger>
+  <DropdownMenu
+    aria-label="Actions"
+    classNames={{
+      base: 'bg-surface-primary border border-border-default shadow-lg rounded-lg',
+      list: 'p-1',
+    }}
+  >
+    <DropdownItem key="edit">Edit</DropdownItem>
+    <DropdownItem key="delete" className="text-danger">Delete</DropdownItem>
+  </DropdownMenu>
+</Dropdown>
+
+// WRONG: Dropdown without explicit styling may appear transparent or overlap content poorly
+<Dropdown>
+  <DropdownTrigger>
+    <Button>Menu</Button>
+  </DropdownTrigger>
+  <DropdownMenu>  // Missing classNames - may have styling issues
+    <DropdownItem>Item</DropdownItem>
+  </DropdownMenu>
+</Dropdown>
+```
+
+**Key Rules:**
+
+- **Always set `placement`**: Use `bottom-end`, `bottom-start`, `top-end` etc. to control positioning
+- **Add `classNames.base`**: Include `bg-surface-primary border border-border-default shadow-lg` for consistent appearance
+- **Use semantic colors**: Reference design system tokens, not hardcoded colors
+
+### HeroUI Modal Configuration (CRITICAL)
+
+Modals require explicit configuration to ensure proper overlay behavior:
+
+```tsx
+// CORRECT: Modal with explicit backdrop and placement
+<Modal
+  isOpen={isOpen}
+  onClose={onClose}
+  placement="center"
+  backdrop="opaque"
+  hideCloseButton
+>
+  <ModalContent>
+    <ModalHeader className="flex items-center justify-between gap-2">
+      <div className="flex items-center gap-2">
+        <Icon className="h-5 w-5" />
+        <span>{title}</span>
+      </div>
+      <Button isIconOnly variant="light" size="sm" onPress={onClose}>
+        <XIcon className="h-4 w-4" />
+      </Button>
+    </ModalHeader>
+    <ModalBody>{content}</ModalBody>
+    <ModalFooter>
+      <Button variant="light" onPress={onClose}>Cancel</Button>
+      <Button color="primary" onPress={onConfirm}>Confirm</Button>
+    </ModalFooter>
+  </ModalContent>
+</Modal>
+
+// WRONG: Modal without explicit configuration
+<Modal isOpen={isOpen} onClose={onClose}>  // May have positioning/backdrop issues
+  <ModalContent>
+    <ModalHeader>{title}</ModalHeader>  // Close button may overlap content
+    <ModalBody>{content}</ModalBody>
+  </ModalContent>
+</Modal>
+```
+
+**Key Rules:**
+
+- **Always set `placement="center"`**: Ensures modal is centered, not anchored to bottom
+- **Always set `backdrop="opaque"` or `backdrop="blur"`**: Ensures content behind modal is properly dimmed
+- **Use `hideCloseButton` + custom close button**: Prevents built-in close button from overlapping header content
+- **Header layout**: Use `flex items-center justify-between` to properly position title and close button
 
 ### Color Tokens
 

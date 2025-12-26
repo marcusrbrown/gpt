@@ -50,6 +50,10 @@ function createTestConversation(gptId: string, overrides: Partial<Conversation> 
     updatedAt: new Date(),
     messageCount: 1,
     tags: [],
+    isPinned: false,
+    isArchived: false,
+    pinnedAt: null,
+    archivedAt: null,
     ...overrides,
   }
 }

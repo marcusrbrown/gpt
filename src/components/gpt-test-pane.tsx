@@ -133,6 +133,10 @@ export function GPTTestPane({gptConfig}: GPTTestPaneProps) {
         updatedAt: new Date(),
         messageCount: messages.length,
         tags: [],
+        isPinned: false,
+        isArchived: false,
+        pinnedAt: null,
+        archivedAt: null,
       }
 
       await saveConversation(conversation)
