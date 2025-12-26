@@ -2,9 +2,9 @@
 
 <!-- prettier-ignore-start -->
 
-**Version:** 1.1
+**Version:** 1.2
 **Last Updated:** December 25, 2025
-**Source:** PRD v2.0, Features List v1.0, Codebase Analysis
+**Source:** PRD v2.0, Features List v1.0, Codebase Analysis, RFC-007 Learnings
 
 <!-- prettier-ignore-end -->
 
@@ -207,12 +207,134 @@ try {
 } catch {} // NEVER do this
 ```
 
+### Async Handlers in Event Callbacks (CRITICAL)
+
+When using async functions in HeroUI `onPress` or React `onClick` handlers, **MUST** use `.catch(console.error)` pattern:
+
+```tsx
+// CORRECT: Use .catch(console.error) for async handlers
+<Button
+  onPress={() => {
+    handleAsyncAction().catch(console.error)
+  }}
+>
+  Save
+</Button>
+
+// CORRECT: Alternative with explicit error handling
+<Button
+  onPress={() => {
+    handleAsyncAction().catch((error_) => {
+      console.error("Action failed:", error_)
+      setErrorState(error_.message)
+    })
+  }}
+>
+  Save
+</Button>
+
+// WRONG: Using void operator (ESLint error: @typescript-eslint/no-confusing-void-expression)
+<Button
+  onPress={() => {
+    void handleAsyncAction()  // NEVER - causes lint errors
+  }}
+>
+  Save
+</Button>
+
+// WRONG: Unhandled promise (ESLint error: @typescript-eslint/no-floating-promises)
+<Button
+  onPress={() => {
+    handleAsyncAction()  // NEVER - unhandled promise rejection
+  }}
+>
+  Save
+</Button>
+```
+
+**Key Rules:**
+
+- **Always use `.catch()`**: Async handlers must have explicit error handling
+- **Never use `void`**: The `void` operator causes `@typescript-eslint/no-confusing-void-expression` errors
+- **Log errors**: At minimum, use `.catch(console.error)` to log failures
+
 ### Control Flow
 
 - **MUST** prefer early returns over nested conditions
 - **MUST** use explicit boolean checks (`if (value !== undefined)` not `if (value)`)
 - **SHOULD** limit function length to ~50 lines
 - **SHOULD** extract complex conditions to named variables
+
+### String Sanitization
+
+When sanitizing strings (removing control characters, special chars, etc.), avoid regex patterns with literal control characters:
+
+```typescript
+// CORRECT: Use character code filtering (avoids ESLint no-control-regex error)
+function sanitizeFilename(name: string): string {
+  return name
+    .split("")
+    .filter(char => char.charCodeAt(0) >= 32)
+    .join("")
+    .replaceAll(/[<>:"/\\|?*]/g, "_")
+}
+
+// WRONG: Regex with Unicode escapes for control characters triggers lint error
+// Do NOT use: name.replace(/[\u0000-\u001F]/g, "")
+// Instead, filter by character code as shown above
+```
+
+### Array Keys in JSX
+
+When rendering lists, use unique content-based keys, not array indices:
+
+```tsx
+// CORRECT: Use unique identifier from data
+{
+  items.map(item => <li key={item.id}>{item.name}</li>)
+}
+
+// CORRECT: Use content as key when items are unique strings
+{
+  errors.map(error => <li key={error}>{error}</li>)
+}
+
+// WRONG: Using array index as key (ESLint warning, causes React reconciliation issues)
+{
+  items.map((item, index) => (
+    <li key={index}>{item.name}</li> // AVOID - use unique identifier
+  ))
+}
+```
+
+### Responsive Design Considerations
+
+When adding navigation elements, ensure they don't cause horizontal overflow on mobile viewports:
+
+```tsx
+// CORRECT: Hide non-essential nav items on mobile, show in mobile menu
+<Button
+  as={Link}
+  href="/backup"
+  isIconOnly
+  variant="light"
+  aria-label="Backup & Restore"
+  className="hidden sm:flex"  // Hidden on mobile, visible on sm+ screens
+>
+  <ArchiveIcon className="h-5 w-5" />
+</Button>
+
+// WRONG: Adding nav items without mobile consideration causes overflow
+<Button as={Link} href="/backup" isIconOnly variant="light">
+  <ArchiveIcon />  // May cause horizontal scroll on 375px viewport
+</Button>
+```
+
+**Key Rules:**
+
+- **Test at 375px width**: Mobile viewport must not have horizontal scroll
+- **Use responsive classes**: `hidden sm:flex` to hide on mobile
+- **Provide mobile alternative**: Include items in mobile menu (`NavbarMenuContent`)
 
 ---
 
@@ -628,6 +750,42 @@ test("should create new GPT", async ({page}) => {
 ---
 
 ## 12. Implementation Rules
+
+### Mandatory Quality Gates (CRITICAL)
+
+**Before considering ANY implementation task complete, you MUST run and pass ALL of the following quality gates in order:**
+
+```bash
+# 1. Lint check - MUST pass with 0 errors
+pnpm lint
+
+# 2. Unit tests - MUST pass all tests
+pnpm test --run
+
+# 3. Build check - MUST complete successfully
+pnpm build
+
+# 4. Accessibility audit - MUST pass all tests
+pnpm test:accessibility
+
+# 5. E2E tests - MUST pass all tests (run specific suite if available)
+pnpm test:e2e
+```
+
+| Gate          | Command                   | Success Criteria               |
+| ------------- | ------------------------- | ------------------------------ |
+| Lint          | `pnpm lint`               | 0 errors (warnings acceptable) |
+| Unit Tests    | `pnpm test`               | All tests passing              |
+| Build         | `pnpm build`              | Successful compilation         |
+| Accessibility | `pnpm test:accessibility` | All tests passing              |
+| E2E           | `pnpm test:e2e`           | All tests passing              |
+
+**IMPORTANT:**
+
+- If ANY gate fails, you MUST fix the issue before proceeding
+- If a test was passing before your changes and now fails, YOUR CHANGES broke it - fix it
+- Run related E2E tests for the feature you modified (e.g., `pnpm test:e2e tests/e2e/export-import.spec.ts`)
+- Never assume a task is complete without running all gates
 
 ### General Guidelines
 

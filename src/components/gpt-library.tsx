@@ -16,9 +16,10 @@ import {
   Tab,
   Tabs,
 } from '@heroui/react'
-import {Archive, Copy, Edit, MoreVertical, Plus, RotateCcw, Search, Trash2} from 'lucide-react'
+import {Archive, Copy, Download, Edit, MoreVertical, Plus, RotateCcw, Search, Trash2} from 'lucide-react'
 import {useCallback, useEffect, useMemo, useState} from 'react'
 import {ArchiveDialog} from './archive-dialog'
+import {GPTExportDialog} from './gpt-export-dialog'
 
 interface GPTLibraryProps {
   onSelectGPT: (gptId: string) => void
@@ -38,6 +39,7 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
   const [dialogMode, setDialogMode] = useState<'archive' | 'delete'>('archive')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isActionLoading, setIsActionLoading] = useState(false)
+  const [exportGPT, setExportGPT] = useState<GPTConfiguration | null>(null)
 
   const loadGPTs = useCallback(async () => {
     setIsLoading(true)
@@ -127,6 +129,10 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
     },
     [duplicateGPT, loadGPTs],
   )
+
+  const handleExport = useCallback((gpt: GPTConfiguration) => {
+    setExportGPT(gpt)
+  }, [])
 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString()
@@ -259,6 +265,14 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
                     >
                       Duplicate
                     </DropdownItem>
+                    <DropdownItem
+                      key="export"
+                      startContent={<Download className="h-4 w-4" />}
+                      onPress={() => handleExport(gpt)}
+                      data-testid="export-gpt"
+                    >
+                      Export
+                    </DropdownItem>
                     {viewMode === 'active' ? (
                       <DropdownItem
                         key="archive"
@@ -323,6 +337,13 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
           setDialogGPT(null)
         }}
         isLoading={isActionLoading}
+      />
+
+      <GPTExportDialog
+        isOpen={exportGPT !== null}
+        onClose={() => setExportGPT(null)}
+        gpt={exportGPT}
+        onExport={async () => setExportGPT(null)}
       />
     </div>
   )

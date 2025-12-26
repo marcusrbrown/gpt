@@ -1,7 +1,7 @@
 import {ThemeSwitch} from '@/components/theme-switch'
 import {cn, ds, theme} from '@/lib/design-system'
 import {Button, Input, type ButtonProps} from '@heroui/react'
-import {BookOpen, Github, Menu, Search, X} from 'lucide-react'
+import {Archive, BookOpen, Github, Menu, Search, X} from 'lucide-react'
 import {useEffect, useState, type ElementType} from 'react'
 import {Link as RouterLink, type LinkProps} from 'react-router-dom'
 
@@ -98,6 +98,16 @@ export const Navbar = () => {
         {/* Right section - Navigation */}
         <nav className="flex items-center gap-3" aria-label="Main navigation">
           <ButtonLink
+            to="/backup"
+            isIconOnly
+            variant="light"
+            color="default"
+            className={cn('hidden sm:flex min-w-[40px] h-[40px] items-center justify-center')}
+            aria-label="Backup & Restore"
+          >
+            <Archive size={20} className={theme.content('primary')} />
+          </ButtonLink>
+          <ButtonLink
             to="/docs"
             isIconOnly
             variant="light"
@@ -154,6 +164,17 @@ export const Navbar = () => {
                 }}
                 aria-label="Search documentation"
               />
+              <ButtonLink
+                to="/backup"
+                variant="light"
+                color="default"
+                className={cn('justify-start h-12', ds.animation.transition)}
+                onPress={() => setIsMobileMenuOpen(false)}
+                aria-label="Go to Backup & Restore"
+              >
+                <Archive size={20} className={cn(theme.content('primary'), 'mr-3')} aria-hidden="true" />
+                Backup & Restore
+              </ButtonLink>
               <ButtonLink
                 to="/docs"
                 variant="light"
