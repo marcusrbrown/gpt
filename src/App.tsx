@@ -4,6 +4,7 @@ import {Route, Routes, useLocation} from 'react-router-dom'
 import {Footer} from './components/footer'
 import {Navbar} from './components/navbar'
 import {cn, ds} from './lib/design-system'
+import {BackupRestorePage} from './pages/backup-restore-page'
 import {GPTEditorPage} from './pages/gpt-editor-page'
 import {GPTTestPage} from './pages/gpt-test-page'
 import {HomePage} from './pages/home-page'
@@ -31,10 +32,8 @@ function App() {
         <div className="grow">
           {/* Key by pathname to trigger page transition animations on route changes */}
           <Routes key={location.pathname}>
-            {/* Home page */}
             <Route path="/" element={<HomePage />} />
 
-            {/* GPT Editor routes */}
             <Route
               path="/gpt/new"
               element={
@@ -52,7 +51,6 @@ function App() {
               }
             />
 
-            {/* GPT Test route */}
             <Route
               path="/gpt/test/:gptId"
               element={
@@ -62,7 +60,15 @@ function App() {
               }
             />
 
-            {/* Documentation routes */}
+            <Route
+              path="/backup"
+              element={
+                <main className={cn(ds.layout.container, ds.animation.fadeIn, 'py-8')}>
+                  <BackupRestorePage />
+                </main>
+              }
+            />
+
             <Route
               path="/docs/*"
               element={
