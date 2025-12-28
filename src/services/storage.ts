@@ -155,6 +155,7 @@ export class IndexedDBStorageService {
           lastModified: file.lastModified ?? Date.now(),
         })),
         urls: gpt.knowledge.urls,
+        extractionMode: gpt.knowledge.extractionMode ?? ('manual' as const),
       },
       capabilities: {
         codeInterpreter: gpt.capabilities.codeInterpreter,
@@ -199,6 +200,7 @@ export class IndexedDBStorageService {
           lastModified: file.lastModified,
         })),
         urls: record.knowledge.urls,
+        extractionMode: 'manual',
       },
       capabilities: {
         codeInterpreter: record.capabilities.codeInterpreter,

@@ -192,7 +192,7 @@ describe('import-service', () => {
         description: '',
         systemPrompt: '',
         tools: [],
-        knowledge: {files: [], urls: []},
+        knowledge: {files: [], urls: [], extractionMode: 'manual' as const},
         capabilities: {
           webBrowsing: false,
           codeInterpreter: false,
@@ -228,7 +228,7 @@ describe('import-service', () => {
         description: '',
         systemPrompt: '',
         tools: [],
-        knowledge: {files: [], urls: []},
+        knowledge: {files: [], urls: [], extractionMode: 'manual' as const},
         capabilities: {
           webBrowsing: false,
           codeInterpreter: false,
@@ -271,7 +271,7 @@ describe('import-service', () => {
         description: '',
         systemPrompt: '',
         tools: [],
-        knowledge: {files: [], urls: []},
+        knowledge: {files: [], urls: [], extractionMode: 'manual' as const},
         capabilities: {
           webBrowsing: false,
           codeInterpreter: false,
@@ -304,7 +304,7 @@ describe('import-service', () => {
         description: '',
         systemPrompt: '',
         tools: [],
-        knowledge: {files: [], urls: []},
+        knowledge: {files: [], urls: [], extractionMode: 'manual' as const},
         capabilities: {
           webBrowsing: false,
           codeInterpreter: false,
@@ -405,7 +405,7 @@ describe('import-service', () => {
         description: '',
         systemPrompt: '',
         tools: [],
-        knowledge: {files: [], urls: []},
+        knowledge: {files: [], urls: [], extractionMode: 'manual' as const},
         capabilities: {
           webBrowsing: false,
           codeInterpreter: false,

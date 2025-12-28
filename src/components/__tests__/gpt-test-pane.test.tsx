@@ -114,6 +114,7 @@ describe('gPTTestPane', () => {
     knowledge: {
       files: [],
       urls: [],
+      extractionMode: 'manual' as const,
     },
     createdAt: new Date(),
     updatedAt: new Date(),

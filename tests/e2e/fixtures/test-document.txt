@@ -1,0 +1,19 @@
+Sample Knowledge Base Document
+
+This is a test document used for E2E testing of the knowledge base feature.
+It contains sample text that can be extracted and searched.
+
+Topics covered:
+- React 19 components and hooks
+- TypeScript type safety and inference
+- Local-first architecture patterns
+- Knowledge management systems
+- IndexedDB storage strategies
+
+This text should be extractable and searchable through the knowledge base interface.
+The document demonstrates how uploaded files are processed and indexed for retrieval.
+
+Additional test content:
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor 
+incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud 
+exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.

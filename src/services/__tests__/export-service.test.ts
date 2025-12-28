@@ -2,10 +2,19 @@ import type {Conversation, GPTConfiguration} from '@/types/gpt'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {createExportMetadata, exportConversation, exportGPT, sanitizeFilename} from '../export-service'
 
+const createMockWhere = (data: unknown[] = []) => ({
+  equals: vi.fn().mockReturnValue({
+    toArray: vi.fn().mockResolvedValue(data),
+    sortBy: vi.fn().mockResolvedValue(data),
+  }),
+})
+
 vi.mock('@/lib/database', () => ({
   db: {
-    knowledgeFiles: {where: vi.fn()},
-    gptVersions: {where: vi.fn()},
+    knowledgeFiles: {where: vi.fn(() => createMockWhere([]))},
+    cachedURLs: {where: vi.fn(() => createMockWhere([]))},
+    textSnippets: {where: vi.fn(() => createMockWhere([]))},
+    gptVersions: {where: vi.fn(() => createMockWhere([]))},
   },
   toISOString: (date: Date) => date.toISOString(),
 }))
@@ -27,6 +36,7 @@ const createMockGPT = (overrides: Partial<GPTConfiguration> = {}): GPTConfigurat
   knowledge: {
     files: [],
     urls: [],
+    extractionMode: 'manual' as const,
   },
   capabilities: {
     webBrowsing: false,
@@ -89,6 +99,12 @@ describe('exportGPT', () => {
     const mockGPT = createMockGPT()
     const {db} = await import('@/lib/database')
     vi.mocked(db.knowledgeFiles.where).mockReturnValue({
+      equals: vi.fn().mockReturnValue({toArray: vi.fn().mockResolvedValue([])}),
+    } as never)
+    vi.mocked(db.cachedURLs.where).mockReturnValue({
+      equals: vi.fn().mockReturnValue({toArray: vi.fn().mockResolvedValue([])}),
+    } as never)
+    vi.mocked(db.textSnippets.where).mockReturnValue({
       equals: vi.fn().mockReturnValue({toArray: vi.fn().mockResolvedValue([])}),
     } as never)
     vi.mocked(db.gptVersions.where).mockReturnValue({
@@ -177,10 +193,16 @@ describe('exportGPT edge cases', () => {
 
   it('handles GPT with empty knowledge', async () => {
     const mockGPT = createMockGPT({
-      knowledge: {files: [], urls: []},
+      knowledge: {files: [], urls: [], extractionMode: 'manual' as const},
     })
     const {db} = await import('@/lib/database')
     vi.mocked(db.knowledgeFiles.where).mockReturnValue({
+      equals: vi.fn().mockReturnValue({toArray: vi.fn().mockResolvedValue([])}),
+    } as never)
+    vi.mocked(db.cachedURLs.where).mockReturnValue({
+      equals: vi.fn().mockReturnValue({toArray: vi.fn().mockResolvedValue([])}),
+    } as never)
+    vi.mocked(db.textSnippets.where).mockReturnValue({
       equals: vi.fn().mockReturnValue({toArray: vi.fn().mockResolvedValue([])}),
     } as never)
     vi.mocked(db.gptVersions.where).mockReturnValue({

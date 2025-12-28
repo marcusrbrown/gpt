@@ -33,6 +33,7 @@ function TestComponent() {
       knowledge: {
         files: [],
         urls: [],
+        extractionMode: 'manual' as const,
       },
       capabilities: {
         codeInterpreter: false,

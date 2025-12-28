@@ -20,7 +20,7 @@ function createTestGPT(overrides: Partial<GPTConfiguration> = {}): GPTConfigurat
     description: 'A test GPT configuration',
     systemPrompt: 'You are a helpful assistant.',
     tools: [],
-    knowledge: {files: [], urls: []},
+    knowledge: {files: [], urls: [], extractionMode: 'manual' as const},
     capabilities: {
       codeInterpreter: false,
       webBrowsing: false,

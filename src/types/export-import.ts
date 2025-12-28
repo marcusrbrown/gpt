@@ -17,13 +17,30 @@ export const KnowledgeFileExportSchema = z.object({
   size: z.number(),
   base64Content: z.string(),
   extractedText: z.string().optional(),
+  category: z.enum(['document', 'code', 'data', 'other']).optional(),
+  extractionStatus: z.enum(['pending', 'processing', 'completed', 'failed', 'unsupported']).optional(),
+  checksumSHA256: z.string().optional(),
+  uploadedAt: z.string().optional(),
+  updatedAt: z.string().optional(),
 })
 export type KnowledgeFileExport = z.infer<typeof KnowledgeFileExportSchema>
+
+export const CachedURLExportSchema = z.object({
+  url: z.string().url({message: 'Invalid URL'}),
+  title: z.string().optional(),
+  content: z.string().optional(),
+  mimeType: z.string().optional(),
+  fetchedAt: z.string().optional(),
+  status: z.enum(['pending', 'fetching', 'ready', 'failed']),
+})
+export type CachedURLExport = z.infer<typeof CachedURLExportSchema>
 
 export const KnowledgeSnippetSchema = z.object({
   title: z.string(),
   content: z.string(),
-  tags: z.array(z.string()),
+  tags: z.array(z.string()).default([]),
+  createdAt: z.string().optional(),
+  updatedAt: z.string().optional(),
 })
 export type KnowledgeSnippet = z.infer<typeof KnowledgeSnippetSchema>
 
@@ -79,7 +96,7 @@ export type GPTDataExport = z.infer<typeof GPTDataExportSchema>
 
 export const KnowledgeExportSchema = z.object({
   files: z.array(KnowledgeFileExportSchema),
-  urls: z.array(z.string().url()),
+  urls: z.array(CachedURLExportSchema),
   snippets: z.array(KnowledgeSnippetSchema),
 })
 export type KnowledgeExport = z.infer<typeof KnowledgeExportSchema>

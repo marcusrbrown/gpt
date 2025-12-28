@@ -28,6 +28,7 @@ export interface GPTKnowledgeDB {
     lastModified: number
   }[]
   urls: string[]
+  extractionMode: 'manual' | 'auto'
   vectorStores?: {
     id: string
     name: string
@@ -131,8 +132,13 @@ export interface KnowledgeFileDB {
   mimeType: string
   size: number
   content: Blob
+  category?: 'document' | 'code' | 'data' | 'other'
   extractedText?: string
+  extractionStatus?: 'pending' | 'processing' | 'completed' | 'failed' | 'unsupported'
+  extractionError?: string
+  checksumSHA256?: string
   uploadedAtISO: string
+  updatedAtISO?: string
 }
 
 export interface EncryptedSecretDB {
@@ -165,6 +171,30 @@ export interface GPTFolderDB {
   createdAtISO: string
 }
 
+export interface CachedURLDB {
+  id: string
+  gptId: string
+  url: string
+  title?: string
+  content?: string
+  mimeType?: string
+  status: 'pending' | 'fetching' | 'ready' | 'failed'
+  error?: string
+  fetchedAtISO?: string
+  expiresAtISO?: string
+  size?: number
+}
+
+export interface TextSnippetDB {
+  id: string
+  gptId: string
+  title: string
+  content: string
+  tags?: string[]
+  createdAtISO: string
+  updatedAtISO: string
+}
+
 /**
  * GPT Platform database. Schema v1 (RFC-001).
  * Tables: gpts, conversations, messages, knowledgeFiles, secrets, settings
@@ -174,6 +204,8 @@ export class GPTDatabase extends Dexie {
   conversations!: Table<ConversationDB>
   messages!: Table<MessageDB>
   knowledgeFiles!: Table<KnowledgeFileDB>
+  cachedURLs!: Table<CachedURLDB>
+  textSnippets!: Table<TextSnippetDB>
   secrets!: Table<EncryptedSecretDB>
   settings!: Table<UserSettingDB>
   gptVersions!: Table<GPTVersionDB>
@@ -233,6 +265,34 @@ export class GPTDatabase extends Dexie {
             if (conv.isArchived === undefined) conv.isArchived = false
             if (conv.pinnedAtISO === undefined) conv.pinnedAtISO = null
             if (conv.archivedAtISO === undefined) conv.archivedAtISO = null
+          })
+      })
+
+    // RFC-006: Knowledge Base Enhancement - add cachedURLs, textSnippets, extend knowledgeFiles
+    this.version(4)
+      .stores({
+        gpts: 'id, name, createdAtISO, updatedAtISO, *tags, isArchived, folderId, archivedAtISO',
+        conversations: 'id, gptId, updatedAtISO, *tags, isPinned, isArchived',
+        messages: 'id, conversationId, timestampISO',
+        knowledgeFiles: 'id, gptId, name, mimeType, extractionStatus, updatedAtISO',
+        cachedURLs: 'id, gptId, [gptId+url], status, expiresAtISO',
+        textSnippets: 'id, gptId, updatedAtISO',
+        secrets: 'id, provider',
+        settings: 'key',
+        gptVersions: 'id, gptId, version, createdAtISO',
+        folders: 'id, parentId, name, order',
+      })
+      .upgrade(async tx => {
+        return tx
+          .table('knowledgeFiles')
+          .toCollection()
+          .modify(file => {
+            if (file.extractionStatus === undefined) {
+              file.extractionStatus = file.extractedText ? 'completed' : 'pending'
+            }
+            if (file.updatedAtISO === undefined) {
+              file.updatedAtISO = file.uploadedAtISO
+            }
           })
       })
   }

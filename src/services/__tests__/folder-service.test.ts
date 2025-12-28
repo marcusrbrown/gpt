@@ -14,6 +14,7 @@ function createTestGPT(overrides: Partial<GPTConfiguration> = {}): GPTConfigurat
     knowledge: {
       files: [],
       urls: [],
+      extractionMode: 'manual' as const,
     },
     capabilities: {
       codeInterpreter: false,

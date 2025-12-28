@@ -299,6 +299,7 @@ export async function importGPT(gptExport: GPTExport, resolution: ConflictResolu
         knowledge: {
           files: [],
           urls: [],
+          extractionMode: 'manual',
         },
         capabilities,
         createdAtISO: gptData.createdAt,
@@ -323,7 +324,41 @@ export async function importGPT(gptExport: GPTExport, resolution: ConflictResolu
             size: fileData.size,
             content: blob,
             extractedText: fileData.extractedText,
+            extractionStatus: fileData.extractedText ? 'completed' : 'pending',
             uploadedAtISO: now,
+            updatedAtISO: now,
+          })
+        }
+      }
+
+      if (gptExport.knowledge?.urls) {
+        for (const urlData of gptExport.knowledge.urls) {
+          await db.cachedURLs.put({
+            id: generateNewId(),
+            gptId: finalId,
+            url: urlData.url,
+            title: urlData.title,
+            content: urlData.content,
+            mimeType: urlData.mimeType,
+            status: urlData.status ?? 'pending',
+            fetchedAtISO: urlData.fetchedAt,
+            expiresAtISO: urlData.fetchedAt
+              ? toISOString(new Date(new Date(urlData.fetchedAt).getTime() + 24 * 60 * 60 * 1000))
+              : undefined,
+          })
+        }
+      }
+
+      if (gptExport.knowledge?.snippets) {
+        for (const snippetData of gptExport.knowledge.snippets) {
+          await db.textSnippets.put({
+            id: generateNewId(),
+            gptId: finalId,
+            title: snippetData.title,
+            content: snippetData.content,
+            tags: snippetData.tags,
+            createdAtISO: snippetData.createdAt ?? now,
+            updatedAtISO: snippetData.updatedAt ?? now,
           })
         }
       }
@@ -606,6 +641,7 @@ export async function restoreBackup(
           knowledge: {
             files: [],
             urls: [],
+            extractionMode: 'manual',
           },
           capabilities,
           createdAtISO: gptData.createdAt,

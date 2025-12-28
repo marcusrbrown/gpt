@@ -38,6 +38,7 @@ export function GPTEditorPage() {
             knowledge: {
               files: [],
               urls: [],
+              extractionMode: 'manual' as const,
             },
             capabilities: {
               codeInterpreter: false,
@@ -67,6 +68,7 @@ export function GPTEditorPage() {
           knowledge: {
             files: [],
             urls: [],
+            extractionMode: 'manual' as const,
           },
           capabilities: {
             codeInterpreter: false,
