@@ -116,6 +116,7 @@ function transformGPTForDB(raw: RawGPTData): GPTConfigurationDB {
         }
       }),
       urls: raw.knowledge?.urls ?? [],
+      extractionMode: 'manual' as const,
     },
     capabilities: {
       codeInterpreter: raw.capabilities?.codeInterpreter ?? false,

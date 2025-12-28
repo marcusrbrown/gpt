@@ -30,6 +30,7 @@ describe('GPTDatabase', () => {
 
     it('should have all required tables', () => {
       expect(db.tables.map(t => t.name).sort()).toEqual([
+        'cachedURLs',
         'conversations',
         'folders',
         'gptVersions',
@@ -38,11 +39,12 @@ describe('GPTDatabase', () => {
         'messages',
         'secrets',
         'settings',
+        'textSnippets',
       ])
     })
 
-    it('should be at version 3', () => {
-      expect(db.verno).toBe(3)
+    it('should be at version 4', () => {
+      expect(db.verno).toBe(4)
     })
   })
 
@@ -64,6 +66,7 @@ describe('GPTDatabase', () => {
       knowledge: {
         files: [],
         urls: [],
+        extractionMode: 'manual' as const,
       },
       capabilities: {
         codeInterpreter: false,

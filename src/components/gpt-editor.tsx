@@ -1,8 +1,18 @@
+import type {
+  CachedURLDB,
+  CreateSnippetInput,
+  KnowledgeFileDB,
+  KnowledgeSummary,
+  SearchResult,
+  TextSnippetDB,
+  UpdateSnippetInput,
+} from '@/types/knowledge'
 import {useAutoSave} from '@/hooks/use-auto-save'
 import {useGPTValidation} from '@/hooks/use-gpt-validation'
 import {useOpenAIService} from '@/hooks/use-openai-service'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds, responsive} from '@/lib/design-system'
+import {KnowledgeService} from '@/services/knowledge-service'
 import {
   GPTConfigurationSchema,
   type ConversationMessage,
@@ -33,6 +43,7 @@ const DEFAULT_GPT: Omit<GPTConfiguration, 'id'> = {
   knowledge: {
     files: [],
     urls: [],
+    extractionMode: 'manual',
   },
   capabilities: {
     codeInterpreter: false,
@@ -268,7 +279,22 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
   const [isExporting, setIsExporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
 
+  // Knowledge base state
+  const [knowledgeFiles, setKnowledgeFiles] = useState<KnowledgeFileDB[]>([])
+  const [cachedUrls, setCachedUrls] = useState<CachedURLDB[]>([])
+  const [snippets, setSnippets] = useState<TextSnippetDB[]>([])
+  const [knowledgeSummary, setKnowledgeSummary] = useState<KnowledgeSummary>({
+    filesCount: 0,
+    extractedFilesCount: 0,
+    pendingExtractionCount: 0,
+    urlsCount: 0,
+    snippetsCount: 0,
+    totalSize: 0,
+    extractedTextLength: 0,
+  })
+
   const openAIService = useOpenAIService()
+  const knowledgeService = useMemo(() => new KnowledgeService(), [])
 
   useEffect(() => {
     const loadGpt = async () => {
@@ -356,6 +382,30 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
     }))
   }
 
+  const loadKnowledgeData = useCallback(async () => {
+    if (!gpt.id) return
+
+    try {
+      const [files, urls, snippetsData, summary] = await Promise.all([
+        knowledgeService.listKnowledgeFiles(gpt.id),
+        knowledgeService.listCachedUrls(gpt.id),
+        knowledgeService.listSnippets(gpt.id),
+        knowledgeService.getKnowledgeSummary(gpt.id),
+      ])
+
+      setKnowledgeFiles(files)
+      setCachedUrls(urls)
+      setSnippets(snippetsData)
+      setKnowledgeSummary(summary)
+    } catch (error_) {
+      console.error('Failed to load knowledge data:', error_)
+    }
+  }, [gpt.id, knowledgeService])
+
+  useEffect(() => {
+    loadKnowledgeData().catch(console.error)
+  }, [loadKnowledgeData])
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
 
@@ -372,6 +422,11 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
         }
       }),
     )
+
+    if (gpt.id) {
+      await knowledgeService.addKnowledgeFiles(gpt.id, filesArray)
+      await loadKnowledgeData()
+    }
 
     setFiles(prev => [...prev, ...newFiles])
     setGpt(prev => ({
@@ -426,6 +481,65 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
       },
       updatedAt: new Date(),
     }))
+  }
+
+  const handleExtractionModeChange = (mode: 'manual' | 'auto') => {
+    setGpt(prev => ({
+      ...prev,
+      knowledge: {
+        ...prev.knowledge,
+        extractionMode: mode,
+      },
+      updatedAt: new Date(),
+    }))
+  }
+
+  const handleExtractFile = async (fileId: string) => {
+    await knowledgeService.extractKnowledgeFile(fileId)
+    await loadKnowledgeData()
+  }
+
+  const handleExtractAllPending = async () => {
+    if (!gpt.id) return
+    await knowledgeService.extractAllPending(gpt.id)
+    await loadKnowledgeData()
+  }
+
+  const handleCacheUrl = async (url: string) => {
+    if (!gpt.id) return
+    await knowledgeService.addCachedUrl(gpt.id, url)
+    await loadKnowledgeData()
+  }
+
+  const handleRefreshCachedUrl = async (urlId: string) => {
+    await knowledgeService.refreshCachedUrl(urlId)
+    await loadKnowledgeData()
+  }
+
+  const handleRemoveCachedUrl = async (urlId: string) => {
+    await knowledgeService.removeCachedUrl(urlId)
+    await loadKnowledgeData()
+  }
+
+  const handleCreateSnippet = async (input: CreateSnippetInput) => {
+    if (!gpt.id) return
+    await knowledgeService.createSnippet(gpt.id, input)
+    await loadKnowledgeData()
+  }
+
+  const handleUpdateSnippet = async (id: string, input: UpdateSnippetInput) => {
+    await knowledgeService.updateSnippet(id, input)
+    await loadKnowledgeData()
+  }
+
+  const handleDeleteSnippet = async (id: string) => {
+    await knowledgeService.deleteSnippet(id)
+    await loadKnowledgeData()
+  }
+
+  const handleSearch = async (query: string): Promise<SearchResult[]> => {
+    if (!gpt.id || !query.trim()) return []
+    return knowledgeService.searchKnowledge(gpt.id, query)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -620,6 +734,18 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
       updatedAt: new Date(),
     }))
   }
+
+  const enrichedFiles = useMemo(() => {
+    return gpt.knowledge.files.map(localFile => {
+      const dbFile = knowledgeFiles.find(kf => kf.gptId === gpt.id && kf.name === localFile.name)
+      return {
+        ...localFile,
+        id: dbFile?.id,
+        extractionStatus: dbFile?.extractionStatus ?? 'pending',
+        extractionError: dbFile?.extractionError,
+      }
+    })
+  }, [gpt.id, gpt.knowledge.files, knowledgeFiles])
 
   return (
     <div className="flex flex-col h-full">
@@ -896,9 +1022,24 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
             <h2 className={responsive.heading.large}>Knowledge Sources</h2>
 
             <KnowledgeConfiguration
-              files={gpt.knowledge.files}
+              gptId={gpt.id}
+              files={enrichedFiles}
               urls={gpt.knowledge.urls}
               errors={{knowledge: {urls: errors.knowledge?.urls || {}}}}
+              extractionMode={gpt.knowledge.extractionMode}
+              onExtractionModeChange={handleExtractionModeChange}
+              onExtractFile={handleExtractFile}
+              onExtractAllPending={handleExtractAllPending}
+              cachedUrls={cachedUrls}
+              onCacheUrl={handleCacheUrl}
+              onRefreshCachedUrl={handleRefreshCachedUrl}
+              onRemoveCachedUrl={handleRemoveCachedUrl}
+              snippets={snippets}
+              onCreateSnippet={handleCreateSnippet}
+              onUpdateSnippet={handleUpdateSnippet}
+              onDeleteSnippet={handleDeleteSnippet}
+              onSearch={handleSearch}
+              summary={knowledgeSummary}
               // eslint-disable-next-line @typescript-eslint/no-misused-promises
               onFileUpload={handleFileUpload}
               onRemoveFile={handleRemoveFile}

@@ -117,6 +117,8 @@ async function blobToBase64(blob: Blob): Promise<string> {
 
 async function getKnowledgeForGPT(gptId: string): Promise<KnowledgeExport> {
   const knowledgeFiles = await db.knowledgeFiles.where('gptId').equals(gptId).toArray()
+  const cachedUrls = await db.cachedURLs.where('gptId').equals(gptId).toArray()
+  const textSnippets = await db.textSnippets.where('gptId').equals(gptId).toArray()
 
   const files = await Promise.all(
     knowledgeFiles.map(async file => ({
@@ -125,13 +127,35 @@ async function getKnowledgeForGPT(gptId: string): Promise<KnowledgeExport> {
       size: file.size,
       base64Content: await blobToBase64(file.content),
       extractedText: file.extractedText,
+      category: file.category,
+      extractionStatus: file.extractionStatus,
+      checksumSHA256: file.checksumSHA256,
+      uploadedAt: file.uploadedAtISO,
+      updatedAt: file.updatedAtISO,
     })),
   )
 
+  const urls = cachedUrls.map(url => ({
+    url: url.url,
+    title: url.title,
+    content: url.content,
+    mimeType: url.mimeType,
+    fetchedAt: url.fetchedAtISO,
+    status: url.status,
+  }))
+
+  const snippets = textSnippets.map(snippet => ({
+    title: snippet.title,
+    content: snippet.content,
+    tags: snippet.tags || [],
+    createdAt: snippet.createdAtISO,
+    updatedAt: snippet.updatedAtISO,
+  }))
+
   return {
     files,
-    urls: [],
-    snippets: [],
+    urls,
+    snippets,
   }
 }
 

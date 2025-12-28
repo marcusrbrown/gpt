@@ -31,6 +31,7 @@ const mockGPT: Partial<GPTConfiguration> = {
   knowledge: {
     files: [],
     urls: [],
+    extractionMode: 'manual',
   },
   capabilities: {
     codeInterpreter: false,

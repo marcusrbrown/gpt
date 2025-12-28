@@ -89,6 +89,7 @@ describe('userGPTCard', () => {
     knowledge: {
       files: [],
       urls: [],
+      extractionMode: 'manual',
     },
     createdAt: new Date('2025-08-07T10:00:00.000Z'),
     updatedAt: new Date('2025-08-07T10:00:00.000Z'),

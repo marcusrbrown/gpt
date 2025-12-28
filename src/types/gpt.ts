@@ -68,6 +68,7 @@ export const GPTKnowledgeSchema = z.object({
   files: z.array(LocalFileSchema),
   urls: z.array(z.string()),
   vectorStores: z.array(VectorStoreSchema).optional(),
+  extractionMode: z.enum(['manual', 'auto']).default('manual'),
 })
 
 export const GPTConfigurationSchema = z.object({
