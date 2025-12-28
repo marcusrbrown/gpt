@@ -7,7 +7,7 @@ globs:
   - '!.specstory/**'
   - '!.ai/**'
   - '!.triage/**'
-  - '!AGENTS.md'
+  - '!**/AGENTS.md'
   - '!CLAUDE.md'
   - '!docs/prd.md'
   - '!docs/RULES.md'
