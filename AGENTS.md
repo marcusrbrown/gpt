@@ -25,3 +25,12 @@ React 19 + TypeScript + Vite | HeroUI + TailwindCSS 4 | Local-first (Zod validat
 - **Flow**: Prefer early returns over nested conditions; minimal changes only
 
 See [docs/RULES.md](docs/RULES.md) for comprehensive guidelines on architecture, security, testing, and feature priorities.
+
+## Directory-Specific Instructions
+
+When working in subdirectories, prefer the closest `AGENTS.md` to avoid missing local conventions:
+
+- `notebooks/`: [notebooks/AGENTS.md](notebooks/AGENTS.md)
+- `scripts/`: [scripts/AGENTS.md](scripts/AGENTS.md)
+- `src/`: [src/AGENTS.md](src/AGENTS.md)
+- `tests/`: [tests/AGENTS.md](tests/AGENTS.md)
