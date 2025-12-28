@@ -184,16 +184,22 @@ describe('Provider implementations', () => {
       expect(provider.apiKeyRequired).toBe(true)
     })
 
-    it('throws not implemented for validateCredentials', async () => {
+    it('validates credentials with API call', async () => {
       const provider = new AnthropicProvider()
+      const result = await provider.validateCredentials('test-key')
 
-      await expect(provider.validateCredentials('key')).rejects.toThrow('not yet implemented')
+      expect(result).toHaveProperty('valid')
+      expect(typeof result.valid).toBe('boolean')
     })
 
-    it('throws not implemented for listModels', async () => {
+    it('lists available models', async () => {
       const provider = new AnthropicProvider()
+      const models = await provider.listModels()
 
-      await expect(provider.listModels()).rejects.toThrow('not yet implemented')
+      expect(models.length).toBeGreaterThan(0)
+      expect(models[0]?.id).toBeDefined()
+      expect(models[0]?.name).toBeDefined()
+      expect(models[0]?.provider).toBe('anthropic')
     })
   })
 

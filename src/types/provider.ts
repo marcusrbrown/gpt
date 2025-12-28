@@ -45,6 +45,18 @@ export const CompletionMessageSchema = z.object({
 
 export type CompletionMessage = z.infer<typeof CompletionMessageSchema>
 
+export const AnthropicOptionsSchema = z.object({
+  extendedThinking: z
+    .object({
+      enabled: z.boolean(),
+      budgetTokens: z.number().min(1024).max(128000).optional(),
+    })
+    .optional(),
+  use1MContext: z.boolean().optional(),
+})
+
+export type AnthropicOptions = z.infer<typeof AnthropicOptionsSchema>
+
 export const CompletionRequestSchema = z.object({
   model: z.string(),
   messages: z.array(CompletionMessageSchema),
@@ -52,6 +64,11 @@ export const CompletionRequestSchema = z.object({
   maxTokens: z.number().positive().optional(),
   tools: z.array(z.record(z.string(), z.unknown())).optional(),
   stream: z.boolean().default(true),
+  providerOptions: z
+    .object({
+      anthropic: AnthropicOptionsSchema.optional(),
+    })
+    .optional(),
 })
 
 export type CompletionRequest = z.infer<typeof CompletionRequestSchema>

@@ -1,6 +1,7 @@
 import type {GPTConfiguration} from '@/types/gpt'
 import {GPTEditor} from '@/components/gpt-editor'
 import {GPTTestPane} from '@/components/gpt-test-pane'
+import {AnthropicSettings} from '@/components/settings/anthropic-settings'
 import {APISettings} from '@/components/settings/api-settings'
 import {useAIProvider} from '@/hooks/use-ai-provider'
 import {useStorage} from '@/hooks/use-storage'
@@ -143,6 +144,9 @@ export function GPTEditorPage() {
         {showSettings && (
           <div className={cn('mt-4 p-4 rounded-lg border', theme.surface(0), theme.border())}>
             <APISettings />
+            <div className="mt-6">
+              <AnthropicSettings />
+            </div>
           </div>
         )}
       </div>
