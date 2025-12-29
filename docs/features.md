@@ -2,9 +2,10 @@
 
 <!-- prettier-ignore-start -->
 
-**Document Version:** 1.0  
+**Document Version:** 1.1  
 **Created:** December 20, 2025  
-**Source:** PRD v2.0  
+**Updated:** December 29, 2025  
+**Source:** PRD v2.1  
 **Status:** Ready for Implementation Planning
 
 <!-- prettier-ignore-end -->
@@ -39,6 +40,7 @@ The Local-First GPT Creation Platform is a privacy-focused application enabling 
 - [Category 9: Accessibility](#category-9-accessibility)
 - [Category 10: Desktop Application](#category-10-desktop-application)
 - [Category 11: Sync & Collaboration](#category-11-sync--collaboration)
+- [Category 12: UI/UX](#category-12-uiux)
 - [Feature Dependencies](#feature-dependencies)
 - [Implementation Phases](#implementation-phases)
 
@@ -50,11 +52,11 @@ The Local-First GPT Creation Platform is a privacy-focused application enabling 
 
 | Priority        | Count | Percentage |
 | --------------- | ----- | ---------- |
-| **MUST HAVE**   | 27    | 47%        |
-| **SHOULD HAVE** | 19    | 33%        |
-| **COULD HAVE**  | 11    | 19%        |
+| **MUST HAVE**   | 28    | 47%        |
+| **SHOULD HAVE** | 21    | 35%        |
+| **COULD HAVE**  | 11    | 18%        |
 | **WON'T HAVE**  | 0     | 0%         |
-| **Total**       | 57    | 100%       |
+| **Total**       | 60    | 100%       |
 
 ### Feature Counts by Category
 
@@ -71,6 +73,7 @@ The Local-First GPT Creation Platform is a privacy-focused application enabling 
 | Accessibility       | 5    | 1      | 0     | 6     |
 | Desktop App         | 0    | 0      | 4     | 4     |
 | Sync                | 0    | 3      | 0     | 3     |
+| **UI/UX**           | 1    | 2      | 0     | 3     |
 
 ### Complexity Distribution
 
@@ -1815,6 +1818,143 @@ And conflicts are handled with user choice
 
 ---
 
+## Category 12: UI/UX
+
+### F-1201: Global Settings Page
+
+| Attribute        | Value                 |
+| ---------------- | --------------------- |
+| **Priority**     | MUST HAVE             |
+| **Complexity**   | Medium                |
+| **Phase**        | 1                     |
+| **Personas**     | Maya, Tomas, Lei      |
+| **Dependencies** | F-701 (Storage Layer) |
+
+**Description**: Users can access and configure all application settings from a dedicated, globally accessible page via the navbar.
+
+**Acceptance Criteria**:
+
+```gherkin
+Given a user wants to configure API providers
+When they click the Settings icon in the navbar
+Then they are navigated to /settings
+And they see organized sections for:
+  - AI Providers (OpenAI, Anthropic, Ollama, Azure)
+  - Integrations (MCP servers and tools)
+  - Appearance (Theme, reduced motion preferences)
+  - Data (Link to Backup/Restore, storage usage)
+
+Given a user has not configured any providers
+When they visit the home page
+Then they see a prompt to configure settings
+And a clear call-to-action links to /settings
+
+Given settings are changed
+When the user navigates away
+Then changes are auto-saved
+And a success indicator confirms the save
+```
+
+**Technical Considerations**:
+
+- Settings icon (Cog/Gear) added to Navbar component
+- New route `/settings` in App.tsx
+- Tab-based or accordion layout for settings categories
+- Settings state persisted to IndexedDB via existing storage service
+
+**Edge Cases**:
+
+- First-time user with no settings (show onboarding prompt)
+- Settings migration from inline GPT editor to global page
+
+---
+
+### F-1202: Consistent Page Layout
+
+| Attribute        | Value       |
+| ---------------- | ----------- |
+| **Priority**     | SHOULD HAVE |
+| **Complexity**   | Medium      |
+| **Phase**        | 1           |
+| **Personas**     | All         |
+| **Dependencies** | None        |
+
+**Description**: All pages use consistent layout patterns with proper semantic HTML and unified styling.
+
+**Acceptance Criteria**:
+
+```gherkin
+Given a user navigates to any page in the application
+When the page loads
+Then the navbar is visible and consistent
+And the footer is visible (where appropriate)
+And the main content uses semantic <main> landmark
+And page height calculations are consistent
+
+Given the application uses layout components
+When a new page is created
+Then developers use one of:
+  - DefaultLayout: Standard container with padding
+  - FullHeightLayout: Full viewport minus header (for editors)
+  - SidebarLayout: With collapsible sidebar navigation
+
+Given a user with assistive technology
+When they navigate the application
+Then ARIA landmarks are properly applied
+And heading hierarchy is correct (h1, h2, h3)
+And focus management follows logical order
+```
+
+**Technical Considerations**:
+
+- Create reusable layout components in `src/components/layouts/`
+- Standardize CSS variable usage (`--header-height`, `--footer-height`)
+- Migrate route wrappers in App.tsx to use layout components
+- Ensure all pages use `<main>` as primary content landmark
+
+---
+
+### F-1203: Feature Discoverability
+
+| Attribute        | Value          |
+| ---------------- | -------------- |
+| **Priority**     | SHOULD HAVE    |
+| **Complexity**   | Low            |
+| **Phase**        | 1              |
+| **Personas**     | All            |
+| **Dependencies** | F-1201, F-1202 |
+
+**Description**: All implemented features have discoverable UI entry points accessible within 2 clicks from the home page.
+
+**Acceptance Criteria**:
+
+```gherkin
+Given the following features are implemented
+When a user explores the application
+Then each feature is accessible:
+  | Feature              | Entry Point                  | Max Clicks |
+  | Settings             | Navbar icon                  | 1          |
+  | Backup/Restore       | Navbar + Settings            | 2          |
+  | Conversation Search  | Home page or GPT test page   | 1          |
+  | Version History      | GPT card menu or editor      | 2          |
+  | Theme Toggle         | Navbar                       | 1          |
+  | Folder Organization  | Home page sidebar            | 1          |
+  | Export/Import GPT    | GPT card menu                | 2          |
+
+Given a user is new to the application
+When they visit for the first time
+Then key features are visually highlighted or hinted
+And empty states provide guidance on next actions
+```
+
+**Technical Considerations**:
+
+- Audit all implemented features for UI exposure
+- Add missing entry points to navbar or relevant pages
+- Implement empty state components with action hints
+
+---
+
 ## Feature Dependencies
 
 ```mermaid
@@ -1837,6 +1977,9 @@ graph TD
     F-701 --> F-1001[Tauri App]
     F-1001 --> F-1002[OS Keychain]
     F-1001 --> F-1003[SQLite]
+    F-701 --> F-1201[Global Settings]
+    F-1201 --> F-1203[Feature Discoverability]
+    F-1202[Consistent Layout] --> F-1203
 ```
 
 ---
@@ -1847,27 +1990,30 @@ graph TD
 
 **MUST HAVE features for initial release:**
 
-| ID        | Feature             | Status                         |
-| --------- | ------------------- | ------------------------------ |
-| F-101     | Create GPT          | ✅ Complete                    |
-| F-102     | Edit GPT            | ✅ Complete                    |
-| F-105     | Archive GPT         | 🔄 Partial                     |
-| F-106     | Delete GPT          | 🔄 Partial                     |
-| F-401     | Streaming Chat      | ✅ Complete                    |
-| F-402     | Message Composition | ✅ Complete                    |
-| F-404     | Conversation List   | 🔄 Partial                     |
-| F-501     | Provider Config     | ✅ Complete (OpenAI only)      |
-| F-502     | Model Selection     | ✅ Complete                    |
-| F-504     | Model Settings      | ✅ Complete                    |
-| F-701     | IndexedDB Storage   | 🔄 Partial (uses localStorage) |
-| F-702     | API Key Encryption  | ❌ Not started                 |
-| F-703     | CSP Headers         | ❌ Not started                 |
-| F-705     | SRI                 | ❌ Not started                 |
-| F-706     | Session Management  | ❌ Not started                 |
-| F-801     | Offline Capability  | 🔄 Partial                     |
-| F-802     | Auto-Save           | ✅ Complete                    |
-| F-803     | Load Performance    | 🔄 Partial                     |
-| F-901-905 | Accessibility       | 🔄 Partial                     |
+| ID        | Feature                 | Status                         |
+| --------- | ----------------------- | ------------------------------ |
+| F-101     | Create GPT              | ✅ Complete                    |
+| F-102     | Edit GPT                | ✅ Complete                    |
+| F-105     | Archive GPT             | 🔄 Partial                     |
+| F-106     | Delete GPT              | 🔄 Partial                     |
+| F-401     | Streaming Chat          | ✅ Complete                    |
+| F-402     | Message Composition     | ✅ Complete                    |
+| F-404     | Conversation List       | 🔄 Partial                     |
+| F-501     | Provider Config         | ✅ Complete (OpenAI only)      |
+| F-502     | Model Selection         | ✅ Complete                    |
+| F-504     | Model Settings          | ✅ Complete                    |
+| F-701     | IndexedDB Storage       | 🔄 Partial (uses localStorage) |
+| F-702     | API Key Encryption      | ❌ Not started                 |
+| F-703     | CSP Headers             | ❌ Not started                 |
+| F-705     | SRI                     | ❌ Not started                 |
+| F-706     | Session Management      | ❌ Not started                 |
+| F-801     | Offline Capability      | 🔄 Partial                     |
+| F-802     | Auto-Save               | ✅ Complete                    |
+| F-803     | Load Performance        | 🔄 Partial                     |
+| F-901-905 | Accessibility           | 🔄 Partial                     |
+| F-1201    | Global Settings         | ❌ Not started                 |
+| F-1202    | Consistent Layout       | ❌ Not started                 |
+| F-1203    | Feature Discoverability | ❌ Not started                 |
 
 ### Phase 2: Enhanced Features (Months 4-6)
 
@@ -1941,3 +2087,4 @@ graph TD
 | F-9XX  | Accessibility             |
 | F-10XX | Desktop Application       |
 | F-11XX | Sync & Collaboration      |
+| F-12XX | UI/UX                     |

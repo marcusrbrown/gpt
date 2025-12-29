@@ -2,9 +2,9 @@
 
 <!-- prettier-ignore-start -->
 
-**Version:** 1.2
-**Last Updated:** December 25, 2025
-**Source:** PRD v2.0, Features List v1.0, Codebase Analysis, RFC-007 Learnings
+**Version:** 1.3
+**Last Updated:** December 29, 2025
+**Source:** PRD v2.1, Features List v1.1, Codebase Analysis, RFC-007 Learnings
 
 <!-- prettier-ignore-end -->
 
@@ -552,6 +552,98 @@ Modals require explicit configuration to ensure proper overlay behavior:
 | Color Contrast      | 4.5:1 minimum                    | MUST     |
 | Focus Indicators    | Visible focus rings              | MUST     |
 | Reduced Motion      | Respect `prefers-reduced-motion` | SHOULD   |
+
+### Layout and Navigation Standards (CRITICAL)
+
+All pages must follow consistent layout patterns for v1.0 readiness:
+
+#### Global Settings Access
+
+```tsx
+// CORRECT: Settings accessible from navbar on all pages
+<Navbar>
+  <NavbarContent justify="end">
+    <Button
+      as={Link}
+      href="/settings"
+      isIconOnly
+      variant="light"
+      aria-label="Settings"
+    >
+      <CogIcon className="h-5 w-5" />
+    </Button>
+  </NavbarContent>
+</Navbar>
+
+// Settings page with organized sections
+// Route: /settings
+<SettingsPage>
+  <Tabs>
+    <Tab key="providers" title="AI Providers">...</Tab>
+    <Tab key="integrations" title="Integrations">...</Tab>
+    <Tab key="appearance" title="Appearance">...</Tab>
+    <Tab key="data" title="Data">...</Tab>
+  </Tabs>
+</SettingsPage>
+```
+
+**Key Rules:**
+
+- **Settings MUST be globally accessible**: Add Settings icon to navbar, visible on all pages
+- **Settings route at `/settings`**: Dedicated page, not inline in other components
+- **Never hide settings in editor-only views**: Users must configure providers before creating GPTs
+
+#### Layout Components
+
+```tsx
+// CORRECT: Use standardized layout wrappers
+// DefaultLayout - Standard container with consistent padding
+<DefaultLayout>
+  <main className="container mx-auto px-4 py-6">
+    {children}
+  </main>
+</DefaultLayout>
+
+// FullHeightLayout - For editors and chat interfaces
+<FullHeightLayout>
+  <main className="h-[calc(100vh-var(--header-height)-var(--footer-height))]">
+    {children}
+  </main>
+</FullHeightLayout>
+
+// SidebarLayout - For pages with navigation sidebar
+<SidebarLayout sidebar={<FolderSidebar />}>
+  <main>{children}</main>
+</SidebarLayout>
+
+// WRONG: Ad-hoc layout wrappers per route
+<div className="min-h-screen">  // Inconsistent height calculation
+<div className="p-4">           // Inconsistent padding
+```
+
+**Key Rules:**
+
+- **Always use `<main>` landmark**: Required for accessibility
+- **Consistent height calculations**: Use CSS variables (`--header-height`, `--footer-height`)
+- **Layout components in `src/components/layouts/`**: Reusable across pages
+
+#### Feature Discoverability
+
+| Feature             | Entry Point               | Max Clicks from Home |
+| ------------------- | ------------------------- | -------------------- |
+| Settings            | Navbar icon               | 1                    |
+| Theme Toggle        | Navbar                    | 1                    |
+| Folder Organization | Home page sidebar         | 1                    |
+| Conversation Search | Home page or GPT test     | 1                    |
+| Backup/Restore      | Navbar or Settings > Data | 2                    |
+| Version History     | GPT card menu or editor   | 2                    |
+| Export/Import GPT   | GPT card menu             | 2                    |
+
+**Key Rules:**
+
+- **2-click maximum**: Any implemented feature must be accessible within 2 clicks from home
+- **Empty states guide users**: Show helpful prompts when no data exists
+- **New user onboarding**: First-time visitors see guidance to configure settings
 
 ---
 
