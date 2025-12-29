@@ -1,34 +1,38 @@
 # src/AGENTS.md
 
-This directory contains the React application (React 19 + TypeScript + Vite) and all product code.
+React 19 application source. All product code lives here.
 
-## Architecture Notes
+## Entry Points
 
-- **Local-first**: persisted data must use IndexedDB (Dexie). Avoid `localStorage` for anything sensitive or structured.
-- **Provider abstraction**: AI providers are implemented behind a service/provider layer; avoid calling SDKs directly from components.
-- **Validation**: define Zod schemas first, then infer types from schemas.
+- `main.tsx` → `App.tsx` → `providers.tsx`: Bootstrap, routing, provider hierarchy
+- Routes: `/` (Home), `/gpt/new`, `/gpt/edit/:id`, `/gpt/test/:id`, `/backup`, `/docs/*`
 
-## Key Entry Points
+## Provider Hierarchy
 
-- `main.tsx`, `App.tsx`: app bootstrap and top-level routing/layout.
-- `providers.tsx` and `contexts/`: global providers and app state.
+```
+NextThemesProvider → HeroUIProvider → StorageProvider → SessionProvider → AIProvider → ConversationProvider
+```
 
-## Cross-Cutting Conventions
+## Architecture Rules
 
-- Imports: use `@/` alias for `src/`.
-- UI: use HeroUI components (`@heroui/react`) and the design system utilities in `lib/design-system.ts`.
-- Styling: only use semantic Tailwind tokens (no hard-coded colors).
-- Async UI handlers: in event callbacks (e.g. HeroUI `onPress`), call async functions and terminate with `.catch(...)`.
-- Error handling: use `catch (error_)` and re-throw when the caller needs to surface it.
+- **Local-first**: IndexedDB via Dexie — never localStorage for structured/sensitive data
+- **Provider abstraction**: Never call LLM SDKs directly from components
+- **Validation**: Zod schemas first, infer types
 
-## Where To Look
+## Conventions
 
-- UI components: [components/AGENTS.md](components/AGENTS.md)
-- Hooks and state access: [hooks/AGENTS.md](hooks/AGENTS.md), [contexts/AGENTS.md](contexts/AGENTS.md)
-- Storage/crypto/provider logic: [services/AGENTS.md](services/AGENTS.md), [lib/AGENTS.md](lib/AGENTS.md)
-- Schemas/types: [types/AGENTS.md](types/AGENTS.md)
+- Imports: `@/` alias for src/
+- UI: HeroUI + design system (`cn`, `ds` from `@/lib/design-system`)
+- Styling: Semantic tokens only (no hardcoded colors)
+- Async handlers: `.catch(console.error)` in onPress/onClick
+- Errors: `catch (error_)`, re-throw for boundaries
 
-## References
+## Where to Look
 
-- Project-wide agent guidance: [../AGENTS.md](../AGENTS.md)
-- Comprehensive rules (storage, security, tests, patterns): [../docs/RULES.md](../docs/RULES.md)
+| Task           | Location                                                                     |
+| -------------- | ---------------------------------------------------------------------------- |
+| UI components  | [components/AGENTS.md](components/AGENTS.md)                                 |
+| State/hooks    | [hooks/AGENTS.md](hooks/AGENTS.md), [contexts/AGENTS.md](contexts/AGENTS.md) |
+| Business logic | [services/AGENTS.md](services/AGENTS.md)                                     |
+| Types/schemas  | [types/AGENTS.md](types/AGENTS.md)                                           |
+| Utilities      | [lib/AGENTS.md](lib/AGENTS.md)                                               |

@@ -1,13 +1,12 @@
 # src/test/AGENTS.md
 
-This directory contains Vitest setup and shared unit-test utilities.
+Vitest setup and shared unit-test utilities.
+
+## Files
+
+- `setup.ts` — Global test setup, fake-indexeddb, DOM matchers
 
 ## Conventions
 
-- Keep setup code lightweight and deterministic.
-- Prefer testing behavior through public APIs rather than reaching into module internals.
-
-## References
-
-- Project rules (testing patterns): [../../docs/RULES.md](../../docs/RULES.md)
-- App source overview: [../AGENTS.md](../AGENTS.md)
+- Keep setup lightweight and deterministic
+- Test behavior through public APIs

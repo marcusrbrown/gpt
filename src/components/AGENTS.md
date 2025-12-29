@@ -1,30 +1,26 @@
 # src/components/AGENTS.md
 
-This directory contains reusable React UI components (HeroUI + TailwindCSS design tokens).
+Reusable React UI components. HeroUI + TailwindCSS design tokens.
 
 ## Conventions
 
-- Use HeroUI primitives (`@heroui/react`) for standard UI building blocks.
-- Use `cn`, `ds`, and related utilities from `@/lib/design-system` rather than hard-coding colors/typography.
-- Prefer self-explanatory code; avoid comments unless explaining non-obvious constraints.
-
-## Async Event Handlers (Important)
-
-When triggering async logic from UI events (e.g. `onPress`, `onClick`), terminate the call with `.catch(...)` to avoid floating promises.
+- Use HeroUI primitives (`@heroui/react`)
+- Use `cn`, `ds` from `@/lib/design-system` — never hardcode colors
+- Async handlers: `.catch(console.error)` to avoid floating promises
+- Buttons with icons: add `className="flex items-center gap-2"`
+- Inputs with icons: add `classNames={{ inputWrapper: 'flex items-center' }}`
+- Modals: always `placement="center" backdrop="opaque"`
 
 ## Tests
 
-- Component unit tests live under `components/__tests__/`.
-- Do not add `AGENTS.md` to any `__tests__/` directory.
+- Component tests: `__tests__/*.test.tsx`
+- No AGENTS.md in `__tests__/` directories
 
 ## Subdirectories
 
-- Docs UI: [docs/AGENTS.md](docs/AGENTS.md)
-- File upload UI: [file-upload/AGENTS.md](file-upload/AGENTS.md)
-- Form primitives: [forms/AGENTS.md](forms/AGENTS.md)
-- Settings panels: [settings/AGENTS.md](settings/AGENTS.md)
-
-## References
-
-- App rules and patterns: [../../docs/RULES.md](../../docs/RULES.md)
-- Design system: [../lib/AGENTS.md](../lib/AGENTS.md)
+| Directory                             | Purpose                 |
+| ------------------------------------- | ----------------------- |
+| [docs/](docs/AGENTS.md)               | In-app documentation UI |
+| [file-upload/](file-upload/AGENTS.md) | File upload components  |
+| [forms/](forms/AGENTS.md)             | Form primitives         |
+| [settings/](settings/AGENTS.md)       | Settings panels         |

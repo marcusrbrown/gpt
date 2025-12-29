@@ -1,33 +1,27 @@
 # tests/AGENTS.md
 
-This directory contains higher-level Playwright suites: end-to-end, accessibility, performance, and visual regression tests.
+Playwright test suites: E2E, accessibility, performance, visual regression.
 
-## What Lives Here
+## Structure
 
-- `tests/e2e/`: user flows and app-level behavior.
-- `tests/accessibility/`: WCAG 2.1 AA audits.
-- `tests/performance/`: performance/lighthouse-style checks.
-- `tests/visual/`: visual regression tests.
+| Directory        | Purpose                   | Command                   |
+| ---------------- | ------------------------- | ------------------------- |
+| `e2e/`           | User flows, cross-browser | `pnpm test:e2e`           |
+| `accessibility/` | WCAG 2.1 AA audits        | `pnpm test:accessibility` |
+| `performance/`   | Lighthouse budgets        | `pnpm test:performance`   |
+| `visual/`        | Screenshot regression     | `pnpm test:visual`        |
 
-Unit tests for app code typically live under `src/**/__tests__/` and run with Vitest.
-
-## Commands
-
-Run from the repository root:
-
-- `pnpm test:e2e`
-- `pnpm test:accessibility`
-- `pnpm test:performance`
-- `pnpm test:visual`
+Unit tests live in `src/**/__tests__/` and run with Vitest (`pnpm test`).
 
 ## Conventions
 
-- Prefer stable selectors and user-visible roles/labels.
-- Avoid sleep-based timing; prefer Playwright’s auto-waiting and explicit expectations.
-- Keep test data isolated and repeatable (use fixtures/page-objects where appropriate).
+- Stable selectors: `data-testid`, roles, labels
+- No sleep-based timing — use Playwright auto-waiting
+- Isolated, repeatable test data (fixtures/page-objects)
 
-## References
+## Directory Guides
 
-- Project-wide agent guidance: [../AGENTS.md](../AGENTS.md)
-- Testing and accessibility requirements: [../docs/RULES.md](../docs/RULES.md)
-- Playwright configs: [../playwright.config.ts](../playwright.config.ts)
+- [e2e/AGENTS.md](e2e/AGENTS.md)
+- [accessibility/AGENTS.md](accessibility/AGENTS.md)
+- [visual/AGENTS.md](visual/AGENTS.md)
+- [performance/AGENTS.md](performance/AGENTS.md)

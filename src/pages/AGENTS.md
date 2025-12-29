@@ -1,15 +1,20 @@
 # src/pages/AGENTS.md
 
-This directory contains route-level page components.
+Route-level page components.
+
+## Routes
+
+| Route           | Component           | Purpose                  |
+| --------------- | ------------------- | ------------------------ |
+| `/`             | `HomePage`          | GPT list, search, create |
+| `/gpt/new`      | `GPTEditorPage`     | Create new GPT           |
+| `/gpt/edit/:id` | `GPTEditorPage`     | Edit existing GPT        |
+| `/gpt/test/:id` | `GPTTestPage`       | Test GPT in conversation |
+| `/backup`       | `BackupRestorePage` | Export/import data       |
+| `/docs/*`       | Lazy-loaded docs    | Documentation            |
 
 ## Conventions
 
-- Pages compose components and hooks; avoid embedding provider-specific SDK logic.
-- Keep routing concerns in pages; keep reusable UI in `src/components/`.
-- Ensure pages are accessible (proper headings, landmarks, and focus management).
-
-## References
-
-- Components: [../components/AGENTS.md](../components/AGENTS.md)
-- Hooks: [../hooks/AGENTS.md](../hooks/AGENTS.md)
-- Rules: [../../docs/RULES.md](../../docs/RULES.md)
+- Compose components and hooks; avoid SDK logic in pages
+- Keep routing concerns here, reusable UI in `components/`
+- Ensure accessibility: proper headings, landmarks, focus management

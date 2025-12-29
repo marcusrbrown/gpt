@@ -1,35 +1,35 @@
-# .github/
+# .github/AGENTS.md
 
-GitHub configuration: CI/CD workflows, repo settings, Renovate, CODEOWNERS.
+GitHub configuration: CI/CD, repo settings, Renovate.
 
 ## Structure
 
 ```
 .github/
-├── actions/setup-pnpm/   # Composite action for pnpm setup
-├── workflows/            # GitHub Actions CI/CD
-├── CODEOWNERS            # Review assignments
-├── renovate.json5        # Dependency update config
-└── settings.yml          # Repo settings (branch protection, etc.)
+├── actions/setup-pnpm/  # Composite action
+├── workflows/           # CI/CD pipelines
+├── CODEOWNERS
+├── renovate.json5
+└── settings.yml
 ```
 
 ## Workflows
 
-| Workflow                  | Trigger         | Purpose                                 |
-| ------------------------- | --------------- | --------------------------------------- |
-| `main.yaml`               | push/PR to main | Lint → Test → Build → Deploy (GH Pages) |
-| `test-accessibility.yaml` | PR              | WCAG 2.1 AA audit                       |
-| `test-coverage.yaml`      | PR              | Vitest coverage report                  |
-| `test-performance.yaml`   | PR              | Lighthouse budgets                      |
-| `renovate.yaml`           | schedule        | Dependency updates                      |
+| Workflow                  | Trigger  | Purpose                      |
+| ------------------------- | -------- | ---------------------------- |
+| `main.yaml`               | push/PR  | Lint → Test → Build → Deploy |
+| `test-accessibility.yaml` | PR       | WCAG audit                   |
+| `test-coverage.yaml`      | PR       | Vitest coverage              |
+| `test-performance.yaml`   | PR       | Lighthouse                   |
+| `renovate.yaml`           | schedule | Dependency updates           |
 
 ## Conventions
 
-- **Secrets**: Use `${{ secrets.* }}` — never hardcode
-- **Caching**: pnpm store cached via `actions/setup-pnpm`
-- **Artifacts**: Upload test reports for PR review
+- Secrets: `${{ secrets.* }}` only
+- Caching: pnpm store via `setup-pnpm`
+- Artifacts: Upload test reports
 
 ## Anti-Patterns
 
-- **Never commit secrets** to workflow files
-- **Never skip CI checks** (`[skip ci]`) without justification
+- Never commit secrets
+- Never skip CI without justification

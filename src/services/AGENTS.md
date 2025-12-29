@@ -1,24 +1,27 @@
 # src/services/AGENTS.md
 
-This directory contains business logic and integration code (storage, encryption, import/export, provider orchestration).
+Business logic layer. Boundary between UI and external systems.
+
+## Key Services
+
+| Service                   | Purpose                                         |
+| ------------------------- | ----------------------------------------------- |
+| `IndexedDBStorageService` | Dexie wrapper, LRU cache, BroadcastChannel sync |
+| `EncryptionService`       | Web Crypto AES-GCM + PBKDF2 for secrets         |
+| `ProviderRegistryImpl`    | LLM provider registration and lookup            |
+| `conversation-*.ts`       | Export, search, management                      |
 
 ## Conventions
 
-- Treat this layer as the boundary between UI and external systems (IndexedDB, crypto, LLM SDKs).
-- Follow the local-first storage rules: persist structured data via IndexedDB/Dexie.
-- Use explicit error handling (`catch (error_)`) and re-throw when callers need to surface failures.
-- Avoid leaking secrets into logs.
+- Persist structured data via IndexedDB/Dexie only
+- Error handling: `catch (error_)`, re-throw when callers need it
+- Never log secrets (API keys, auth headers)
 
 ## Tests
 
-- Service tests live under `services/__tests__/`.
-- Do not add `AGENTS.md` to any `__tests__/` directory.
+- Service tests: `__tests__/*.test.ts`
+- No AGENTS.md in `__tests__/` directories
 
-## Providers
+## Subdirectory
 
-- Provider implementations live under: [providers/AGENTS.md](providers/AGENTS.md)
-
-## References
-
-- Storage/security rules: [../../docs/RULES.md](../../docs/RULES.md)
-- Shared utilities: [../lib/AGENTS.md](../lib/AGENTS.md)
+- [providers/AGENTS.md](providers/AGENTS.md) — LLM provider implementations
