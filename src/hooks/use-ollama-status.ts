@@ -25,7 +25,7 @@ export interface OllamaStatusResult {
  * Options for the useOllamaStatus hook
  */
 export interface UseOllamaStatusOptions {
-  /** Polling interval in milliseconds (default: 30000 = 30s) */
+  /** Polling interval in milliseconds (default: 30000) */
   pollInterval?: number
   /** Whether to start polling immediately (default: true) */
   autoStart?: boolean
@@ -33,13 +33,16 @@ export interface UseOllamaStatusOptions {
   fetchModels?: boolean
 }
 
-const DEFAULT_POLL_INTERVAL = 30_000 // 30 seconds
+const DEFAULT_POLL_INTERVAL = 30_000
+
+function isCorsOrNetworkError(message: string): boolean {
+  const lowerMessage = message.toLowerCase()
+  return lowerMessage.includes('cors') || lowerMessage.includes('network')
+}
 
 /**
- * Hook to monitor Ollama connection status with automatic polling
- *
- * Provides real-time connection status monitoring for the local Ollama instance.
- * Automatically polls at configurable intervals and fetches available models.
+ * Hook to monitor Ollama connection status with automatic polling.
+ * Polls at configurable intervals and fetches available models on connection.
  *
  * @example
  * ```tsx
@@ -73,9 +76,11 @@ export function useOllamaStatus(options: UseOllamaStatusOptions = {}): OllamaSta
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const isMountedRef = useRef(true)
+  const isCheckingRef = useRef(false)
 
   const checkStatus = useCallback(async () => {
-    if (isChecking) return
+    if (isCheckingRef.current) return
+    isCheckingRef.current = true
 
     setIsChecking(true)
     setError(null)
@@ -83,59 +88,19 @@ export function useOllamaStatus(options: UseOllamaStatusOptions = {}): OllamaSta
     try {
       const provider = getOllamaProvider()
 
-      // Check connection by validating credentials (which checks /api/tags)
-      // Pass empty string since Ollama doesn't need an API key
-      const result = await provider.validateCredentials('')
+      await provider.listModels()
 
       if (!isMountedRef.current) return
 
-      if (result.valid) {
-        setStatus('connected')
-
-        // Fetch models if requested
-        if (fetchModels) {
-          try {
-            const modelList = await provider.listModels()
-            if (isMountedRef.current) {
-              // Convert provider models to OllamaModelInfo format
-              setModels(
-                modelList.map(m => ({
-                  name: m.id,
-                  model: m.id,
-                  modified_at: new Date().toISOString(),
-                  size: 0,
-                  digest: '',
-                  details: {
-                    format: '',
-                    family: 'general',
-                    parameter_size: '',
-                    quantization_level: '',
-                  },
-                })),
-              )
-            }
-          } catch {
-            // Models fetch failed but connection is still good
-            if (isMountedRef.current) {
-              setModels([])
-            }
-          }
-        }
-      } else {
-        setStatus('disconnected')
-        setModels([])
-      }
-
-      if (isMountedRef.current) {
-        setLastChecked(new Date())
-      }
+      setStatus('connected')
+      setModels(fetchModels ? provider.getCachedModels() : [])
+      setLastChecked(new Date())
     } catch (error_) {
       if (!isMountedRef.current) return
 
       const errorMessage = error_ instanceof Error ? error_.message : 'Failed to connect to Ollama'
 
-      // Determine if this is a CORS issue
-      if (errorMessage.toLowerCase().includes('cors') || errorMessage.toLowerCase().includes('network')) {
+      if (isCorsOrNetworkError(errorMessage)) {
         setStatus('cors_error')
         setError('CORS error: Set OLLAMA_ORIGINS=* and restart Ollama')
       } else {
@@ -145,21 +110,20 @@ export function useOllamaStatus(options: UseOllamaStatusOptions = {}): OllamaSta
       setModels([])
       setLastChecked(new Date())
     } finally {
+      isCheckingRef.current = false
       if (isMountedRef.current) {
         setIsChecking(false)
       }
     }
-  }, [isChecking, fetchModels])
+  }, [fetchModels])
 
   // Start/stop polling
   useEffect(() => {
     isMountedRef.current = true
 
     if (autoStart) {
-      // Initial check
       checkStatus().catch(console.error)
 
-      // Set up polling interval
       intervalRef.current = setInterval(() => {
         checkStatus().catch(console.error)
       }, pollInterval)
@@ -167,7 +131,7 @@ export function useOllamaStatus(options: UseOllamaStatusOptions = {}): OllamaSta
 
     return () => {
       isMountedRef.current = false
-      if (intervalRef.current) {
+      if (intervalRef.current !== null) {
         clearInterval(intervalRef.current)
         intervalRef.current = null
       }
@@ -184,11 +148,6 @@ export function useOllamaStatus(options: UseOllamaStatusOptions = {}): OllamaSta
   }
 }
 
-/**
- * Get current Ollama base URL from configuration
- *
- * @returns The configured base URL for Ollama
- */
 export function getOllamaBaseUrl(): string {
   const provider = getOllamaProvider()
   return provider.baseUrl
