@@ -1,14 +1,14 @@
 # src/assets/AGENTS.md
 
-This directory contains static assets bundled with the app (images, small JSON artifacts, etc.).
+Static assets bundled with the app.
+
+## Contents
+
+- `logo.png` — App logo
+- `mine.json` — App metadata
 
 ## Conventions
 
-- Keep assets small and optimized.
-- Prefer importing assets from code rather than duplicating files.
-- Do not add sensitive data to assets.
-
-## References
-
-- App code overview: [../AGENTS.md](../AGENTS.md)
-- Project-wide rules: [../../docs/RULES.md](../../docs/RULES.md)
+- Keep assets small and optimized
+- Import from code rather than duplicating
+- No sensitive data in assets

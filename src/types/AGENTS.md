@@ -1,18 +1,28 @@
 # src/types/AGENTS.md
 
-This directory contains TypeScript types and Zod schemas for core domain objects.
+TypeScript types and Zod schemas for domain objects.
 
-## Conventions
+## Key Types
 
-- Define Zod schemas first (e.g., `SomethingSchema`), then export inferred types via `z.infer<typeof SomethingSchema>`.
-- Keep schemas focused and reusable across services and UI.
+| File               | Contents                 |
+| ------------------ | ------------------------ |
+| `gpt.ts`           | GPT configuration schema |
+| `agent.ts`         | Agent types              |
+| `anthropic.ts`     | Anthropic-specific types |
+| `export-import.ts` | Export/import schemas    |
+| `provider.ts`      | Provider interfaces      |
+
+## Pattern
+
+```typescript
+// 1. Define Zod schema
+const GPTConfigSchema = z.object({ ... })
+
+// 2. Infer type
+type GPTConfig = z.infer<typeof GPTConfigSchema>
+```
 
 ## Tests
 
-- Schema/type tests live under `types/__tests__/`.
-- Do not add `AGENTS.md` to any `__tests__/` directory.
-
-## References
-
-- Project-wide rules: [../../docs/RULES.md](../../docs/RULES.md)
-- Services layer (primary consumer): [../services/AGENTS.md](../services/AGENTS.md)
+- Schema tests: `__tests__/*.test.ts`
+- No AGENTS.md in `__tests__/` directories

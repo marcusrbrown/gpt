@@ -1,36 +1,105 @@
 # AGENTS.md
 
-React 19 + TypeScript + Vite | HeroUI + TailwindCSS 4 | Local-first (Zod validation)
+Local-first GPT creation platform | React 19 + TypeScript 5.9 + Vite 7 | HeroUI + TailwindCSS 4 | IndexedDB (Dexie) + Web Crypto
 
 ## Commands
 
-- `pnpm dev` - Start dev server (localhost:5173)
-- `pnpm build` - Type-check and build for production
-- `pnpm lint` - ESLint with auto-fix
-- `pnpm test` - Run all unit tests (Vitest)
-- `pnpm test src/path/to/file.test.ts` - Run single test file
-- `pnpm test -t "pattern"` - Run tests matching name pattern
-- `pnpm test:e2e` - Playwright E2E tests
-- `pnpm test:accessibility` - WCAG 2.1 AA audit
+```bash
+pnpm dev                    # Dev server (localhost:5173)
+pnpm build                  # Type-check (tsgo) + production build
+pnpm lint                   # ESLint with auto-fix
+pnpm test                   # Unit tests (Vitest)
+pnpm test:e2e               # E2E tests (Playwright)
+pnpm test:accessibility     # WCAG 2.1 AA audit (axe-core)
+pnpm test:visual            # Visual regression
+pnpm test:performance       # Lighthouse audits
+```
 
-## Code Style
+## Structure
 
-- **Imports**: Use `@/` alias for src/ (e.g., `import {cn} from '@/lib/design-system'`)
-- **Types**: Define Zod schemas first, infer types with `z.infer<typeof Schema>`
-- **Handlers**: Prefix with "handle" (e.g., `handleSubmit`)
-- **State**: Access via hooks (`useStorage()`, `useOpenAIService()`) - never access localStorage directly
-- **Errors**: Wrap in try/catch, re-throw for component handling, use `error_` variable name
-- **UI**: Use HeroUI components (`@heroui/react`) and design system (`cn`, `ds`, `compose` from `@/lib/design-system`)
-- **Style tokens**: Use semantic colors (`surface-primary`, `content-primary`) - never hardcode colors
-- **Flow**: Prefer early returns over nested conditions; minimal changes only
+```
+src/
+├── components/     # React components (HeroUI-based)
+├── contexts/       # React Context providers
+├── hooks/          # Custom hooks (state access)
+├── lib/            # Utilities (design-system.ts)
+├── pages/          # Route-level components
+├── services/       # Business logic, providers, storage
+├── types/          # Zod schemas → TypeScript types
+└── test/           # Test setup
 
-See [docs/RULES.md](docs/RULES.md) for comprehensive guidelines on architecture, security, testing, and feature priorities.
+tests/
+├── e2e/            # Full user flow tests
+├── accessibility/  # WCAG compliance
+├── visual/         # Screenshot regression
+└── performance/    # Core Web Vitals
+```
 
-## Directory-Specific Instructions
+## Where to Look
 
-When working in subdirectories, prefer the closest `AGENTS.md` to avoid missing local conventions:
+| Task             | Location                   | Notes                                |
+| ---------------- | -------------------------- | ------------------------------------ |
+| Add UI component | `src/components/`          | Use HeroUI + design system           |
+| Add provider     | `src/services/providers/`  | Extend BaseLLMProvider               |
+| Add route        | `src/App.tsx`              | Lazy load if heavy                   |
+| Add hook         | `src/hooks/`               | Access via hooks, never localStorage |
+| Add type         | `src/types/`               | Zod schema first, infer type         |
+| Add E2E test     | `tests/e2e/`               | Use page objects                     |
+| Settings UI      | `src/components/settings/` | Delegate to services                 |
 
-- `notebooks/`: [notebooks/AGENTS.md](notebooks/AGENTS.md)
-- `scripts/`: [scripts/AGENTS.md](scripts/AGENTS.md)
-- `src/`: [src/AGENTS.md](src/AGENTS.md)
-- `tests/`: [tests/AGENTS.md](tests/AGENTS.md)
+## Conventions
+
+- **Imports**: `@/` alias for src/ (`import {cn} from '@/lib/design-system'`)
+- **Types**: Zod schema first → `z.infer<typeof Schema>`
+- **Handlers**: `handle` prefix (`handleSubmit`, `handleClick`)
+- **Errors**: `catch (error_)` naming, re-throw for boundaries
+- **Async UI**: `.catch(console.error)` in onPress/onClick (never `void`)
+- **State**: Access via hooks only, never localStorage directly
+- **Colors**: Semantic tokens only (`surface-primary`, `content-primary`)
+
+## Anti-Patterns
+
+| Forbidden               | Use Instead                      |
+| ----------------------- | -------------------------------- |
+| `localStorage` for data | IndexedDB via `useStorage()`     |
+| Hardcoded colors        | Design system tokens             |
+| `as any`, `@ts-ignore`  | Proper types, Zod validation     |
+| `void asyncFn()`        | `asyncFn().catch(console.error)` |
+| Nested buttons in Card  | Separate clickable areas         |
+| Array index as key      | Content-based unique keys        |
+
+## HeroUI Patterns
+
+```tsx
+// Buttons with icons need explicit flex
+<Button className="flex items-center gap-2" startContent={<Icon />}>
+
+// Modals need explicit config
+<Modal placement="center" backdrop="opaque" hideCloseButton>
+
+// Inputs with icons need classNames
+<Input classNames={{ inputWrapper: 'flex items-center' }} startContent={<Icon />} />
+```
+
+## Quality Gates (before PR)
+
+1. `pnpm lint` — 0 errors
+2. `pnpm test` — All passing
+3. `pnpm build` — Successful
+4. `pnpm test:accessibility` — All passing
+5. `pnpm test:e2e` — All passing
+
+## Directory Guides
+
+| Directory    | Guide                                      |
+| ------------ | ------------------------------------------ |
+| `src/`       | [src/AGENTS.md](src/AGENTS.md)             |
+| `tests/`     | [tests/AGENTS.md](tests/AGENTS.md)         |
+| `scripts/`   | [scripts/AGENTS.md](scripts/AGENTS.md)     |
+| `notebooks/` | [notebooks/AGENTS.md](notebooks/AGENTS.md) |
+| `docs/`      | [docs/AGENTS.md](docs/AGENTS.md)           |
+
+## References
+
+- [docs/RULES.md](docs/RULES.md) — Comprehensive guidelines
+- [docs/design-system.md](docs/design-system.md) — UI tokens and patterns

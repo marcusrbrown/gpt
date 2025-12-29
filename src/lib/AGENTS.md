@@ -1,25 +1,22 @@
 # src/lib/AGENTS.md
 
-This directory contains shared libraries and low-level utilities.
+Shared libraries and low-level utilities.
 
-## What Lives Here
+## Files
 
-- Design system helpers (`design-system.ts`).
-- Dexie/IndexedDB database wiring (`database.ts`).
-- Cryptography helpers (`crypto.ts`) used by services.
+| File               | Purpose                                          |
+| ------------------ | ------------------------------------------------ |
+| `design-system.ts` | `cn`, `ds`, `compose` utilities, semantic tokens |
+| `database.ts`      | Dexie/IndexedDB setup                            |
+| `crypto.ts`        | Web Crypto helpers for encryption                |
 
 ## Conventions
 
-- Keep these modules dependency-light and broadly reusable.
-- Avoid importing React code here.
-- Be careful with crypto and storage: follow the rules for encryption, secrets handling, and persistence.
+- Keep dependency-light and broadly reusable
+- Avoid importing React code here
+- Follow encryption/storage rules for crypto and persistence
 
 ## Tests
 
-- Unit tests live under `lib/__tests__/`.
-- Do not add `AGENTS.md` to any `__tests__/` directory.
-
-## References
-
-- Storage architecture rules: [../../docs/RULES.md](../../docs/RULES.md)
-- Services layer: [../services/AGENTS.md](../services/AGENTS.md)
+- Utility tests: `__tests__/*.test.ts`
+- No AGENTS.md in `__tests__/` directories

@@ -1,46 +1,42 @@
-# tests/visual/
+# tests/visual/AGENTS.md
 
-Visual regression testing with Playwright screenshots.
+Visual regression testing. Playwright screenshots.
 
 ## Structure
 
 ```
-tests/visual/
-├── fixtures/
-│   └── visual-test.ts          # VisualTestHelper fixture
-├── utils/
-│   └── visual-test-helper.ts   # Screenshot utilities
-├── *-snapshots/                # Baseline screenshots (committed)
-└── *.visual.spec.ts            # Test files
+visual/
+├── fixtures/visual-test.ts      # VisualTestHelper fixture
+├── utils/visual-test-helper.ts  # Screenshot utilities
+├── *-snapshots/                 # Baselines (committed)
+└── *.visual.spec.ts             # Tests
 ```
 
 ## Commands
 
 ```bash
-pnpm test:visual                 # Run visual tests
-pnpm test:visual:update          # Update baselines
-pnpm test:visual:ui              # Interactive mode
+pnpm test:visual         # Run tests
+pnpm test:visual:update  # Update baselines
+pnpm test:visual:ui      # Interactive mode
 ```
 
-## VisualTestHelper Methods
+## VisualTestHelper
 
-| Method                                   | Purpose                |
-| ---------------------------------------- | ---------------------- |
-| `takeFullPageScreenshot(name)`           | Full page capture      |
-| `takeComponentScreenshot(locator, name)` | Element capture        |
-| `takeResponsiveScreenshots(name)`        | Multi-viewport         |
-| `disableAnimations()`                    | Auto-called by fixture |
-| `setTheme(theme)`                        | Light/dark toggle      |
+| Method                               | Purpose        |
+| ------------------------------------ | -------------- |
+| `takeFullPageScreenshot(name)`       | Full page      |
+| `takeComponentScreenshot(loc, name)` | Element        |
+| `takeResponsiveScreenshots(name)`    | Multi-viewport |
+| `setTheme(theme)`                    | Light/dark     |
 
 ## Conventions
 
-- **Animations**: Disabled automatically via fixture
-- **Dynamic content**: Use `mask` option or `hideDynamicContent()`
-- **Baselines**: Committed to repo, updated via `:update` command
-- **Thresholds**: 0.25 diff threshold, 2000 max diff pixels
+- Animations disabled automatically
+- Dynamic content: use `mask` or `hideDynamicContent()`
+- Thresholds: 0.25 diff, 2000 max diff pixels
+- Cross-browser: Chromium/Firefox/WebKit
 
 ## Anti-Patterns
 
-- **Never commit failing baselines** — investigate first
-- **Never mask entire components** — defeats purpose
-- **Never skip cross-browser** — runs Chromium/Firefox/WebKit
+- Never commit failing baselines without investigation
+- Never mask entire components

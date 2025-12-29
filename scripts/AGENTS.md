@@ -1,29 +1,27 @@
 # scripts/AGENTS.md
 
-This directory contains TypeScript/Node scripts used by local dev and CI to aggregate, format, and report test results.
+TypeScript scripts for local dev and CI. Test result aggregation and reporting.
 
-## Scope
+## Structure
 
-- Entry scripts live in `scripts/*.ts`.
-- Shared helpers live in `scripts/lib/`.
+```
+scripts/
+├── lib/
+│   ├── formatters/   # Output formatters
+│   └── parsers/      # Result parsers
+├── aggregate-test-results.ts
+└── report-test-results.ts
+```
 
-## How Scripts Are Run
+## Commands
 
-- Typical execution uses `tsx` via package scripts.
-- Prefer running via `pnpm` scripts so CI and local usage match.
-
-Useful commands (from repository root):
-
-- `pnpm test:aggregate` (runs `tsx scripts/aggregate-test-results.ts`)
+```bash
+pnpm test:aggregate   # Aggregate test results
+```
 
 ## Conventions
 
-- Keep scripts deterministic (stable ordering, stable output) so CI diffs are meaningful.
-- Avoid writing files outside the repo unless explicitly required; prefer printing to stdout or writing to a clearly named artifact path.
-- Don’t log secrets or environment variables.
-- If you add new scripts, also add a `package.json` script entry when it’s something others should run.
-
-## References
-
-- Project-wide agent guidance: [../AGENTS.md](../AGENTS.md)
-- Engineering rules (testing, security, storage): [../docs/RULES.md](../docs/RULES.md)
+- Run via `pnpm` scripts for consistency
+- Keep output deterministic (stable ordering)
+- Don't log secrets or env vars
+- Add `package.json` script entry for new scripts

@@ -1,22 +1,16 @@
-# tests/accessibility/
+# tests/accessibility/AGENTS.md
 
-WCAG 2.1 AA compliance tests using axe-core + Playwright.
+WCAG 2.1 AA compliance tests. axe-core + Playwright.
 
 ## Structure
 
 ```
-tests/accessibility/
-├── fixtures/           # A11y test fixtures
+accessibility/
+├── fixtures/                     # A11y test fixtures
 ├── utils/
-│   ├── accessibility-config.ts   # axe-core rule configs
-│   └── accessibility-utils.ts    # Helper functions
-└── *.accessibility.spec.ts       # Test files
-```
-
-## Commands
-
-```bash
-pnpm test:accessibility           # Run all a11y tests
+│   ├── accessibility-config.ts   # axe-core configs
+│   └── accessibility-utils.ts    # Helpers
+└── *.accessibility.spec.ts       # Tests
 ```
 
 ## Configurations
@@ -24,19 +18,19 @@ pnpm test:accessibility           # Run all a11y tests
 | Config                            | Use Case                        |
 | --------------------------------- | ------------------------------- |
 | `WCAG_2_1_AA_STANDARD`            | Default, includes best-practice |
-| `WCAG_2_1_AA_STRICT`              | No exclusions, comprehensive    |
-| `FORM_ACCESSIBILITY_CONFIG`       | Form-specific rules             |
-| `NAVIGATION_ACCESSIBILITY_CONFIG` | Keyboard/focus rules            |
-| `SCREEN_READER_CONFIG`            | ARIA/screen reader rules        |
+| `WCAG_2_1_AA_STRICT`              | No exclusions                   |
+| `FORM_ACCESSIBILITY_CONFIG`       | Form-specific                   |
+| `NAVIGATION_ACCESSIBILITY_CONFIG` | Keyboard/focus                  |
+| `SCREEN_READER_CONFIG`            | ARIA rules                      |
 
 ## Conventions
 
-- **File naming**: `{component}.accessibility.spec.ts`
-- **Rule selection**: Use `getAccessibilityConfig(type)` helper
-- **Exclusions**: Document in `JUSTIFIED_RULE_EXCLUSIONS` with reason
+- File naming: `{component}.accessibility.spec.ts`
+- Use `getAccessibilityConfig(type)` helper
+- Document exclusions in `JUSTIFIED_RULE_EXCLUSIONS`
 
 ## Anti-Patterns
 
-- **Never disable rules without justification** in config
-- **Never skip color-contrast** checks
-- **Never ignore heading-order** violations
+- Never disable rules without justification
+- Never skip color-contrast checks
+- Never ignore heading-order violations

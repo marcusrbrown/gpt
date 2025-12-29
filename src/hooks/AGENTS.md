@@ -1,20 +1,23 @@
 # src/hooks/AGENTS.md
 
-This directory contains custom React hooks that provide access to app state and services.
+Custom React hooks for state access and services.
+
+## Key Hooks
+
+| Hook                       | Purpose                            |
+| -------------------------- | ---------------------------------- |
+| `useStorage()`             | GPT CRUD, conversation persistence |
+| `useAIProvider()`          | LLM provider access                |
+| `useConversationContext()` | Active conversation state          |
+| `useGptValidation()`       | GPT config validation              |
 
 ## Conventions
 
-- Hooks should be focused and composable.
-- Access persisted data via `useStorage()` and service abstractions; do not read/write `localStorage` directly.
-- Prefer returning stable callbacks and memoized values when hooks are used in hot render paths.
+- Focused and composable
+- Access data via `useStorage()` — never localStorage directly
+- Return stable callbacks and memoized values for hot paths
 
 ## Tests
 
-- Hook tests live under `hooks/__tests__/`.
-- Do not add `AGENTS.md` to any `__tests__/` directory.
-
-## References
-
-- Contexts: [../contexts/AGENTS.md](../contexts/AGENTS.md)
-- Services: [../services/AGENTS.md](../services/AGENTS.md)
-- Rules: [../../docs/RULES.md](../../docs/RULES.md)
+- Hook tests: `__tests__/*.test.ts`
+- No AGENTS.md in `__tests__/` directories
