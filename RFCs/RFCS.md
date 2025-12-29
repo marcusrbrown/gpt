@@ -1,6 +1,6 @@
 # RFCs Master Index
 
-**Version:** 1.0 **Created:** December 20, 2025 **Source:** PRD v2.0, Features List v1.0
+**Version:** 1.1 **Updated:** December 29, 2025 **Source:** PRD v2.1, Features List v1.1
 
 ---
 
@@ -39,6 +39,13 @@ This document serves as the master index for all Request for Comments (RFC) docu
 │                   PHASE 3-4: ADVANCED CAPABILITIES                      │
 │  RFC-010 (Ollama) ──► RFC-011 (Advanced Tools) ──► RFC-012 (Desktop)    │
 └─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                       PHASE 1: V1.0 CRITICAL                            │
+│                     RFC-013 (UI/UX Improvements)                        │
+│  (Can be implemented in parallel - no blocking dependencies)            │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -59,6 +66,7 @@ This document serves as the master index for all Request for Comments (RFC) docu
 | RFC-010 | Ollama Local Models            | SHOULD   | Medium     | 3     | Completed |
 | RFC-011 | Advanced Tools & Sandbox       | COULD    | High       | 3     | Pending   |
 | RFC-012 | Tauri Desktop Application      | COULD    | High       | 4     | Pending   |
+| RFC-013 | UI/UX Improvements             | MUST     | Medium     | 1     | Pending   |
 
 ---
 
@@ -178,6 +186,13 @@ RFC-001 (Storage)
 - **Features Covered:** F-1001, F-1002, F-1003, F-1004, F-1102
 - **Description:** Native desktop wrapper with OS integration and enhanced capabilities.
 
+### RFC-013: UI/UX Improvements
+
+- **Builds Upon:** RFC-001, RFC-002, RFC-003, RFC-004
+- **Required By:** None (v1.0 polish layer)
+- **Features Covered:** F-1201, F-1202, F-1203
+- **Description:** Global settings page, consistent layout components, and feature discoverability improvements. Critical for v1.0 readiness.
+
 ---
 
 ## Implementation Guidelines
@@ -230,6 +245,10 @@ Each RFC completion requires:
 - [RFC-010: Ollama Local Models](./RFC-010-Ollama-Local-Models.md)
 - [RFC-011: Advanced Tools & Sandbox](./RFC-011-Advanced-Tools-Sandbox.md)
 - [RFC-012: Tauri Desktop Application](./RFC-012-Tauri-Desktop-Application.md)
+
+### v1.0 Critical (Can be implemented now)
+
+- [RFC-013: UI/UX Improvements](./RFC-013-UI-UX-Improvements.md)
 
 ---
 

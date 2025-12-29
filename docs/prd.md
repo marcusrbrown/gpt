@@ -2,9 +2,9 @@
 
 <!-- prettier-ignore-start -->
 
-**Document Version:** 2.0
+**Document Version:** 2.2
 **Original Version:** 1.0 (May 3, 2025)
-**Revision Date:** December 19, 2025
+**Revision Date:** December 29, 2025
 **Status:** Implementation-Ready
 **Project:** GPT - Local-First AI Assistant Creation Platform
 
@@ -25,6 +25,15 @@ This revision addresses critical gaps identified in PRD v1.0:
 | AI Quality Metrics | Not defined | Specific LLM quality metrics added |
 | Scope Boundaries | Implicit | Explicit out-of-scope section added |
 | Data Models | Incomplete vs implementation | Aligned with Zod schemas + extensions |
+
+### v2.1 Changes (December 29, 2025)
+
+| Area | Issue | Resolution |
+| --- | --- | --- |
+| UI/UX - Settings Access | Settings only accessible from GPT editor | Global settings page with navbar access (FR-22) |
+| UI/UX - Layout Consistency | Inconsistent page layouts (header, footer, wrappers) | Unified layout components (FR-23) |
+| UI/UX - Visual Consistency | Mixed color systems, light/dark theme gaps | Design token unification (NFR-UX-2) |
+| UI/UX - Feature Exposure | Implemented features hidden or not discoverable | All features must have UI entry points (NFR-UX-1) |
 
 ---
 
@@ -552,6 +561,102 @@ Then each is imported with conflict detection
 And import report shows success/failure per item
 ```
 
+### 3.7 UI/UX Requirements
+
+#### FR-22: Global Settings Page [MUST HAVE]
+
+**Description:** Users can access and configure all application settings from a dedicated, globally accessible page.
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user wants to configure API providers
+When they click the Settings icon in the navbar
+Then they are navigated to /settings
+And they see organized sections for:
+  - AI Providers (OpenAI, Anthropic, Ollama, Azure)
+  - Integrations (MCP servers and tools)
+  - Appearance (Theme, reduced motion preferences)
+  - Data (Link to Backup/Restore, storage usage)
+
+Given a user has not configured any providers
+When they visit the home page
+Then they see a prompt to configure settings
+And a clear call-to-action links to /settings
+
+Given settings are changed
+When the user navigates away
+Then changes are auto-saved
+And a success indicator confirms the save
+```
+
+**Technical Considerations:**
+
+- Settings icon (Cog/Gear) added to Navbar component
+- New route `/settings` in App.tsx
+- Tab-based or accordion layout for settings categories
+- Settings state persisted to IndexedDB via existing storage service
+
+#### FR-23: Consistent Page Layout [SHOULD HAVE]
+
+**Description:** All pages use consistent layout patterns with proper semantic HTML and unified styling.
+
+**Acceptance Criteria:**
+
+```gherkin
+Given a user navigates to any page in the application
+When the page loads
+Then the navbar is visible and consistent
+And the footer is visible (where appropriate)
+And the main content uses semantic <main> landmark
+And page height calculations are consistent
+
+Given the application uses layout components
+When a new page is created
+Then developers use one of:
+  - DefaultLayout: Standard container with padding
+  - FullHeightLayout: Full viewport minus header (for editors)
+  - SidebarLayout: With collapsible sidebar navigation
+
+Given a user with assistive technology
+When they navigate the application
+Then ARIA landmarks are properly applied
+And heading hierarchy is correct (h1, h2, h3)
+And focus management follows logical order
+```
+
+**Technical Considerations:**
+
+- Create reusable layout components in `src/components/layouts/`
+- Standardize CSS variable usage (`--header-height`, `--footer-height`)
+- Migrate route wrappers in App.tsx to use layout components
+- Ensure all pages use `<main>` as primary content landmark
+
+#### FR-24: Feature Discoverability [SHOULD HAVE]
+
+**Description:** All implemented features have discoverable UI entry points accessible within 2 clicks from the home page.
+
+**Acceptance Criteria:**
+
+```gherkin
+Given the following features are implemented
+When a user explores the application
+Then each feature is accessible:
+  | Feature | Entry Point | Max Clicks |
+  | Settings | Navbar icon | 1 |
+  | Backup/Restore | Navbar + Settings | 2 |
+  | Conversation Search | Home page or GPT test page | 1 |
+  | Version History | GPT card menu or editor | 2 |
+  | Theme Toggle | Navbar | 1 |
+  | Folder Organization | Home page sidebar | 1 |
+  | Export/Import GPT | GPT card menu | 2 |
+
+Given a user is new to the application
+When they visit for the first time
+Then key features are visually highlighted or hinted
+And empty states provide guidance on next actions
+```
+
 ---
 
 ## 4. Non-Functional Requirements
@@ -599,7 +704,19 @@ And import report shows success/failure per item
 | Focus indicators      | Visible focus rings            | MUST     |
 | Reduced motion        | Respect prefers-reduced-motion | SHOULD   |
 
-### 4.5 AI/LLM-Specific Quality Metrics
+### 4.5 UI/UX Quality
+
+| Requirement                        | Target                                              | Priority |
+| ---------------------------------- | --------------------------------------------------- | -------- |
+| Feature discoverability (NFR-UX-1) | All features reachable in ≤2 clicks from home       | MUST     |
+| Visual consistency (NFR-UX-2)      | 100% components use semantic design tokens          | SHOULD   |
+| Settings accessibility             | Global settings accessible from any page via navbar | MUST     |
+| Layout consistency                 | All pages use standardized layout components        | SHOULD   |
+| Theme parity                       | Light and dark themes visually equivalent           | SHOULD   |
+| Empty state guidance               | All empty states provide next-action hints          | SHOULD   |
+| Navigation clarity                 | Current location always visible in UI               | MUST     |
+
+### 4.6 AI/LLM-Specific Quality Metrics
 
 | Metric              | Target                                  | Measurement           |
 | ------------------- | --------------------------------------- | --------------------- |
@@ -747,10 +864,10 @@ IndexedDB                  IndexedDB
 
 **Milestone 1 Criteria:**
 
-- [ ] Create, edit, delete GPT configurations
+- [x] Create, edit, delete GPT configurations
 - [ ] Encrypted API key storage
-- [ ] Basic chat with OpenAI streaming
-- [ ] Data persists across sessions
+- [x] Basic chat with OpenAI streaming
+- [x] Data persists across sessions
 - [ ] Works fully offline after initial load
 
 ### Phase 2: Enhanced Features [Months 4-6] - SHOULD HAVE
@@ -861,6 +978,15 @@ IndexedDB                  IndexedDB
 | Feasibility  | 8/10  | Specific technical architecture, realistic phases                |
 | User-Focus   | 8/10  | Maintained persona focus, added metrics                          |
 
+### PRD (v2.1) Scores
+
+| Dimension    | Score  | Notes                                                         |
+| ------------ | ------ | ------------------------------------------------------------- |
+| Completeness | 9/10   | UI/UX requirements fill remaining gaps in user experience     |
+| Clarity      | 9/10   | Maintained Given-When-Then format for new requirements        |
+| Feasibility  | 8.5/10 | Practical UI/UX requirements with clear implementation path   |
+| User-Focus   | 9/10   | Addresses user pain points (settings access, discoverability) |
+
 ---
 
 ## 10. Appendix
@@ -886,7 +1012,9 @@ IndexedDB                  IndexedDB
 
 ### C. Revision History
 
-| Version | Date       | Author    | Changes                                                             |
-| ------- | ---------- | --------- | ------------------------------------------------------------------- |
-| 1.0     | 2025-05-03 | Original  | Initial PRD                                                         |
-| 2.0     | 2025-12-19 | AI Review | Gap analysis, prioritization, acceptance criteria, security details |
+| Version | Date | Author | Changes |
+| --- | --- | --- | --- |
+| 1.0 | 2025-05-03 | Original | Initial PRD |
+| 2.0 | 2025-12-19 | AI Review | Gap analysis, prioritization, acceptance criteria, security details |
+| 2.1 | 2025-12-29 | AI Review | UI/UX requirements (FR-22-24), settings access, layout consistency, visual consistency (NFR-UX-1/2) |
+| 2.2 | 2025-12-29 | AI Review | Fix section numbering (4.5→4.6), add v2.1 quality scores, sync Phase 1 milestone checkboxes |
