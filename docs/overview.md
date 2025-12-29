@@ -1,161 +1,96 @@
-# Project Objective: Local-First GPT Creation Platform
+# Project Overview: Local-First GPT Creation Platform
 
 ## Core Mission
 
-Develop a TypeScript-based web application that empowers users to create, customize, and manage AI assistants (GPTs) with complete data sovereignty, mirroring OpenAI's GPT functionality while maintaining local data control.
+GPT is a privacy-first, local-first platform for creating, managing, and interacting with custom AI assistants (GPTs). It provides a seamless experience mirroring OpenAI's GPT functionality while ensuring complete data sovereignty through local storage and client-side encryption.
 
-## Primary Features & Requirements
+## Architecture & Design Principles
 
-### 1. Interactive Creation Interface
+### 1. Local-First Data Sovereignty
 
-- Implement a visual editor with real-time chat testing capabilities
-- Support multi-modal GPT configuration (prompts, knowledge bases, tools)
-- Provide immediate feedback through integrated chat testing
+- **Storage**: All data (configurations, conversations, knowledge) is stored in **IndexedDB** via **Dexie.js**, providing robust structured storage that scales beyond `localStorage` limits.
+- **Performance**: Integrated **LRU caching** layer for fast access to frequently used GPTs and conversations.
+- **Synchronization**: Real-time **cross-tab synchronization** using the `BroadcastChannel` API.
+- **Privacy**: No user data or conversation history ever leaves the client except for LLM provider requests.
 
-### 2. Data Architecture
+### 2. Security Infrastructure
 
-- Store all GPT configurations locally:
-  - System prompts
-  - Custom instructions
-  - Tool configurations
-  - Knowledge bases
-  - Conversation histories
-- Implement robust export/import functionality
-- Ensure data portability and backup capabilities
+- **Encryption**: Sensitive data (API keys) is encrypted using the **Web Crypto API** (AES-GCM 256-bit).
+- **Key Derivation**: Secure key derivation using **PBKDF2** with unique salts.
+- **Zero-Knowledge**: The platform does not store or see raw API keys; they are only decrypted in-memory for provider requests.
 
-### 3. OpenAI API Integration
+### 3. Multi-Provider Abstraction
 
-- Enable seamless deployment to OpenAI Assistants API
-- Maintain compatibility with OpenAI's GPT specifications
-- Support bidirectional sync capabilities
+- **BaseLLMProvider**: A unified abstraction layer for different LLM providers (OpenAI, Anthropic, Ollama).
+- **Provider Registry**: Dynamic registration system allowing easy expansion to new models and providers.
+- **Streaming**: Full support for streaming responses with consistent message formatting across providers.
 
-### 4. Tool Integration Framework
+### 4. Accessibility & UI
 
-- Custom tool definition and management
-- MCP (Multi-Call Protocol) server discovery and integration
-- Extensible tool ecosystem support
+- **WCAG 2.1 AA**: Built with accessibility as a first-class citizen using **HeroUI** and **axe-core** audit gates.
+- **Semantic Design**: Utilizes **TailwindCSS 4** design tokens for consistent theming and micro-interactions.
 
-### 5. Reference Implementation
+## Technical Implementation
 
-- Convert existing GPTs from mine.json to interactive examples:
-  - GPT Architect (Advanced Model)
-  - Repo Ranger
-  - Baroque Bitch
-  - Promptimizer
-  - Plugindex
-  - Pythonyx
-- Implement as Jupyter notebooks using Deno kernel
+### Core Interfaces (Zod Schemas)
 
-### 6. User Experience Requirements
+The project uses **Zod** for runtime validation and type inference, ensuring data integrity across the platform.
 
-- Mirror OpenAI's GPT editor UX patterns
-- Enhance with local-first capabilities
-- Focus on data ownership and portability
-- Provide comprehensive testing interface
-
-## Technical Constraints
-
-- TypeScript-based implementation
-- Local-first architecture
-- OpenAI API compatibility
-- Deno compatibility for notebook examples
-
-## Success Criteria
-
-1. Users can create GPTs entirely offline
-2. All user data remains under user control
-3. Seamless deployment to OpenAI platform
-4. Feature parity with OpenAI GPT editor
-5. Extended capabilities through custom tools
-6. Interactive learning through example implementations
-
-## Implementation Analysis
-
-### 1. Core Architecture Components
-
-#### A. Local-First Data Layer
-
-- TypeScript-based storage system for GPT configurations
-- Local file system integration for user data
-- Export/import functionality for GPT definitions B. Visual Editor Interface
-- React-based component architecture
-- Interactive prompt engineering interface
-- Real-time chat testing environment
-- Tool configuration panel C. MCP Integration Layer
-- Model Context Protocol server discovery
-- Tool registration and management
-- Custom tool definition interface
-
-### 2. Key Features Implementation
-
-#### A. GPT Configuration Management
-
-```tsx
-interface GPTConfiguration {
-  name: string;
-  description: string;
-  systemPrompt: string;
-  tools: MCPTool[];
-  knowledge: {
-    files: LocalFile[];
-    urls: string[];
-  };
-  capabilities: {
-    codeInterpreter: boolean;
-    webBrowsing: boolean;
-    imageGeneration: boolean;
-  };
-}
+```typescript
+// GPT Configuration Schema
+export const GPTConfigurationSchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  description: z.string(),
+  systemPrompt: z.string(),
+  instructions: z.string().optional(),
+  modelProvider: ProviderIdSchema.optional(),
+  modelName: z.string().optional(),
+  tools: z.array(MCPToolSchema),
+  knowledge: GPTKnowledgeSchema,
+  capabilities: GPTCapabilitiesSchema,
+  isArchived: z.boolean().default(false),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+})
 ```
 
-#### B. MCP Integration
+### Key Services
 
-```tsx
-interface MCPTool {
-  name: string;
-  description: string;
-  schema: JSONSchema;
-  endpoint: string;
-  authentication?: {
-    type: "bearer" | "api_key";
-    value: string;
-  };
-}
-```
+- **IndexedDBStorageService**: Manages the persistence layer with Dexie.js.
+- **EncryptionService**: Handles client-side crypto operations.
+- **ProviderRegistry**: Orchestrates multiple LLM backends.
+- **ConversationSearchService**: Provides full-text search across local conversation history.
 
-#### C. Local Storage Strategy
+## Architecture Decisions (RFCs)
 
-```tsx
-interface LocalStorage {
-  gpts: Map<string, GPTConfiguration>;
-  conversations: Map<string, Conversation>;
-  tools: Map<string, MCPTool>;
-  settings: UserSettings;
-}
-```
+The platform's evolution is documented through Request for Comments (RFCs):
 
-### 3. Implementation Phases
+- **RFC-001**: IndexedDB Storage Foundation (Dexie integration)
+- **RFC-002**: Security Infrastructure (Web Crypto, AES-GCM)
+- **RFC-003**: Provider Abstraction Layer (BaseLLMProvider)
+- **RFC-004**: GPT Configuration Management
+- **RFC-005**: Conversation Management
+- **RFC-007**: Export/Import System
+- **RFC-008**: Anthropic Provider Integration
+- **RFC-009**: MCP Tool Integration (Multi-Call Protocol)
+- **RFC-010**: Ollama Local Models
 
-#### Phase 1: Core Infrastructure
+## Project State & Roadmap
 
-1. Set up local storage system
-2. Implement basic GPT configuration management
-3. Create visual editor foundation
+### Completed Features
 
-#### Phase 2: MCP Integration
+- [x] **GPT CRUD**: Full lifecycle management for custom assistants.
+- [x] **Multi-Provider Support**: OpenAI, Anthropic, and local Ollama models.
+- [x] **Secure Storage**: Encrypted API key management and IndexedDB persistence.
+- [x] **Conversation Management**: Threaded history, pinning, and archiving.
+- [x] **Full-Text Search**: Client-side search for conversations and GPTs.
+- [x] **Export/Import**: JSON-based backup and portability for configurations.
+- [x] **Accessibility**: WCAG 2.1 AA compliance audit integration.
 
-1. Implement MCP server discovery
-2. Add tool registration system
-3. Create tool testing interface
+### Active Development
 
-#### Phase 3: OpenAI Compatibility
-
-1. Add Assistants API export
-2. Implement GPT conversion
-3. Add synchronization capabilities
-
-#### Phase 4: Example Implementation
-
-1. Convert existing GPTs from mine.json
-2. Create interactive notebooks
-3. Add documentation
+- [ ] **MCP Tool Integration**: Enhanced tool calling via Multi-Call Protocol.
+- [ ] **Knowledge Base RAG**: Vector store integration for local file search.
+- [ ] **Advanced Tool Sandbox**: Secure execution environment for custom tools.
+- [ ] **Tauri Desktop App**: Native desktop wrapper for enhanced local capabilities.
