@@ -1,3 +1,4 @@
+import type {MCPOAuthTokensDB, MCPServerConfigDB, MCPTaskDB, MCPToolCallDB} from '@/types/mcp'
 import Dexie, {type Table} from 'dexie'
 
 export interface ModelSettings {
@@ -196,8 +197,9 @@ export interface TextSnippetDB {
 }
 
 /**
- * GPT Platform database. Schema v1 (RFC-001).
- * Tables: gpts, conversations, messages, knowledgeFiles, secrets, settings
+ * GPT Platform database. Schema v5 (RFC-009).
+ * Tables: gpts, conversations, messages, knowledgeFiles, secrets, settings,
+ *         gptVersions, folders, cachedURLs, textSnippets, mcpServers, mcpToolCalls, mcpTasks, mcpOAuthTokens
  */
 export class GPTDatabase extends Dexie {
   gpts!: Table<GPTConfigurationDB>
@@ -210,6 +212,10 @@ export class GPTDatabase extends Dexie {
   settings!: Table<UserSettingDB>
   gptVersions!: Table<GPTVersionDB>
   folders!: Table<GPTFolderDB>
+  mcpServers!: Table<MCPServerConfigDB>
+  mcpToolCalls!: Table<MCPToolCallDB>
+  mcpTasks!: Table<MCPTaskDB>
+  mcpOAuthTokens!: Table<MCPOAuthTokensDB>
 
   constructor() {
     super('gpt-platform')
@@ -295,6 +301,24 @@ export class GPTDatabase extends Dexie {
             }
           })
       })
+
+    // RFC-009: MCP Tool Integration - add mcpServers, mcpToolCalls, mcpTasks, mcpOAuthTokens
+    this.version(5).stores({
+      gpts: 'id, name, createdAtISO, updatedAtISO, *tags, isArchived, folderId, archivedAtISO',
+      conversations: 'id, gptId, updatedAtISO, *tags, isPinned, isArchived',
+      messages: 'id, conversationId, timestampISO',
+      knowledgeFiles: 'id, gptId, name, mimeType, extractionStatus, updatedAtISO',
+      cachedURLs: 'id, gptId, [gptId+url], status, expiresAtISO',
+      textSnippets: 'id, gptId, updatedAtISO',
+      secrets: 'id, provider',
+      settings: 'key',
+      gptVersions: 'id, gptId, version, createdAtISO',
+      folders: 'id, parentId, name, order',
+      mcpServers: 'id, name, transport, enabled, updatedAt',
+      mcpToolCalls: 'id, serverId, toolName, status, startedAt, [serverId+status], taskId',
+      mcpTasks: 'id, serverId, toolCallId, status, createdAt, [serverId+status]',
+      mcpOAuthTokens: 'serverId',
+    })
   }
 }
 

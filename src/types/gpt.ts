@@ -71,6 +71,22 @@ export const GPTKnowledgeSchema = z.object({
   extractionMode: z.enum(['manual', 'auto']).default('manual'),
 })
 
+/**
+ * MCP configuration for a GPT - defines which MCP servers and tools are available
+ */
+export const GPTMCPConfigSchema = z.object({
+  /** IDs of MCP servers this GPT can use */
+  serverIds: z.array(z.string().uuid()).default([]),
+  /** Tool approval mode: always-ask, auto-approve, or never (disabled) */
+  toolApprovalMode: z.enum(['always-ask', 'auto-approve', 'never']).default('always-ask'),
+  /** Maximum concurrent tool calls */
+  maxConcurrentCalls: z.number().min(1).max(10).default(3),
+  /** Timeout for tool calls in milliseconds */
+  toolTimeout: z.number().min(1000).max(300000).default(30000),
+})
+
+export type GPTMCPConfig = z.infer<typeof GPTMCPConfigSchema>
+
 export const GPTConfigurationSchema = z.object({
   id: z.string().uuid(),
   name: z.string(),
@@ -92,6 +108,8 @@ export const GPTConfigurationSchema = z.object({
   tools: z.array(MCPToolSchema),
   knowledge: GPTKnowledgeSchema,
   capabilities: GPTCapabilitiesSchema,
+  /** MCP server configuration for this GPT */
+  mcpConfig: GPTMCPConfigSchema.optional(),
   createdAt: z.date(),
   updatedAt: z.date(),
   version: z.number().default(1),
