@@ -59,3 +59,4 @@ test-results/
 playwright-report/
 tests/**/*.png
 !tests/**/*-linux.png
+.playwright-mcp/

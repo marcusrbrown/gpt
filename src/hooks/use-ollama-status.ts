@@ -73,9 +73,11 @@ export function useOllamaStatus(options: UseOllamaStatusOptions = {}): OllamaSta
 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const isMountedRef = useRef(true)
+  const isCheckingRef = useRef(false)
 
   const checkStatus = useCallback(async () => {
-    if (isChecking) return
+    if (isCheckingRef.current) return
+    isCheckingRef.current = true
 
     setIsChecking(true)
     setError(null)
@@ -83,48 +85,12 @@ export function useOllamaStatus(options: UseOllamaStatusOptions = {}): OllamaSta
     try {
       const provider = getOllamaProvider()
 
-      // Check connection by validating credentials (which checks /api/tags)
-      // Pass empty string since Ollama doesn't need an API key
-      const result = await provider.validateCredentials('')
+      await provider.listModels()
 
       if (!isMountedRef.current) return
 
-      if (result.valid) {
-        setStatus('connected')
-
-        // Fetch models if requested
-        if (fetchModels) {
-          try {
-            const modelList = await provider.listModels()
-            if (isMountedRef.current) {
-              // Convert provider models to OllamaModelInfo format
-              setModels(
-                modelList.map(m => ({
-                  name: m.id,
-                  model: m.id,
-                  modified_at: new Date().toISOString(),
-                  size: 0,
-                  digest: '',
-                  details: {
-                    format: '',
-                    family: 'general',
-                    parameter_size: '',
-                    quantization_level: '',
-                  },
-                })),
-              )
-            }
-          } catch {
-            // Models fetch failed but connection is still good
-            if (isMountedRef.current) {
-              setModels([])
-            }
-          }
-        }
-      } else {
-        setStatus('disconnected')
-        setModels([])
-      }
+      setStatus('connected')
+      setModels(fetchModels ? provider.getCachedModels() : [])
 
       if (isMountedRef.current) {
         setLastChecked(new Date())
@@ -145,11 +111,12 @@ export function useOllamaStatus(options: UseOllamaStatusOptions = {}): OllamaSta
       setModels([])
       setLastChecked(new Date())
     } finally {
+      isCheckingRef.current = false
       if (isMountedRef.current) {
         setIsChecking(false)
       }
     }
-  }, [isChecking, fetchModels])
+  }, [fetchModels])
 
   // Start/stop polling
   useEffect(() => {
