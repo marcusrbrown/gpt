@@ -56,7 +56,7 @@ This document serves as the master index for all Request for Comments (RFC) docu
 | RFC-007 | Export/Import System           | MUST     | Medium     | 2     | Completed |
 | RFC-008 | Anthropic Provider Integration | SHOULD   | Medium     | 2     | Completed |
 | RFC-009 | MCP Tool Integration           | SHOULD   | High       | 2     | Pending   |
-| RFC-010 | Ollama Local Models            | SHOULD   | Medium     | 3     | Pending   |
+| RFC-010 | Ollama Local Models            | SHOULD   | Medium     | 3     | Completed |
 | RFC-011 | Advanced Tools & Sandbox       | COULD    | High       | 3     | Pending   |
 | RFC-012 | Tauri Desktop Application      | COULD    | High       | 4     | Pending   |
 

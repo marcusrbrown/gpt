@@ -3,6 +3,7 @@ import {GPTEditor} from '@/components/gpt-editor'
 import {GPTTestPane} from '@/components/gpt-test-pane'
 import {AnthropicSettings} from '@/components/settings/anthropic-settings'
 import {APISettings} from '@/components/settings/api-settings'
+import {OllamaSettings} from '@/components/settings/ollama-settings'
 import {useAIProvider} from '@/hooks/use-ai-provider'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds, theme} from '@/lib/design-system'
@@ -146,6 +147,9 @@ export function GPTEditorPage() {
             <APISettings />
             <div className="mt-6">
               <AnthropicSettings />
+            </div>
+            <div className="mt-6">
+              <OllamaSettings />
             </div>
           </div>
         )}

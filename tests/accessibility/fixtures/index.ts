@@ -63,8 +63,14 @@ export const accessibilityTest = {
     allowedSerious = 0,
   ): Promise<ViolationSummary> {
     await test.step('Running accessibility scan', async () => {
-      // Wait for page to be fully loaded
-      await page.waitForLoadState('networkidle')
+      // Wait for page to be fully loaded with timeout fallback
+      // networkidle can hang when there are mocked routes that respond immediately
+      try {
+        await page.waitForLoadState('networkidle', {timeout: 5000})
+      } catch {
+        // Fall back to domcontentloaded if networkidle times out
+        await page.waitForLoadState('domcontentloaded')
+      }
     })
 
     const results = await AccessibilityUtils.scanForAccessibility(page, options)
