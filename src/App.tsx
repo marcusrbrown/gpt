@@ -8,6 +8,7 @@ import {BackupRestorePage} from './pages/backup-restore-page'
 import {GPTEditorPage} from './pages/gpt-editor-page'
 import {GPTTestPage} from './pages/gpt-test-page'
 import {HomePage} from './pages/home-page'
+import {OAuthCallbackPage} from './pages/oauth-callback-page'
 import {Providers} from './providers'
 
 // Lazy load documentation components for better initial load performance
@@ -66,6 +67,15 @@ function App() {
                 <main className={cn(ds.layout.container, ds.animation.fadeIn, 'py-8')}>
                   <BackupRestorePage />
                 </main>
+              }
+            />
+
+            <Route
+              path="/oauth/callback"
+              element={
+                <div className={ds.animation.fadeIn}>
+                  <OAuthCallbackPage />
+                </div>
               }
             />
 

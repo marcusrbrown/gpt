@@ -36,6 +36,10 @@ describe('GPTDatabase', () => {
         'gptVersions',
         'gpts',
         'knowledgeFiles',
+        'mcpOAuthTokens',
+        'mcpServers',
+        'mcpTasks',
+        'mcpToolCalls',
         'messages',
         'secrets',
         'settings',
@@ -43,8 +47,8 @@ describe('GPTDatabase', () => {
       ])
     })
 
-    it('should be at version 4', () => {
-      expect(db.verno).toBe(4)
+    it('should be at version 5', () => {
+      expect(db.verno).toBe(5)
     })
   })
 

@@ -2,6 +2,7 @@ import {HeroUIProvider} from '@heroui/react'
 import {ThemeProvider as NextThemesProvider} from 'next-themes'
 import {AIProvider} from './contexts/ai-provider-context'
 import {ConversationProvider} from './contexts/conversation-provider'
+import {MCPProvider} from './contexts/mcp-context'
 import {SessionProvider} from './contexts/session-context'
 import {StorageProvider} from './contexts/storage-provider'
 
@@ -16,7 +17,9 @@ export const Providers = ({children}: ProvidersProps): React.ReactElement => {
         <StorageProvider>
           <SessionProvider>
             <AIProvider>
-              <ConversationProvider>{children}</ConversationProvider>
+              <MCPProvider>
+                <ConversationProvider>{children}</ConversationProvider>
+              </MCPProvider>
             </AIProvider>
           </SessionProvider>
         </StorageProvider>
