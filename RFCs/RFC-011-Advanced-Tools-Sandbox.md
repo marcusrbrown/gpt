@@ -36,25 +36,69 @@ Implement built-in tools including web search, code execution sandbox, and calcu
 | Calculator       | Evaluate math expressions        | Local       |
 | Image Generation | Generate images via DALL-E       | OpenAI API  |
 
+### SDK Integration
+
+Built-in tools are registered as virtual MCP tools, using the same `Tool` type from `@modelcontextprotocol/sdk`. This allows them to be seamlessly mixed with external MCP server tools in the UI and tool selection.
+
+```typescript
+// Re-export SDK types for tool definitions
+import type {Tool, CallToolResult} from "@modelcontextprotocol/sdk/types.js"
+```
+
 ### Zod Schemas
 
 ```typescript
 import {z} from "zod"
 
-// Tool definition (compatible with MCP format)
+// Import SDK schemas where applicable
+import {ToolSchema, CallToolResultSchema} from "@modelcontextprotocol/sdk/types.js"
+
+// Tool annotations (MCP 2025-11-25)
+export const ToolAnnotationsSchema = z
+  .object({
+    destructiveHint: z.boolean().optional(),
+    idempotentHint: z.boolean().optional(),
+    openWorldHint: z.boolean().optional(),
+    readOnlyHint: z.boolean().optional(),
+    title: z.string().optional(),
+  })
+  .passthrough()
+
+// Built-in tool extends SDK Tool with app-specific fields
 export const BuiltinToolSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
+  // MCP SDK Tool fields
+  name: z.string().regex(/^[a-zA-Z0-9_.-]{1,128}$/),
+  description: z.string().optional(),
+  inputSchema: z
+    .object({
+      type: z.literal("object"),
+      properties: z.record(z.unknown()),
+      required: z.array(z.string()).optional(),
+    })
+    .passthrough(),
+  outputSchema: z
+    .object({
+      type: z.literal("object"),
+      properties: z.record(z.unknown()),
+    })
+    .passthrough()
+    .optional(),
+  annotations: ToolAnnotationsSchema.optional(),
+
+  // App-specific extensions (not sent to LLM)
+  id: z.string(), // Internal identifier
   category: z.enum(["search", "code", "math", "image"]),
   enabled: z.boolean().default(true),
-  inputSchema: z.object({
-    type: z.literal("object"),
-    properties: z.record(z.unknown()),
-    required: z.array(z.string()).optional(),
-  }),
-  // Tool-specific configuration
   config: z.record(z.unknown()).optional(),
+  icons: z
+    .array(
+      z.object({
+        type: z.enum(["base64", "url"]),
+        mediaType: z.string(),
+        data: z.string(),
+      }),
+    )
+    .optional(),
 })
 
 // Web Search Configuration
@@ -526,8 +570,22 @@ export class CalculatorService {
 ### Tool Registry Integration
 
 ```typescript
+import type {Tool} from "@modelcontextprotocol/sdk/types.js"
+import type {MCPClientService} from "@/services/mcp-client-service"
+
+// Convert BuiltinTool to SDK Tool format for LLM consumption
+function toSDKTool(builtin: BuiltinTool): Tool {
+  return {
+    name: builtin.name,
+    description: builtin.description,
+    inputSchema: builtin.inputSchema,
+    outputSchema: builtin.outputSchema,
+    annotations: builtin.annotations,
+  }
+}
+
 // Register built-in tools with the MCP tool system
-export function registerBuiltinTools(mcpService: IMCPClientService): void {
+export function registerBuiltinTools(mcpService: MCPClientService): void {
   const builtinTools: BuiltinTool[] = [
     {
       id: "builtin-web-search",
@@ -543,6 +601,29 @@ export function registerBuiltinTools(mcpService: IMCPClientService): void {
           maxResults: {type: "number", description: "Maximum number of results (1-10)"},
         },
         required: ["query"],
+      },
+      outputSchema: {
+        type: "object",
+        properties: {
+          query: {type: "string"},
+          results: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                title: {type: "string"},
+                url: {type: "string"},
+                snippet: {type: "string"},
+              },
+            },
+          },
+          cached: {type: "boolean"},
+        },
+      },
+      annotations: {
+        readOnlyHint: true,
+        openWorldHint: true, // Results depend on external web state
+        title: "Web Search",
       },
     },
     {
@@ -560,6 +641,20 @@ export function registerBuiltinTools(mcpService: IMCPClientService): void {
         },
         required: ["language", "code"],
       },
+      outputSchema: {
+        type: "object",
+        properties: {
+          success: {type: "boolean"},
+          stdout: {type: "string"},
+          stderr: {type: "string"},
+          returnValue: {},
+          executionTimeMs: {type: "number"},
+        },
+      },
+      annotations: {
+        idempotentHint: false, // Code may have side effects within sandbox
+        title: "Code Sandbox",
+      },
     },
     {
       id: "builtin-calculator",
@@ -573,6 +668,18 @@ export function registerBuiltinTools(mcpService: IMCPClientService): void {
           expression: {type: "string", description: "The math expression to evaluate"},
         },
         required: ["expression"],
+      },
+      outputSchema: {
+        type: "object",
+        properties: {
+          expression: {type: "string"},
+          result: {oneOf: [{type: "number"}, {type: "string"}]},
+        },
+      },
+      annotations: {
+        readOnlyHint: true,
+        idempotentHint: true, // Same expression always gives same result
+        title: "Calculator",
       },
     },
     {
@@ -589,12 +696,23 @@ export function registerBuiltinTools(mcpService: IMCPClientService): void {
         },
         required: ["prompt"],
       },
+      outputSchema: {
+        type: "object",
+        properties: {
+          url: {type: "string"},
+          revisedPrompt: {type: "string"},
+        },
+      },
+      annotations: {
+        openWorldHint: true, // Generation depends on external API state
+        title: "Image Generation",
+      },
     },
   ]
 
-  // Register tools
+  // Register tools with MCP service
   for (const tool of builtinTools) {
-    mcpService.registerBuiltinTool(tool)
+    mcpService.registerBuiltinTool(tool, toSDKTool(tool))
   }
 }
 ```
@@ -777,9 +895,11 @@ Scenario: Evaluate math expression
 
 ```json
 {
+  "@modelcontextprotocol/sdk": "^1.12.0",
   "pyodide": "^0.25.0",
   "quickjs-emscripten": "^0.29.0",
-  "mathjs": "^12.0.0"
+  "mathjs": "^12.0.0",
+  "zod": "^3.25.0"
 }
 ```
 
