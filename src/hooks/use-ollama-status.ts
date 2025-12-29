@@ -131,7 +131,7 @@ export function useOllamaStatus(options: UseOllamaStatusOptions = {}): OllamaSta
 
     return () => {
       isMountedRef.current = false
-      if (intervalRef.current != null) {
+      if (intervalRef.current !== null) {
         clearInterval(intervalRef.current)
         intervalRef.current = null
       }
