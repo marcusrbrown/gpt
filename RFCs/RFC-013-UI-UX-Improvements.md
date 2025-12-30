@@ -677,13 +677,49 @@ Scenario: Configure AI provider from settings
   When I select the "AI Providers" tab
   Then I can configure OpenAI, Anthropic, and Ollama providers
   And changes are auto-saved
-  And a success indicator confirms the save
+  When settings are saved successfully
+  Then a toast notification appears at bottom-right confirming success
+  And the toast displays the message "API Key Saved" with description
+  And the toast auto-dismisses after 4 seconds
+
+Scenario: Settings save failure shows error toast
+  Given I am on the Settings page
+  When I attempt to save an invalid API key
+  Then a toast notification appears indicating failure
+  And the toast displays with danger color (red)
+  And the toast includes actionable error message
+  And the toast auto-dismisses after 5 seconds
+
+Scenario: Clear API key shows confirmation toast
+  Given I have a configured API key
+  When I click "Clear API Key" button
+  Then the API key is removed
+  And a toast notification confirms "API Key Cleared"
 
 Scenario: First-time user guidance
   Given I have no providers configured
   When I visit the home page
   Then I see a prompt to configure settings
   And a "Configure Settings" button links to /settings
+
+Scenario: MCP server configuration shows toast
+  Given I am on the Settings page Integrations tab
+  When I add or update an MCP server configuration
+  Then a toast notification confirms "Server Added" or "Server Updated"
+  When I delete an MCP server
+  Then a toast notification confirms "Server Deleted"
+
+Scenario: Theme change shows toast
+  Given I am on the Settings page Appearance tab
+  When I change the theme selection
+  Then a toast notification confirms "Theme Updated"
+  And the toast displays which theme was selected
+
+Scenario: Clear all data shows toast before reload
+  Given I am on the Settings page Data tab
+  When I confirm clearing all data
+  Then a toast notification appears "Data Cleared"
+  And the page reloads after 1.5 seconds
 ```
 
 ### F-1202: Consistent Page Layout

@@ -1,7 +1,17 @@
 import {useStorage} from '@/hooks/use-storage'
 import {useStorageQuota} from '@/hooks/use-storage-quota'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Progress, useDisclosure} from '@heroui/react'
+import {
+  addToast,
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Progress,
+  useDisclosure,
+} from '@heroui/react'
 import {Archive, RefreshCw, Trash2} from 'lucide-react'
 import {useState} from 'react'
 import {Link as RouterLink} from 'react-router-dom'
@@ -28,9 +38,22 @@ export function DataSettings() {
     setIsClearing(true)
     try {
       await storage.clearAll()
+      addToast({
+        title: 'Data Cleared',
+        description: 'All local data has been deleted. Reloading...',
+        color: 'success',
+        timeout: 2000,
+      })
       onClose()
-      window.location.reload()
+      // Delay reload to allow toast to show
+      setTimeout(() => window.location.reload(), 1500)
     } catch (error_) {
+      addToast({
+        title: 'Error',
+        description: 'Failed to clear data. Please try again.',
+        color: 'danger',
+        timeout: 5000,
+      })
       console.error('Failed to clear data:', error_)
     } finally {
       setIsClearing(false)

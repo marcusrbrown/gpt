@@ -1,7 +1,7 @@
 import type {Key} from 'react'
 import {useReducedMotion} from '@/hooks/use-reduced-motion'
 import {cn, ds} from '@/lib/design-system'
-import {Select, SelectItem, Switch} from '@heroui/react'
+import {addToast, Select, SelectItem, Switch} from '@heroui/react'
 import {Monitor, Moon, Sun} from 'lucide-react'
 import {useTheme} from 'next-themes'
 
@@ -24,6 +24,13 @@ export function AppearanceSettings() {
     const selected = Array.from(keys)[0]
     if (typeof selected === 'string') {
       setTheme(selected)
+      const themeLabel = selected.charAt(0).toUpperCase() + selected.slice(1)
+      addToast({
+        title: 'Theme Updated',
+        description: `Theme changed to ${themeLabel}.`,
+        color: 'success',
+        timeout: 3000,
+      })
     }
   }
 

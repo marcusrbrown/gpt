@@ -1,7 +1,7 @@
 import {useOllamaStatus} from '@/hooks/use-ollama-status'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
 import {getOllamaProvider} from '@/services/providers/ollama-provider'
-import {Button, Chip, Input, Spinner} from '@heroui/react'
+import {addToast, Button, Chip, Input, Spinner} from '@heroui/react'
 import {useMemo, useState} from 'react'
 
 export function OllamaSettings() {
@@ -13,11 +13,9 @@ export function OllamaSettings() {
   // Get initial base URL synchronously from provider
   const initialBaseUrl = useMemo(() => getOllamaProvider().baseUrl, [])
   const [baseUrl, setBaseUrl] = useState(initialBaseUrl)
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
   const handleBaseUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBaseUrl(e.target.value)
-    setSaveStatus('idle')
   }
 
   const handleSaveUrl = async () => {
@@ -25,10 +23,19 @@ export function OllamaSettings() {
       const provider = getOllamaProvider()
       provider.configure({baseUrl})
       await checkNow()
-      setSaveStatus('success')
-      setTimeout(() => setSaveStatus('idle'), 3000)
+      addToast({
+        title: 'Settings Saved',
+        description: 'Ollama configuration has been updated.',
+        color: 'success',
+        timeout: 4000,
+      })
     } catch (error_: unknown) {
-      setSaveStatus('error')
+      addToast({
+        title: 'Error',
+        description: 'Failed to save Ollama settings. Please try again.',
+        color: 'danger',
+        timeout: 5000,
+      })
       console.error('Error saving Ollama URL:', error_)
     }
   }
@@ -125,14 +132,6 @@ export function OllamaSettings() {
             Test
           </Button>
         </div>
-
-        {saveStatus === 'success' && (
-          <p className={cn(ds.form.errorText, 'text-success-600 mt-1')}>Settings saved successfully!</p>
-        )}
-
-        {saveStatus === 'error' && (
-          <p className={cn(ds.form.errorText, 'mt-1')}>Failed to save settings. Please try again.</p>
-        )}
 
         <div className={cn('flex mt-4 space-x-2', ds.form.fieldRow)}>
           <Button

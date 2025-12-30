@@ -1,4 +1,4 @@
-import {HeroUIProvider} from '@heroui/react'
+import {HeroUIProvider, ToastProvider} from '@heroui/react'
 import {ThemeProvider as NextThemesProvider} from 'next-themes'
 import {AIProvider} from './contexts/ai-provider-context'
 import {ConversationProvider} from './contexts/conversation-provider'
@@ -14,6 +14,7 @@ export const Providers = ({children}: ProvidersProps): React.ReactElement => {
   return (
     <NextThemesProvider attribute="class" defaultTheme="system" enableSystem={true}>
       <HeroUIProvider>
+        <ToastProvider placement="bottom-right" maxVisibleToasts={3} />
         <StorageProvider>
           <SessionProvider>
             <AIProvider>

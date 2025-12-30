@@ -97,7 +97,7 @@ test.describe('Anthropic Provider Integration', () => {
   })
 
   test.describe('API Key Validation (Mocked)', () => {
-    test('should show error state for invalid API key format', async ({page}) => {
+    test('should show error toast for invalid API key format', async ({page}) => {
       // Mock the validation to fail
       await page.route('**/api.anthropic.com/**', async route => {
         await route.fulfill({
@@ -118,12 +118,15 @@ test.describe('Anthropic Provider Integration', () => {
       await apiKeyInput.fill('invalid-key')
       await saveButton.click()
 
-      // Wait for error state
-      const errorMessage = anthropicSection.locator('text=Failed to save API key')
-      await expect(errorMessage).toBeVisible({timeout: 10000})
+      // Wait for toast notification (RFC-013 changed inline messages to toasts)
+      // HeroUI toasts appear in a region with alertdialog role
+      const toast = page.locator('[role="alertdialog"], [role="alert"]')
+      await expect(toast.locator('text=/Validation Failed|Error|could not be validated/i').first()).toBeVisible({
+        timeout: 10000,
+      })
     })
 
-    test('should attempt to save API key and show feedback', async ({page}) => {
+    test('should attempt to save API key and show toast feedback', async ({page}) => {
       await openSettingsPanel(page)
 
       const anthropicSection = page.locator('div').filter({hasText: 'Anthropic API Settings'}).last()
@@ -133,15 +136,15 @@ test.describe('Anthropic Provider Integration', () => {
       await apiKeyInput.fill('sk-ant-api03-test-key')
       await saveButton.click()
 
-      // After clicking save, either success or error message should eventually appear
-      // (depends on network - in CI without real API, will show error)
-      const feedbackMessage = anthropicSection.locator('text=/API key saved successfully|Failed to save API key/')
-      await expect(feedbackMessage).toBeVisible({timeout: 15000})
+      // After clicking save, toast notification should appear (RFC-013 uses toasts)
+      // Either success or error toast depending on network conditions
+      const toast = page.locator('[role="alertdialog"], [role="alert"]')
+      await expect(toast.locator('text=/API Key Saved|Validation Failed|Error/i').first()).toBeVisible({timeout: 15000})
     })
   })
 
   test.describe('Error Handling UI', () => {
-    test('should handle network errors gracefully', async ({page}) => {
+    test('should handle network errors gracefully with toast', async ({page}) => {
       // Mock network failure
       await page.route('**/api.anthropic.com/**', async route => {
         await route.abort('failed')
@@ -156,12 +159,12 @@ test.describe('Anthropic Provider Integration', () => {
       await apiKeyInput.fill('sk-ant-test-key')
       await saveButton.click()
 
-      // Should show error state
-      const errorMessage = anthropicSection.locator('text=Failed to save API key')
-      await expect(errorMessage).toBeVisible({timeout: 10000})
+      // Should show error toast (RFC-013 uses toast notifications)
+      const toast = page.locator('[role="alertdialog"], [role="alert"]')
+      await expect(toast.locator('text=/Error|Validation Failed/i').first()).toBeVisible({timeout: 10000})
     })
 
-    test('should handle rate limit errors', async ({page}) => {
+    test('should handle rate limit errors with toast', async ({page}) => {
       // Mock rate limit response
       await page.route('**/api.anthropic.com/**', async route => {
         await route.fulfill({
@@ -182,9 +185,9 @@ test.describe('Anthropic Provider Integration', () => {
       await apiKeyInput.fill('sk-ant-test-key')
       await saveButton.click()
 
-      // Should show error state for rate limiting
-      const errorMessage = anthropicSection.locator('text=Failed to save API key')
-      await expect(errorMessage).toBeVisible({timeout: 10000})
+      // Should show error toast for rate limiting (RFC-013 uses toast notifications)
+      const toast = page.locator('[role="alertdialog"], [role="alert"]')
+      await expect(toast.locator('text=/Error|Validation Failed/i').first()).toBeVisible({timeout: 10000})
     })
   })
 
