@@ -1,6 +1,6 @@
 import {BackupRestorePanel} from '@/components/backup-restore-panel'
+import {DefaultLayout} from '@/components/layouts'
 import {useStorage} from '@/hooks/use-storage'
-import {cn, ds} from '@/lib/design-system'
 import {downloadFullBackup} from '@/services/export-service'
 import {restoreBackup} from '@/services/import-service'
 import {useCallback, useEffect, useState} from 'react'
@@ -66,7 +66,7 @@ export function BackupRestorePage() {
   }, [])
 
   return (
-    <main className={cn('min-h-[calc(100vh-var(--header-height))]', ds.animation.fadeIn)}>
+    <DefaultLayout maxWidth="lg">
       <BackupRestorePanel
         onCreateBackup={handleCreateBackup}
         onRestoreBackup={handleRestoreBackup}
@@ -74,6 +74,6 @@ export function BackupRestorePage() {
         storageUsed={storageUsed}
         itemCounts={itemCounts}
       />
-    </main>
+    </DefaultLayout>
   )
 }

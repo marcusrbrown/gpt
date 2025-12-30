@@ -11,6 +11,7 @@ body {
 
 :root {
   --header-height: 4rem;
+  --footer-height: 3rem;
   --sidebar-width: 16rem;
 
   /* GPT Design System - Light Theme */

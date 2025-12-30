@@ -9,6 +9,7 @@ import {GPTEditorPage} from './pages/gpt-editor-page'
 import {GPTTestPage} from './pages/gpt-test-page'
 import {HomePage} from './pages/home-page'
 import {OAuthCallbackPage} from './pages/oauth-callback-page'
+import {SettingsPage} from './pages/settings-page'
 import {Providers} from './providers'
 
 // Lazy load documentation components for better initial load performance
@@ -61,14 +62,9 @@ function App() {
               }
             />
 
-            <Route
-              path="/backup"
-              element={
-                <main className={cn(ds.layout.container, ds.animation.fadeIn, 'py-8')}>
-                  <BackupRestorePage />
-                </main>
-              }
-            />
+            <Route path="/backup" element={<BackupRestorePage />} />
+
+            <Route path="/settings" element={<SettingsPage />} />
 
             <Route
               path="/oauth/callback"
