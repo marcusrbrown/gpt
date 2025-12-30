@@ -15,7 +15,7 @@ test.describe('Card Components Responsive Behavior', () => {
   for (const viewport of viewports) {
     test(`should display cards correctly on ${viewport.name}`, async ({homePage, page}) => {
       await homePage.setViewportSize({width: viewport.width, height: viewport.height})
-      await page.waitForTimeout(300)
+      await page.waitForFunction(expectedWidth => window.innerWidth === expectedWidth, viewport.width)
 
       await expect(homePage.pageTitle).toBeVisible()
 

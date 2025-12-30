@@ -30,6 +30,7 @@ test.describe('GPT CRUD Operations', () => {
     const gptCard = page.locator('[data-testid="user-gpt-card"]').filter({hasText: testGPT.name})
     const menuButton = gptCard.getByRole('button', {name: 'GPT actions'})
     await expect(menuButton).toBeVisible()
+    // Use dispatchEvent instead of .click() because the HeroUI dropdown menu requires a native click/pointer event here.
     await menuButton.dispatchEvent('click')
 
     const editOption = page.locator('[data-testid="edit-gpt"]')

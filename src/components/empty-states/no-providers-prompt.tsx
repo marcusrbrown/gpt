@@ -38,7 +38,6 @@ export function NoProvidersPrompt() {
         theme.border(),
         theme.surface(1),
       )}
-      role="alert"
       aria-labelledby="no-providers-title"
       aria-describedby="no-providers-description"
     >

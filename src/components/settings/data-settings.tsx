@@ -40,13 +40,13 @@ export function DataSettings() {
       await storage.clearAll()
       addToast({
         title: 'Data Cleared',
-        description: 'All local data has been deleted. Reloading...',
+        description: 'All local data has been deleted.',
         color: 'success',
         timeout: 2000,
       })
       onClose()
-      // Delay reload to allow toast to show
-      setTimeout(() => window.location.reload(), 1500)
+      // Refresh storage stats after clearing data instead of reloading the page
+      await refresh()
     } catch (error_) {
       addToast({
         title: 'Error',
