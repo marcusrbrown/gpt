@@ -702,6 +702,27 @@ Scenario: First-time user guidance
   Then I see a prompt to configure settings
   And a "Configure Settings" button links to /settings
 
+Scenario: Settings tab persists in URL
+  Given I am on the Settings page
+  When I click the "Appearance" tab
+  Then the URL updates to /settings?tab=appearance
+  And the Appearance tab content is displayed
+
+Scenario: Settings tab restored from URL
+  Given I navigate directly to /settings?tab=data
+  Then the Data tab is selected
+  And the Data tab content is displayed
+
+Scenario: Invalid tab parameter defaults to providers
+  Given I navigate to /settings?tab=invalid
+  Then the AI Providers tab is selected (default)
+  And the URL remains as /settings?tab=invalid
+
+Scenario: Settings URL shareable
+  Given I am on /settings?tab=integrations
+  When I copy the URL and open it in a new browser tab
+  Then the Integrations tab is selected
+
 Scenario: MCP server configuration shows toast
   Given I am on the Settings page Integrations tab
   When I add or update an MCP server configuration

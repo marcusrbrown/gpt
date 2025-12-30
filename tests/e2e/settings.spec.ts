@@ -106,8 +106,7 @@ test.describe('Settings Page', () => {
     await expect(settingsPage.tabsContainer).toBeVisible()
   })
 
-  // Note: URL tab persistence is not implemented yet - tracked as future enhancement
-  test.skip('should persist tab selection in URL', async ({settingsPage, page}) => {
+  test('should persist tab selection in URL', async ({settingsPage, page}) => {
     // Navigate to appearance tab
     await settingsPage.switchToAppearanceTab()
 
@@ -119,6 +118,36 @@ test.describe('Settings Page', () => {
 
     // Verify appearance tab is still selected
     await expect(settingsPage.appearanceTab).toHaveAttribute('aria-selected', 'true')
+  })
+
+  test('should navigate directly to specific tab via URL', async ({settingsPage, page}) => {
+    // Navigate directly to data tab via URL
+    await settingsPage.navigateToTab('data')
+
+    // Verify data tab is selected
+    await expect(settingsPage.dataTab).toHaveAttribute('aria-selected', 'true')
+    await expect(page.locator('text=Storage Usage')).toBeVisible()
+
+    // Verify URL matches
+    await expect(page).toHaveURL(/tab=data/)
+  })
+
+  test('should default to providers tab with no URL param', async ({page}) => {
+    // Navigate to settings without tab param
+    await page.goto('/settings')
+
+    // Verify providers tab is selected by default
+    const providersTab = page.locator('[role="tab"]', {hasText: 'Providers'})
+    await expect(providersTab).toHaveAttribute('aria-selected', 'true')
+  })
+
+  test('should fallback to providers tab with invalid URL param', async ({page}) => {
+    // Navigate with invalid tab param
+    await page.goto('/settings?tab=invalid')
+
+    // Verify providers tab is selected as fallback
+    const providersTab = page.locator('[role="tab"]', {hasText: 'Providers'})
+    await expect(providersTab).toHaveAttribute('aria-selected', 'true')
   })
 })
 

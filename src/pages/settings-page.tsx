@@ -7,20 +7,35 @@ import {ProviderSettings} from '@/components/settings/provider-settings'
 import {cn, ds} from '@/lib/design-system'
 import {Card, CardBody, Tab, Tabs} from '@heroui/react'
 import {Database, Palette, Plug, Settings} from 'lucide-react'
-import {useCallback, useState} from 'react'
+import {useCallback} from 'react'
+import {useSearchParams} from 'react-router-dom'
 import {useSwipeable} from 'react-swipeable'
 
 type SettingsTab = 'providers' | 'integrations' | 'appearance' | 'data'
 
 const TABS: SettingsTab[] = ['providers', 'integrations', 'appearance', 'data']
 
+function isValidTab(tab: string | null): tab is SettingsTab {
+  return tab !== null && TABS.includes(tab as SettingsTab)
+}
+
 /**
  * Global settings page with tabbed navigation.
  * Accessible from navbar on all pages via /settings route.
  * Supports swipe gestures on mobile for tab navigation.
+ * Tab selection persists in URL query params for sharing and browser history.
  */
 export function SettingsPage() {
-  const [selectedTab, setSelectedTab] = useState<SettingsTab>('providers')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const tabParam = searchParams.get('tab')
+  const selectedTab: SettingsTab = isValidTab(tabParam) ? tabParam : 'providers'
+
+  const setSelectedTab = useCallback(
+    (tab: SettingsTab) => {
+      setSearchParams({tab}, {replace: true})
+    },
+    [setSearchParams],
+  )
 
   const handleTabChange = (key: Key) => {
     setSelectedTab(key as SettingsTab)
@@ -42,7 +57,7 @@ export function SettingsPage() {
         }
       }
     },
-    [selectedTab],
+    [selectedTab, setSelectedTab],
   )
 
   const swipeHandlers = useSwipeable({
