@@ -160,6 +160,24 @@ export const Navbar = () => {
             role="dialog"
             aria-label="Mobile navigation menu"
           >
+            {/* Mobile menu header with Settings quick-access */}
+            <div className={cn('border-b px-4 py-3 flex items-center justify-between', theme.border())}>
+              <h2 className={cn(ds.text.heading.h4, theme.content('primary'))}>Menu</h2>
+              <ButtonLink
+                to="/settings"
+                isIconOnly
+                variant="light"
+                color="primary"
+                size="lg"
+                className={cn('min-w-[44px] h-[44px] flex items-center justify-center')}
+                onPress={() => setIsMobileMenuOpen(false)}
+                aria-label="Settings (Quick Access)"
+              >
+                <Settings size={24} className={theme.content('primary')} />
+              </ButtonLink>
+            </div>
+
+            {/* Navigation content - Settings removed from list (available in header) */}
             <nav className={cn(ds.layout.container, 'flex flex-col gap-4 py-6')} aria-label="Mobile navigation">
               <Input
                 type="search"
@@ -174,17 +192,6 @@ export const Navbar = () => {
                 }}
                 aria-label="Search documentation"
               />
-              <ButtonLink
-                to="/settings"
-                variant="light"
-                color="default"
-                className={cn('justify-start h-12', ds.animation.transition)}
-                onPress={() => setIsMobileMenuOpen(false)}
-                aria-label="Go to Settings"
-              >
-                <Settings size={20} className={cn(theme.content('primary'), 'mr-3')} aria-hidden="true" />
-                Settings
-              </ButtonLink>
               <ButtonLink
                 to="/backup"
                 variant="light"

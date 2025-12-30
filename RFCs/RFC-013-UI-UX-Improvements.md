@@ -42,6 +42,15 @@ These improvements are critical because:
 | ---- | ------------------------------ |
 | None | This is a UX improvement layer |
 
+### External Dependencies
+
+| Package          | Version | Purpose                          |
+| ---------------- | ------- | -------------------------------- |
+| @heroui/react    | ^2.x    | UI components (Tabs, Buttons)    |
+| react-router-dom | ^6.x    | Navigation                       |
+| react-swipeable  | ^7.x    | Touch gesture handling (Phase 4) |
+| lucide-react     | ^0.x    | Icon library                     |
+
 ---
 
 ## Features Covered
@@ -51,6 +60,7 @@ These improvements are critical because:
 | F-1201     | Global Settings Page    | MUST HAVE   | Dedicated /settings route with organized sections |
 | F-1202     | Consistent Page Layout  | SHOULD HAVE | Reusable layout components                        |
 | F-1203     | Feature Discoverability | SHOULD HAVE | 2-click access to all features                    |
+| F-1204     | Mobile UX Enhancements  | SHOULD HAVE | Settings quick-access + swipe tab navigation      |
 
 ---
 
@@ -510,6 +520,145 @@ Ensure the following entry points exist:
 | Folder Organization | Home page sidebar        | `home-page.tsx` (existing)        |
 | Export/Import GPT   | GPT card dropdown menu   | `user-gpt-card.tsx`               |
 
+### Phase 4: Mobile UX Enhancements (F-1204)
+
+#### 4.1 Mobile Menu Header with Settings Quick-Access
+
+**Problem**: Settings icon is buried in mobile menu list alongside other items, requiring two taps (hamburger → scroll → settings). On desktop, Settings has prominent navbar placement.
+
+**Solution**: Add Settings as a quick-access button in the mobile menu header, separate from the navigation list.
+
+**Implementation** (`src/components/navbar.tsx`):
+
+```tsx
+// Update mobile menu structure
+<div
+  className={cn('fixed top-[var(--header-height)] left-0 right-0 bottom-0 z-50 lg:hidden', theme.surface(0))}
+  role="dialog"
+  aria-label="Mobile navigation menu"
+>
+  {/* NEW: Mobile menu header with quick-access */}
+  <div className={cn('border-b', theme.border(), 'px-4 py-3 flex items-center justify-between')}>
+    <h2 className={cn(ds.text.heading.h4, 'text-content-primary')}>Menu</h2>
+    <ButtonLink
+      to="/settings"
+      isIconOnly
+      variant="light"
+      color="primary"
+      size="lg"
+      className={cn('min-w-[44px] h-[44px] flex items-center justify-center')}
+      onPress={() => setIsMobileMenuOpen(false)}
+      aria-label="Settings (Quick Access)"
+    >
+      <Settings size={24} className={theme.content('primary')} />
+    </ButtonLink>
+  </div>
+
+  {/* Navigation content - Settings REMOVED from list */}
+  <nav className={cn(ds.layout.container, 'flex flex-col gap-4 py-6')} aria-label="Mobile navigation">
+    <Input ... />
+    <ButtonLink to="/backup" ... />
+    <ButtonLink to="/docs" ... />
+    <Button as="a" href="https://github.com..." ... />
+  </nav>
+</div>
+```
+
+**Changes**:
+
+- Add mobile menu header with "Menu" title + Settings icon (44×44px touch target)
+- Remove Settings from navigation items list (eliminate duplicate)
+- Settings becomes 1-tap from hamburger menu (vs 2-taps previously)
+
+**Accessibility**:
+
+- `aria-label="Settings (Quick Access)"` distinguishes from regular settings link
+- Touch target meets WCAG 2.1 AA minimum (44×44px)
+- Focus management: Settings button receives focus when menu opens
+
+#### 4.2 Swipe Gesture Navigation for Settings Tabs
+
+**Problem**: Settings tabs require tapping small tab buttons on mobile. Swipe navigation is expected mobile UX pattern for tabbed interfaces.
+
+**Solution**: Add horizontal swipe gestures to navigate between Settings tabs using `react-swipeable` library.
+
+**Installation**:
+
+```bash
+pnpm add react-swipeable
+```
+
+**Implementation** (`src/pages/settings-page.tsx`):
+
+```tsx
+import {useSwipeable} from "react-swipeable"
+import {useCallback} from "react"
+
+export function SettingsPage() {
+  const tabs: SettingsTab[] = ["providers", "integrations", "appearance", "data"]
+  const [selectedTab, setSelectedTab] = useState<SettingsTab>("providers")
+
+  const handleSwipe = useCallback(
+    (direction: "left" | "right") => {
+      const currentIndex = tabs.indexOf(selectedTab)
+
+      if (direction === "left" && currentIndex < tabs.length - 1) {
+        setSelectedTab(tabs[currentIndex + 1])
+      } else if (direction === "right" && currentIndex > 0) {
+        setSelectedTab(tabs[currentIndex - 1])
+      }
+    },
+    [selectedTab],
+  )
+
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => handleSwipe("left"),
+    onSwipedRight: () => handleSwipe("right"),
+    preventScrollOnSwipe: true,
+    trackTouch: true,
+    trackMouse: false,
+    delta: 50,
+    swipeDuration: 500,
+  })
+
+  return (
+    <DefaultLayout maxWidth="lg">
+      <div className="space-y-6">
+        <header>
+          <h1 className={cn(ds.text.heading.h1)}>Settings</h1>
+          <p className={cn(ds.text.body.base, "mt-2")}>Configure your AI providers, integrations, and preferences</p>
+          {/* Mobile hint */}
+          <p className={cn(ds.text.body.small, "mt-1 sm:hidden text-content-secondary")}>
+            Swipe left or right to navigate tabs
+          </p>
+        </header>
+
+        {/* Wrap Tabs with swipe handler */}
+        <div {...swipeHandlers} className="touch-pan-y">
+          <Tabs
+            aria-label="Settings sections"
+            selectedKey={selectedTab}
+            onSelectionChange={handleTabChange}
+            variant="underlined"
+            color="primary"
+          >
+            {/* Tab content unchanged */}
+          </Tabs>
+        </div>
+      </div>
+    </DefaultLayout>
+  )
+}
+```
+
+**Changes**:
+
+- Add `react-swipeable` dependency
+- Wrap `Tabs` component with swipe handlers
+- Add mobile hint text for discoverability
+- 50px swipe threshold prevents accidental triggers
+- `touch-pan-y` allows vertical scrolling while horizontal swipes trigger navigation
+
 ---
 
 ## Acceptance Criteria
@@ -577,6 +726,59 @@ Scenario: All features within 2 clicks
     | Conversation Search | 1 |
     | Version History | 2 |
     | Export/Import GPT | 2 |
+```
+
+### F-1204: Mobile UX Enhancements
+
+```gherkin
+Scenario: Settings quick-access in mobile menu header
+  Given I am on any page in the application
+  And I am viewing on a mobile device (viewport < 1024px)
+  When I tap the hamburger menu icon
+  Then the mobile menu opens
+  And I see a "Menu" header with a Settings icon in the top-right
+  When I tap the Settings icon
+  Then I navigate to /settings (1 tap from menu)
+  And the mobile menu closes
+
+Scenario: Settings removed from mobile menu list
+  Given I open the mobile menu
+  When I view the navigation items list
+  Then I see: Search input, Backup & Restore, Documentation, GitHub
+  And I do NOT see Settings in the list (it's in the header)
+
+Scenario: Swipe right to navigate tabs
+  Given I am on the Settings page
+  And I am on the "AI Providers" tab
+  And I am viewing on a touch device
+  When I swipe left (50px minimum)
+  Then the "Integrations" tab is selected
+  And the tab content updates
+
+Scenario: Swipe left to navigate tabs backward
+  Given I am on the "Data" tab
+  When I swipe right (50px minimum)
+  Then the "Appearance" tab is selected
+
+Scenario: Swipe boundaries respected
+  Given I am on the first tab ("AI Providers")
+  When I swipe right
+  Then nothing happens (already at start)
+
+  Given I am on the last tab ("Data")
+  When I swipe left
+  Then nothing happens (already at end)
+
+Scenario: Swipe doesn't conflict with vertical scroll
+  Given I am on a Settings tab with scrollable content
+  When I scroll vertically
+  Then the page scrolls normally
+  And tab navigation does NOT trigger
+
+Scenario: Keyboard navigation still works
+  Given I am on the Settings page
+  When I use arrow keys or Tab to navigate
+  Then tabs are keyboard-accessible (existing HeroUI behavior)
 ```
 
 ---
@@ -685,6 +887,115 @@ test.describe("Settings Accessibility", () => {
 })
 ```
 
+### Mobile UX Tests
+
+```typescript
+// tests/e2e/mobile-settings-ux.spec.ts
+import {test, expect, devices} from "@playwright/test"
+
+test.use({...devices["iPhone 13 Pro"]})
+
+test.describe("Mobile Settings Quick-Access", () => {
+  test("settings icon in mobile menu header", async ({page}) => {
+    await page.goto("/")
+
+    // Open mobile menu
+    await page.getByRole("button", {name: /open menu/i}).click()
+
+    // Verify menu header
+    await expect(page.getByRole("heading", {name: "Menu"})).toBeVisible()
+
+    // Verify Settings quick-access button
+    const settingsButton = page.getByRole("button", {name: /settings.*quick access/i})
+    await expect(settingsButton).toBeVisible()
+
+    // Verify touch target size (44x44px minimum)
+    const box = await settingsButton.boundingBox()
+    expect(box?.width).toBeGreaterThanOrEqual(44)
+    expect(box?.height).toBeGreaterThanOrEqual(44)
+
+    // Navigate to settings
+    await settingsButton.click()
+    await expect(page).toHaveURL("/settings")
+  })
+
+  test("settings not duplicated in menu list", async ({page}) => {
+    await page.goto("/")
+    await page.getByRole("button", {name: /open menu/i}).click()
+
+    // Count Settings links - should only be 1 (in header)
+    const settingsLinks = await page.getByRole("button", {name: /settings/i}).all()
+    expect(settingsLinks.length).toBe(1)
+  })
+})
+
+test.describe("Settings Tab Swipe Navigation", () => {
+  test("swipe left navigates to next tab", async ({page}) => {
+    await page.goto("/settings")
+
+    // Verify starting tab
+    await expect(page.getByRole("tab", {name: /ai providers/i})).toHaveAttribute("aria-selected", "true")
+
+    // Swipe left on tabs area
+    const tabsContainer = page.locator("[data-swipeable]")
+    const box = await tabsContainer.boundingBox()
+    if (box) {
+      await page.touchscreen.tap(box.x + box.width * 0.8, box.y + box.height / 2)
+      await page.touchscreen.swipe(
+        {x: box.x + box.width * 0.8, y: box.y + box.height / 2},
+        {x: box.x + box.width * 0.2, y: box.y + box.height / 2},
+      )
+    }
+
+    // Verify next tab selected
+    await expect(page.getByRole("tab", {name: /integrations/i})).toHaveAttribute("aria-selected", "true")
+  })
+
+  test("swipe respects boundaries", async ({page}) => {
+    await page.goto("/settings")
+
+    // Try swiping right on first tab (should stay on first)
+    const tabsContainer = page.locator("[data-swipeable]")
+    const box = await tabsContainer.boundingBox()
+    if (box) {
+      await page.touchscreen.swipe(
+        {x: box.x + box.width * 0.2, y: box.y + box.height / 2},
+        {x: box.x + box.width * 0.8, y: box.y + box.height / 2},
+      )
+    }
+
+    // Still on first tab
+    await expect(page.getByRole("tab", {name: /ai providers/i})).toHaveAttribute("aria-selected", "true")
+  })
+})
+
+// tests/accessibility/mobile-settings.accessibility.spec.ts
+test.describe("Mobile Settings Accessibility", () => {
+  test("settings quick-access meets touch target size", async ({page}) => {
+    await page.goto("/")
+    await page.getByRole("button", {name: /open menu/i}).click()
+
+    const settingsButton = page.getByRole("button", {name: /settings.*quick access/i})
+    const box = await settingsButton.boundingBox()
+
+    // WCAG 2.1 Level AA: minimum 44x44px
+    expect(box?.width).toBeGreaterThanOrEqual(44)
+    expect(box?.height).toBeGreaterThanOrEqual(44)
+  })
+
+  test("swipe navigation preserves keyboard access", async ({page}) => {
+    await page.goto("/settings")
+
+    // Tab navigation still works
+    await page.keyboard.press("Tab")
+    await expect(page.getByRole("tab", {name: /ai providers/i})).toBeFocused()
+
+    await page.keyboard.press("ArrowRight")
+    await expect(page.getByRole("tab", {name: /integrations/i})).toBeFocused()
+  })
+})
+```
+
 ---
 
 ## Migration Guide
@@ -733,6 +1044,8 @@ Update App.tsx to use layout components:
 - **Lazy load settings tabs**: Load provider settings only when tab is active
 - **Debounce auto-save**: Settings changes auto-save with 500ms debounce
 - **Memoize layout components**: Prevent unnecessary re-renders
+- **Swipe gesture optimization**: `react-swipeable` uses passive event listeners for 60fps touch tracking
+- **Mobile menu animations**: Use `motion-safe:` prefix to respect prefers-reduced-motion
 
 ---
 
@@ -774,3 +1087,17 @@ Update App.tsx to use layout components:
 - [ ] Write E2E tests for feature discoverability
 - [ ] Write accessibility tests
 - [ ] Update visual regression baselines
+
+### Phase 4: Mobile UX Enhancements
+
+- [ ] Add Settings quick-access button to mobile menu header (`navbar.tsx`)
+- [ ] Remove Settings from mobile menu items list (eliminate duplicate)
+- [ ] Install `react-swipeable`: `pnpm add react-swipeable`
+- [ ] Add swipe gesture handlers to SettingsPage
+- [ ] Add `data-swipeable` attribute to swipe container for testing
+- [ ] Add mobile hint text for swipe navigation (visible on sm breakpoint only)
+- [ ] Test swipe gestures don't conflict with vertical scroll
+- [ ] Write E2E tests for mobile menu settings quick-access
+- [ ] Write E2E tests for swipe navigation
+- [ ] Update accessibility tests for touch target sizes (44×44px minimum)
+- [ ] Update visual regression baselines for mobile menu header

@@ -1,14 +1,15 @@
 import {expect, test} from './fixtures'
 
 test.describe('Anthropic Provider Integration', () => {
-  // Helper to navigate to settings panel
+  // Helper to navigate to settings page and open Anthropic section
   const openSettingsPanel = async (page: import('@playwright/test').Page) => {
-    await page.goto('/gpt/new')
+    await page.goto('/settings')
     await page.waitForLoadState('domcontentloaded')
 
-    // Click the "Show API Settings" button to reveal settings
-    const settingsToggle = page.getByRole('button', {name: /show api settings/i})
-    await settingsToggle.click()
+    // Settings page opens with Providers tab by default
+    // Expand Anthropic accordion to reveal settings
+    const anthropicAccordion = page.getByRole('button', {name: /Anthropic/i})
+    await anthropicAccordion.click()
 
     // Wait for Anthropic settings section to be visible
     await page.locator('h2', {hasText: 'Anthropic API Settings'}).waitFor({state: 'visible'})

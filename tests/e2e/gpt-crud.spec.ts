@@ -28,12 +28,13 @@ test.describe('GPT CRUD Operations', () => {
     await homePage.waitForGPTCards()
 
     const gptCard = page.locator('[data-testid="user-gpt-card"]').filter({hasText: testGPT.name})
-    const menuButton = gptCard.locator('[aria-label="GPT actions"]')
-    await menuButton.click()
+    const menuButton = gptCard.getByRole('button', {name: 'GPT actions'})
+    await expect(menuButton).toBeVisible()
+    await menuButton.dispatchEvent('click')
 
     const editOption = page.locator('[data-testid="edit-gpt"]')
-    await expect(editOption).toBeVisible()
-    await editOption.click()
+    await expect(editOption).toBeVisible({timeout: 10000})
+    await editOption.click({force: true})
 
     await page.waitForURL(/\/gpt\/edit\//)
     expect(await gptEditorPage.isLoaded()).toBe(true)

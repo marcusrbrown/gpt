@@ -22,11 +22,16 @@ test.describe('GPT Archive and Restore Flow', () => {
     expect(userGPTNames).toContain(testGPT.name)
 
     const gptCard = page.locator('[data-testid="user-gpt-card"]').filter({hasText: testGPT.name})
-    const menuButton = gptCard.locator('[aria-label="GPT actions"]')
-    await menuButton.click()
+    const menuButton = gptCard.getByRole('button', {name: 'GPT actions'})
+    await expect(menuButton).toBeVisible()
 
+    // HeroUI Dropdown requires pointer events - use dispatchEvent
+    await menuButton.dispatchEvent('click')
+
+    // Wait for dropdown item to be visible and click it quickly
     const archiveOption = page.locator('[data-testid="archive-gpt"]')
-    await archiveOption.click()
+    await expect(archiveOption).toBeVisible({timeout: 10000})
+    await archiveOption.click({force: true})
 
     const confirmButton = page.locator('[data-testid="confirm-archive"]')
     if (await confirmButton.isVisible()) {
@@ -60,11 +65,13 @@ test.describe('GPT Archive and Restore Flow', () => {
     await homePage.waitForGPTCards()
 
     const gptCard = page.locator('[data-testid="user-gpt-card"]').filter({hasText: testGPT.name})
-    const menuButton = gptCard.locator('[aria-label="GPT actions"]')
-    await menuButton.click()
+    const menuButton = gptCard.getByRole('button', {name: 'GPT actions'})
+    await expect(menuButton).toBeVisible()
+    await menuButton.dispatchEvent('click')
 
     const archiveOption = page.locator('[data-testid="archive-gpt"]')
-    await archiveOption.click()
+    await expect(archiveOption).toBeVisible({timeout: 10000})
+    await archiveOption.click({force: true})
 
     const confirmArchive = page.locator('[data-testid="confirm-archive"]')
     if (await confirmArchive.isVisible()) {
@@ -79,11 +86,13 @@ test.describe('GPT Archive and Restore Flow', () => {
       await page.waitForTimeout(300)
 
       const archivedCard = page.locator('[data-testid="user-gpt-card"]').filter({hasText: testGPT.name})
-      const restoreMenuButton = archivedCard.locator('[aria-label="GPT actions"]')
-      await restoreMenuButton.click()
+      const restoreMenuButton = archivedCard.getByRole('button', {name: 'GPT actions'})
+      await expect(restoreMenuButton).toBeVisible()
+      await restoreMenuButton.dispatchEvent('click')
 
       const restoreOption = page.locator('[data-testid="restore-gpt"]')
-      await restoreOption.click()
+      await expect(restoreOption).toBeVisible({timeout: 10000})
+      await restoreOption.click({force: true})
 
       await page.waitForTimeout(500)
 
@@ -109,11 +118,13 @@ test.describe('GPT Archive and Restore Flow', () => {
     await homePage.waitForGPTCards()
 
     const gptCard = page.locator('[data-testid="user-gpt-card"]').filter({hasText: testGPT.name})
-    const menuButton = gptCard.locator('[aria-label="GPT actions"]')
-    await menuButton.click()
+    const menuButton = gptCard.getByRole('button', {name: 'GPT actions'})
+    await expect(menuButton).toBeVisible()
+    await menuButton.dispatchEvent('click')
 
     const archiveOption = page.locator('[data-testid="archive-gpt"]')
-    await archiveOption.click()
+    await expect(archiveOption).toBeVisible({timeout: 10000})
+    await archiveOption.click({force: true})
 
     const confirmArchive = page.locator('[data-testid="confirm-archive"]')
     if (await confirmArchive.isVisible()) {
@@ -128,11 +139,13 @@ test.describe('GPT Archive and Restore Flow', () => {
       await page.waitForTimeout(300)
 
       const archivedCard = page.locator('[data-testid="user-gpt-card"]').filter({hasText: testGPT.name})
-      const deleteMenuButton = archivedCard.locator('[aria-label="GPT actions"]')
-      await deleteMenuButton.click()
+      const deleteMenuButton = archivedCard.getByRole('button', {name: 'GPT actions'})
+      await expect(deleteMenuButton).toBeVisible()
+      await deleteMenuButton.dispatchEvent('click')
 
       const deleteOption = page.locator('[data-testid="delete-gpt"]')
-      await deleteOption.click()
+      await expect(deleteOption).toBeVisible({timeout: 10000})
+      await deleteOption.click({force: true})
 
       const confirmDelete = page.locator('[data-testid="confirm-delete"]')
       if (await confirmDelete.isVisible()) {

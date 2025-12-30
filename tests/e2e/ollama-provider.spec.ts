@@ -18,14 +18,15 @@ function createMockModel(name: string, size: number) {
 }
 
 test.describe('Ollama Provider Integration', () => {
-  // Helper to navigate to settings panel and wait for Ollama section
+  // Helper to navigate to settings page and open Ollama section
   const openSettingsPanel = async (page: import('@playwright/test').Page) => {
-    await page.goto('/gpt/new')
+    await page.goto('/settings')
     await page.waitForLoadState('domcontentloaded')
 
-    // Click the "Show API Settings" button to reveal settings
-    const settingsToggle = page.getByRole('button', {name: /show api settings/i})
-    await settingsToggle.click()
+    // Settings page opens with Providers tab by default
+    // Expand Ollama accordion to reveal settings
+    const ollamaAccordion = page.getByRole('button', {name: /Ollama/i})
+    await ollamaAccordion.click()
 
     // Wait for Ollama settings section to be visible
     await page.locator('h2', {hasText: 'Ollama Settings'}).waitFor({state: 'visible', timeout: 10000})

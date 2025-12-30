@@ -20,6 +20,8 @@ pnpm test:e2e --headed  # Watch browser
 pnpm test:e2e --debug   # Debug mode
 ```
 
+**Note**: Do NOT manually start the dev server before running E2E tests. Playwright's `webServer` config in `playwright.config.ts` handles starting/stopping the dev server automatically.
+
 ## Conventions
 
 - **Page Objects**: One class per page in `page-objects/`
