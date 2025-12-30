@@ -2,6 +2,7 @@ import {useAIProvider} from '@/hooks/use-ai-provider'
 import {useSession} from '@/hooks/use-session'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
 import {addToast, Button, Input} from '@heroui/react'
+import {XCircle} from 'lucide-react'
 import {useState} from 'react'
 
 export function APISettings() {
@@ -33,6 +34,7 @@ export function APISettings() {
           title: 'Validation Failed',
           description: 'The API key could not be validated. Please check and try again.',
           color: 'danger',
+          icon: <XCircle size={20} />,
           timeout: 5000,
         })
       }
@@ -41,6 +43,7 @@ export function APISettings() {
         title: 'Error',
         description: 'Failed to save API key. Please try again.',
         color: 'danger',
+        icon: <XCircle size={20} />,
         timeout: 5000,
       })
       console.error('Error saving API key:', error_)
@@ -62,6 +65,7 @@ export function APISettings() {
         title: 'Error',
         description: 'Failed to clear API key. Please try again.',
         color: 'danger',
+        icon: <XCircle size={20} />,
         timeout: 5000,
       })
       console.error('Error clearing API key:', error_)

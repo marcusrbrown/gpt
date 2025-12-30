@@ -2,6 +2,7 @@ import {useOllamaStatus} from '@/hooks/use-ollama-status'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
 import {getOllamaProvider} from '@/services/providers/ollama-provider'
 import {addToast, Button, Chip, Input, Spinner} from '@heroui/react'
+import {XCircle} from 'lucide-react'
 import {useMemo, useState} from 'react'
 
 export function OllamaSettings() {
@@ -34,6 +35,7 @@ export function OllamaSettings() {
         title: 'Error',
         description: 'Failed to save Ollama settings. Please try again.',
         color: 'danger',
+        icon: <XCircle size={20} />,
         timeout: 5000,
       })
       console.error('Error saving Ollama URL:', error_)

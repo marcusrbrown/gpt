@@ -5,6 +5,7 @@ import {MCPToolExplorer} from '@/components/mcp/mcp-tool-explorer'
 import {useMCP} from '@/hooks/use-mcp'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
 import {addToast, Button, Modal, ModalBody, ModalContent, ModalHeader, Spinner, useDisclosure} from '@heroui/react'
+import {XCircle} from 'lucide-react'
 import {useState} from 'react'
 
 export function MCPSettings() {
@@ -58,6 +59,7 @@ export function MCPSettings() {
         title: 'Error',
         description: 'Failed to save MCP server configuration. Please try again.',
         color: 'danger',
+        icon: <XCircle size={20} />,
         timeout: 5000,
       })
       console.error('Failed to save server:', error)
@@ -83,6 +85,7 @@ export function MCPSettings() {
             title: 'Error',
             description: 'Failed to delete MCP server. Please try again.',
             color: 'danger',
+            icon: <XCircle size={20} />,
             timeout: 5000,
           })
           console.error('Failed to delete server:', error)

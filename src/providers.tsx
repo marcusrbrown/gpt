@@ -1,3 +1,4 @@
+import {useReducedMotion} from '@/hooks/use-reduced-motion'
 import {HeroUIProvider, ToastProvider} from '@heroui/react'
 import {ThemeProvider as NextThemesProvider} from 'next-themes'
 import {AIProvider} from './contexts/ai-provider-context'
@@ -11,10 +12,23 @@ export interface ProvidersProps {
 }
 
 export const Providers = ({children}: ProvidersProps): React.ReactElement => {
+  const prefersReducedMotion = useReducedMotion()
+
   return (
     <NextThemesProvider attribute="class" defaultTheme="system" enableSystem={true}>
       <HeroUIProvider>
-        <ToastProvider placement="bottom-right" maxVisibleToasts={3} />
+        <ToastProvider
+          placement="bottom-right"
+          maxVisibleToasts={3}
+          disableAnimation={prefersReducedMotion}
+          toastProps={{
+            radius: 'lg',
+            classNames: {
+              title: 'font-medium',
+              description: 'text-small',
+            },
+          }}
+        />
         <StorageProvider>
           <SessionProvider>
             <AIProvider>
