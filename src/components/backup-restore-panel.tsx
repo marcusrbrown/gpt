@@ -1,4 +1,4 @@
-import {cn, ds} from '@/lib/design-system'
+import {cn, ds, heroui} from '@/lib/design-system'
 import {
   Button,
   Card,
@@ -11,6 +11,7 @@ import {
   ModalFooter,
   ModalHeader,
   Progress,
+  Switch,
 } from '@heroui/react'
 import {AlertTriangle, Calendar, CheckCircle2, Database, Download, FileArchive, HardDrive, Upload} from 'lucide-react'
 import {useCallback, useRef, useState} from 'react'
@@ -206,15 +207,22 @@ export function BackupRestorePanel({
           </CardHeader>
           <CardBody className="space-y-4">
             <div className="space-y-3">
-              <Checkbox isSelected={includeConversations} onValueChange={setIncludeConversations} size="sm">
+              <div className="flex items-center justify-between">
                 <span className="text-sm">Include conversations</span>
-              </Checkbox>
-              <Checkbox isSelected={includeKnowledge} onValueChange={setIncludeKnowledge} size="sm">
+                <Switch
+                  {...heroui.switch.neutral}
+                  isSelected={includeConversations}
+                  onValueChange={setIncludeConversations}
+                />
+              </div>
+              <div className="flex items-center justify-between">
                 <span className="text-sm">Include knowledge files</span>
-              </Checkbox>
-              <Checkbox isSelected={includeSettings} onValueChange={setIncludeSettings} size="sm">
+                <Switch {...heroui.switch.neutral} isSelected={includeKnowledge} onValueChange={setIncludeKnowledge} />
+              </div>
+              <div className="flex items-center justify-between">
                 <span className="text-sm">Include settings</span>
-              </Checkbox>
+                <Switch {...heroui.switch.neutral} isSelected={includeSettings} onValueChange={setIncludeSettings} />
+              </div>
             </div>
 
             {isCreatingBackup && (

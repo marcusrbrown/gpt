@@ -1,5 +1,6 @@
 import {cn, ds, theme} from '@/lib/design-system'
 import {Accordion, AccordionItem} from '@heroui/react'
+import {ChevronDown} from 'lucide-react'
 import {AnthropicSettings} from './anthropic-settings'
 import {APISettings} from './api-settings'
 import {OllamaSettings} from './ollama-settings'
@@ -23,10 +24,17 @@ export function ProviderSettings() {
         selectionMode="multiple"
         defaultExpandedKeys={['openai']}
         className={cn(theme.surface(0))}
+        itemClasses={{
+          base: 'px-0',
+          title: 'px-2',
+          trigger: 'px-2 py-3',
+          content: 'px-2 pb-4',
+        }}
       >
         <AccordionItem
           key="openai"
           aria-label="OpenAI Settings"
+          indicator={<ChevronDown />}
           title={
             <div className="flex items-center gap-2">
               <span className="font-medium">OpenAI</span>
@@ -40,6 +48,7 @@ export function ProviderSettings() {
         <AccordionItem
           key="anthropic"
           aria-label="Anthropic Settings"
+          indicator={<ChevronDown />}
           title={
             <div className="flex items-center gap-2">
               <span className="font-medium">Anthropic</span>
@@ -53,6 +62,7 @@ export function ProviderSettings() {
         <AccordionItem
           key="ollama"
           aria-label="Ollama Settings"
+          indicator={<ChevronDown />}
           title={
             <div className="flex items-center gap-2">
               <span className="font-medium">Ollama</span>

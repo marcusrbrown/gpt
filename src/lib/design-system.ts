@@ -229,3 +229,18 @@ export type Size = (typeof variants.size)[number]
 export type Color = (typeof variants.color)[number]
 export type Variant = (typeof variants.variant)[number]
 export type Radius = (typeof variants.radius)[number]
+
+/**
+ * HeroUI component default props for consistent styling
+ * Use spread operator: <Switch {...heroui.switch.neutral} />
+ */
+export const heroui = {
+  switch: {
+    neutral: {size: 'sm', color: 'default'} as const,
+    primary: {size: 'sm', color: 'primary'} as const,
+  },
+  checkbox: {
+    neutral: {size: 'sm', color: 'default'} as const,
+    primary: {size: 'sm', color: 'primary'} as const,
+  },
+} as const

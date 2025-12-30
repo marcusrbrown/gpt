@@ -2,6 +2,7 @@ import type {MCPAuthentication, MCPServerConfig} from '@/types/mcp'
 import {cn, ds, theme} from '@/lib/design-system'
 import {
   Button,
+  Checkbox,
   Input,
   Modal,
   ModalBody,
@@ -10,7 +11,6 @@ import {
   ModalHeader,
   Select,
   SelectItem,
-  Switch,
 } from '@heroui/react'
 import {useMemo, useState} from 'react'
 import {z} from 'zod'
@@ -184,6 +184,7 @@ export function MCPServerForm({isOpen, onClose, onSave, initialConfig}: MCPServe
       scrollBehavior="inside"
       classNames={{
         base: cn(theme.surface(1), 'border', theme.border(), 'max-w-2xl'),
+        wrapper: 'bg-black/50',
         header: 'border-b border-default-100',
         footer: 'border-t border-default-100',
       }}
@@ -227,9 +228,9 @@ export function MCPServerForm({isOpen, onClose, onSave, initialConfig}: MCPServe
               </Select>
 
               <div className="flex items-end pb-2">
-                <Switch isSelected={formState.enabled} onValueChange={v => updateField('enabled', v)} size="sm">
+                <Checkbox isSelected={formState.enabled} onValueChange={v => updateField('enabled', v)} size="sm">
                   Enabled
-                </Switch>
+                </Checkbox>
               </div>
             </div>
 

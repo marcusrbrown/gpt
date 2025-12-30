@@ -30,6 +30,7 @@ export function AppearanceSettings() {
         description: `Theme changed to ${themeLabel}.`,
         color: 'success',
         timeout: 3000,
+        shouldShowTimeoutProgress: true,
       })
     }
   }
@@ -51,8 +52,13 @@ export function AppearanceSettings() {
             aria-label="Theme selection"
             selectedKeys={currentTheme ? [currentTheme] : ['system']}
             onSelectionChange={handleThemeChange}
-            className="w-full sm:w-40"
+            className="w-full sm:w-48"
             size="sm"
+            popoverProps={{
+              classNames: {
+                content: '!bg-surface-secondary border border-border-default',
+              },
+            }}
           >
             {themeOptions.map(option => (
               <SelectItem key={option.key} startContent={<option.icon size={16} />}>
