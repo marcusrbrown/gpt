@@ -5,20 +5,14 @@ import {expect, test} from './fixtures'
  * Tests MCP server configuration and tool management
  */
 test.describe('MCP Integration', () => {
-  // Helper to navigate to MCP settings
+  // Helper to navigate to MCP settings via Integrations tab
   const openMCPSettings = async (page: import('@playwright/test').Page) => {
-    await page.goto('/gpt/new')
+    await page.goto('/settings')
     await page.waitForLoadState('domcontentloaded')
 
-    // Click the "Show API Settings" button to reveal settings
-    const settingsToggle = page.getByRole('button', {name: /show api settings/i})
-    await settingsToggle.click()
-
-    // Click MCP tab if visible
-    const mcpTab = page.getByRole('tab', {name: /mcp/i})
-    if (await mcpTab.isVisible()) {
-      await mcpTab.click()
-    }
+    // Click the Integrations tab to access MCP settings
+    const integrationsTab = page.getByRole('tab', {name: /Integrations/i})
+    await integrationsTab.click()
 
     // Wait for MCP settings section
     await page.locator('h2', {hasText: /MCP.*Settings/i}).waitFor({state: 'visible', timeout: 10000})

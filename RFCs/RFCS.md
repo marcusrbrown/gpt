@@ -66,7 +66,7 @@ This document serves as the master index for all Request for Comments (RFC) docu
 | RFC-010 | Ollama Local Models            | SHOULD   | Medium     | 3     | Completed |
 | RFC-011 | Advanced Tools & Sandbox       | COULD    | High       | 3     | Pending   |
 | RFC-012 | Tauri Desktop Application      | COULD    | High       | 4     | Pending   |
-| RFC-013 | UI/UX Improvements             | MUST     | Medium     | 1     | Pending   |
+| RFC-013 | UI/UX Improvements             | MUST     | Medium     | 1     | Completed |
 
 ---
 

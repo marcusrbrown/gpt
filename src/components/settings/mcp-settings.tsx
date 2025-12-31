@@ -4,7 +4,8 @@ import {MCPServerForm} from '@/components/mcp/mcp-server-form'
 import {MCPToolExplorer} from '@/components/mcp/mcp-tool-explorer'
 import {useMCP} from '@/hooks/use-mcp'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
-import {Button, Modal, ModalBody, ModalContent, ModalHeader, Spinner, useDisclosure} from '@heroui/react'
+import {addToast, Button, Modal, ModalBody, ModalContent, ModalHeader, Spinner, useDisclosure} from '@heroui/react'
+import {XCircle} from 'lucide-react'
 import {useState} from 'react'
 
 export function MCPSettings() {
@@ -37,13 +38,31 @@ export function MCPSettings() {
     try {
       if (editingServer) {
         await updateServer(editingServer.id, config)
+        addToast({
+          title: 'Server Updated',
+          description: `MCP server "${config.name}" has been updated.`,
+          color: 'success',
+          timeout: 4000,
+        })
       } else {
         await addServer(config)
+        addToast({
+          title: 'Server Added',
+          description: `MCP server "${config.name}" has been added.`,
+          color: 'success',
+          timeout: 4000,
+        })
       }
       onClose()
     } catch (error) {
+      addToast({
+        title: 'Error',
+        description: 'Failed to save MCP server configuration. Please try again.',
+        color: 'danger',
+        icon: <XCircle size={20} />,
+        timeout: 5000,
+      })
       console.error('Failed to save server:', error)
-      // Error is handled in the form component via retry or display
       throw error
     }
   }
@@ -52,9 +71,25 @@ export function MCPSettings() {
     // Using window.confirm for user confirmation before destructive action
     // eslint-disable-next-line no-alert
     if (window.confirm('Are you sure you want to delete this server configuration?')) {
-      removeServer(serverId).catch(error => {
-        console.error('Failed to delete server:', error)
-      })
+      removeServer(serverId)
+        .then(() => {
+          addToast({
+            title: 'Server Deleted',
+            description: 'MCP server configuration has been removed.',
+            color: 'success',
+            timeout: 4000,
+          })
+        })
+        .catch(error => {
+          addToast({
+            title: 'Error',
+            description: 'Failed to delete MCP server. Please try again.',
+            color: 'danger',
+            icon: <XCircle size={20} />,
+            timeout: 5000,
+          })
+          console.error('Failed to delete server:', error)
+        })
     }
   }
 

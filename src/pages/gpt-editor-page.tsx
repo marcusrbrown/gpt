@@ -1,17 +1,13 @@
 import type {GPTConfiguration} from '@/types/gpt'
 import {GPTEditor} from '@/components/gpt-editor'
 import {GPTTestPane} from '@/components/gpt-test-pane'
-import {AnthropicSettings} from '@/components/settings/anthropic-settings'
-import {APISettings} from '@/components/settings/api-settings'
-import {MCPSettings} from '@/components/settings/mcp-settings'
-import {OllamaSettings} from '@/components/settings/ollama-settings'
 import {useAIProvider} from '@/hooks/use-ai-provider'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds, theme} from '@/lib/design-system'
-import {Button} from '@heroui/react'
-import {Play} from 'lucide-react'
+import {Button, Link} from '@heroui/react'
+import {Play, Settings} from 'lucide-react'
 import {useEffect, useState} from 'react'
-import {useNavigate, useParams} from 'react-router-dom'
+import {Link as RouterLink, useNavigate, useParams} from 'react-router-dom'
 import {v4 as uuidv4} from 'uuid'
 
 export function GPTEditorPage() {
@@ -20,7 +16,6 @@ export function GPTEditorPage() {
   const storage = useStorage()
   const [gptConfig, setGptConfig] = useState<GPTConfiguration | undefined>(undefined)
   const {providers, isLoading} = useAIProvider()
-  const [showSettings, setShowSettings] = useState(false)
 
   const openAIConfig = providers.find(p => p.id === 'openai')
   const isConfigured = openAIConfig?.isConfigured ?? false
@@ -106,57 +101,44 @@ export function GPTEditorPage() {
 
   const handleTestGpt = () => {
     if (gptConfig) {
-      navigate(`/gpt/test/${gptConfig.id}`) as void
+      const result = navigate(`/gpt/test/${gptConfig.id}`)
+      if (result instanceof Promise) {
+        result.catch(console.error)
+      }
     }
-  }
-
-  const toggleSettings = () => {
-    setShowSettings(!showSettings)
   }
 
   return (
     <div className="flex flex-col h-[calc(100vh-var(--header-height))]">
       {/* Page Header */}
       <div className={cn('flex-none p-6 border-b', theme.surface(1), theme.border())}>
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center">
           <h1 className={cn(ds.text.heading.h2)}>{gptConfig?.name || 'New GPT'}</h1>
-          {gptConfig && (
-            <Button
-              color="primary"
-              size="lg"
-              startContent={<Play size={18} />}
-              onPress={handleTestGpt}
-              className="flex items-center shadow-sm"
+          <div className="flex items-center gap-3">
+            <Link
+              as={RouterLink}
+              to="/settings"
+              className={cn(
+                'flex items-center gap-2 text-content-secondary hover:text-content-primary',
+                ds.animation.transition,
+              )}
             >
-              Test GPT
-            </Button>
-          )}
-        </div>
-        <div className="flex">
-          <Button
-            variant="light"
-            color="primary"
-            size="sm"
-            onPress={toggleSettings}
-            className={cn(ds.animation.transition)}
-          >
-            {showSettings ? 'Hide API Settings' : 'Show API Settings'}
-          </Button>
-        </div>
-        {showSettings && (
-          <div className={cn('mt-4 p-4 rounded-lg border', theme.surface(0), theme.border())}>
-            <APISettings />
-            <div className="mt-6">
-              <AnthropicSettings />
-            </div>
-            <div className="mt-6">
-              <OllamaSettings />
-            </div>
-            <div className="mt-6">
-              <MCPSettings />
-            </div>
+              <Settings size={18} />
+              <span className="text-sm">Settings</span>
+            </Link>
+            {gptConfig && (
+              <Button
+                color="primary"
+                size="lg"
+                startContent={<Play size={18} />}
+                onPress={handleTestGpt}
+                className="flex items-center shadow-sm"
+              >
+                Test GPT
+              </Button>
+            )}
           </div>
-        )}
+        </div>
       </div>
 
       {/* Split Layout */}
@@ -185,16 +167,18 @@ export function GPTEditorPage() {
                 )}
               >
                 <p className={cn(ds.text.body.large, 'text-content-primary mb-6 font-medium')}>
-                  To test your GPT, please set your OpenAI API key in the settings.
+                  To test your GPT, please configure an AI provider in settings.
                 </p>
                 <Button
+                  as={RouterLink}
+                  to="/settings"
                   color="primary"
                   variant="solid"
                   size="lg"
-                  onPress={toggleSettings}
+                  startContent={<Settings size={18} />}
                   className={cn('flex items-center', ds.animation.transition, 'shadow-md')}
                 >
-                  Open API Settings
+                  Open Settings
                 </Button>
               </div>
             </div>

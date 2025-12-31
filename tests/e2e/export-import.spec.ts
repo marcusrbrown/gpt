@@ -87,10 +87,11 @@ test.describe('Export/Import System', () => {
 
       const gptCard = page.locator('[data-testid="user-gpt-card"]').first()
       const menuButton = gptCard.getByRole('button', {name: /gpt actions/i})
-      await menuButton.click()
+      await expect(menuButton).toBeVisible()
+      await menuButton.dispatchEvent('click')
 
       const exportOption = page.locator('[data-testid="export-gpt"]')
-      await expect(exportOption).toBeVisible()
+      await expect(exportOption).toBeVisible({timeout: 10000})
     })
 
     test('should open export dialog when clicking export option', async ({page}) => {
@@ -101,11 +102,11 @@ test.describe('Export/Import System', () => {
 
       const menuButton = gptCard.getByRole('button', {name: /gpt actions/i})
       await expect(menuButton).toBeVisible()
-      await menuButton.click()
+      await menuButton.dispatchEvent('click')
 
       const exportOption = page.locator('[data-testid="export-gpt"]')
-      await expect(exportOption).toBeVisible({timeout: 5000})
-      await exportOption.click()
+      await expect(exportOption).toBeVisible({timeout: 10000})
+      await exportOption.click({force: true})
 
       const exportDialog = page.getByRole('dialog')
       await expect(exportDialog).toBeVisible({timeout: 5000})

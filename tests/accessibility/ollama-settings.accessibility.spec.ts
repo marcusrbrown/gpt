@@ -17,13 +17,13 @@ test.describe('Ollama Settings Accessibility', () => {
       })
     })
 
-    await page.goto('/gpt/new')
+    await page.goto('/settings')
     await page.waitForLoadState('domcontentloaded')
 
-    // Click the "Show API Settings" button to reveal settings
-    const settingsToggle = page.getByRole('button', {name: /show api settings/i})
-    await expect(settingsToggle).toBeVisible({timeout: 5000})
-    await settingsToggle.click()
+    // Providers tab is the default, expand Ollama accordion item
+    const ollamaAccordion = page.locator('[aria-label="Ollama Settings"]')
+    await expect(ollamaAccordion).toBeVisible({timeout: 5000})
+    await ollamaAccordion.click()
 
     // Wait for Ollama settings section to be visible
     await page.locator('h2', {hasText: 'Ollama Settings'}).waitFor({state: 'visible', timeout: 10000})

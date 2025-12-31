@@ -1,4 +1,5 @@
 import {CreateFolderModal} from '@/components/create-folder-modal'
+import {NoProvidersPrompt} from '@/components/empty-states'
 import {FolderSidebar} from '@/components/folder-sidebar'
 import {GPTLibrary} from '@/components/gpt-library'
 import {cn, ds} from '@/lib/design-system'
@@ -13,13 +14,19 @@ export function HomePage() {
 
   const handleSelectGPT = useCallback(
     (gptId: string) => {
-      navigate(`/gpt/edit/${gptId}`) as void
+      const result = navigate(`/gpt/edit/${gptId}`)
+      if (result instanceof Promise) {
+        result.catch(console.error)
+      }
     },
     [navigate],
   )
 
   const handleCreateGPT = useCallback(() => {
-    navigate('/gpt/new') as void
+    const result = navigate('/gpt/new')
+    if (result instanceof Promise) {
+      result.catch(console.error)
+    }
   }, [navigate])
 
   const handleFolderSelect = useCallback((folderId: string | null) => {
@@ -41,9 +48,10 @@ export function HomePage() {
     >
       <header className={cn(ds.layout.container, 'text-center py-8 md:py-12')}>
         <h1 className="text-4xl md:text-5xl font-bold text-content-primary mb-4">Custom GPTs</h1>
-        <p className="text-lg text-content-secondary max-w-2xl mx-auto">
+        <p className="text-lg text-content-secondary max-w-2xl mx-auto mb-6">
           Create and manage your own AI assistants, stored securely on your device
         </p>
+        <NoProvidersPrompt />
       </header>
 
       <div className="flex flex-1 overflow-hidden border-t border-border-default">

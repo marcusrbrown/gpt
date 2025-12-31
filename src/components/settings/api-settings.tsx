@@ -1,7 +1,8 @@
 import {useAIProvider} from '@/hooks/use-ai-provider'
 import {useSession} from '@/hooks/use-session'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
-import {Button, Input} from '@heroui/react'
+import {addToast, Button, Input} from '@heroui/react'
+import {XCircle} from 'lucide-react'
 import {useState} from 'react'
 
 export function APISettings() {
@@ -9,14 +10,12 @@ export function APISettings() {
   const {validateProvider, providers} = useAIProvider()
   const [inputKey, setInputKey] = useState('')
   const [showApiKey, setShowApiKey] = useState(false)
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
   const openAIConfig = providers.find(p => p.id === 'openai')
   const isConfigured = openAIConfig?.isConfigured ?? false
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputKey(e.target.value)
-    setSaveStatus('idle')
   }
 
   const handleSaveKey = async () => {
@@ -24,13 +23,29 @@ export function APISettings() {
       await setSecret('openai', inputKey)
       const result = await validateProvider('openai', inputKey)
       if (result.valid) {
-        setSaveStatus('success')
-        setTimeout(() => setSaveStatus('idle'), 3000)
+        addToast({
+          title: 'API Key Saved',
+          description: 'Your OpenAI API key has been saved and validated.',
+          color: 'success',
+          timeout: 4000,
+        })
       } else {
-        setSaveStatus('error')
+        addToast({
+          title: 'Validation Failed',
+          description: 'The API key could not be validated. Please check and try again.',
+          color: 'danger',
+          icon: <XCircle size={20} />,
+          timeout: 5000,
+        })
       }
     } catch (error_: unknown) {
-      setSaveStatus('error')
+      addToast({
+        title: 'Error',
+        description: 'Failed to save API key. Please try again.',
+        color: 'danger',
+        icon: <XCircle size={20} />,
+        timeout: 5000,
+      })
       console.error('Error saving API key:', error_)
     }
   }
@@ -39,8 +54,20 @@ export function APISettings() {
     try {
       await deleteSecret('openai')
       setInputKey('')
-      setSaveStatus('idle')
+      addToast({
+        title: 'API Key Cleared',
+        description: 'Your OpenAI API key has been removed.',
+        color: 'success',
+        timeout: 4000,
+      })
     } catch (error_: unknown) {
+      addToast({
+        title: 'Error',
+        description: 'Failed to clear API key. Please try again.',
+        color: 'danger',
+        icon: <XCircle size={20} />,
+        timeout: 5000,
+      })
       console.error('Error clearing API key:', error_)
     }
   }
@@ -94,14 +121,6 @@ export function APISettings() {
             {showApiKey ? 'Hide' : 'Show'}
           </Button>
         </div>
-
-        {saveStatus === 'success' && (
-          <p className={cn(ds.form.errorText, 'text-success-600 mt-1')}>API key saved successfully!</p>
-        )}
-
-        {saveStatus === 'error' && (
-          <p className={cn(ds.form.errorText, 'mt-1')}>Failed to save API key. Please try again.</p>
-        )}
 
         <div className={cn('flex mt-4 space-x-2', ds.form.fieldRow)}>
           <Button

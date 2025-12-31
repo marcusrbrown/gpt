@@ -9,8 +9,157 @@ body {
   overflow-y: scroll;
 }
 
+/* ==============================================
+   HeroUI Component Overrides
+
+   These overrides fix transparency issues with HeroUI components
+   in Tailwind CSS v4. The custom utility classes (bg-surface-*)
+   are not being generated properly, so we use CSS variables directly.
+
+   All surface backgrounds use design system tokens:
+   - --surface-primary: Main background (white/dark)
+   - --surface-secondary: Elevated surfaces (cards, modals, dropdowns)
+   - --border-default: Standard borders
+   ============================================== */
+
+/* ---------------------------------------------
+   Overlays: Modals, Drawers, Dialogs
+   --------------------------------------------- */
+[data-slot='backdrop'] {
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+/* Modal/Dialog content - applies to all dialog-type overlays */
+[data-slot='base'][role='dialog'],
+[data-slot='wrapper'] > section,
+.heroui-modal-content,
+[class*='modal-content'] {
+  background-color: hsl(var(--surface-secondary));
+  border: 1px solid hsl(var(--border-default));
+}
+
+/* Modal header/footer borders */
+[data-slot='header'] {
+  border-bottom: 1px solid hsl(var(--border-default));
+}
+
+[data-slot='footer'] {
+  border-top: 1px solid hsl(var(--border-default));
+}
+
+/* ---------------------------------------------
+   Dropdowns: Select, Autocomplete, Popover
+   --------------------------------------------- */
+[data-slot='trigger'],
+[data-slot='innerWrapper'] {
+  background-color: hsl(var(--surface-secondary));
+}
+
+[data-slot='popover'],
+[data-slot='listbox'],
+[data-slot='content'] {
+  background-color: hsl(var(--surface-secondary));
+  border: 1px solid hsl(var(--border-default));
+  border-radius: 0.5rem;
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Dropdown items */
+[data-slot='listboxItem'],
+[data-slot='option'] {
+  background-color: transparent;
+}
+
+[data-slot='listboxItem']:hover,
+[data-slot='option']:hover,
+[data-slot='listboxItem'][data-hover='true'],
+[data-slot='option'][data-hover='true'] {
+  background-color: hsl(var(--surface-tertiary));
+}
+
+/* ---------------------------------------------
+   Form Controls: Checkbox, Switch
+   --------------------------------------------- */
+[data-slot='checkbox'] {
+  --checkbox-size: 1.25rem;
+}
+
+[data-slot='checkbox-wrapper'] {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Switch track - unselected state (neutral gray) */
+label[data-selected] > span[aria-hidden='true'] {
+  background-color: hsl(var(--border-default));
+}
+
+/* Switch track - selected state (neutral dark gray) */
+label[data-selected='true'] > span[aria-hidden='true'] {
+  background-color: hsl(var(--content-secondary));
+}
+
+/* ---------------------------------------------
+   Toast Notifications
+   --------------------------------------------- */
+[data-toast='true'],
+[role='alertdialog'][data-toast] {
+  background-color: hsl(var(--surface-secondary)) !important;
+  border: 1px solid hsl(var(--border-default)) !important;
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
+}
+
+/* Toast visibility - prevent initial transparency */
+[data-toast='true']:not([data-toast-exiting='true']) {
+  opacity: 1 !important;
+}
+
+/* Toast exit animation */
+[data-toast='true'] {
+  transition:
+    transform 300ms ease-out,
+    opacity 300ms ease-out;
+}
+
+[data-toast='true'][data-toast-exiting='true'] {
+  opacity: 0 !important;
+  transform: translateX(100%);
+}
+
+/* ---------------------------------------------
+   Accordion
+   --------------------------------------------- */
+[data-slot='indicator'] {
+  transition: transform 200ms ease;
+}
+
+[data-open='true'] [data-slot='indicator'],
+[aria-expanded='true'] [data-slot='indicator'] {
+  transform: rotate(90deg);
+}
+
+button[aria-expanded='true'] > [data-slot='indicator'] {
+  transform: rotate(90deg);
+}
+
+/* ---------------------------------------------
+   Cards
+   --------------------------------------------- */
+[data-slot='card'],
+.heroui-card {
+  background-color: hsl(var(--surface-secondary));
+  border: 1px solid hsl(var(--border-default));
+}
+
 :root {
   --header-height: 4rem;
+  --footer-height: 3rem;
   --sidebar-width: 16rem;
 
   /* GPT Design System - Light Theme */
