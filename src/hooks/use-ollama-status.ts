@@ -1,7 +1,7 @@
 import type {OllamaConnectionStatus, OllamaModelInfo} from '@/types/ollama'
 
 import {getOllamaProvider} from '@/services/providers/ollama-provider'
-import {useCallback, useEffect, useRef, useState} from 'react'
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 
 /**
  * Connection status result from the hook
@@ -37,7 +37,24 @@ const DEFAULT_POLL_INTERVAL = 30_000
 
 function isCorsOrNetworkError(message: string): boolean {
   const lowerMessage = message.toLowerCase()
-  return lowerMessage.includes('cors') || lowerMessage.includes('network')
+  return (
+    lowerMessage.includes('cors') ||
+    lowerMessage.includes('network') ||
+    lowerMessage.includes('failed to fetch') ||
+    lowerMessage.includes('err_failed') ||
+    lowerMessage.includes('mixed content')
+  )
+}
+
+/**
+ * Detects if the app is running on https:// and trying to connect to http://localhost,
+ * which causes mixed-content/CORS issues in most browsers.
+ */
+export function isHttpsToLocalhostScenario(ollamaUrl: string): boolean {
+  if (typeof window === 'undefined') return false
+  const isHttpsSite = window.location.protocol === 'https:'
+  const isLocalhostOllama = ollamaUrl.startsWith('http://localhost') || ollamaUrl.startsWith('http://127.0.0.1')
+  return isHttpsSite && isLocalhostOllama
 }
 
 /**
@@ -102,7 +119,14 @@ export function useOllamaStatus(options: UseOllamaStatusOptions = {}): OllamaSta
 
       if (isCorsOrNetworkError(errorMessage)) {
         setStatus('cors_error')
-        setError('CORS error: Set OLLAMA_ORIGINS=* and restart Ollama')
+        const provider = getOllamaProvider()
+        if (isHttpsToLocalhostScenario(provider.baseUrl)) {
+          setError(
+            'Cannot connect to localhost from HTTPS site. Run Ollama with OLLAMA_ORIGINS=* or use a local proxy.',
+          )
+        } else {
+          setError('CORS error: Set OLLAMA_ORIGINS=* and restart Ollama')
+        }
       } else {
         setStatus('disconnected')
         setError(errorMessage)
@@ -138,14 +162,17 @@ export function useOllamaStatus(options: UseOllamaStatusOptions = {}): OllamaSta
     }
   }, [autoStart, pollInterval, checkStatus])
 
-  return {
-    status,
-    isChecking,
-    models,
-    error,
-    checkNow: checkStatus,
-    lastChecked,
-  }
+  return useMemo(
+    () => ({
+      status,
+      isChecking,
+      models,
+      error,
+      checkNow: checkStatus,
+      lastChecked,
+    }),
+    [status, isChecking, models, error, checkStatus, lastChecked],
+  )
 }
 
 export function getOllamaBaseUrl(): string {

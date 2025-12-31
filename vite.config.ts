@@ -4,6 +4,10 @@ import react from '@vitejs/plugin-react-swc'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import {defineConfig} from 'vitest/config'
 
+// CSP via <meta> tag. Note: frame-ancestors is NOT supported in meta tags—
+// browsers ignore it and log a warning. For GitHub Pages (static hosting),
+// HTTP headers aren't configurable, so we omit frame-ancestors here.
+// If clickjacking protection is needed, consider X-Frame-Options via a CDN/proxy.
 const cspPolicy = [
   "default-src 'self'",
   "script-src 'self'",
@@ -12,7 +16,6 @@ const cspPolicy = [
   "img-src 'self' data: blob:",
   "font-src 'self'",
   "object-src 'none'",
-  "frame-ancestors 'none'",
   "form-action 'self'",
   "base-uri 'self'",
 ].join('; ')
