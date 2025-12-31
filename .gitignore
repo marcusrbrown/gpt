@@ -36,6 +36,7 @@ coverage
 
 .repomix-*
 .cursor/mcp.json
+.mcp.json
 
 !.ai/
 .ai/*

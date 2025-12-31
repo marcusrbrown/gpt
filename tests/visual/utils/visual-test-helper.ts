@@ -239,7 +239,7 @@ export const VisualTestData = {
   /**
    * Create mock GPT configuration with consistent data
    */
-  createMockGPT(overrides: Partial<any> = {}) {
+  createMockGPT(overrides: Record<string, unknown> = {}): Record<string, unknown> {
     return {
       id: 'test-gpt-001',
       name: 'Test GPT Assistant',
@@ -258,8 +258,8 @@ export const VisualTestData = {
           enabled: false,
         },
       },
-      createdAt: new Date('2024-01-01T00:00:00.000Z'),
-      updatedAt: new Date('2024-01-01T00:00:00.000Z'),
+      createdAt: new Date('2025-01-01T00:00:00.000Z'),
+      updatedAt: new Date('2025-01-01T00:00:00.000Z'),
       version: 1,
       ...overrides,
     }

@@ -1,19 +1,23 @@
-import {useOllamaStatus} from '@/hooks/use-ollama-status'
+import {isHttpsToLocalhostScenario, useOllamaStatus} from '@/hooks/use-ollama-status'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
 import {getOllamaProvider} from '@/services/providers/ollama-provider'
 import {addToast, Button, Chip, Input, Spinner} from '@heroui/react'
-import {XCircle} from 'lucide-react'
+import {AlertTriangle, XCircle} from 'lucide-react'
 import {useMemo, useState} from 'react'
 
 export function OllamaSettings() {
-  const {status, models, error, checkNow, isChecking} = useOllamaStatus({
-    autoStart: true,
-    fetchModels: true,
-  })
-
   // Get initial base URL synchronously from provider
   const initialBaseUrl = useMemo(() => getOllamaProvider().baseUrl, [])
   const [baseUrl, setBaseUrl] = useState(initialBaseUrl)
+
+  // Detect if we're on https:// trying to reach http://localhost (mixed content)
+  const hasHttpsLocalhost = useMemo(() => isHttpsToLocalhostScenario(baseUrl), [baseUrl])
+
+  // Don't auto-poll if the connection will fail due to mixed content
+  const {status, models, error, checkNow, isChecking} = useOllamaStatus({
+    autoStart: !hasHttpsLocalhost,
+    fetchModels: true,
+  })
 
   const handleBaseUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setBaseUrl(e.target.value)
@@ -89,6 +93,32 @@ export function OllamaSettings() {
         <p className={cn(ds.text.body.small, 'mb-2')}>
           Connect to your local Ollama instance to use open-source models like Llama 3, Mistral, and Gemma.
         </p>
+
+        {hasHttpsLocalhost && (
+          <div className={cn('p-3 mb-4 rounded-lg bg-warning-50 border border-warning-200')}>
+            <div className="flex items-start gap-2">
+              <AlertTriangle size={18} className="text-warning-600 mt-0.5 shrink-0" />
+              <div>
+                <p className={cn(ds.text.body.small, 'text-warning-700 font-medium mb-1')}>
+                  Browser Security Restriction
+                </p>
+                <p className={cn(ds.text.body.small, 'text-warning-600 mb-2')}>
+                  This site is served over HTTPS, but Ollama runs on HTTP localhost. Browsers block these "mixed
+                  content" requests for security. To use Ollama:
+                </p>
+                <ol className={cn(ds.text.body.small, 'text-warning-600 list-decimal list-inside space-y-1 mb-2')}>
+                  <li>
+                    Start Ollama with CORS enabled:{' '}
+                    <code className="bg-warning-100 px-1 rounded text-xs">OLLAMA_ORIGINS="*" ollama serve</code>
+                  </li>
+                  <li>
+                    Or run this app locally: <code className="bg-warning-100 px-1 rounded text-xs">pnpm dev</code>
+                  </li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        )}
 
         {status === 'connected' && (
           <p className={cn(ds.text.body.small, 'mb-2 text-success-600')}>
