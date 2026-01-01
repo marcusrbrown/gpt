@@ -80,9 +80,13 @@ export const accessibilityTest = {
       // Assert compliance standards
       const meetsStandards = AccessibilityUtils.meetsComplianceStandards(summary, allowedCritical, allowedSerious)
 
+      const violationReport = AccessibilityUtils.generateViolationReport(summary)
+
       expect(
         meetsStandards,
-        `Accessibility violations found: ${summary.critical} critical, ${summary.serious} serious`,
+        `${violationReport}
+
+Accessibility violations found: ${summary.critical} critical, ${summary.serious} serious`,
       ).toBe(true)
     })
 
@@ -157,9 +161,11 @@ export const accessibilityTest = {
       const results = await AccessibilityUtils.validateColorContrast(page)
       const summary = AccessibilityUtils.analyzeViolations(results)
 
+      const violationReport = AccessibilityUtils.generateViolationReport(summary)
+
       // Color contrast violations should be minimal
-      expect(summary.critical, 'Critical color contrast violations found').toBe(0)
-      expect(summary.serious, 'Serious color contrast violations found').toBe(0)
+      expect(summary.critical, `${violationReport}\n\nCritical color contrast violations found`).toBe(0)
+      expect(summary.serious, `${violationReport}\n\nSerious color contrast violations found`).toBe(0)
     })
   },
 }

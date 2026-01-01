@@ -18,7 +18,7 @@ export const Footer: FC = () => {
         title="@marcusrbrown on GitHub"
       >
         <span className="text-sm text-content-secondary">Made with 🖤 by</span>
-        <span className="text-primary-600 dark:text-primary-400 font-semibold text-sm">Marcus R. Brown</span>
+        <span className="text-primary-600 dark:text-content-primary font-semibold text-sm">Marcus R. Brown</span>
       </Link>
     </footer>
   )

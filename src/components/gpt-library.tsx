@@ -142,7 +142,14 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
   return (
     <div className="flex flex-col h-full" data-testid="gpt-library">
       <div className="flex items-center justify-between mb-6">
-        <Tabs selectedKey={viewMode} onSelectionChange={key => setViewMode(key as ViewMode)} aria-label="GPT view mode">
+        <Tabs
+          selectedKey={viewMode}
+          onSelectionChange={key => setViewMode(key as ViewMode)}
+          aria-label="GPT view mode"
+          classNames={{
+            tabContent: 'text-default-600 group-data-[selected=true]:text-default-foreground',
+          }}
+        >
           <Tab key="active" title="Active" data-testid="active-tab" />
           <Tab key="archived" title="Archived" data-testid="archived-tab" />
         </Tabs>

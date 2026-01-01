@@ -439,7 +439,7 @@ export function GPTEditorPage() {
                     Saving...
                   </span>
                 ) : hasUnsavedChanges ? (
-                  <span className={cn(ds.text.caption, 'text-warning-500')}>Unsaved changes</span>
+                  <span className={cn(ds.text.caption, 'text-warning-700')}>Unsaved changes</span>
                 ) : lastSaved ? (
                   <span className={cn(ds.text.caption, 'text-success-500')}>Saved</span>
                 ) : null}

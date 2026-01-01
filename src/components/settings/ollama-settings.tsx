@@ -121,7 +121,7 @@ export function OllamaSettings() {
         )}
 
         {status === 'connected' && (
-          <p className={cn(ds.text.body.small, 'mb-2 text-success-600')}>
+          <p className={cn(ds.text.body.small, 'mb-2 text-success-700')}>
             ✓ Connected to Ollama ({models.length} models available)
           </p>
         )}
@@ -151,6 +151,9 @@ export function OllamaSettings() {
             className={cn('flex-1 mr-2', ds.focus.ring, ds.animation.transition)}
             description="Base URL for your Ollama instance"
             aria-label="Ollama Base URL"
+            classNames={{
+              description: 'text-content-secondary',
+            }}
           />
           <Button
             onPress={() => {
@@ -201,7 +204,7 @@ export function OllamaSettings() {
             href="https://ollama.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-primary hover:underline"
+            className="text-primary-700 underline underline-offset-2"
           >
             ollama.com
           </a>{' '}

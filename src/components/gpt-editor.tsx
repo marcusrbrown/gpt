@@ -959,7 +959,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                           Saving...
                         </span>
                       ) : hasUnsavedChanges ? (
-                        <span className="text-warning-500">Unsaved changes</span>
+                        <span className="text-warning-700">Unsaved changes</span>
                       ) : lastSaved ? (
                         <span className="text-success-500">Saved</span>
                       ) : null}
