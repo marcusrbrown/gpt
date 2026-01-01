@@ -40,8 +40,8 @@ test.describe('Knowledge Base Management', () => {
     })
 
     test('should toggle extraction mode', async ({page}) => {
-      const manualRadio = page.getByRole('radio', {name: /Manual/})
-      const autoRadio = page.getByRole('radio', {name: /Auto-extract/})
+      const manualRadio = page.getByRole('radio', {name: 'Manual'})
+      const autoRadio = page.getByRole('radio', {name: 'Auto-extract'})
 
       await expect(manualRadio).toBeChecked()
 
@@ -55,7 +55,7 @@ test.describe('Knowledge Base Management', () => {
     })
 
     test('should show Extract All Pending button in manual mode', async ({page}) => {
-      await expect(page.getByRole('radio', {name: /Manual/})).toBeChecked()
+      await expect(page.getByRole('radio', {name: 'Manual'})).toBeChecked()
 
       const fileInput = page.getByRole('tabpanel', {name: 'Files'}).locator('input[type="file"]')
       const testFilePath = path.join(testDir, 'fixtures', 'test-document.txt')

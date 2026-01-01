@@ -35,7 +35,7 @@ export function ArchiveDialog({gpt, mode, isOpen, onConfirm, onCancel, isLoading
     >
       <ModalContent>
         <ModalHeader className="flex items-center gap-2 pr-12">
-          <Icon className={cn('h-5 w-5 flex-shrink-0', isDelete ? 'text-danger' : 'text-warning')} />
+          <Icon className={cn('h-5 w-5 shrink-0', isDelete ? 'text-danger' : 'text-warning')} />
           <span>{title}</span>
         </ModalHeader>
         <ModalBody>
@@ -57,7 +57,7 @@ export function ArchiveDialog({gpt, mode, isOpen, onConfirm, onCancel, isLoading
                   'bg-danger-50 dark:bg-danger-900/20 border border-danger-200 dark:border-danger-800',
                 )}
               >
-                <AlertTriangle className="h-5 w-5 text-danger flex-shrink-0 mt-0.5" />
+                <AlertTriangle className="h-5 w-5 text-danger shrink-0 mt-0.5" />
                 <div className={cn(ds.text.body.small, 'text-danger-700 dark:text-danger-300')}>
                   <p className="font-medium">This action cannot be undone.</p>
                   <p className="mt-1">

@@ -111,6 +111,9 @@ export function APISettings() {
             className={cn('flex-1 mr-2', ds.focus.ring, ds.animation.transition)}
             description="Your OpenAI API key for testing GPT configurations"
             aria-label="Enter your OpenAI API key"
+            classNames={{
+              description: 'text-content-secondary',
+            }}
           />
           <Button
             onPress={toggleShowApiKey}

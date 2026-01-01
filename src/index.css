@@ -1,151 +1,95 @@
 @import 'tailwindcss';
 @plugin "@tailwindcss/typography";
+@plugin "./hero.ts";
+
+/* Scan HeroUI components for utility classes */
+@source '../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
 
 /* Enable class-based dark mode */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Custom Design System Tokens */
+@theme {
+  /* Brand Colors */
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #93c5fd;
+  --color-brand-400: #60a5fa;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+  --color-brand-800: #1e40af;
+  --color-brand-900: #1e3a8a;
+  --color-brand-950: #172554;
+
+  /* Semantic Colors */
+  --color-surface-primary: hsl(var(--surface-primary));
+  --color-surface-secondary: hsl(var(--surface-secondary));
+  --color-surface-tertiary: hsl(var(--surface-tertiary));
+  --color-surface-elevated: hsl(var(--surface-elevated));
+
+  --color-content-primary: hsl(var(--content-primary));
+  --color-content-secondary: hsl(var(--content-secondary));
+  --color-content-tertiary: hsl(var(--content-tertiary));
+  --color-content-inverse: hsl(var(--content-inverse));
+
+  --color-border-default: hsl(var(--border-default));
+  --color-border-subtle: hsl(var(--border-subtle));
+  --color-border-strong: hsl(var(--border-strong));
+
+  /* Spacing */
+  --spacing-4_5: 1.125rem;
+  --spacing-5_5: 1.375rem;
+  --spacing-6_5: 1.625rem;
+  --spacing-7_5: 1.875rem;
+  --spacing-8_5: 2.125rem;
+  --spacing-9_5: 2.375rem;
+  --spacing-15: 3.75rem;
+  --spacing-18: 4.5rem;
+  --spacing-22: 5.5rem;
+  --spacing-26: 6.5rem;
+
+  /* Border Radius */
+  --radius-xs: 0.125rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+
+  /* Font Family */
+  --font-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif;
+  --font-mono: Fira Code, SF Mono, Monaco, Consolas, Liberation Mono, monospace;
+
+  /* Font Size - Tailwind v4 uses --text-* but here we extend? */
+  /* v4 handles font sizes via utilities, but if we want custom ones: */
+  /* --text-xs: 0.75rem; --text-xs--line-height: 1rem; */
+  /* Skipping custom font sizes as they match defaults mostly, except specific ones? */
+  /* tailwind.config.ts had standard scale mostly. */
+
+  /* Box Shadow */
+  --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+  /* Z-Index */
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-modal: 1040;
+  --z-index-popover: 1050;
+  --z-index-tooltip: 1060;
+  --z-index-toast: 1070;
+}
+
 /* Prevent scrollbar layout shift */
 body {
   overflow-y: scroll;
-}
-
-/* ==============================================
-   HeroUI Component Overrides
-
-   These overrides fix transparency issues with HeroUI components
-   in Tailwind CSS v4. The custom utility classes (bg-surface-*)
-   are not being generated properly, so we use CSS variables directly.
-
-   All surface backgrounds use design system tokens:
-   - --surface-primary: Main background (white/dark)
-   - --surface-secondary: Elevated surfaces (cards, modals, dropdowns)
-   - --border-default: Standard borders
-   ============================================== */
-
-/* ---------------------------------------------
-   Overlays: Modals, Drawers, Dialogs
-   --------------------------------------------- */
-[data-slot='backdrop'] {
-  background-color: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-/* Modal/Dialog content - applies to all dialog-type overlays */
-[data-slot='base'][role='dialog'],
-[data-slot='wrapper'] > section,
-.heroui-modal-content,
-[class*='modal-content'] {
-  background-color: hsl(var(--surface-secondary));
-  border: 1px solid hsl(var(--border-default));
-}
-
-/* Modal header/footer borders */
-[data-slot='header'] {
-  border-bottom: 1px solid hsl(var(--border-default));
-}
-
-[data-slot='footer'] {
-  border-top: 1px solid hsl(var(--border-default));
-}
-
-/* ---------------------------------------------
-   Dropdowns: Select, Autocomplete, Popover
-   --------------------------------------------- */
-[data-slot='trigger'],
-[data-slot='innerWrapper'] {
-  background-color: hsl(var(--surface-secondary));
-}
-
-[data-slot='popover'],
-[data-slot='listbox'],
-[data-slot='content'] {
-  background-color: hsl(var(--surface-secondary));
-  border: 1px solid hsl(var(--border-default));
-  border-radius: 0.5rem;
-  box-shadow:
-    0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgb(0 0 0 / 0.1);
-}
-
-/* Dropdown items */
-[data-slot='listboxItem'],
-[data-slot='option'] {
-  background-color: transparent;
-}
-
-[data-slot='listboxItem']:hover,
-[data-slot='option']:hover,
-[data-slot='listboxItem'][data-hover='true'],
-[data-slot='option'][data-hover='true'] {
-  background-color: hsl(var(--surface-tertiary));
-}
-
-/* ---------------------------------------------
-   Form Controls: Checkbox, Switch
-   --------------------------------------------- */
-[data-slot='checkbox'] {
-  --checkbox-size: 1.25rem;
-}
-
-[data-slot='checkbox-wrapper'] {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-/* Switch track - unselected state (neutral gray) */
-label[data-selected] > span[aria-hidden='true'] {
-  background-color: hsl(var(--border-default));
-}
-
-/* Switch track - selected state (neutral dark gray) */
-label[data-selected='true'] > span[aria-hidden='true'] {
-  background-color: hsl(var(--content-secondary));
-}
-
-/* ---------------------------------------------
-   Toast Notifications
-   --------------------------------------------- */
-[data-toast='true'],
-[role='alertdialog'][data-toast] {
-  background-color: hsl(var(--surface-secondary)) !important;
-  border: 1px solid hsl(var(--border-default)) !important;
-  box-shadow:
-    0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgb(0 0 0 / 0.1) !important;
-}
-
-/* Toast visibility - prevent initial transparency */
-[data-toast='true']:not([data-toast-exiting='true']) {
-  opacity: 1 !important;
-}
-
-/* Toast exit animation */
-[data-toast='true'] {
-  transition:
-    transform 300ms ease-out,
-    opacity 300ms ease-out;
-}
-
-[data-toast='true'][data-toast-exiting='true'] {
-  opacity: 0 !important;
-  transform: translateX(100%);
-}
-
-/* ---------------------------------------------
-   Accordion
-   --------------------------------------------- */
-[data-slot='indicator'] {
-  transition: transform 200ms ease;
-}
-
-[data-open='true'] [data-slot='indicator'],
-[aria-expanded='true'] [data-slot='indicator'] {
-  transform: rotate(90deg);
-}
-
-button[aria-expanded='true'] > [data-slot='indicator'] {
-  transform: rotate(90deg);
 }
 
 /* ---------------------------------------------
@@ -264,7 +208,7 @@ button[aria-expanded='true'] > [data-slot='indicator'] {
 
   .search-input:focus {
     border-color: transparent;
-    box-shadow: 0 0 0 2px #3b82f6;
+    box-shadow: 0 0 0 2px var(--accent-color);
   }
 
   .search-input::placeholder {
@@ -282,7 +226,7 @@ button[aria-expanded='true'] > [data-slot='indicator'] {
   }
 
   .nav-link-active {
-    color: #3b82f6;
+    color: var(--accent-color);
   }
 
   /* Typography */
@@ -309,11 +253,11 @@ button[aria-expanded='true'] > [data-slot='indicator'] {
   /* Links - using design system animation utilities */
   .link {
     @apply transition-colors duration-200 ease-in-out;
-    color: #3b82f6;
+    color: var(--accent-color);
   }
 
   .link:hover {
-    color: #2563eb;
+    color: var(--accent-hover);
   }
 
   /* Documentation */
@@ -330,11 +274,11 @@ button[aria-expanded='true'] > [data-slot='indicator'] {
   }
 
   .doc-content :where(a) {
-    color: #3b82f6;
+    color: var(--accent-color);
   }
 
   .doc-content :where(a):hover {
-    color: #2563eb;
+    color: var(--accent-hover);
   }
 
   /* Code blocks */

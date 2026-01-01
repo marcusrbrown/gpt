@@ -176,12 +176,20 @@ export function useGPTValidation() {
     setErrors(prev => {
       const newErrors = {...prev}
       if (pathParts.length === 1) {
-        if (error && (fieldName === 'name' || fieldName === 'description' || fieldName === 'systemPrompt')) {
-          // Safe assignment for top-level fields
-          ;(newErrors as any)[fieldName] = error
-        } else if (!error && (fieldName === 'name' || fieldName === 'description' || fieldName === 'systemPrompt')) {
-          // Safe deletion for top-level fields
-          delete (newErrors as any)[fieldName]
+        if (error) {
+          if (fieldName === 'name') {
+            newErrors.name = error
+          } else if (fieldName === 'description') {
+            newErrors.description = error
+          } else if (fieldName === 'systemPrompt') {
+            newErrors.systemPrompt = error
+          }
+        } else if (fieldName === 'name') {
+          delete newErrors.name
+        } else if (fieldName === 'description') {
+          delete newErrors.description
+        } else if (fieldName === 'systemPrompt') {
+          delete newErrors.systemPrompt
         }
       } else if (pathParts.length === 3 && index && subField) {
         const idx = Number.parseInt(index, 10)
@@ -210,12 +218,20 @@ export function useGPTValidation() {
     setSuccessStates(prev => {
       const newSuccess = {...prev}
       if (pathParts.length === 1) {
-        if (success && (fieldName === 'name' || fieldName === 'description' || fieldName === 'systemPrompt')) {
-          // Safe assignment for top-level fields
-          ;(newSuccess as any)[fieldName] = true
-        } else if (!success && (fieldName === 'name' || fieldName === 'description' || fieldName === 'systemPrompt')) {
-          // Safe deletion for top-level fields
-          delete (newSuccess as any)[fieldName]
+        if (success) {
+          if (fieldName === 'name') {
+            newSuccess.name = true
+          } else if (fieldName === 'description') {
+            newSuccess.description = true
+          } else if (fieldName === 'systemPrompt') {
+            newSuccess.systemPrompt = true
+          }
+        } else if (fieldName === 'name') {
+          delete newSuccess.name
+        } else if (fieldName === 'description') {
+          delete newSuccess.description
+        } else if (fieldName === 'systemPrompt') {
+          delete newSuccess.systemPrompt
         }
       } else if (pathParts.length === 3 && index && subField) {
         const idx = Number.parseInt(index, 10)

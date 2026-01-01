@@ -57,7 +57,7 @@ Comprehensive implementation of the unified typography system across all compone
 | --- | --- | --- | --- |
 | TASK-005 | Update card-group.tsx: Replace `text-2xl font-semibold` with `ds.text.heading.h2` | ✅ | 2025-08-14 |
 | TASK-006 | Update gpt-editor.tsx: Replace `text-sm font-medium text-gray-700` with `ds.text.heading.h4 text-content-secondary` | ✅ | 2025-08-14 |
-| TASK-007 | Update feature-card.tsx: Replace `font-semibold text-[var(--text-primary)]` with `ds.text.heading.h3` | ✅ | 2025-08-14 |
+| TASK-007 | Update feature-card.tsx: Replace `font-semibold text-(--text-primary)` with `ds.text.heading.h3` | ✅ | 2025-08-14 |
 | TASK-008 | Update api-settings.tsx: Replace `text-xl font-semibold` with `ds.text.heading.h3` | ✅ | 2025-08-14 |
 | TASK-009 | Update knowledge-configuration.tsx: Replace `text-lg font-medium` with `ds.text.heading.h3` | ✅ | 2025-08-14 |
 | TASK-010 | Update tools-configuration.tsx: Replace `text-sm font-medium text-gray-700` with `ds.text.heading.h4 text-content-primary` | ✅ | 2025-08-14 |
@@ -84,10 +84,10 @@ Comprehensive implementation of the unified typography system across all compone
 | TASK-017 | Replace `text-gray-700` with `text-content-primary` for main text elements | ✅ | 2025-08-14 |
 | TASK-018 | Replace `text-gray-600` with `text-content-secondary` for secondary text | ✅ | 2025-08-14 |
 | TASK-019 | Replace `text-gray-500` with `text-content-tertiary` for metadata and captions | ✅ | 2025-08-14 |
-| TASK-020 | Replace `text-[var(--text-primary)]` with `text-content-primary` | ✅ | 2025-08-14 |
-| TASK-021 | Replace `text-[var(--text-secondary)]` with `text-content-secondary` | ✅ | 2025-08-14 |
-| TASK-022 | Replace `text-[var(--text-tertiary)]` with `text-content-tertiary` | ✅ | 2025-08-14 |
-| TASK-023 | Update brand/accent colors: Replace `text-[var(--accent-color)]` with design system equivalents | ✅ | 2025-08-14 |
+| TASK-020 | Replace `text-(--text-primary)` with `text-content-primary` | ✅ | 2025-08-14 |
+| TASK-021 | Replace `text-(--text-secondary)` with `text-content-secondary` | ✅ | 2025-08-14 |
+| TASK-022 | Replace `text-(--text-tertiary)` with `text-content-tertiary` | ✅ | 2025-08-14 |
+| TASK-023 | Update brand/accent colors: Replace `text-(--accent-color)` with design system equivalents | ✅ | 2025-08-14 |
 | TASK-024 | Update state colors: Apply proper danger, success, warning text colors using semantic tokens | ✅ | 2025-08-14 |
 
 ### Implementation Phase 4: Responsive Typography Implementation

@@ -47,7 +47,7 @@ export const Navbar = () => {
   }, [isMobileMenuOpen])
 
   return (
-    <header className={cn('w-full h-[var(--header-height)] border-b', theme.surface(0), theme.border())}>
+    <header className={cn('w-full h-(--header-height) border-b', theme.surface(0), theme.border())}>
       <div className={cn('flex items-center justify-between h-full', ds.layout.container)}>
         {/* Left section - Logo */}
         <div className="flex items-center gap-3">
@@ -156,7 +156,7 @@ export const Navbar = () => {
             role="presentation"
           />
           <div
-            className={cn('fixed top-[var(--header-height)] left-0 right-0 bottom-0 z-50 lg:hidden', theme.surface(0))}
+            className={cn('fixed top-(--header-height) left-0 right-0 bottom-0 z-50 lg:hidden', theme.surface(0))}
             role="dialog"
             aria-label="Mobile navigation menu"
           >

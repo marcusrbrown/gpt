@@ -180,7 +180,7 @@ export function GPTShowcasePage() {
               <div className="relative inline-block">
                 <div
                   data-testid="gpt-icon"
-                  className="w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-gradient-to-br from-primary-100 to-primary-200 dark:from-primary-900/50 dark:to-primary-800/30 flex items-center justify-center shadow-xl shadow-primary-500/10 mx-auto lg:mx-0 ring-1 ring-border-subtle"
+                  className="w-24 h-24 md:w-32 md:h-32 rounded-3xl bg-linear-to-br from-primary-100 to-primary-200 dark:from-primary-900/50 dark:to-primary-800/30 flex items-center justify-center shadow-xl shadow-primary-500/10 mx-auto lg:mx-0 ring-1 ring-border-subtle"
                 >
                   <Bot size={48} className="text-primary-600 dark:text-primary-400" strokeWidth={1.5} />
                 </div>
@@ -297,7 +297,7 @@ export function GPTShowcasePage() {
                       onPress={() => handleStarterClick(starter)}
                     >
                       <CardBody className="py-4 px-5 flex flex-row items-start gap-3">
-                        <div className="mt-0.5 min-w-[16px]">
+                        <div className="mt-0.5 min-w-4">
                           <MessageSquare size={16} className="text-primary-500 opacity-70" />
                         </div>
                         <p className="text-content-primary text-sm font-medium leading-relaxed text-left">{starter}</p>
@@ -367,7 +367,7 @@ export function GPTShowcasePage() {
               <section data-testid="model-configuration" className="pt-4">
                 <div className="flex flex-wrap gap-3 text-xs text-content-tertiary items-center justify-center lg:justify-start">
                   <span className="uppercase tracking-widest font-semibold">Model Configuration</span>
-                  <div className="h-px bg-border-subtle flex-grow min-w-[20px]"></div>
+                  <div className="h-px bg-border-subtle grow min-w-5"></div>
                   {gpt.modelProvider && (
                     <Chip variant="flat" size="sm" className="bg-surface-secondary text-content-secondary">
                       {gpt.modelProvider}

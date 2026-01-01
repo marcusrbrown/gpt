@@ -80,9 +80,9 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     }
     try {
       initClient()
-    } catch (error) {
-      console.error('Error initializing OpenAI client:', error)
-      throw error
+    } catch (error_) {
+      console.error('Error initializing OpenAI client:', error_)
+      throw error_
     }
   }
 
@@ -292,8 +292,8 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
       )
 
       return assistant
-    } catch (error) {
-      throw handleApiError(error, 'Failed to create assistant')
+    } catch (error_) {
+      throw handleApiError(error_, 'Failed to create assistant')
     }
   }
 
@@ -306,8 +306,8 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     try {
       const thread = await withRetry(async () => client.beta.threads.create())
       return thread
-    } catch (error) {
-      throw handleApiError(error, 'Failed to create thread')
+    } catch (error_) {
+      throw handleApiError(error_, 'Failed to create thread')
     }
   }
 
@@ -333,8 +333,8 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
       const message = await withRetry(async () => client.beta.threads.messages.create(threadId, params))
 
       return message
-    } catch (error) {
-      throw handleApiError(error, 'Failed to add message')
+    } catch (error_) {
+      throw handleApiError(error_, 'Failed to add message')
     }
   }
 
@@ -351,8 +351,8 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
         }),
       )
       return run
-    } catch (error) {
-      throw handleApiError(error, 'Failed to create run')
+    } catch (error_) {
+      throw handleApiError(error_, 'Failed to create run')
     }
   }
 
@@ -365,8 +365,8 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     try {
       const run = await withRetry(async () => client.beta.threads.runs.retrieve(runId, {thread_id: threadId}))
       return run
-    } catch (error) {
-      throw handleApiError(error, 'Failed to check run status')
+    } catch (error_) {
+      throw handleApiError(error_, 'Failed to check run status')
     }
   }
 
@@ -379,8 +379,8 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     try {
       const messages = await withRetry(async () => client.beta.threads.messages.list(threadId))
       return messages
-    } catch (error) {
-      throw handleApiError(error, 'Failed to get messages')
+    } catch (error_) {
+      throw handleApiError(error_, 'Failed to get messages')
     }
   }
 
@@ -395,8 +395,8 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
         client.beta.threads.runs.submitToolOutputs(runId, {thread_id: threadId, tool_outputs: toolCalls}),
       )
       return run
-    } catch (error) {
-      throw handleApiError(error, 'Failed to submit tool outputs')
+    } catch (error_) {
+      throw handleApiError(error_, 'Failed to submit tool outputs')
     }
   }
 
@@ -414,8 +414,8 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
         }),
       )
       return uploadedFile
-    } catch (error) {
-      throw handleApiError(error, 'Failed to upload file')
+    } catch (error_) {
+      throw handleApiError(error_, 'Failed to upload file')
     }
   }
 
@@ -433,8 +433,8 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
         }),
       )
       return vectorStore
-    } catch (error) {
-      throw handleApiError(error, 'Failed to create vector store')
+    } catch (error_) {
+      throw handleApiError(error_, 'Failed to create vector store')
     }
   }
 
@@ -449,8 +449,8 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
         client.vectorStores.fileBatches.create(vectorStoreId, {file_ids: fileIds}),
       )
       return batch
-    } catch (error) {
-      throw handleApiError(error, 'Failed to add files to vector store')
+    } catch (error_) {
+      throw handleApiError(error_, 'Failed to add files to vector store')
     }
   }
 
@@ -538,8 +538,8 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
       }
 
       return await poll()
-    } catch (error) {
-      throw handleApiError(error, 'Failed to stream run')
+    } catch (error_) {
+      throw handleApiError(error_, 'Failed to stream run')
     }
   }
 
@@ -552,8 +552,8 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     try {
       const run = await withRetry(async () => client.beta.threads.runs.cancel(runId, {thread_id: threadId}))
       return run
-    } catch (error) {
-      throw handleApiError(error, 'Failed to cancel run')
+    } catch (error_) {
+      throw handleApiError(error_, 'Failed to cancel run')
     }
   }
 

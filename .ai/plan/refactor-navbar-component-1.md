@@ -52,12 +52,12 @@ Comprehensive refactoring of the navbar component (`src/components/navbar.tsx`) 
 
 | Task | Description | Completed | Date |
 |------|-------------|-----------|------|
-| TASK-005 | Replace `bg-[var(--background-primary)]` with `bg-surface-primary` in header element | ✅ | 2025-08-06 |
-| TASK-006 | Replace `border-[var(--border-color)]` with `border-border-default` in header element | ✅ | 2025-08-06 |
-| TASK-007 | Replace `text-[var(--text-secondary)]` with `text-content-secondary` in subtitle span | ✅ | 2025-08-06 |
-| TASK-008 | Replace `text-[var(--text-tertiary)]` with `text-content-tertiary` in search icons | ✅ | 2025-08-06 |
-| TASK-009 | Replace `bg-[var(--background-secondary)]` with `bg-surface-secondary` in search input wrappers | ✅ | 2025-08-06 |
-| TASK-010 | Update mobile menu background from `bg-[var(--background-primary)]` to `bg-surface-primary` | ✅ | 2025-08-06 |
+| TASK-005 | Replace `bg-(--background-primary)` with `bg-surface-primary` in header element | ✅ | 2025-08-06 |
+| TASK-006 | Replace `border-(--border-color)` with `border-border-default` in header element | ✅ | 2025-08-06 |
+| TASK-007 | Replace `text-(--text-secondary)` with `text-content-secondary` in subtitle span | ✅ | 2025-08-06 |
+| TASK-008 | Replace `text-(--text-tertiary)` with `text-content-tertiary` in search icons | ✅ | 2025-08-06 |
+| TASK-009 | Replace `bg-(--background-secondary)` with `bg-surface-secondary` in search input wrappers | ✅ | 2025-08-06 |
+| TASK-010 | Update mobile menu background from `bg-(--background-primary)` to `bg-surface-primary` | ✅ | 2025-08-06 |
 
 ### Implementation Phase 3: Spacing Standardization
 

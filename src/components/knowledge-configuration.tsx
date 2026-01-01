@@ -198,20 +198,32 @@ export function KnowledgeConfiguration({
         <Tab key="files" title="Files">
           <div className="space-y-6 pt-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <RadioGroup
-                orientation="horizontal"
-                value={extractionMode}
-                onValueChange={val => onExtractionModeChange(val as 'manual' | 'auto')}
-                label="Extraction Mode"
-                classNames={{label: ds.form.label}}
-              >
-                <Radio value="manual" description="Extract when ready">
-                  Manual
-                </Radio>
-                <Radio value="auto" description="Extract on upload">
-                  Auto-extract
-                </Radio>
-              </RadioGroup>
+              <div className="w-full max-w-md">
+                <span className={cn(ds.form.label, 'block mb-3')}>Extraction Mode</span>
+                <RadioGroup
+                  orientation="vertical"
+                  value={extractionMode}
+                  onValueChange={val => onExtractionModeChange(val as 'manual' | 'auto')}
+                  classNames={{
+                    wrapper: 'gap-3',
+                  }}
+                >
+                  <div className="flex items-center justify-between p-2 rounded-lg hover:bg-surface-secondary/50 transition-colors">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">Manual</span>
+                      <span className="text-xs text-content-tertiary">Extract when ready</span>
+                    </div>
+                    <Radio value="manual" aria-label="Manual" classNames={{base: 'm-0 p-0'}} />
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-lg hover:bg-surface-secondary/50 transition-colors">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">Auto-extract</span>
+                      <span className="text-xs text-content-tertiary">Extract on upload</span>
+                    </div>
+                    <Radio value="auto" aria-label="Auto-extract" classNames={{base: 'm-0 p-0'}} />
+                  </div>
+                </RadioGroup>
+              </div>
 
               {extractionMode === 'manual' && pendingCount > 0 && (
                 <Button
@@ -382,7 +394,7 @@ export function KnowledgeConfiguration({
                             <td className="px-4 py-3">
                               <div className="flex flex-col">
                                 <span className={cn('font-medium', ds.text.body.small)}>{url.title || url.url}</span>
-                                <span className="text-xs text-content-tertiary truncate max-w-[200px]">{url.url}</span>
+                                <span className="text-xs text-content-tertiary truncate max-w-50">{url.url}</span>
                               </div>
                             </td>
                             <td className="px-4 py-3">

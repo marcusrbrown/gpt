@@ -55,7 +55,7 @@ Comprehensive standardization of animations and interactions across all componen
 
 | Task | Description | Completed | Date |
 | --- | --- | --- | --- |
-| TASK-005 | Replace `transition-all hover:border-[var(--accent-color)] hover:shadow-md` with `ds.animation.transition hover:border-primary hover:shadow-md` in feature-card.tsx | ✅ | 2025-09-18 |
+| TASK-005 | Replace `transition-all hover:border-(--accent-color) hover:shadow-md` with `ds.animation.transition hover:border-primary hover:shadow-md` in feature-card.tsx | ✅ | 2025-09-18 |
 | TASK-006 | Replace `transition-colors` with `ds.animation.transition` in feature-card.tsx icon container | ✅ | 2025-09-18 |
 | TASK-007 | Replace `transition-colors` with `ds.animation.transition` in file-upload.tsx drag-and-drop area | ✅ | 2025-09-18 |
 | TASK-008 | Replace `transition-colors` with `ds.animation.transition` in docs-sidebar.tsx navigation links | ✅ | 2025-09-18 |

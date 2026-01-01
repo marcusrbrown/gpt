@@ -48,15 +48,16 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
   return (
     <div className="space-y-6 max-w-4xl mx-auto p-4">
       <div className="space-y-4">
-        <h3 className={responsive.heading.medium}>Basic Information</h3>
+        <h2 className={responsive.heading.medium}>Basic Information</h2>
 
-        <div>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+          <label htmlFor="name" className={cn(ds.form.label, 'sm:w-32 sm:pt-3 shrink-0')}>
+            Name
+          </label>
           <Input
             type="text"
-            label="Name"
             name="name"
             id="name"
-            aria-label="GPT Name"
             value={gpt.name}
             onChange={handleInputChange}
             onBlur={() => handleFieldValidation('name', gpt.name, gpt, 'blur')}
@@ -64,6 +65,7 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
             errorMessage={errors.name}
             isRequired
             className={cn(
+              'flex-1',
               hasFieldSuccess('name') && !errors.name && ds.state.success,
               ds.animation.transition,
               ds.animation.formFocus,
@@ -71,8 +73,8 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
           />
         </div>
 
-        <div>
-          <label htmlFor="description" className={cn(ds.form.label)}>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+          <label htmlFor="description" className={cn(ds.form.label, 'sm:w-32 sm:pt-3 shrink-0')}>
             Description
           </label>
           <Textarea
@@ -86,7 +88,7 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
             errorMessage={errors.description}
             isRequired
             className={cn(
-              ds.form.fieldGroup,
+              'flex-1',
               hasFieldSuccess('description') && !errors.description && ds.state.success,
               ds.animation.transition,
               ds.animation.formFocus,
@@ -96,15 +98,15 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
       </div>
 
       <div className="space-y-4">
-        <h3 className={responsive.heading.medium}>Instructions</h3>
+        <h2 className={responsive.heading.medium}>Instructions</h2>
 
-        <div>
-          <label htmlFor="systemPrompt" className={cn(ds.form.label)}>
-            System Prompt
-          </label>
-          <p className={cn(ds.text.caption, 'text-content-secondary mb-2')}>
-            Define how the GPT should behave and interact with users.
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+          <div className="sm:w-32 shrink-0">
+            <label htmlFor="systemPrompt" className={cn(ds.form.label)}>
+              System Prompt
+            </label>
+            <p className={cn(ds.text.caption, 'text-content-secondary mt-1')}>Define behavior and persona.</p>
+          </div>
           <Textarea
             name="systemPrompt"
             id="systemPrompt"
@@ -116,7 +118,7 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
             errorMessage={errors.systemPrompt}
             isRequired
             className={cn(
-              ds.form.fieldGroup,
+              'flex-1',
               hasFieldSuccess('systemPrompt') && !errors.systemPrompt && ds.state.success,
               ds.animation.transition,
               ds.animation.formFocus,
@@ -124,12 +126,12 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
           />
         </div>
 
-        <div>
-          <label className={cn(ds.form.label)}>Conversation Starters</label>
-          <p className={cn(ds.text.caption, 'text-content-secondary mb-2')}>
-            Example questions or prompts to help users get started.
-          </p>
-          <div className="space-y-2">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+          <div className="sm:w-32 shrink-0">
+            <label className={cn(ds.form.label)}>Conversation Starters</label>
+            <p className={cn(ds.text.caption, 'text-content-secondary mt-1')}>Example questions.</p>
+          </div>
+          <div className="flex-1 space-y-2">
             {(gpt.conversationStarters || []).map((starter, index) => (
               <div key={`starter-${starter || `empty-${index}`}`} className="flex gap-2">
                 <Input
@@ -157,7 +159,7 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
       </div>
 
       <div className="space-y-4 pt-4 border-t border-default-200">
-        <h3 className={responsive.heading.medium}>Capabilities</h3>
+        <h2 className={responsive.heading.medium}>Capabilities</h2>
         <CapabilitiesConfiguration capabilities={gpt.capabilities} onCapabilityChange={handleCapabilityChange} />
       </div>
     </div>

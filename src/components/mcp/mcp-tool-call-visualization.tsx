@@ -76,7 +76,7 @@ export function MCPToolCallVisualization({toolCall, serverName, onRetry}: MCPToo
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           {duration && <span className={cn(ds.text.caption, 'text-default-400')}>{duration}</span>}
           <Chip
             size="sm"
