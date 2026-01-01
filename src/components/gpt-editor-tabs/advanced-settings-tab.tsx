@@ -26,24 +26,22 @@ export function AdvancedSettingsTab({gpt, onUpdate}: AdvancedSettingsTabProps) {
           <div>
             <Input
               label="Model Name"
+              labelPlacement="outside"
               value={gpt.modelName || ''}
               onChange={e => onUpdate({modelName: e.target.value})}
               placeholder="e.g. gpt-4o"
-              className={ds.animation.formFocus}
+              description="Specific model identifier to use (optional)."
             />
-            <p className={cn(ds.text.caption, 'mt-1 text-content-secondary')}>
-              Specific model identifier to use (optional).
-            </p>
           </div>
 
           <div>
             <Input
               type="number"
               label="Max Tokens"
+              labelPlacement="outside"
               value={gpt.modelSettings?.maxTokens?.toString() || ''}
               onChange={e => handleModelSettingsChange('maxTokens', Number.parseInt(e.target.value) || 0)}
               placeholder="e.g. 4096"
-              className={ds.animation.formFocus}
             />
           </div>
         </div>

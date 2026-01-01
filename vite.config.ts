@@ -1,8 +1,9 @@
+/// <reference types="vitest/config" />
 import type {Plugin} from 'vite'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react-swc'
+import {defineConfig} from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
-import {defineConfig} from 'vitest/config'
 
 // CSP via <meta> tag. Note: frame-ancestors is NOT supported in meta tags—
 // browsers ignore it and log a warning. For GitHub Pages (static hosting),
@@ -32,7 +33,7 @@ function cspPlugin(): Plugin {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwindcss(), tsconfigPaths({projectDiscovery: 'lazy'}), cspPlugin()],
+  plugins: [react(), tsconfigPaths({projectDiscovery: 'lazy'}), tailwindcss(), cspPlugin()],
   build: {
     rollupOptions: {
       output: {

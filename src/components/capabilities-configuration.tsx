@@ -11,19 +11,20 @@ export function CapabilitiesConfiguration({capabilities, onCapabilityChange}: Ca
   return (
     <div>
       <label className={cn(ds.form.label, 'mb-3 block')}>Capabilities</label>
-      <div className="space-y-3">
+      <div className="flex flex-wrap gap-4">
         {Object.entries(capabilities).map(([key, value]) => {
           const label = key.replaceAll(/([A-Z])/g, ' $1').trim()
           return (
-            <div key={key} className="flex items-center justify-between">
-              <span className="text-sm">{label}</span>
-              <Checkbox
-                id={key}
-                aria-label={label}
-                isSelected={typeof value === 'boolean' ? value : value.enabled}
-                onValueChange={() => onCapabilityChange(key as keyof GPTCapabilities)}
-              />
-            </div>
+            <Checkbox
+              key={key}
+              id={key}
+              size="md"
+              color="primary"
+              isSelected={typeof value === 'boolean' ? value : value.enabled}
+              onValueChange={() => onCapabilityChange(key as keyof GPTCapabilities)}
+            >
+              {label}
+            </Checkbox>
           )
         })}
       </div>
