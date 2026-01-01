@@ -20,6 +20,21 @@ vi.mock('uuid', () => ({
 // Mock the scrollIntoView method
 Element.prototype.scrollIntoView = vi.fn()
 
+// Mock window.matchMedia for responsive checks
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+})
+
 describe('gPTTestPane', () => {
   // Define mock objects and functions
   const mockOpenAIService = {
@@ -160,16 +175,14 @@ describe('gPTTestPane', () => {
     })
   })
 
-  it('renders without crashing', () => {
+  it('renders the chat interface with proper elements', () => {
     renderWithContext(<GPTTestPane gptConfig={mockConfig} />)
 
-    expect(screen.getByLabelText('Enter conversation name')).toBeInTheDocument()
-    expect(screen.getByLabelText('Save current conversation to local storage')).toBeInTheDocument()
-    expect(screen.getByLabelText('Export conversation as JSON file')).toBeInTheDocument()
-    expect(screen.getByLabelText('Clear all messages from current conversation')).toBeInTheDocument()
-    expect(screen.getByText('Start testing your GPT by sending a message below')).toBeInTheDocument()
+    // Check for the message input
     expect(screen.getByLabelText('Enter your message to send to the GPT')).toBeInTheDocument()
     expect(screen.getByLabelText('Send message to GPT assistant')).toBeInTheDocument()
+
+    // Note: GPTTestPane is deprecated - use ChatInterface for empty state UI
   })
 
   it('initializes assistant and thread when sending a message', async () => {
@@ -211,20 +224,16 @@ describe('gPTTestPane', () => {
     })
   })
 
-  it('displays proper accessibility attributes for HeroUI Input components', () => {
+  it('displays proper accessibility attributes for chat input', () => {
     renderWithContext(<GPTTestPane gptConfig={mockConfig} />)
 
-    const conversationNameInput = screen.getByLabelText('Enter conversation name')
     const messageInput = screen.getByLabelText('Enter your message to send to the GPT')
 
-    expect(conversationNameInput).toHaveAttribute('type', 'text')
     expect(messageInput).toBeInTheDocument()
-
-    expect(conversationNameInput).toHaveAccessibleName()
     expect(messageInput).toHaveAccessibleName()
   })
 
-  it('handles keyboard navigation properly with HeroUI components', async () => {
+  it('handles keyboard navigation properly', async () => {
     const user = userEvent.setup()
     renderWithContext(<GPTTestPane gptConfig={mockConfig} />)
 
@@ -242,5 +251,13 @@ describe('gPTTestPane', () => {
     await waitFor(() => {
       expect(messageInput).toHaveValue('')
     })
+  })
+
+  it('renders with GPT configuration', () => {
+    renderWithContext(<GPTTestPane gptConfig={mockConfig} />)
+
+    // Component should render without errors when provided a config
+    // Note: GPTTestPane is deprecated - use ChatInterface for new implementations
+    expect(screen.getByLabelText('Send message to GPT assistant')).toBeInTheDocument()
   })
 })

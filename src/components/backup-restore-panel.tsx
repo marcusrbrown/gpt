@@ -259,7 +259,15 @@ export function BackupRestorePanel({
           </CardHeader>
           <CardBody>
             <div className="flex items-center gap-4">
-              <input ref={fileInputRef} type="file" accept=".zip" className="hidden" onChange={handleFileSelect} />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".zip"
+                className="hidden"
+                tabIndex={-1}
+                aria-hidden="true"
+                onChange={handleFileSelect}
+              />
               <Button
                 color="warning"
                 variant="flat"

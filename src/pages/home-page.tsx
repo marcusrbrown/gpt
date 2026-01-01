@@ -14,6 +14,16 @@ export function HomePage() {
 
   const handleSelectGPT = useCallback(
     (gptId: string) => {
+      const result = navigate(`/gpt/${gptId}`)
+      if (result instanceof Promise) {
+        result.catch(console.error)
+      }
+    },
+    [navigate],
+  )
+
+  const handleEditGPT = useCallback(
+    (gptId: string) => {
       const result = navigate(`/gpt/edit/${gptId}`)
       if (result instanceof Promise) {
         result.catch(console.error)
@@ -65,7 +75,12 @@ export function HomePage() {
         </aside>
 
         <section className={cn('flex-1 overflow-auto p-6', ds.layout.container)}>
-          <GPTLibrary onSelectGPT={handleSelectGPT} onCreateGPT={handleCreateGPT} folderId={selectedFolderId} />
+          <GPTLibrary
+            onSelectGPT={handleSelectGPT}
+            onEditGPT={handleEditGPT}
+            onCreateGPT={handleCreateGPT}
+            folderId={selectedFolderId}
+          />
         </section>
       </div>
 

@@ -16,13 +16,17 @@ export class GPTEditorPage extends BasePage {
   readonly nameInput: Locator
   readonly descriptionInput: Locator
   readonly systemPromptTextarea: Locator
-  readonly saveButton: Locator
 
-  // Tab navigation
-  readonly configurationTab: Locator
-  readonly toolsTab: Locator
+  // Auto-save indicators (no manual Save button - uses auto-save with 2s debounce)
+  readonly savingIndicator: Locator
+  readonly savedIndicator: Locator
+  readonly unsavedChangesIndicator: Locator
+
+  // Tab navigation (new full-width tab layout)
+  readonly generalTab: Locator
   readonly knowledgeTab: Locator
-  readonly capabilitiesTab: Locator
+  readonly toolsTab: Locator
+  readonly advancedTab: Locator
 
   // Tools configuration
   readonly addToolButton: Locator
@@ -33,17 +37,11 @@ export class GPTEditorPage extends BasePage {
   readonly urlInput: Locator
   readonly addUrlButton: Locator
 
-  // Capabilities configuration
+  // Capabilities configuration (in General tab)
   readonly codeInterpreterToggle: Locator
   readonly webBrowsingToggle: Locator
   readonly imageGenerationToggle: Locator
   readonly fileSearchToggle: Locator
-
-  // Test panel
-  readonly testPanel: Locator
-  readonly testChatInput: Locator
-  readonly testSendButton: Locator
-  readonly testMessages: Locator
 
   constructor(page: Page) {
     super(page)
@@ -58,13 +56,17 @@ export class GPTEditorPage extends BasePage {
     this.nameInput = page.locator('input[name="name"]')
     this.descriptionInput = page.locator('textarea[name="description"]')
     this.systemPromptTextarea = page.locator('textarea[name="systemPrompt"]')
-    this.saveButton = page.locator('button', {hasText: 'Save'})
 
-    // Tab navigation
-    this.configurationTab = page.locator('button[role="tab"]', {hasText: 'Configuration'})
-    this.toolsTab = page.locator('button[role="tab"]', {hasText: 'Tools'})
+    // Auto-save indicators (from GPTEditorPage header)
+    this.savingIndicator = page.locator('text=Saving...')
+    this.savedIndicator = page.locator('text=Saved')
+    this.unsavedChangesIndicator = page.locator('text=Unsaved changes')
+
+    // Tab navigation (new full-width tab layout)
+    this.generalTab = page.locator('button[role="tab"]', {hasText: 'General'})
     this.knowledgeTab = page.locator('button[role="tab"]', {hasText: 'Knowledge'})
-    this.capabilitiesTab = page.locator('button[role="tab"]', {hasText: 'Capabilities'})
+    this.toolsTab = page.locator('button[role="tab"]', {hasText: 'Tools'})
+    this.advancedTab = page.locator('button[role="tab"]', {hasText: 'Advanced'})
 
     // Tools configuration
     this.addToolButton = page.locator('button', {hasText: 'Add Tool'})
@@ -75,17 +77,12 @@ export class GPTEditorPage extends BasePage {
     this.urlInput = page.locator('input[placeholder*="URL"]')
     this.addUrlButton = page.locator('button', {hasText: 'Add URL'})
 
-    // Capabilities configuration
-    this.codeInterpreterToggle = page.locator('[data-testid="code-interpreter-toggle"]')
-    this.webBrowsingToggle = page.locator('[data-testid="web-browsing-toggle"]')
-    this.imageGenerationToggle = page.locator('[data-testid="image-generation-toggle"]')
-    this.fileSearchToggle = page.locator('[data-testid="file-search-toggle"]')
-
-    // Test panel
-    this.testPanel = page.locator('[data-testid="test-panel"]')
-    this.testChatInput = page.locator('textarea[placeholder*="message"]')
-    this.testSendButton = page.locator('button[aria-label="Send message"]')
-    this.testMessages = page.locator('[data-testid="test-messages"]')
+    // Capabilities configuration (in General tab)
+    // Use checkbox role with accessible names matching the capability labels
+    this.codeInterpreterToggle = page.getByRole('checkbox', {name: /code.*interpreter/i})
+    this.webBrowsingToggle = page.getByRole('checkbox', {name: /web.*browsing/i})
+    this.imageGenerationToggle = page.getByRole('checkbox', {name: /image.*generation/i})
+    this.fileSearchToggle = page.getByRole('checkbox', {name: /file.*search/i})
   }
 
   /**
@@ -130,24 +127,57 @@ export class GPTEditorPage extends BasePage {
   /**
    * Click on a specific tab
    */
-  async clickTab(tabName: 'Configuration' | 'Tools' | 'Knowledge' | 'Capabilities'): Promise<void> {
+  async clickTab(tabName: 'General' | 'Tools' | 'Knowledge' | 'Advanced'): Promise<void> {
     const tabMap = {
-      Configuration: this.configurationTab,
+      General: this.generalTab,
       Tools: this.toolsTab,
       Knowledge: this.knowledgeTab,
-      Capabilities: this.capabilitiesTab,
+      Advanced: this.advancedTab,
     }
 
     await this.clickElement(tabMap[tabName])
   }
 
   /**
-   * Save the GPT configuration
+   * Save the GPT configuration via auto-save
+   * The GPT editor uses auto-save with a 2 second debounce - there's no manual Save button.
+   *
+   * This method waits for the auto-save debounce period to pass, then confirms the save
+   * completed by waiting for the "Saved" indicator to appear.
+   *
+   * Note: Assumes the GPT has already been given a name via fillBasicConfiguration().
+   * The name check is done by looking at the page title, not the input field,
+   * since tests may be on different tabs when calling saveGPT().
    */
   async saveGPT(): Promise<void> {
-    await this.clickElement(this.saveButton)
-    // Wait for save to complete (you might want to wait for a success message)
-    await this.page.waitForTimeout(1000)
+    // Wait for auto-save debounce (2000ms) plus buffer for save operation
+    await this.page.waitForTimeout(2500)
+
+    // Wait for either "Saving..." to appear and then "Saved", or just "Saved" if save was quick
+    try {
+      // First check if we're currently saving
+      const isSaving = await this.savingIndicator.isVisible({timeout: 500}).catch(() => false)
+
+      if (isSaving) {
+        // Wait for saving to complete - "Saved" should appear
+        await this.page.waitForFunction(
+          () => {
+            const bodyText = document.body.textContent || ''
+            return bodyText.includes('Saved') && !bodyText.includes('Saving...')
+          },
+          {timeout: 10000},
+        )
+      } else {
+        // Either already saved or waiting for debounce - wait for "Saved" indicator
+        await this.page.waitForFunction(() => document.body.textContent?.includes('Saved'), {timeout: 10000})
+      }
+    } catch {
+      // If we can't detect the save indicator, give extra time for IndexedDB write
+      await this.page.waitForTimeout(1000)
+    }
+
+    // Small buffer for IndexedDB write to stabilize
+    await this.page.waitForTimeout(300)
   }
 
   /**
@@ -197,45 +227,24 @@ export class GPTEditorPage extends BasePage {
   }
 
   /**
-   * Toggle capabilities
+   * Toggle capabilities (now in General tab)
    */
   async toggleCodeInterpreter(): Promise<void> {
-    await this.clickTab('Capabilities')
+    await this.clickTab('General')
     await this.clickElement(this.codeInterpreterToggle)
   }
 
   async toggleWebBrowsing(): Promise<void> {
-    await this.clickTab('Capabilities')
+    await this.clickTab('General')
     await this.clickElement(this.webBrowsingToggle)
   }
 
   /**
-   * Send a test message
+   * Navigate to test page for this GPT
+   * Note: Testing is now on a separate page, not embedded in the editor
    */
-  async sendTestMessage(message: string): Promise<void> {
-    await this.fillInput(this.testChatInput, message)
-    await this.clickElement(this.testSendButton)
-  }
-
-  /**
-   * Get test message count
-   */
-  async getTestMessageCount(): Promise<number> {
-    return this.testMessages.locator('> *').count()
-  }
-
-  /**
-   * Wait for test response
-   */
-  async waitForTestResponse(): Promise<void> {
-    // Wait for loading indicator to disappear and response to appear
-    await this.page.waitForFunction(
-      () => {
-        const loadingIndicator = document.querySelector('[data-testid="test-loading"]')
-        return !loadingIndicator || loadingIndicator.getAttribute('style')?.includes('display: none')
-      },
-      {timeout: 30000},
-    )
+  async navigateToTest(gptId: string): Promise<void> {
+    await this.goto(`/gpt/test/${gptId}`)
   }
 
   /**

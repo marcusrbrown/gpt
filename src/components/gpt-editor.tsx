@@ -1,3 +1,13 @@
+/**
+ * @deprecated This component is deprecated and will be removed in a future version.
+ * Use the tab-based editor in GPTEditorPage instead, which composes:
+ * - GeneralTab from '@/components/gpt-editor-tabs/general-tab'
+ * - KnowledgeTab from '@/components/gpt-editor-tabs/knowledge-tab'
+ * - ToolsTab from '@/components/gpt-editor-tabs/tools-tab'
+ * - AdvancedSettingsTab from '@/components/gpt-editor-tabs/advanced-settings-tab'
+ *
+ * See GPTEditorPage (src/pages/gpt-editor-page.tsx) for the modern implementation.
+ */
 import type {
   CachedURLDB,
   CreateSnippetInput,
@@ -136,7 +146,11 @@ function VectorKnowledge({
         Create vector stores from your files to enable advanced retrieval capabilities.
       </p>
 
-      {error && <div className={cn(ds.state.error, 'p-2 rounded', ds.text.body.small)}>{error}</div>}
+      {error && (
+        <div role="alert" aria-live="assertive" className={cn(ds.state.error, 'p-2 rounded', ds.text.body.small)}>
+          {error}
+        </div>
+      )}
 
       <div className={cn('border rounded-md p-4 space-y-4', isCreating && ds.state.disabled)}>
         <div>
@@ -772,8 +786,17 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                 </div>
               </div>
               <div className="flex gap-2">
-                {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
-                <input type="file" ref={importGptRef} onChange={handleImportGPT} accept=".json" className="hidden" />
+                <input
+                  type="file"
+                  ref={importGptRef}
+                  onChange={e => {
+                    handleImportGPT(e).catch(console.error)
+                  }}
+                  accept=".json"
+                  className="hidden"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                />
                 <Button
                   color="secondary"
                   variant="solid"
@@ -806,7 +829,11 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
               </div>
             </div>
 
-            {importError && <div className={cn(ds.state.error, 'p-2 my-2 rounded')}>{importError}</div>}
+            {importError && (
+              <div role="alert" aria-live="assertive" className={cn(ds.state.error, 'p-2 my-2 rounded')}>
+                {importError}
+              </div>
+            )}
 
             <form
               onSubmit={e => {
@@ -959,7 +986,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleRemoveFile(index)}
+                              onPress={() => handleRemoveFile(index)}
                               aria-label="Remove file"
                             >
                               Remove
@@ -968,11 +995,20 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                         ))}
                       </div>
                       <div className="mt-2">
-                        <Button onClick={() => fileInputRef.current?.click()} className={cn(ds.animation.buttonPress)}>
+                        <Button onPress={() => fileInputRef.current?.click()} className={cn(ds.animation.buttonPress)}>
                           Add File
                         </Button>
-                        {/* eslint-disable-next-line @typescript-eslint/no-misused-promises */}
-                        <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} multiple />
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          className="hidden"
+                          tabIndex={-1}
+                          aria-hidden="true"
+                          onChange={e => {
+                            handleFileUpload(e).catch(console.error)
+                          }}
+                          multiple
+                        />
                       </div>
                     </div>
                     <Button
@@ -1140,7 +1176,11 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
           )}
 
           {/* Show error if any */}
-          {testError && <div className={cn(ds.state.error, 'p-4 rounded my-2')}>Error: {testError}</div>}
+          {testError && (
+            <div role="alert" aria-live="assertive" className={cn(ds.state.error, 'p-4 rounded my-2')}>
+              Error: {testError}
+            </div>
+          )}
 
           {/* Display file list */}
           {files.length > 0 && (
@@ -1156,7 +1196,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => handleRemoveFile(index)}
+                      onPress={() => handleRemoveFile(index)}
                       aria-label="Remove file"
                       className={cn(ds.animation.buttonPress)}
                     >

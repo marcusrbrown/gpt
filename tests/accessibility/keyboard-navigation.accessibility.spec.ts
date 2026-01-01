@@ -119,8 +119,9 @@ test.describe('Keyboard Navigation Accessibility', () => {
         await page.waitForSelector('form, [data-testid*="gpt-editor"], main', {state: 'visible'})
 
         // Get form-specific focusable elements in the main content area
+        // Exclude hidden inputs (like file inputs with tabindex=-1)
         const formElements = page.locator(
-          'main input, main textarea, main select, main button:not([aria-label*="menu"]):not([aria-label*="theme"])',
+          'main input:not([type="file"][class*="hidden"]):not([tabindex="-1"]), main textarea, main select, main button:not([aria-label*="menu"]):not([aria-label*="theme"])',
         )
         const elementCount = await formElements.count()
 

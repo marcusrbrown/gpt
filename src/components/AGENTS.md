@@ -18,9 +18,17 @@ Reusable React UI components. HeroUI + TailwindCSS design tokens.
 
 ## Subdirectories
 
-| Directory                             | Purpose                 |
-| ------------------------------------- | ----------------------- |
-| [docs/](docs/AGENTS.md)               | In-app documentation UI |
-| [file-upload/](file-upload/AGENTS.md) | File upload components  |
-| [forms/](forms/AGENTS.md)             | Form primitives         |
-| [settings/](settings/AGENTS.md)       | Settings panels         |
+| Directory                                     | Purpose                   |
+| --------------------------------------------- | ------------------------- |
+| [chat/](chat/AGENTS.md)                       | Chat interface components |
+| [docs/](docs/AGENTS.md)                       | In-app documentation UI   |
+| [file-upload/](file-upload/AGENTS.md)         | File upload components    |
+| [forms/](forms/AGENTS.md)                     | Form primitives           |
+| [gpt-editor-tabs/](gpt-editor-tabs/AGENTS.md) | GPT editor tab components |
+| [mcp/](mcp/AGENTS.md)                         | MCP server management UI  |
+| [settings/](settings/AGENTS.md)               | Settings panels           |
+
+## Deprecated
+
+- `gpt-editor.tsx` — Use `GPTEditorPage` + tab components instead
+- `gpt-test-pane.tsx` — Use `ChatInterface` instead

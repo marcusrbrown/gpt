@@ -1,3 +1,10 @@
+/**
+ * @deprecated This component is deprecated and will be removed in a future version.
+ * Use ChatInterface from '@/components/chat/chat-interface' instead.
+ *
+ * See GPTTestPage (src/pages/gpt-test-page.tsx) for the modern implementation
+ * that integrates ChatInterface with OpenAI service.
+ */
 import type {ConversationMessage, GPTConfiguration} from '@/types/gpt'
 import {useOpenAIService} from '@/hooks/use-openai-service'
 import {useSession} from '@/hooks/use-session'
@@ -458,7 +465,11 @@ export function GPTTestPane({gptConfig}: GPTTestPaneProps) {
         style={{maxHeight: 'calc(100vh - 210px)'}}
       >
         {error && (
-          <div className={cn('p-4 rounded-md flex items-start space-x-3', ds.state.error, 'border')}>
+          <div
+            role="alert"
+            aria-live="assertive"
+            className={cn('p-4 rounded-md flex items-start space-x-3', ds.state.error, 'border')}
+          >
             <AlertCircle className={cn('mt-0.5', ds.form.errorText)} size={18} />
             <div className="flex-1">
               <h3 className={cn(ds.text.heading.h4, ds.form.errorText)}>Error</h3>

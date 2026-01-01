@@ -117,6 +117,24 @@ export const ds = {
     ring: 'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
     visible: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500',
   },
+
+  // Chat UI tokens
+  chat: {
+    userBubble: 'bg-primary-100 dark:bg-primary-900 rounded-2xl p-3',
+    assistantBubble: 'bg-surface-secondary rounded-2xl p-3',
+    messageGroup: 'flex gap-3 mb-4',
+    timestamp: 'text-xs text-content-tertiary mt-1',
+    inputArea: 'border-t border-border-default bg-surface-primary p-4',
+    messageActions: 'opacity-0 group-hover:opacity-100 transition-opacity',
+  },
+
+  // Editor UI tokens
+  editor: {
+    section: 'space-y-6 p-6',
+    sectionHeader: 'text-lg font-semibold text-content-primary mb-4',
+    fieldGroup: 'space-y-4',
+    tabContent: 'py-6',
+  },
 } as const
 
 /**

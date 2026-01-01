@@ -23,13 +23,14 @@ import {GPTExportDialog} from './gpt-export-dialog'
 
 interface GPTLibraryProps {
   onSelectGPT: (gptId: string) => void
+  onEditGPT: (gptId: string) => void
   onCreateGPT: () => void
   folderId?: string | null
 }
 
 type ViewMode = 'active' | 'archived'
 
-export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibraryProps) {
+export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null}: GPTLibraryProps) {
   const {getAllGPTs, getArchivedGPTs, archiveGPT, restoreGPT, duplicateGPT, deleteGPTPermanently} = useStorage()
   const [gpts, setGpts] = useState<GPTConfiguration[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -235,7 +236,7 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
                       variant="light"
                       isIconOnly
                       aria-label="GPT actions"
-                      onClick={e => e.stopPropagation()}
+                      onPress={e => e.continuePropagation()}
                     >
                       <MoreVertical className="h-4 w-4" />
                     </Button>
@@ -250,7 +251,7 @@ export function GPTLibrary({onSelectGPT, onCreateGPT, folderId = null}: GPTLibra
                     <DropdownItem
                       key="edit"
                       startContent={<Edit className="h-4 w-4" />}
-                      onPress={() => onSelectGPT(gpt.id)}
+                      onPress={() => onEditGPT(gpt.id)}
                       data-testid="edit-gpt"
                     >
                       Edit

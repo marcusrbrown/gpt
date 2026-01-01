@@ -100,9 +100,11 @@ describe('gPTEditor', () => {
     return render(<StorageContext value={mockStorageContext}>{component}</StorageContext>)
   }
 
-  it('renders the editor with the correct title', () => {
+  it('renders the editor with basic form elements', () => {
     renderWithContext(<GPTEditor />)
-    expect(screen.getByText('GPT Configuration')).toBeInTheDocument()
+    // Note: GPTEditor is deprecated - the title is now managed by GPTEditorPage
+    // Just verify the form renders
+    expect(screen.getByLabelText('Name')).toBeInTheDocument()
   })
 
   it('calls getGPT with the correct id when provided', () => {
