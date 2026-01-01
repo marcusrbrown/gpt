@@ -189,7 +189,7 @@ export function ImportDialog({isOpen, onClose, onValidate, onImport}: ImportDial
 
               {error && (
                 <div className="flex items-center gap-2 p-3 bg-danger/10 rounded-lg text-danger">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <AlertCircle className="w-4 h-4 shrink-0" />
                   <p className="text-sm">{error}</p>
                 </div>
               )}
@@ -252,7 +252,7 @@ export function ImportDialog({isOpen, onClose, onValidate, onImport}: ImportDial
 
               {error && (
                 <div className="flex items-center gap-2 p-3 bg-danger/10 rounded-lg text-danger">
-                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <AlertCircle className="w-4 h-4 shrink-0" />
                   <p className="text-sm">{error}</p>
                 </div>
               )}

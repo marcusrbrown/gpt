@@ -54,7 +54,7 @@ export const ds = {
     pageHeader: 'mb-8',
     cardGrid: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6',
     page: 'py-8',
-    pageWithHeader: 'pt-[var(--header-height)]',
+    pageWithHeader: 'pt-(--header-height)',
   },
 
   // Form elements

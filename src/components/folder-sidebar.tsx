@@ -78,7 +78,7 @@ export function FolderSidebar({selectedFolderId, onFolderSelect, onCreateFolder}
             </button>
           )}
           {!hasChildren && <span className="w-5" />}
-          <Folder className="h-4 w-4 flex-shrink-0" />
+          <Folder className="h-4 w-4 shrink-0" />
           <span className={cn(ds.text.body.small, 'truncate flex-1')}>{node.folder.name}</span>
           {node.gptCount > 0 && <span className={cn(ds.text.caption, 'text-content-tertiary')}>{node.gptCount}</span>}
         </button>

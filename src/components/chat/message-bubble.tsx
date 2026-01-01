@@ -61,7 +61,7 @@ export function MessageBubble({
         {/* Bubble */}
         <div
           className={cn(
-            'relative shadow-sm break-words min-w-[60px] transition-all duration-200',
+            'relative shadow-sm wrap-break-word min-w-[60px] transition-all duration-200',
             isUser
               ? 'bg-surface-elevated text-content-primary rounded-2xl rounded-tr-sm border border-border-subtle'
               : 'bg-surface-secondary text-content-primary rounded-2xl rounded-tl-sm border border-border-default',

@@ -20,7 +20,7 @@ export const Providers = ({children}: ProvidersProps): React.ReactElement => {
           toastProps={{
             radius: 'lg',
             classNames: {
-              base: '!bg-surface-secondary !border !border-border-default !shadow-lg !opacity-100',
+              base: '!bg-surface-secondary border! !border-border-default shadow-lg! opacity-100!',
               title: 'font-medium text-content-primary',
               description: 'text-small text-content-secondary',
               closeButton: 'text-content-tertiary hover:text-content-primary',

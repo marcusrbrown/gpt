@@ -133,10 +133,10 @@ interface DefaultLayoutProps {
 
 export function DefaultLayout({children, className, maxWidth = "xl"}: DefaultLayoutProps) {
   const maxWidthClasses = {
-    sm: "max-w-screen-sm",
-    md: "max-w-screen-md",
-    lg: "max-w-screen-lg",
-    xl: "max-w-screen-xl",
+    sm: "max-w-(--breakpoint-sm)",
+    md: "max-w-(--breakpoint-md)",
+    lg: "max-w-(--breakpoint-lg)",
+    xl: "max-w-(--breakpoint-xl)",
     full: "max-w-full",
   }
 
@@ -191,7 +191,7 @@ interface SidebarLayoutProps {
 export function SidebarLayout({children, sidebar, sidebarWidth = "w-64", className}: SidebarLayoutProps) {
   return (
     <div className={cn("flex h-[calc(100vh-var(--header-height)-var(--footer-height))]", className)}>
-      <aside className={cn(sidebarWidth, "flex-shrink-0 border-r border-border-default overflow-y-auto")}>
+      <aside className={cn(sidebarWidth, "shrink-0 border-r border-border-default overflow-y-auto")}>
         {sidebar}
       </aside>
       <main className="flex-1 overflow-y-auto">{children}</main>
@@ -533,7 +533,7 @@ Ensure the following entry points exist:
 ```tsx
 // Update mobile menu structure
 <div
-  className={cn('fixed top-[var(--header-height)] left-0 right-0 bottom-0 z-50 lg:hidden', theme.surface(0))}
+  className={cn('fixed top-(--header-height) left-0 right-0 bottom-0 z-50 lg:hidden', theme.surface(0))}
   role="dialog"
   aria-label="Mobile navigation menu"
 >
@@ -854,7 +854,7 @@ describe('DefaultLayout', () => {
 
   it('applies max-width class based on prop', () => {
     render(<DefaultLayout maxWidth="lg"><div>Content</div></DefaultLayout>)
-    expect(screen.getByRole('main')).toHaveClass('max-w-screen-lg')
+    expect(screen.getByRole('main')).toHaveClass('max-w-(--breakpoint-lg)')
   })
 })
 

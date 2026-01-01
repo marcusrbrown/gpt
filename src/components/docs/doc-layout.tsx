@@ -65,7 +65,7 @@ export function DocLayout({children, sidebar}: DocLayoutProps) {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-[var(--header-height)] bottom-0 left-0 z-40 w-[var(--sidebar-width)] border-r lg:static transform transition-transform duration-300',
+          'fixed top-(--header-height) bottom-0 left-0 z-40 w-(--sidebar-width) border-r lg:static transform transition-transform duration-300',
           theme.border(),
           theme.surface(0),
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
@@ -75,7 +75,7 @@ export function DocLayout({children, sidebar}: DocLayoutProps) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto lg:pl-[var(--sidebar-width)]">
+      <main className="flex-1 overflow-auto lg:pl-(--sidebar-width)">
         <div className={cn(ds.layout.container, 'py-6')}>
           <Breadcrumbs />
           {children}
