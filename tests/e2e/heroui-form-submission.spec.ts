@@ -14,7 +14,17 @@ test.describe('HeroUI Form Submission', () => {
 
   test('should show validation errors for empty required fields', async ({gptEditorPage}) => {
     await gptEditorPage.navigateToNew()
-    await gptEditorPage.saveGPT()
+
+    // Clear the default values and blur to trigger validation
+    await gptEditorPage.nameInput.clear()
+    await gptEditorPage.nameInput.blur()
+    await gptEditorPage.descriptionInput.clear()
+    await gptEditorPage.descriptionInput.blur()
+    await gptEditorPage.systemPromptTextarea.clear()
+    await gptEditorPage.systemPromptTextarea.blur()
+
+    // Wait for validation to run (validation timing is set to 'blur')
+    await gptEditorPage.getPage().waitForTimeout(500)
 
     await expect(async () => {
       const hasErrors = await gptEditorPage.hasValidationErrors()
@@ -28,7 +38,10 @@ test.describe('HeroUI Form Submission', () => {
 
   test('should clear validation errors when form is corrected', async ({gptEditorPage}) => {
     await gptEditorPage.navigateToNew()
-    await gptEditorPage.saveGPT()
+
+    // Clear the name field and blur to trigger validation error
+    await gptEditorPage.nameInput.clear()
+    await gptEditorPage.nameInput.blur()
 
     await expect(async () => {
       expect(await gptEditorPage.hasFieldError('name')).toBe(true)
@@ -64,9 +77,10 @@ test.describe('HeroUI Form Submission', () => {
     await expect(knowledgeTab).toBeVisible()
     await knowledgeTab.click()
 
-    const editTab = gptEditorPage.getPage().locator('[role="tab"]:has-text("Edit")')
-    await expect(editTab).toBeVisible()
-    await editTab.click()
+    // The new layout uses different tab names - General instead of Edit
+    const generalTab = gptEditorPage.getPage().locator('[role="tab"]:has-text("General")')
+    await expect(generalTab).toBeVisible()
+    await generalTab.click()
 
     expect(await gptEditorPage.getFieldValue('name')).toBe(testGPT.name)
   })

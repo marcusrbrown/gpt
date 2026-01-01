@@ -28,8 +28,8 @@ visualTest.describe('GPT Editor Visual Tests', () => {
   visualTest(
     'GPT editor - configuration tabs',
     async ({page, visualHelper}: {page: Page; visualHelper: VisualTestHelper}) => {
-      // Test each tab
-      const tabs = ['Basic', 'Capabilities', 'Knowledge', 'Tools']
+      // Test each tab (updated for new tab-based layout)
+      const tabs = ['General', 'Knowledge', 'Tools', 'Advanced']
 
       for (const tabName of tabs) {
         await page.click(`[role="tab"]:has-text("${tabName}")`)
@@ -40,14 +40,21 @@ visualTest.describe('GPT Editor Visual Tests', () => {
   )
 
   visualTest(
-    'GPT editor - capabilities configuration',
+    'GPT editor - general tab with capabilities',
     async ({page, visualHelper}: {page: Page; visualHelper: VisualTestHelper}) => {
-      // Navigate to capabilities tab
-      await page.click('[role="tab"]:has-text("Capabilities")')
+      // Navigate to general tab (capabilities are now part of general tab)
+      await page.click('[role="tab"]:has-text("General")')
 
-      // Enable some capabilities
-      await page.check('input[name="codeInterpreter"]')
-      await page.check('input[name="webBrowsing"]')
+      // Enable some capabilities (in the capabilities section of general tab)
+      const codeInterpreter = page.locator('input[name="codeInterpreter"]')
+      const webBrowsing = page.locator('input[name="webBrowsing"]')
+
+      if ((await codeInterpreter.count()) > 0) {
+        await codeInterpreter.check()
+      }
+      if ((await webBrowsing.count()) > 0) {
+        await webBrowsing.check()
+      }
 
       await visualHelper.takeFullPageScreenshot('gpt-editor-capabilities-enabled')
     },
@@ -99,11 +106,13 @@ visualTest.describe('GPT Editor Visual Tests', () => {
         '.form-section', // Fallback selector
       ]
 
-      for (const [index, selector] of formSections.entries()) {
+      let sectionIndex = 0
+      for (const selector of formSections) {
         const section = page.locator(selector).first()
         if ((await section.count()) > 0) {
-          await visualHelper.takeComponentScreenshot(section, `gpt-editor-section-${index + 1}`)
+          await visualHelper.takeComponentScreenshot(section, `gpt-editor-section-${sectionIndex + 1}`)
         }
+        sectionIndex++
       }
     },
   )

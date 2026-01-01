@@ -17,7 +17,8 @@ test.describe('Knowledge Base Management', () => {
 
   test.describe('File Management', () => {
     test('should upload a text file successfully', async ({page}) => {
-      const fileInput = page.locator('input[type="file"]')
+      // Use specific selector to target the knowledge base file input, not the GPT import input
+      const fileInput = page.getByRole('tabpanel', {name: 'Files'}).locator('input[type="file"]')
       await expect(fileInput).toBeAttached()
 
       const testFilePath = path.join(testDir, 'fixtures', 'test-document.txt')
@@ -27,7 +28,7 @@ test.describe('Knowledge Base Management', () => {
     })
 
     test('should display extraction status after upload', async ({page}) => {
-      const fileInput = page.locator('input[type="file"]')
+      const fileInput = page.getByRole('tabpanel', {name: 'Files'}).locator('input[type="file"]')
       const testFilePath = path.join(testDir, 'fixtures', 'test-document.txt')
       await fileInput.setInputFiles(testFilePath)
 
@@ -56,7 +57,7 @@ test.describe('Knowledge Base Management', () => {
     test('should show Extract All Pending button in manual mode', async ({page}) => {
       await expect(page.getByRole('radio', {name: /Manual/})).toBeChecked()
 
-      const fileInput = page.locator('input[type="file"]')
+      const fileInput = page.getByRole('tabpanel', {name: 'Files'}).locator('input[type="file"]')
       const testFilePath = path.join(testDir, 'fixtures', 'test-document.txt')
       await fileInput.setInputFiles(testFilePath)
 
@@ -76,7 +77,7 @@ test.describe('Knowledge Base Management', () => {
     })
 
     test('should remove uploaded file', async ({page}) => {
-      const fileInput = page.locator('input[type="file"]')
+      const fileInput = page.getByRole('tabpanel', {name: 'Files'}).locator('input[type="file"]')
       const testFilePath = path.join(testDir, 'fixtures', 'test-document.txt')
       await fileInput.setInputFiles(testFilePath)
 
@@ -259,7 +260,7 @@ test.describe('Knowledge Base Management', () => {
       await page.locator('button[role="tab"]', {hasText: 'Files'}).click()
       await page.waitForTimeout(500)
 
-      const fileInput = page.locator('input[type="file"]')
+      const fileInput = page.getByRole('tabpanel', {name: 'Files'}).locator('input[type="file"]')
       const testFilePath = path.join(testDir, 'fixtures', 'test-document.txt')
       await fileInput.setInputFiles(testFilePath)
 
@@ -312,7 +313,7 @@ test.describe('Knowledge Base Management', () => {
 
       await filesTab.click()
       await page.waitForTimeout(500)
-      await expect(page.locator('input[type="file"]')).toBeAttached()
+      await expect(page.getByRole('tabpanel', {name: 'Files'}).locator('input[type="file"]')).toBeAttached()
     })
 
     test('should maintain form state when switching tabs', async ({page}) => {

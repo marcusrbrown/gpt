@@ -7,8 +7,8 @@ import {getAccessibilityConfig} from './utils/accessibility-config'
  */
 test.describe('GPT Editor Page Accessibility', () => {
   test.beforeEach(async ({page}) => {
-    // Navigate to GPT editor page
-    await page.goto('/gpt/editor')
+    // Navigate to GPT editor page (create new GPT)
+    await page.goto('/gpt/new')
     // Wait for page to load completely
     await page.waitForLoadState('networkidle')
   })

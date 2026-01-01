@@ -253,7 +253,7 @@ test.describe('Form Validation Accessibility', () => {
     test('should handle network errors accessibly', async ({page}) => {
       await test.step('Test network error handling', async () => {
         // Go to a page that might have network-dependent content
-        await page.goto('/gpt/editor')
+        await page.goto('/gpt/new')
         await page.waitForLoadState('networkidle')
 
         // Look for any existing error states

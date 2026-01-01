@@ -1,5 +1,6 @@
 export {BasePage} from './base-page'
 export {GPTEditorPage} from './gpt-editor-page'
+export {GPTShowcasePage} from './gpt-showcase-page'
 export {GPTTestPage} from './gpt-test-page'
 export {HomePage} from './home-page'
 export {SettingsPage} from './settings-page'

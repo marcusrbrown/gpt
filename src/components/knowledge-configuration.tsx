@@ -234,7 +234,15 @@ export function KnowledgeConfiguration({
               tabIndex={0}
               aria-label="Click to upload files"
             >
-              <input type="file" ref={fileInputRef} onChange={onFileUpload} multiple className="hidden" />
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={onFileUpload}
+                multiple
+                className="hidden"
+                tabIndex={-1}
+                aria-hidden="true"
+              />
               <div className="flex flex-col items-center gap-2">
                 <div className="p-3 bg-primary-50 rounded-full text-primary-600">
                   <Upload className="w-6 h-6" />

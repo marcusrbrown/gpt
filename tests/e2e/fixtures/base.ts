@@ -1,12 +1,13 @@
 import {test as base, expect, type Page} from '@playwright/test'
 
 // Import page object models
-import {GPTEditorPage, GPTTestPage, HomePage, SettingsPage} from '../page-objects'
+import {GPTEditorPage, GPTShowcasePage, GPTTestPage, HomePage, SettingsPage} from '../page-objects'
 
 // Test fixtures interface
 interface TestFixtures {
   homePage: HomePage
   gptEditorPage: GPTEditorPage
+  gptShowcasePage: GPTShowcasePage
   gptTestPage: GPTTestPage
   settingsPage: SettingsPage
 }
@@ -31,6 +32,12 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   gptEditorPage: async ({page}: {page: Page}, use: (r: GPTEditorPage) => Promise<void>) => {
     const gptEditorPage = new GPTEditorPage(page)
     await use(gptEditorPage)
+  },
+
+  // GPT Showcase page fixture
+  gptShowcasePage: async ({page}: {page: Page}, use: (r: GPTShowcasePage) => Promise<void>) => {
+    const gptShowcasePage = new GPTShowcasePage(page)
+    await use(gptShowcasePage)
   },
 
   // GPT Test page fixture

@@ -5,7 +5,7 @@ React 19 application source. All product code lives here.
 ## Entry Points
 
 - `main.tsx` → `App.tsx` → `providers.tsx`: Bootstrap, routing, provider hierarchy
-- Routes: `/` (Home), `/gpt/new`, `/gpt/edit/:id`, `/gpt/test/:id`, `/backup`, `/docs/*`
+- Routes: `/` (Home), `/gpt/:gptId` (Showcase), `/gpt/new`, `/gpt/edit/:id`, `/gpt/test/:id`, `/backup`, `/docs/*`
 
 ## Provider Hierarchy
 

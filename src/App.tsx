@@ -6,6 +6,7 @@ import {Navbar} from './components/navbar'
 import {cn, ds} from './lib/design-system'
 import {BackupRestorePage} from './pages/backup-restore-page'
 import {GPTEditorPage} from './pages/gpt-editor-page'
+import {GPTShowcasePage} from './pages/gpt-showcase-page'
 import {GPTTestPage} from './pages/gpt-test-page'
 import {HomePage} from './pages/home-page'
 import {OAuthCallbackPage} from './pages/oauth-callback-page'
@@ -35,6 +36,15 @@ function App() {
           {/* Key by pathname to trigger page transition animations on route changes */}
           <Routes key={location.pathname}>
             <Route path="/" element={<HomePage />} />
+
+            <Route
+              path="/gpt/:gptId"
+              element={
+                <main className={cn('min-h-[calc(100vh-var(--header-height))]', ds.animation.fadeIn)}>
+                  <GPTShowcasePage />
+                </main>
+              }
+            />
 
             <Route
               path="/gpt/new"
