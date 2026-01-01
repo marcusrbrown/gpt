@@ -48,7 +48,7 @@ export class GPTEditorPage extends BasePage {
 
     // Header elements
     this.pageTitle = page.locator('h1')
-    this.testGPTButton = page.locator('button', {hasText: 'Test GPT'})
+    this.testGPTButton = page.locator('button[title="Test GPT"]')
     this.apiSettingsToggle = page.locator('button', {hasText: /API Settings/})
     this.apiSettingsPanel = page.locator('[data-testid="api-settings"]')
 

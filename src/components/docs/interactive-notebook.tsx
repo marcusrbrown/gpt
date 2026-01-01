@@ -34,8 +34,8 @@ export function InteractiveNotebook({initialCells = DEFAULT_CELLS, onExecute}: I
       try {
         const output = await onExecute(cell)
         setCells(prev => prev.map(c => (c.id === cellId ? {...c, output} : c)))
-      } catch (error) {
-        setCells(prev => prev.map(c => (c.id === cellId ? {...c, output: String(error)} : c)))
+      } catch (error_) {
+        setCells(prev => prev.map(c => (c.id === cellId ? {...c, output: String(error_)} : c)))
       }
     },
     [cells, onExecute],
@@ -63,8 +63,7 @@ export function InteractiveNotebook({initialCells = DEFAULT_CELLS, onExecute}: I
             {cell.type === 'code' && (
               <Button
                 onPress={() => {
-                  // eslint-disable-next-line no-void
-                  void handleExecute(cell.id)
+                  handleExecute(cell.id).catch(console.error)
                 }}
                 color="primary"
                 size="sm"

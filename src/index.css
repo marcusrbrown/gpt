@@ -264,7 +264,7 @@ button[aria-expanded='true'] > [data-slot='indicator'] {
 
   .search-input:focus {
     border-color: transparent;
-    box-shadow: 0 0 0 2px #3b82f6;
+    box-shadow: 0 0 0 2px var(--accent-color);
   }
 
   .search-input::placeholder {
@@ -282,7 +282,7 @@ button[aria-expanded='true'] > [data-slot='indicator'] {
   }
 
   .nav-link-active {
-    color: #3b82f6;
+    color: var(--accent-color);
   }
 
   /* Typography */
@@ -309,11 +309,11 @@ button[aria-expanded='true'] > [data-slot='indicator'] {
   /* Links - using design system animation utilities */
   .link {
     @apply transition-colors duration-200 ease-in-out;
-    color: #3b82f6;
+    color: var(--accent-color);
   }
 
   .link:hover {
-    color: #2563eb;
+    color: var(--accent-hover);
   }
 
   /* Documentation */
@@ -330,11 +330,11 @@ button[aria-expanded='true'] > [data-slot='indicator'] {
   }
 
   .doc-content :where(a) {
-    color: #3b82f6;
+    color: var(--accent-color);
   }
 
   .doc-content :where(a):hover {
-    color: #2563eb;
+    color: var(--accent-hover);
   }
 
   /* Code blocks */

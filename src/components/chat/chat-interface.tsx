@@ -118,7 +118,7 @@ export function ChatInterface({
       </Drawer>
 
       {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-full relative bg-gradient-to-b from-surface-primary to-surface-secondary/10">
+      <div className="flex-1 flex flex-col min-w-0 h-full relative bg-linear-to-b from-surface-primary to-surface-secondary/10">
         {/* Header */}
         <header className="h-14 flex items-center justify-between px-4 border-b border-border-subtle bg-surface-primary/80 backdrop-blur-md z-10 transition-colors">
           <div className="flex items-center gap-2 min-w-0">
@@ -160,7 +160,7 @@ export function ChatInterface({
               <div className="flex flex-col items-center justify-center h-[60vh] text-center px-4 animate-in fade-in zoom-in-95 duration-500">
                 <div className="relative mb-8 group">
                   <div className="absolute inset-0 bg-primary-500/20 rounded-3xl blur-xl transition-all duration-500 group-hover:bg-primary-500/30 group-hover:blur-2xl" />
-                  <div className="relative w-20 h-20 rounded-3xl bg-gradient-to-br from-surface-elevated to-surface-secondary border border-border-default shadow-lg flex items-center justify-center text-content-primary">
+                  <div className="relative w-20 h-20 rounded-3xl bg-linear-to-br from-surface-elevated to-surface-secondary border border-border-default shadow-lg flex items-center justify-center text-content-primary">
                     <MessageSquare size={36} className="text-primary-500" />
                   </div>
                 </div>

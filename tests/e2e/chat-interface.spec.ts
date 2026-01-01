@@ -170,6 +170,9 @@ test.describe('Chat Interface', () => {
   })
 
   test('should display empty state for new conversation', async ({gptTestPage}) => {
+    // Wait for empty state to be visible (page needs time to render)
+    await expect(gptTestPage.emptyState).toBeVisible()
+
     // Verify empty state is shown
     expect(await gptTestPage.isChatEmpty()).toBe(true)
 

@@ -20,9 +20,9 @@ import {cn, ds, theme} from '@/lib/design-system'
 import {KnowledgeService} from '@/services/knowledge-service'
 import {GPTConfigurationSchema} from '@/types/gpt'
 import {Button, Spinner, Tab, Tabs} from '@heroui/react'
-import {Download, History, Play, Settings, Upload} from 'lucide-react'
+import {Download, History, Play, Upload} from 'lucide-react'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
-import {Link as RouterLink, useNavigate, useParams} from 'react-router-dom'
+import {useNavigate, useParams} from 'react-router-dom'
 import {v4 as uuidv4} from 'uuid'
 
 const DEFAULT_GPT: Omit<GPTConfiguration, 'id'> = {
@@ -509,24 +509,14 @@ export function GPTEditorPage() {
             </Button>
 
             <Button
-              variant="flat"
-              as={RouterLink}
-              to="/settings"
-              className={cn(ds.animation.buttonPress, 'min-w-0')}
-              startContent={<Settings size={18} />}
-            >
-              Settings
-            </Button>
-
-            <Button
               color="primary"
-              size="lg"
-              startContent={<Play size={18} />}
+              isIconOnly
               onPress={handleTestGpt}
               className="flex items-center shadow-sm"
               isDisabled={!gpt.id}
+              title="Test GPT"
             >
-              Test GPT
+              <Play size={18} />
             </Button>
           </div>
         </div>
@@ -555,7 +545,7 @@ export function GPTEditorPage() {
           aria-label="GPT Editor Sections"
           classNames={{
             base: 'w-full border-b border-default-200 bg-surface-primary z-10',
-            tabList: 'px-6 gap-8',
+            tabList: 'px-6 gap-8 w-full justify-center',
             cursor: 'w-full h-0.5',
             tab: 'max-w-fit px-0 h-14',
             tabContent: 'group-data-[selected=true]:text-primary font-medium text-base',

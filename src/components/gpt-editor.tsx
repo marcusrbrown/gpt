@@ -1103,7 +1103,7 @@ export function GPTEditor({gptId, onSave}: GPTEditorProps) {
 
             <div className="space-y-4">
               <h3 className={cn(ds.text.heading.h4, 'text-content-primary')}>Conversation</h3>
-              <div className="space-y-4 max-h-[400px] overflow-y-auto">
+              <div className="space-y-4 max-h-100 overflow-y-auto">
                 {testMessages.map(message => (
                   <div
                     key={message.id}
