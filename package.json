@@ -37,7 +37,7 @@
     "@langchain/core": "1.1.8",
     "@langchain/langgraph": "1.0.7",
     "@langchain/openai": "1.2.0",
-    "@modelcontextprotocol/sdk": "1.25.1",
+    "@modelcontextprotocol/sdk": "1.25.2",
     "@monaco-editor/react": "4.7.0",
     "@react-aria/ssr": "3.9.10",
     "clsx": "2.1.1",
