@@ -1,6 +1,6 @@
 # src/components/chat/AGENTS.md
 
-Modern chat interface for GPT testing. Replaces deprecated `GPTTestPane`.
+Modern chat interface for GPT testing.
 
 ## Components
 
