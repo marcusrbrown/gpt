@@ -2,11 +2,6 @@
 
 This document provides a set of prompts designed to guide AI coding agents in enhancing and extending the GPT project. The prompts are based on the architectural patterns, service layer design, and development practices established in the project. They can be used as inputs to the `/create-implementation-plan` prompt to generate actionable tasks for agents.
 
-## **Multi-Platform AI Integration**
-```markdown
-Following the service layer pattern in src/services/openai-service.ts, create a new AnthropicService that implements the same interface for chat completions and assistant management. Add it to the OpenAIProvider context (renaming to AIProvider) with a platform selector, and update the GPT configuration schema to support multiple AI backends. Ensure the existing GPT test interface works seamlessly with both providers.
-```
-
 ### Multi-Provider AI Service
 ```markdown
 Extend the current OpenAI-focused architecture to support multiple AI providers (Ollama, Anthropic, Azure). Create a provider abstraction layer in `src/services/ai-providers/` with a unified interface, then update the existing OpenAI context and components to work with any provider. Maintain backward compatibility with existing GPT configurations while adding provider selection UI.

@@ -27,8 +27,3 @@ Reusable React UI components. HeroUI + TailwindCSS design tokens.
 | [gpt-editor-tabs/](gpt-editor-tabs/AGENTS.md) | GPT editor tab components |
 | [mcp/](mcp/AGENTS.md)                         | MCP server management UI  |
 | [settings/](settings/AGENTS.md)               | Settings panels           |
-
-## Deprecated
-
-- `gpt-editor.tsx` — Use `GPTEditorPage` + tab components instead
-- `gpt-test-pane.tsx` — Use `ChatInterface` instead
