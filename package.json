@@ -63,7 +63,7 @@
     "@bfra.me/eslint-config": "0.47.6",
     "@bfra.me/prettier-config": "0.16.6",
     "@bfra.me/tsconfig": "0.12.1",
-    "@eslint-react/eslint-plugin": "2.6.4",
+    "@eslint-react/eslint-plugin": "2.7.0",
     "@playwright/test": "1.57.0",
     "@tailwindcss/typography": "0.5.19",
     "@tailwindcss/vite": "4.1.18",
