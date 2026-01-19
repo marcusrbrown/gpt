@@ -6,17 +6,6 @@ import type {StateGraph} from '@langchain/langgraph'
 import {z} from 'zod'
 
 /**
- * Configuration interface for caching behavior in agents.
- * Controls the size and time-to-live (TTL) of various caches used by agents.
- */
-export interface CacheConfig {
-  /** Maximum number of items to store in the cache */
-  maxSize: number
-  /** Time-to-live in milliseconds for cache entries */
-  ttl: number
-}
-
-/**
  * Configuration schema for all agents.
  * Defines the core parameters required to initialize any agent.
  */
@@ -48,19 +37,6 @@ export const AgentConfigSchema = z.object({
 })
 
 export type AgentConfig = z.infer<typeof AgentConfigSchema>
-
-/**
- * Memory interface for agent state management.
- * Provides persistent storage capabilities for maintaining agent state.
- */
-export interface AgentMemory {
-  /** Retrieve a value from memory */
-  get: (key: string) => Promise<unknown>
-  /** Store a value in memory */
-  set: (key: string, value: unknown) => Promise<void>
-  /** Clear all stored values */
-  clear: () => Promise<void>
-}
 
 /**
  * Agent state interface for LangGraph workflows.
@@ -152,17 +128,4 @@ export interface Agent {
    * Clear all caches
    */
   clearCaches: () => void
-}
-
-/**
- * Configuration for tool usage within agents.
- * Defines how tools should be configured and used.
- */
-export interface ToolConfig {
-  /** Name of the tool */
-  name: string
-  /** Whether the tool is enabled */
-  enabled: boolean
-  /** Optional tool parameters */
-  parameters?: Record<string, unknown>
 }
