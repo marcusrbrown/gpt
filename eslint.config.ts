@@ -11,7 +11,17 @@ const tempIgnores: string[] = [
 export default defineConfig(
   {
     name: 'gpt',
-    ignores: ['**/dist', '.triage', 'coverage', '**/AGENTS.md', 'CLAUDE.md', '.ai/', 'RFCs/', ...tempIgnores],
+    ignores: [
+      '**/dist',
+      '.triage',
+      'coverage',
+      '**/AGENTS.md',
+      'CLAUDE.md',
+      '.ai/',
+      'RFCs/',
+      'RFCS.md',
+      ...tempIgnores,
+    ],
     typescript: {
       tsconfigPath: './tsconfig.json',
     },

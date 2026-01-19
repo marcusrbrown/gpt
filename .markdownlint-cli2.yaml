@@ -12,3 +12,4 @@ globs:
   - '!docs/prd.md'
   - '!docs/RULES.md'
   - '!RFCs/**'
+  - '!RFCS.md'
