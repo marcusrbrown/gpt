@@ -74,7 +74,7 @@
     "@types/node": "24.10.7",
     "@types/react": "19.2.9",
     "@types/react-dom": "19.2.3",
-    "@typescript/native-preview": "7.0.0-dev.20260126.1",
+    "@typescript/native-preview": "7.0.0-dev.20260127.1",
     "@vitejs/plugin-react-swc": "4.2.2",
     "@vitest/coverage-v8": "4.0.18",
     "@vitest/eslint-plugin": "1.6.6",
