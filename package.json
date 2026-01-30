@@ -41,7 +41,7 @@
     "@monaco-editor/react": "4.7.0",
     "@react-aria/ssr": "3.9.10",
     "clsx": "2.1.1",
-    "dexie": "4.2.1",
+    "dexie": "4.3.0",
     "file-saver": "2.0.5",
     "jszip": "3.10.1",
     "langchain": "1.2.14",
