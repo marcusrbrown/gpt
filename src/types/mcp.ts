@@ -5,8 +5,6 @@ import {z} from 'zod'
  * Uses official @modelcontextprotocol/sdk for protocol handling.
  */
 
-export const MCP_PROTOCOL_VERSION = '2025-11-25'
-
 export const MCPTransportTypeSchema = z.enum(['stdio', 'streamable-http'])
 export type MCPTransportType = z.infer<typeof MCPTransportTypeSchema>
 
