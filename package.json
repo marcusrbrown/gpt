@@ -44,7 +44,7 @@
     "dexie": "4.3.0",
     "file-saver": "2.0.5",
     "jszip": "3.10.1",
-    "langchain": "1.2.23",
+    "langchain": "1.2.24",
     "lru-cache": "11.2.6",
     "lucide-react": "0.563.0",
     "mammoth": "1.11.0",
