@@ -1,6 +1,8 @@
 # RFCs Master Index
 
-**Version:** 1.1 **Updated:** December 29, 2025 **Source:** PRD v2.1, Features List v1.1
+**Version:** 1.1
+**Updated:** December 29, 2025
+**Source:** PRD v2.1, Features List v1.1
 
 ---
 

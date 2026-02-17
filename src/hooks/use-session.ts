@@ -9,18 +9,3 @@ export function useSession(): SessionContextValue {
   }
   return context
 }
-
-export function useSessionStatus() {
-  const {status, isUnlocked, remainingSeconds} = useSession()
-  return {status, isUnlocked, remainingSeconds}
-}
-
-export function useSecretAccess() {
-  const {getSecret, setSecret, deleteSecret, isUnlocked} = useSession()
-  return {getSecret, setSecret, deleteSecret, isUnlocked}
-}
-
-export function usePassphraseManagement() {
-  const {isPassphraseSet, setInitialPassphrase, changePassphrase, resetAllData} = useSession()
-  return {isPassphraseSet, setInitialPassphrase, changePassphrase, resetAllData}
-}
