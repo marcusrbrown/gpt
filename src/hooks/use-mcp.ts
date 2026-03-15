@@ -36,40 +36,6 @@ export function useMCPTools(serverId: string) {
 }
 
 /**
- * Get available resources for a connected server.
- */
-export function useMCPResources(serverId: string) {
-  const {getCapabilities} = useMCP()
-  const capabilities = getCapabilities(serverId)
-  return useMemo(() => capabilities?.resources ?? [], [capabilities])
-}
-
-/**
- * Get available prompts for a connected server.
- */
-export function useMCPPrompts(serverId: string) {
-  const {getCapabilities} = useMCP()
-  const capabilities = getCapabilities(serverId)
-  return useMemo(() => capabilities?.prompts ?? [], [capabilities])
-}
-
-/**
- * Get all enabled servers.
- */
-export function useEnabledMCPServers() {
-  const {servers} = useMCP()
-  return useMemo(() => servers.filter(s => s.enabled), [servers])
-}
-
-/**
- * Get connected servers (status === 'connected').
- */
-export function useConnectedMCPServers() {
-  const {servers, connectionStatus} = useMCP()
-  return useMemo(() => servers.filter(s => connectionStatus.get(s.id) === 'connected'), [servers, connectionStatus])
-}
-
-/**
  * Get all tools from all connected servers.
  * Returns a flat list with server info attached.
  */
@@ -99,20 +65,4 @@ export function useAllConnectedTools() {
 
     return tools
   }, [servers, connectionStatus, capabilities])
-}
-
-/**
- * Check if any MCP servers are configured.
- */
-export function useHasMCPServers() {
-  const {servers} = useMCP()
-  return servers.length > 0
-}
-
-/**
- * Get active tool calls (for visualization in chat).
- */
-export function useActiveToolCalls() {
-  const {activeToolCalls} = useMCP()
-  return activeToolCalls
 }
