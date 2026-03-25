@@ -68,7 +68,7 @@ jobs:
           PLAYWRIGHT_BASE_URL: http://localhost:5173
 
       - name: Upload visual test results
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         if: always()
         with:
           name: visual-test-results
@@ -79,7 +79,7 @@ jobs:
           retention-days: 30
 
       - name: Upload visual diff images
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         if: failure()
         with:
           name: visual-diff-images
