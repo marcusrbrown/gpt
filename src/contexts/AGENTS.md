@@ -5,7 +5,7 @@ React Contexts and Providers for cross-app state.
 ## Provider Order (in providers.tsx)
 
 ```
-NextThemesProvider → HeroUIProvider → StorageProvider → SessionProvider → AIProvider → ConversationProvider
+NextThemesProvider → HeroUIProvider → ToastProvider → StorageProvider → SessionProvider → AIProvider → MCPProvider → ConversationProvider
 ```
 
 ## Conventions
