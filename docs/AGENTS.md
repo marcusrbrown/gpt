@@ -36,7 +36,6 @@ Project documentation and guidelines for the GPT platform.
 - Docs are Markdown with YAML frontmatter where applicable
 - `RULES.md` versioned (currently v1.2)
 - Cross-references use relative paths
-- `plan/` contains RFC drafts before promotion to `RFCs/`
 
 ## Anti-Patterns
 

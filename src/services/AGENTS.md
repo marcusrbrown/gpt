@@ -4,12 +4,23 @@ Business logic layer. Boundary between UI and external systems.
 
 ## Key Services
 
-| Service                   | Purpose                                         |
-| ------------------------- | ----------------------------------------------- |
-| `IndexedDBStorageService` | Dexie wrapper, LRU cache, BroadcastChannel sync |
-| `EncryptionService`       | Web Crypto AES-GCM + PBKDF2 for secrets         |
-| `ProviderRegistryImpl`    | LLM provider registration and lookup            |
-| `conversation-*.ts`       | Export, search, management                      |
+| Service                          | Purpose                                         |
+| -------------------------------- | ----------------------------------------------- |
+| `storage.ts`                     | Dexie wrapper, LRU cache, BroadcastChannel sync |
+| `encryption.ts`                  | Web Crypto AES-GCM + PBKDF2 for secrets         |
+| `openai-service.ts`              | OpenAI API calls, streaming, tool execution     |
+| `mcp-client-service.ts`          | MCP server connection, tool discovery           |
+| `mcp-oauth-provider.ts`          | OAuth flow for MCP server auth                  |
+| `knowledge-service.ts`           | Knowledge base file/URL processing              |
+| `import-service.ts`              | GPT config import with validation               |
+| `export-service.ts`              | GPT config + conversation export                |
+| `conversation-export-service.ts` | Conversation-specific export formats            |
+| `conversation-search-service.ts` | Full-text conversation search                   |
+| `cross-tab-sync.ts`              | BroadcastChannel cross-tab state sync           |
+| `folder-service.ts`              | GPT folder organization                         |
+| `version-history.ts`             | GPT config version tracking                     |
+| `migration.ts`                   | IndexedDB schema migrations                     |
+| `session.ts`                     | User session management                         |
 
 ## Conventions
 

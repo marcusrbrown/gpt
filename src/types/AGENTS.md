@@ -4,13 +4,17 @@ TypeScript types and Zod schemas for domain objects.
 
 ## Key Types
 
-| File               | Contents                 |
-| ------------------ | ------------------------ |
-| `gpt.ts`           | GPT configuration schema |
-| `agent.ts`         | Agent types              |
-| `anthropic.ts`     | Anthropic-specific types |
-| `export-import.ts` | Export/import schemas    |
-| `provider.ts`      | Provider interfaces      |
+| File                | Contents                                |
+| ------------------- | --------------------------------------- |
+| `gpt.ts`            | GPT configuration schema                |
+| `gpt-extensions.ts` | Extended GPT config (folders, versions) |
+| `agent.ts`          | Agent types                             |
+| `anthropic.ts`      | Anthropic-specific types                |
+| `export-import.ts`  | Export/import schemas                   |
+| `knowledge.ts`      | Knowledge base types (files, URLs)      |
+| `mcp.ts`            | MCP server config, connection types     |
+| `ollama.ts`         | Ollama model/provider types             |
+| `provider.ts`       | Provider interfaces                     |
 
 ## Pattern
 

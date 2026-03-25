@@ -5,12 +5,12 @@ React 19 application source. All product code lives here.
 ## Entry Points
 
 - `main.tsx` → `App.tsx` → `providers.tsx`: Bootstrap, routing, provider hierarchy
-- Routes: `/` (Home), `/gpt/:gptId` (Showcase), `/gpt/new`, `/gpt/edit/:id`, `/gpt/test/:id`, `/backup`, `/docs/*`
+- Routes: `/` (Home), `/gpt/:gptId` (Showcase), `/gpt/new`, `/gpt/edit/:gptId`, `/gpt/test/:gptId`, `/backup`, `/settings`, `/oauth/callback`, `/docs/*`
 
 ## Provider Hierarchy
 
 ```
-NextThemesProvider → HeroUIProvider → StorageProvider → SessionProvider → AIProvider → ConversationProvider
+NextThemesProvider → HeroUIProvider → ToastProvider → StorageProvider → SessionProvider → AIProvider → MCPProvider → ConversationProvider
 ```
 
 ## Architecture Rules

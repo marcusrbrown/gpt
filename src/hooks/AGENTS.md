@@ -10,6 +10,13 @@ Custom React hooks for state access and services.
 | `useAIProvider()`          | LLM provider access                |
 | `useConversationContext()` | Active conversation state          |
 | `useGptValidation()`       | GPT config validation              |
+| `useAutoSave()`            | Debounced auto-save for editor     |
+| `useMCP()`                 | MCP server state and connections   |
+| `useOllamaStatus()`        | Ollama local server availability   |
+| `useOpenAIService()`       | OpenAI service instance access     |
+| `useReducedMotion()`       | Prefers-reduced-motion media query |
+| `useSession()`             | Session context (auth, timeout)    |
+| `useStorageQuota()`        | IndexedDB storage usage monitoring |
 
 ## Conventions
 
