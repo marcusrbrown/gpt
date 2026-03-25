@@ -15,16 +15,18 @@ GitHub configuration: CI/CD, repo settings, Renovate.
 
 ## Workflows
 
-| Workflow                    | Trigger         | Purpose                      |
-| --------------------------- | --------------- | ---------------------------- |
-| `main.yaml`                 | push/PR         | Lint → Test → Build → Deploy |
-| `test-accessibility.yaml`   | PR              | WCAG audit                   |
-| `test-coverage.yaml`        | PR              | Vitest + E2E coverage        |
-| `test-performance.yaml`     | PR/weekly       | Lighthouse Core Web Vitals   |
-| `visual-tests.yaml`         | PR/dispatch     | Screenshot regression        |
-| `renovate.yaml`             | schedule        | Dependency updates           |
-| `update-repo-settings.yaml` | push            | Sync .github/settings.yml    |
-| `cache-cleanup.yaml`        | PR close/weekly | GitHub Actions cache cleanup |
+| Workflow                    | Trigger                    | Purpose                                            |
+| --------------------------- | -------------------------- | -------------------------------------------------- |
+| `main.yaml`                 | push/PR                    | Lint → Test → Build → Deploy                       |
+| `test-accessibility.yaml`   | PR                         | WCAG audit                                         |
+| `test-coverage.yaml`        | PR                         | Vitest + E2E coverage                              |
+| `test-performance.yaml`     | PR/weekly                  | Lighthouse Core Web Vitals                         |
+| `visual-tests.yaml`         | PR/dispatch                | Screenshot regression                              |
+| `renovate.yaml`             | schedule                   | Dependency updates                                 |
+| `update-repo-settings.yaml` | push                       | Sync .github/settings.yml                          |
+| `cache-cleanup.yaml`        | PR close/weekly            | GitHub Actions cache cleanup                       |
+| `fro-bot.yaml`              | mentions/PR/daily/dispatch | AI agent: reviews, triage, maintenance             |
+| `fro-bot-autoheal.yaml`     | daily/dispatch             | AI agent: autohealing (fix PRs, security, quality) |
 
 ## Conventions
 

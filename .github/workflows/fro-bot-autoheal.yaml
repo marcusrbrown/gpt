@@ -1,0 +1,244 @@
+---
+name: Fro Bot Autoheal
+
+on:
+  schedule:
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+    inputs:
+      prompt:
+        description: Custom autoheal prompt (leave empty for default)
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fro-bot-autoheal
+  cancel-in-progress: false
+
+env:
+  AUTOHEAL_PROMPT: |
+    Perform daily repository autohealing for the GPT platform — a local-first
+    GPT creation app built with React 19 + TypeScript 5.9 + Vite 7 + HeroUI +
+    TailwindCSS 4 + IndexedDB (Dexie) + Web Crypto, deployed to GitHub Pages.
+    Read AGENTS.md for full project conventions before making changes.
+
+    EXECUTION MODEL
+    Analyze all categories independently, but perform write actions serially.
+    Do not keep multiple branches checked out at once. Complete one mutation,
+    return to a clean working tree, then continue.
+
+    DEDUPLICATION (applies to ALL categories)
+    Before creating any new PR or issue, search for an existing open
+    bot-authored PR/issue for the same root cause. Reuse or update the
+    existing item instead of creating a duplicate.
+
+    SCOPE CAP
+    If the smallest safe fix is not clearly minimal and reversible (e.g.,
+    broad refactor, architecture change, or many-file edit), do not
+    auto-heal it. Open or update an issue and log it under "Needs Human
+    Attention".
+
+    DEPENDENCY OWNERSHIP
+    Renovate owns routine dependency/version bumps (configured via
+    marcusrbrown/renovate-config preset with bfra-me automerge rules).
+    You may change dependency versions only when remediating a confirmed
+    security advisory (critical/high) or repairing an existing
+    security-update PR. Do not create non-security version-bump PRs, and
+    do not batch unrelated dependency changes into a security fix. Do NOT
+    modify package.json versions outside category 2 security remediation.
+
+    1. ERRORED PRs
+       Find open PRs with failing CI checks. Skip dependency/security update
+       PRs here; handle them only in category 2.
+       Only fix PRs whose head branch is in this repository, writable by
+       this token, and authored by a trusted source (repository
+       owner/collaborator with write access, or an approved automation bot
+       such as Renovate/Dependabot). If author trust cannot be established,
+       skip the PR and log it under "Needs Human Attention".
+       If the PR touches workflows, automation prompts, package-manager
+       config, lockfiles, or execution scripts, do not run project commands
+       from that branch. Skip it and log why.
+       For each fixable PR:
+       a. Check out the PR branch.
+       b. Read the failing check logs to diagnose the root cause.
+       c. Fix the issue (type errors, lint failures, test regressions,
+          build breaks).
+       d. Commit with a clear message and push to the PR branch.
+       e. Comment on the PR explaining what failed and what was fixed.
+
+    2. SECURITY
+       Review Dependabot/Renovate alerts and open PRs for vulnerable deps.
+       - If a security update PR exists but has conflicts or failures,
+         fix and push to that PR branch.
+       - For unaddressed critical/high advisories with no existing PR,
+         create a new PR with the remediation.
+       - Do NOT bulk-update unrelated deps in a security PR.
+       If security advisory/alert data is unavailable to the token or CLI,
+       skip this category and note "security alerts unavailable" under
+       "Needs Human Attention". Do not guess.
+
+    3. CODE QUALITY & REPO HYGIENE
+       This category is primarily report-only. Focus on things only a
+       code-aware agent can catch:
+       - Run `pnpm build` (uses tsgo for type checking + Vite production
+         build). Report any type errors or build failures.
+       - Run `pnpm test -- --coverage` and verify coverage thresholds.
+         If coverage fails, open or update a single issue with the failing
+         metrics and the top contributing files.
+       - Run `pnpm test:accessibility` to verify WCAG 2.1 AA compliance.
+         Report any new accessibility violations.
+       - Scan for stale TODO/FIXME/HACK annotations older than 90 days
+         (use git blame). Collect them into a single issue or update an
+         existing "Stale TODOs" issue.
+       - Verify convention compliance:
+         * No `as any`, `@ts-ignore`, or `@ts-expect-error` in src/
+         * No `localStorage` usage for structured data (must use IndexedDB)
+         * No hardcoded color values (must use design system tokens)
+         * No `void asyncFn()` patterns (must use `.catch(console.error)`)
+         * Async handlers in onPress/onClick use `.catch(console.error)`
+         * Error catch blocks use `error_` naming convention
+         * Imports use `@/` alias for src/ paths
+         Report findings but put actual code fixes into category 4.
+       - Check that AGENTS.md files accurately reflect the current directory
+         structure. If drift is found, open a PR with corrections.
+
+    4. DEVELOPER EXPERIENCE
+       Ensure consistent linting, formatting, and static analysis.
+       Run `pnpm lint`; fix any failures, including convention violations
+       found in category 3.
+       Open a PR for all fixes — never commit directly to the default
+       branch. Group related lint/format/convention fixes into a single PR.
+
+    5. QUALITY GATES VERIFICATION
+       Verify the project's 5 quality gates pass on the default branch:
+       a. `pnpm lint` — 0 errors
+       b. `pnpm test` — all unit tests passing
+       c. `pnpm build` — successful production build
+       d. `pnpm test:accessibility` — WCAG 2.1 AA compliance
+       e. `pnpm test:e2e` — all E2E tests passing (if Playwright available)
+
+       For each failing gate:
+       - Identify the root cause from command output.
+       - If the fix is minimal and safe, include it in a category 4 PR.
+       - If the fix is complex, open an issue with diagnosis and
+         recommended approach.
+
+       Also check:
+       - Performance budgets: Homepage LCP <2500ms, FCP <1800ms, CLS <0.1
+         (from tests/performance/config/performance-budgets.ts).
+       - Visual regression: any unreviewed baseline changes.
+       Report findings as issues only for this category.
+
+    Hard boundaries:
+    - Never force-push, rewrite history, or delete branches.
+    - Never push directly to the default branch. Direct pushes are allowed
+      only to an existing non-default PR branch you are repairing under
+      category 1 or category 2.
+    - Never merge PRs, submit reviews/approvals, close/reopen PRs or
+      issues, or modify branch protection. This workflow may only push
+      fixes, open/update PRs, open/update issues, and comment on PRs when
+      a fix was pushed.
+    - Never modify secrets, org settings, environments, or branch
+      protection.
+    - Never make checks pass by disabling tests, deleting failing
+      assertions, lowering coverage/performance budgets, weakening
+      lint/type rules, or editing workflows/configuration only to suppress
+      failures.
+    - Do not modify .github/workflows/, lint/test/build config, hook
+      config, or automation prompt files unless the failing run is caused
+      by a genuine bug in that file, the change is narrowly scoped, and
+      the summary explains why.
+    - If the smallest safe fix would weaken a guardrail or reduce
+      validation, skip it and log it under "Needs Human Attention".
+    - Do not create multiple summary issues.
+
+    Project conventions (MUST follow for code changes):
+    - TypeScript strict mode: no `any`, no `@ts-ignore`, no `@ts-expect-error`
+    - Zod-first validation: define schema, then infer type
+    - Import alias: `@/` for src/ paths
+    - Error naming: `catch (error_)`, re-throw for boundaries
+    - Async UI: `.catch(console.error)` on onPress/onClick, never `void`
+    - Storage: IndexedDB via Dexie only, never localStorage for data
+    - Styling: HeroUI + semantic design tokens only, no hardcoded colors
+    - Package manager: pnpm (not npm/yarn)
+    - YAML extension: .yaml, not .yml
+
+    OUTPUT FORMAT — SINGLE SUMMARY ISSUE
+    After completing all work, find an existing open issue titled
+    "Daily Autohealing Report — YYYY-MM-DD" (using today's UTC date).
+    If it exists, update its body. If not, create it.
+
+    The issue body MUST use this structure. If a section has no rows, do
+    not emit an empty table — write "None." directly under that heading.
+
+    ## Daily Autohealing Report — YYYY-MM-DD (UTC)
+
+    ### Errored PRs
+    | PR | Failure | Fix | Status |
+    | --- | --- | --- | --- |
+    | #N | [root cause] | [what was fixed] | ✅ Fixed / ⚠️ Needs review |
+
+    ### Security
+    | Advisory / PR | Severity | Action Taken |
+    | --- | --- | --- |
+    | [advisory or #N] | Critical/High/Medium | [fix pushed / PR created / skipped] |
+
+    ### Code Quality & Repo Hygiene
+    | Check | Result | Action |
+    | --- | --- | --- |
+    | Build (tsgo + Vite) | ✅ Pass / ❌ Fail | [details or #N] |
+    | Test coverage | ✅ Meets thresholds / ⚠️ Below target | [details or #N] |
+    | Accessibility (WCAG AA) | ✅ Pass / ⚠️ Violations | [details or #N] |
+    | Stale TODOs | N found | [#N or None] |
+    | Convention drift | ✅ Clean / ⚠️ Issues | [details or #N] |
+    | AGENTS.md accuracy | ✅ Current / ⚠️ Drifted | [#N or None] |
+
+    ### Developer Experience
+    - [list of each PR or commit-sized fix with summary link]
+
+    ### Quality Gates
+    | Gate | Status | Details |
+    | --- | --- | --- |
+    | Lint | ✅ / ❌ | [error count or clean] |
+    | Unit tests | ✅ / ❌ | [pass/fail count] |
+    | Build | ✅ / ❌ | [details] |
+    | Accessibility | ✅ / ❌ | [violation count] |
+    | E2E tests | ✅ / ❌ / ⏭️ Skipped | [details] |
+
+    ### Needs Human Attention
+    - [items that could not be auto-fixed, with context]
+
+    Do NOT create multiple issues. Do NOT comment on individual issues.
+    Produce exactly one summary issue per run.
+
+jobs:
+  fro-bot-autoheal:
+    name: Fro Bot Autoheal
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.FRO_BOT_PAT }}
+
+      - name: Setup pnpm
+        uses: ./.github/actions/setup-pnpm
+        with:
+          install-playwright: 'true'
+
+      - name: Run Fro Bot
+        uses: fro-bot/agent@9083d9d3fe350d32c4917bd0312fe78f241ad0aa # v0.32.1
+        env:
+          OPENCODE_PROMPT_ARTIFACT: 'true'
+        with:
+          auth-json: ${{ secrets.OPENCODE_AUTH_JSON }}
+          github-token: ${{ secrets.FRO_BOT_PAT }}
+          model: ${{ vars.FRO_BOT_MODEL }}
+          omo-providers: ${{ secrets.OMO_PROVIDERS }}
+          prompt: ${{ github.event.inputs.prompt || env.AUTOHEAL_PROMPT }}
+          timeout: 0
