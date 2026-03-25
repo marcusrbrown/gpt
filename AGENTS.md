@@ -19,10 +19,12 @@ pnpm test:performance       # Lighthouse audits
 
 ```
 src/
+├── assets/         # Static assets (logo, metadata)
 ├── components/     # React components (HeroUI-based)
+├── config/         # App configuration (site metadata)
 ├── contexts/       # React Context providers
 ├── hooks/          # Custom hooks (state access)
-├── lib/            # Utilities (design-system.ts)
+├── lib/            # Utilities (design-system, crypto, database)
 ├── pages/          # Route-level components
 ├── services/       # Business logic, providers, storage
 ├── types/          # Zod schemas → TypeScript types
@@ -98,6 +100,9 @@ tests/
 | `scripts/`   | [scripts/AGENTS.md](scripts/AGENTS.md)     |
 | `notebooks/` | [notebooks/AGENTS.md](notebooks/AGENTS.md) |
 | `docs/`      | [docs/AGENTS.md](docs/AGENTS.md)           |
+| `.github/`   | [.github/AGENTS.md](.github/AGENTS.md)     |
+| `RFCs/`      | [RFCs/AGENTS.md](RFCs/AGENTS.md)           |
+| `.ai/`       | [.ai/AGENTS.md](.ai/AGENTS.md)             |
 
 ## References
 
