@@ -15,13 +15,16 @@ GitHub configuration: CI/CD, repo settings, Renovate.
 
 ## Workflows
 
-| Workflow                  | Trigger  | Purpose                      |
-| ------------------------- | -------- | ---------------------------- |
-| `main.yaml`               | push/PR  | Lint → Test → Build → Deploy |
-| `test-accessibility.yaml` | PR       | WCAG audit                   |
-| `test-coverage.yaml`      | PR       | Vitest coverage              |
-| `test-performance.yaml`   | PR       | Lighthouse                   |
-| `renovate.yaml`           | schedule | Dependency updates           |
+| Workflow                    | Trigger         | Purpose                      |
+| --------------------------- | --------------- | ---------------------------- |
+| `main.yaml`                 | push/PR         | Lint → Test → Build → Deploy |
+| `test-accessibility.yaml`   | PR              | WCAG audit                   |
+| `test-coverage.yaml`        | PR              | Vitest + E2E coverage        |
+| `test-performance.yaml`     | PR/weekly       | Lighthouse Core Web Vitals   |
+| `visual-tests.yaml`         | PR/dispatch     | Screenshot regression        |
+| `renovate.yaml`             | schedule        | Dependency updates           |
+| `update-repo-settings.yaml` | push            | Sync .github/settings.yml    |
+| `cache-cleanup.yaml`        | PR close/weekly | GitHub Actions cache cleanup |
 
 ## Conventions
 
