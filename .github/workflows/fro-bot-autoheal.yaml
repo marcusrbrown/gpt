@@ -219,11 +219,6 @@ jobs:
   fro-bot-autoheal:
     name: Fro Bot Autoheal
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    permissions:
-      contents: write
-      issues: write
-      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -237,7 +232,7 @@ jobs:
           install-playwright: 'true'
 
       - name: Run Fro Bot
-        uses: fro-bot/agent@8e60ed0350cfd455c23282937a1f0b8865803342 # v0.30.5
+        uses: fro-bot/agent@9083d9d3fe350d32c4917bd0312fe78f241ad0aa # v0.32.1
         env:
           OPENCODE_PROMPT_ARTIFACT: 'true'
         with:
@@ -246,3 +241,4 @@ jobs:
           model: ${{ vars.FRO_BOT_MODEL }}
           omo-providers: ${{ secrets.OMO_PROVIDERS }}
           prompt: ${{ github.event.inputs.prompt || env.AUTOHEAL_PROMPT }}
+          timeout: 0

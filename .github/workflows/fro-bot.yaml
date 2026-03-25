@@ -108,12 +108,6 @@ jobs:
   fro-bot:
     name: Fro Bot
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    permissions:
-      contents: write
-      discussions: write
-      issues: write
-      pull-requests: write
     if: >-
       (
         github.event.pull_request == null ||
@@ -154,18 +148,13 @@ jobs:
               || github.event.pull_request.head.sha
               || ''
             }}
-          token: >-
-            ${{
-              github.event_name == 'workflow_dispatch'
-              && secrets.GITHUB_TOKEN
-              || secrets.FRO_BOT_PAT
-            }}
+          token: ${{ secrets.FRO_BOT_PAT }}
 
       - name: Setup pnpm
         uses: ./.github/actions/setup-pnpm
 
       - name: Run Fro Bot
-        uses: fro-bot/agent@8e60ed0350cfd455c23282937a1f0b8865803342 # v0.30.5
+        uses: fro-bot/agent@9083d9d3fe350d32c4917bd0312fe78f241ad0aa # v0.32.1
         env:
           OPENCODE_PROMPT_ARTIFACT: 'true'
           PROMPT: >-
@@ -176,13 +165,9 @@ jobs:
               || ''
             }}
         with:
-          github-token: >-
-            ${{
-              github.event_name == 'workflow_dispatch'
-              && secrets.GITHUB_TOKEN
-              || secrets.FRO_BOT_PAT
-            }}
           auth-json: ${{ secrets.OPENCODE_AUTH_JSON }}
+          github-token: ${{ secrets.FRO_BOT_PAT }}
           model: ${{ vars.FRO_BOT_MODEL }}
           omo-providers: ${{ secrets.OMO_PROVIDERS }}
           prompt: ${{ env.PROMPT }}
+          timeout: 0
