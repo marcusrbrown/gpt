@@ -6,8 +6,12 @@ GitHub configuration: CI/CD, repo settings, Renovate.
 
 ```
 .github/
-├── actions/setup-pnpm/  # Composite action
-├── workflows/           # CI/CD pipelines
+├── actions/setup-pnpm/        # Composite action: pnpm + Node + Playwright
+├── agents/                    # Copilot custom agents
+│   ├── reviewer.agent.md      # PR review agent
+│   └── test-writer.agent.md   # Test authoring agent
+├── workflows/                 # CI/CD pipelines
+├── copilot-instructions.md    # Global Copilot coding agent instructions
 ├── CODEOWNERS
 ├── renovate.json5
 └── settings.yml
@@ -27,6 +31,7 @@ GitHub configuration: CI/CD, repo settings, Renovate.
 | `cache-cleanup.yaml`        | PR close/weekly            | GitHub Actions cache cleanup                       |
 | `fro-bot.yaml`              | mentions/PR/daily/dispatch | AI agent: reviews, triage, maintenance             |
 | `fro-bot-autoheal.yaml`     | daily/dispatch             | AI agent: autohealing (fix PRs, security, quality) |
+| `copilot-setup-steps.yaml`  | dispatch/push/PR (self)    | Copilot coding agent environment setup             |
 
 ## Conventions
 
