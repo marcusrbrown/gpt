@@ -142,7 +142,7 @@ jobs:
       # Commit changes to the branch when triggered from a ref other than main
       - name: Commit changes to HEAD
         if: github.ref != 'refs/heads/main'
-        uses: EndBug/add-and-commit@a94899bca583c204427a224a7af87c02f9b325d5 # v9.1.4
+        uses: EndBug/add-and-commit@290ea2c423ad77ca9c62ae0f5b224379612c0321 # v10.0.0
         with:
           author_name: '${{ steps.setup-bot-user.outputs.USER_NAME }}'
           author_email: '${{ steps.setup-bot-user.outputs.USER_EMAIL }}'
