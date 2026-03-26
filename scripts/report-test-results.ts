@@ -3,8 +3,10 @@ import process from 'node:process'
 import {
   ACCESSIBILITY_COMMENT_IDENTIFIER,
   COVERAGE_COMMENT_IDENTIFIER,
+  E2E_COMMENT_IDENTIFIER,
   formatAccessibilityResults,
   formatCoverageResults,
+  formatE2EResults,
   formatPerformanceResults,
   formatVisualResults,
   PERFORMANCE_COMMENT_IDENTIFIER,
@@ -15,15 +17,17 @@ import {JobSummary} from './lib/job-summary.ts'
 import {
   parseAccessibilityResults,
   parseCoverageResults,
+  parseE2EResults,
   parsePerformanceResults,
   parseVisualResults,
   shouldFailAccessibility,
+  shouldFailE2E,
   shouldFailPerformance,
   shouldFailVisual,
 } from './lib/parsers/index.ts'
 
 interface CLIArgs {
-  type: 'performance' | 'accessibility' | 'visual' | 'coverage'
+  type: 'performance' | 'accessibility' | 'visual' | 'coverage' | 'e2e'
   resultsDir: string
 }
 
@@ -35,11 +39,11 @@ function parseArgs(): CLIArgs {
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--type' && args[i + 1]) {
       const typeArg = args[i + 1]
-      if (['performance', 'accessibility', 'visual', 'coverage'].includes(typeArg)) {
+      if (['performance', 'accessibility', 'visual', 'coverage', 'e2e'].includes(typeArg)) {
         type = typeArg as CLIArgs['type']
       } else {
         console.error(`Invalid test type: ${typeArg}`)
-        console.error('Valid types: performance, accessibility, visual, coverage')
+        console.error('Valid types: performance, accessibility, visual, coverage, e2e')
         process.exit(1)
       }
       i++
@@ -129,6 +133,17 @@ async function main(): Promise<void> {
       commentIdentifier = COVERAGE_COMMENT_IDENTIFIER
 
       summaryWriter.writeHeading('Test Coverage Report')
+      summaryWriter.write(commentBody)
+      break
+    }
+
+    case 'e2e': {
+      const results = parseE2EResults(resultsDir)
+      commentBody = formatE2EResults(results, runId, repo)
+      commentIdentifier = E2E_COMMENT_IDENTIFIER
+      shouldFail = shouldFailE2E(results)
+
+      summaryWriter.writeHeading('E2E Test Report')
       summaryWriter.write(commentBody)
       break
     }

@@ -44,7 +44,7 @@ jobs:
             changes:
               - 'src/**'
               - 'tests/performance/**'
-              - .github/workflows/test-performance.yml
+              - .github/workflows/test-performance.yaml
               - playwright-performance.config.ts
               - package.json
               - pnpm-lock.yaml

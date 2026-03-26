@@ -1,4 +1,5 @@
 export {ACCESSIBILITY_COMMENT_IDENTIFIER, formatAccessibilityResults} from './accessibility.ts'
 export {COVERAGE_COMMENT_IDENTIFIER, formatCoverageResults} from './coverage.ts'
+export {E2E_COMMENT_IDENTIFIER, formatE2EResults} from './e2e.ts'
 export {formatPerformanceResults, PERFORMANCE_COMMENT_IDENTIFIER} from './performance.ts'
 export {formatVisualResults, VISUAL_COMMENT_IDENTIFIER} from './visual.ts'

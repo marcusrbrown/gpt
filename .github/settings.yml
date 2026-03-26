@@ -19,10 +19,10 @@ branches:
       required_status_checks:
         strict: false
         contexts:
-          - Aggregate Coverage
           - Build
           - Deploy
           - E2E Test Coverage
+          - E2E Test Report
           - Generate Accessibility Report
           - Generate Performance Report
           - Lint
@@ -32,7 +32,6 @@ branches:
           - Run Performance Tests
           - Run Tests
           - Run Visual Tests
-          - Unit Test Coverage
 
       enforce_admins: true
       required_pull_request_reviews: null
