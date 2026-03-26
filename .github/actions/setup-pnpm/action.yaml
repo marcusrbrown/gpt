@@ -8,8 +8,18 @@ inputs:
     description: Install Playwright browsers
     default: 'false'
     required: false
+  playwright-browsers:
+    description: Playwright browsers to install (space-separated)
+    default: chromium
+    required: false
+
+outputs:
+  playwright-cache-hit:
+    description: Whether Playwright browser cache was hit
+    value: ${{ steps.playwright-cache.outputs.cache-hit }}
 
 runs:
+  using: composite
   steps:
     - name: Setup pnpm
       uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
@@ -27,9 +37,26 @@ runs:
       run: pnpm install ${{ steps.setup-node.outputs.cache-hit == 'true' && ' --prefer-offline' || '' }}
       shell: 'bash -Eeuo pipefail {0}'
 
-    - if: ${{ inputs.install-playwright == 'true' }}
-      name: Install Playwright browsers
-      run: pnpm exec playwright install --with-deps chromium
+    - name: Get Playwright version
+      if: inputs.install-playwright == 'true'
+      id: playwright-version
+      run: echo "version=$(pnpm list @playwright/test --depth=0 --json | jq -r '.[] | .devDependencies | .["@playwright/test"] | .version')" >> $GITHUB_OUTPUT
       shell: 'bash -Eeuo pipefail {0}'
 
-  using: composite
+    - name: Cache Playwright browsers
+      if: inputs.install-playwright == 'true'
+      uses: actions/cache@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      id: playwright-cache
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}-${{ inputs.playwright-browsers }}
+
+    - name: Install Playwright browsers
+      if: inputs.install-playwright == 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
+      run: pnpm exec playwright install --with-deps ${{ inputs.playwright-browsers }}
+      shell: 'bash -Eeuo pipefail {0}'
+
+    - name: Install Playwright system deps (cache hit)
+      if: inputs.install-playwright == 'true' && steps.playwright-cache.outputs.cache-hit == 'true'
+      run: pnpm exec playwright install-deps ${{ inputs.playwright-browsers }}
+      shell: 'bash -Eeuo pipefail {0}'
