@@ -36,8 +36,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       dexie:
-        specifier: 4.3.0
-        version: 4.3.0
+        specifier: 4.4.0
+        version: 4.4.0
       file-saver:
         specifier: 2.0.5
         version: 2.0.5
@@ -3375,8 +3375,8 @@ packages:
   devtools-protocol@0.0.1581282:
     resolution: {integrity: sha512-nv7iKtNZQshSW2hKzYNr46nM/Cfh5SEvE2oV0/SEGgc9XupIY5ggf84Cz8eJIkBce7S3bmTAauFD6aysMpnqsQ==}
 
-  dexie@4.3.0:
-    resolution: {integrity: sha512-5EeoQpJvMKHe6zWt/FSIIuRa3CWlZeIl6zKXt+Lz7BU6RoRRLgX9dZEynRfXrkLcldKYCBiz7xekTEylnie1Ug==}
+  dexie@4.4.0:
+    resolution: {integrity: sha512-7ZZ7NCcPfHnSiIwE24GLiV3TmUzFclFv6K7PdjXpf7mDhmXp9eQegW0S3fo2RonNJBTgRfIUSbNmN8uXhjC1zA==}
 
   diff-sequences@27.5.1:
     resolution: {integrity: sha512-k1gCAXAsNgLwEL+Y8Wvl+M6oEFj5bgazfZULpS5CneoPPXRaCCW7dm+q21Ky2VEE5X+VeRDBVg1Pcvvsr4TtNQ==}
@@ -9667,7 +9667,7 @@ snapshots:
 
   devtools-protocol@0.0.1581282: {}
 
-  dexie@4.3.0: {}
+  dexie@4.4.0: {}
 
   diff-sequences@27.5.1: {}
 
