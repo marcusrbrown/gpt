@@ -100,8 +100,12 @@ export class GPTShowcasePage extends BasePage {
    * Check if the showcase page is loaded (not in loading state)
    */
   async isLoaded(): Promise<boolean> {
-    // Wait for loading to complete
-    await this.page.waitForTimeout(500)
+    // Wait for loading skeleton to disappear or be gone
+    try {
+      await this.loadingSkeleton.waitFor({state: 'hidden', timeout: 5000})
+    } catch {
+      // Skeleton might already be gone
+    }
 
     // Check if we're showing the GPT name or an error
     const hasName = await this.gptName.isVisible().catch(() => false)

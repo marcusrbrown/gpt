@@ -142,42 +142,34 @@ export class GPTEditorPage extends BasePage {
    * Save the GPT configuration via auto-save
    * The GPT editor uses auto-save with a 2 second debounce - there's no manual Save button.
    *
-   * This method waits for the auto-save debounce period to pass, then confirms the save
-   * completed by waiting for the "Saved" indicator to appear.
+   * This method waits for the auto-save to complete by monitoring the save status indicator.
    *
    * Note: Assumes the GPT has already been given a name via fillBasicConfiguration().
-   * The name check is done by looking at the page title, not the input field,
-   * since tests may be on different tabs when calling saveGPT().
    */
   async saveGPT(): Promise<void> {
-    // Wait for auto-save debounce (2000ms) plus buffer for save operation
-    await this.page.waitForTimeout(2500)
+    // Wait for "Saved" indicator to appear (after auto-save debounce completes)
+    // The auto-save has a 2000ms debounce, so we wait for the status to stabilize
+    await this.page.waitForFunction(
+      () => {
+        const bodyText = document.body.textContent || ''
+        // Either "Saved" is visible, or we've waited long enough that no save was triggered
+        return bodyText.includes('Saved') || bodyText.includes('Unsaved changes')
+      },
+      {timeout: 15000},
+    )
 
-    // Wait for either "Saving..." to appear and then "Saved", or just "Saved" if save was quick
-    try {
-      // First check if we're currently saving
-      const isSaving = await this.savingIndicator.isVisible({timeout: 500}).catch(() => false)
-
-      if (isSaving) {
-        // Wait for saving to complete - "Saved" should appear
-        await this.page.waitForFunction(
-          () => {
-            const bodyText = document.body.textContent || ''
-            return bodyText.includes('Saved') && !bodyText.includes('Saving...')
-          },
-          {timeout: 10000},
-        )
-      } else {
-        // Either already saved or waiting for debounce - wait for "Saved" indicator
-        await this.page.waitForFunction(() => document.body.textContent?.includes('Saved'), {timeout: 10000})
-      }
-    } catch {
-      // If we can't detect the save indicator, give extra time for IndexedDB write
-      await this.page.waitForTimeout(1000)
+    // If we're seeing "Unsaved changes", wait for it to transition to "Saved"
+    const hasUnsaved = await this.unsavedChangesIndicator.isVisible({timeout: 500}).catch(() => false)
+    if (hasUnsaved) {
+      // Trigger a small change to force save, or wait for auto-save
+      await this.page.waitForFunction(
+        () => {
+          const bodyText = document.body.textContent || ''
+          return bodyText.includes('Saved') && !bodyText.includes('Saving...')
+        },
+        {timeout: 15000},
+      )
     }
-
-    // Small buffer for IndexedDB write to stabilize
-    await this.page.waitForTimeout(300)
   }
 
   /**

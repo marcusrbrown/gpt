@@ -46,12 +46,10 @@ test.describe('Knowledge Base Management', () => {
       await expect(manualRadio).toBeChecked()
 
       await autoRadio.click({force: true})
-      await page.waitForTimeout(500)
-      await expect(autoRadio).toBeChecked()
+      await expect(autoRadio).toBeChecked({timeout: 5000})
 
       await manualRadio.click({force: true})
-      await page.waitForTimeout(500)
-      await expect(manualRadio).toBeChecked()
+      await expect(manualRadio).toBeChecked({timeout: 5000})
     })
 
     test('should show Extract All Pending button in manual mode', async ({page}) => {
@@ -175,21 +173,20 @@ test.describe('Knowledge Base Management', () => {
     test('should edit existing snippet', async ({page}) => {
       const snippetsTab = page.locator('button[role="tab"]', {hasText: 'Snippets'})
       await snippetsTab.click()
-      await page.waitForTimeout(500)
+      await expect(page.getByLabel('Title')).toBeVisible({timeout: 5000})
 
       await page.getByLabel('Title').fill('Original Title')
       await page.getByLabel('Content').fill('Original content')
 
       const saveButton = page.locator('button', {hasText: 'Save Snippet'})
       await saveButton.click()
-      await page.waitForTimeout(1500)
+      await expect(page.getByRole('heading', {name: 'Original Title'})).toBeVisible({timeout: 5000})
 
       const originalHeading = page.getByRole('heading', {name: 'Original Title'})
       await expect(originalHeading).toBeVisible({timeout: 5000})
 
       const editButton = page.getByRole('button', {name: 'Edit'}).first()
       await editButton.click()
-      await page.waitForTimeout(500)
 
       const updateButton = page.locator('button', {hasText: 'Update Snippet'})
       await expect(updateButton).toBeVisible({timeout: 5000})
@@ -200,15 +197,13 @@ test.describe('Knowledge Base Management', () => {
 
       await titleInput.fill('Updated Title')
       await updateButton.click()
-      await page.waitForTimeout(1000)
-
-      const updatedHeading = page.getByRole('heading', {name: 'Updated Title'})
-      await expect(updatedHeading).toBeVisible({timeout: 5000})
+      await expect(page.getByRole('heading', {name: 'Updated Title'})).toBeVisible({timeout: 5000})
     })
 
     test('should delete snippet', async ({page}) => {
       const snippetsTab = page.locator('button[role="tab"]', {hasText: 'Snippets'})
       await snippetsTab.click()
+      await expect(page.getByLabel('Title')).toBeVisible({timeout: 5000})
 
       const titleInput = page.getByLabel('Title')
       await titleInput.fill('Snippet to Delete')
@@ -218,14 +213,10 @@ test.describe('Knowledge Base Management', () => {
 
       const saveButton = page.locator('button', {hasText: 'Save Snippet'})
       await saveButton.click()
-
-      await page.waitForTimeout(1000)
       await expect(page.getByRole('heading', {name: 'Snippet to Delete'})).toBeVisible({timeout: 5000})
 
       const deleteButton = page.locator('button', {hasText: 'Delete'}).first()
       await deleteButton.click()
-
-      await page.waitForTimeout(500)
       await expect(page.getByRole('heading', {name: 'Snippet to Delete'})).not.toBeVisible({timeout: 5000})
     })
   })
@@ -251,14 +242,16 @@ test.describe('Knowledge Base Management', () => {
     test('should update statistics after adding content', async ({page}) => {
       const summaryTab = page.locator('button[role="tab"]', {hasText: 'Summary'})
       await summaryTab.click()
-      await page.waitForTimeout(500)
+      await expect(page.locator('text=Total Files')).toBeVisible({timeout: 5000})
 
       const totalFilesCard = page.locator('text=Total Files').locator('..')
       const initialFilesText = await totalFilesCard.textContent()
       const initialFilesCount = Number.parseInt(initialFilesText?.match(/\d+/)?.[0] || '0')
 
       await page.locator('button[role="tab"]', {hasText: 'Files'}).click()
-      await page.waitForTimeout(500)
+      await expect(page.getByRole('tabpanel', {name: 'Files'}).locator('input[type="file"]')).toBeAttached({
+        timeout: 5000,
+      })
 
       const fileInput = page.getByRole('tabpanel', {name: 'Files'}).locator('input[type="file"]')
       const testFilePath = path.join(testDir, 'fixtures', 'test-document.txt')
@@ -267,7 +260,7 @@ test.describe('Knowledge Base Management', () => {
       await expect(page.locator('table').getByText('test-document.txt')).toBeVisible({timeout: 5000})
 
       await summaryTab.click()
-      await page.waitForTimeout(2000)
+      await expect(page.locator('text=Total Files')).toBeVisible({timeout: 5000})
 
       const updatedFilesText = await totalFilesCard.textContent()
       const updatedFilesCount = Number.parseInt(updatedFilesText?.match(/\d+/)?.[0] || '0')
@@ -300,38 +293,34 @@ test.describe('Knowledge Base Management', () => {
       await expect(filesTab).toBeVisible()
 
       await urlsTab.click()
-      await page.waitForTimeout(500)
-      await expect(page.getByLabel('Add URL to cache')).toBeVisible()
+      await expect(page.getByLabel('Add URL to cache')).toBeVisible({timeout: 5000})
 
       await snippetsTab.click()
-      await page.waitForTimeout(500)
-      await expect(page.getByLabel('Title')).toBeVisible()
+      await expect(page.getByLabel('Title')).toBeVisible({timeout: 5000})
 
       await summaryTab.click()
-      await page.waitForTimeout(500)
-      await expect(page.locator('text=Total Files')).toBeVisible()
+      await expect(page.locator('text=Total Files')).toBeVisible({timeout: 5000})
 
       await filesTab.click()
-      await page.waitForTimeout(500)
-      await expect(page.getByRole('tabpanel', {name: 'Files'}).locator('input[type="file"]')).toBeAttached()
+      await expect(page.getByRole('tabpanel', {name: 'Files'}).locator('input[type="file"]')).toBeAttached({
+        timeout: 5000,
+      })
     })
 
     test('should maintain form state when switching tabs', async ({page}) => {
       const snippetsTab = page.locator('button[role="tab"]', {hasText: 'Snippets'})
       await snippetsTab.click()
-      await page.waitForTimeout(500)
+      await expect(page.getByLabel('Title')).toBeVisible({timeout: 5000})
 
       const titleInput = page.getByLabel('Title')
       await titleInput.fill('Test State Persistence')
-      await page.waitForTimeout(500)
 
       const summaryTab = page.locator('button[role="tab"]', {hasText: 'Summary'})
       await summaryTab.click()
-      await page.waitForTimeout(500)
+      await expect(page.locator('text=Total Files')).toBeVisible({timeout: 5000})
 
       await snippetsTab.click()
-      await page.waitForTimeout(500)
-
+      await expect(titleInput).toBeVisible({timeout: 5000})
       await expect(titleInput).toHaveValue('Test State Persistence')
     })
   })

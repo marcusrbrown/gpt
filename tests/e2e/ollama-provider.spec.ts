@@ -267,15 +267,15 @@ test.describe('Ollama Provider Integration', () => {
       const testButton = page.getByRole('button', {name: /test connection to ollama/i})
       await expect(testButton).toBeEnabled({timeout: 10000})
 
-      // Small wait for UI to stabilize after check completes
-      await page.waitForTimeout(500)
-
       const urlInput = page.locator('input[aria-label="Ollama Base URL"]')
       const saveButton = page.getByRole('button', {name: /save ollama settings/i})
 
       // Focus the input
       await urlInput.focus()
       await expect(urlInput).toBeFocused()
+
+      // Wait for UI to stabilize after auto-check completes
+      await expect(testButton).toBeEnabled({timeout: 10000})
 
       // Tab to Test button (skip if button happens to be disabled during polling)
       await page.keyboard.press('Tab')

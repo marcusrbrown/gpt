@@ -221,10 +221,7 @@ test.describe('Anthropic Provider Integration', () => {
 
       // Wait for either success or error - the validation was attempted
       // In mocked environment, we verify the save button was clicked and process completed
-      await page.waitForTimeout(2000)
-
-      // The API key should still be in the input (not cleared on error)
-      await expect(apiKeyInput).toHaveValue('sk-ant-api03-valid-test-key')
+      await expect(apiKeyInput).toHaveValue('sk-ant-api03-valid-test-key', {timeout: 10000})
     })
   })
 
@@ -257,7 +254,10 @@ test.describe('Anthropic Provider Integration', () => {
       await saveButton.click()
 
       // Wait for validation attempt to complete
-      await page.waitForTimeout(2000)
+      await expect(saveButton)
+        .toBeDisabled({timeout: 10000})
+        .catch(() => {})
+      await expect(saveButton).toBeEnabled({timeout: 15000})
 
       // Now check if clear button becomes enabled (depends on if key was saved)
       const clearButton = anthropicSection.locator('button[aria-label="Clear saved API key from local storage"]')
