@@ -114,12 +114,12 @@ test.describe('GPT Showcase Page', () => {
 })
 
 test.describe('GPT Showcase Page - Error States', () => {
-  test('should show error state for invalid GPT ID', async ({gptShowcasePage, page}) => {
+  test('should show error state for invalid GPT ID', async ({gptShowcasePage}) => {
     // Navigate to a non-existent GPT
     await gptShowcasePage.navigateTo('non-existent-id-12345')
 
-    // Wait for the page to load
-    await page.waitForTimeout(1000)
+    // Wait for error state to be displayed
+    await gptShowcasePage.waitForShowcaseLoad()
 
     // Should show error card
     expect(await gptShowcasePage.hasError()).toBe(true)
@@ -132,7 +132,7 @@ test.describe('GPT Showcase Page - Error States', () => {
   test('should navigate to home when clicking Return to Library on error page', async ({gptShowcasePage, page}) => {
     // Navigate to a non-existent GPT to trigger error
     await gptShowcasePage.navigateTo('non-existent-id-12345')
-    await page.waitForTimeout(1000)
+    await gptShowcasePage.waitForShowcaseLoad()
 
     expect(await gptShowcasePage.hasError()).toBe(true)
 
@@ -266,7 +266,9 @@ test.describe('GPT Showcase Page - With Knowledge', () => {
     if (await knowledgeTab.isVisible({timeout: 2000}).catch(() => false)) {
       await knowledgeTab.click()
       // Wait for tab content to load
-      await page.waitForTimeout(500)
+      await expect(page.locator('input[placeholder*="URL"], input[placeholder*="url"]').first()).toBeVisible({
+        timeout: 5000,
+      })
 
       // Look for URL input - may have different placeholders/names
       const urlInput = page.locator('input[placeholder*="URL"], input[placeholder*="url"]').first()

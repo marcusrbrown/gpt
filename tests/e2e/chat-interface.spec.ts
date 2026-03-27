@@ -72,8 +72,8 @@ test.describe('Chat Interface', () => {
     // Set desktop viewport
     await page.setViewportSize({width: 1280, height: 800})
 
-    // Give time for responsive layout to adjust
-    await page.waitForTimeout(300)
+    // Wait for responsive layout to adjust
+    await expect(gptTestPage.newChatButton).toBeVisible({timeout: 5000})
 
     // Desktop sidebar should be visible (hidden lg:flex means visible at lg+ breakpoint)
     const desktopSidebarVisible = await gptTestPage.isDesktopSidebarVisible()
@@ -91,8 +91,8 @@ test.describe('Chat Interface', () => {
     // Set mobile viewport (below lg breakpoint of 1024px)
     await page.setViewportSize({width: 375, height: 667})
 
-    // Give time for responsive layout to adjust
-    await page.waitForTimeout(300)
+    // Wait for responsive layout to adjust
+    await expect(gptTestPage.messageInput).toBeVisible({timeout: 5000})
 
     // Desktop sidebar should NOT be visible on mobile
     const desktopSidebarVisible = await gptTestPage.isDesktopSidebarVisible()
@@ -129,7 +129,7 @@ test.describe('Chat Interface', () => {
   test('should start new conversation from sidebar', async ({gptTestPage, page}) => {
     // Set desktop viewport to access sidebar directly
     await page.setViewportSize({width: 1280, height: 800})
-    await page.waitForTimeout(300)
+    await expect(gptTestPage.newChatButton).toBeVisible({timeout: 5000})
 
     // Verify New Chat button is visible
     await expect(gptTestPage.newChatButton).toBeVisible()
@@ -193,7 +193,7 @@ test.describe('Chat Interface', () => {
     expect(isOnline).toBe(true)
   })
 
-  test('should support Enter key to send message', async ({gptTestPage, page}) => {
+  test('should support Enter key to send message', async ({gptTestPage}) => {
     // Type a message
     await gptTestPage.typeMessage('Test message')
 
@@ -205,9 +205,8 @@ test.describe('Chat Interface', () => {
     await gptTestPage.pressEnterToSend()
 
     // The input should be cleared after sending attempt
-    // Note: Since we don't have an API key configured, the message might fail
-    // but the UI behavior of clearing input should still work
-    await page.waitForTimeout(500) // Small wait for state update
+    // Wait for the input to be cleared (state update)
+    await expect(gptTestPage.messageInput).toHaveValue('', {timeout: 5000})
   })
 
   test('should support Shift+Enter for newlines in input', async ({gptTestPage}) => {

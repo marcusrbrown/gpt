@@ -97,20 +97,13 @@ export class HomePage extends BasePage {
    * Wait for GPT cards to load
    */
   async waitForGPTCards(): Promise<void> {
-    // Wait for the page to be in a stable state
-    // Try to wait for either user cards or empty state, with timeout handling
-    try {
-      await this.page.waitForSelector(
-        '[data-testid="user-gpt-card"], [data-testid="gpt-empty-state"], [data-testid="gpt-list"]',
-        {
-          timeout: 5000,
-          state: 'visible',
-        },
-      )
-    } catch {
-      // If specific selectors fail, just wait for page to be loaded
-      await this.waitForLoad()
-      await this.page.waitForTimeout(2000) // Give time for components to render
-    }
+    // Wait for either user cards, empty state, or GPT list to be visible
+    await this.page.waitForSelector(
+      '[data-testid="user-gpt-card"], [data-testid="gpt-empty-state"], [data-testid="gpt-list"]',
+      {
+        timeout: 10000,
+        state: 'visible',
+      },
+    )
   }
 }

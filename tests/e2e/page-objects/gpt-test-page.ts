@@ -413,7 +413,14 @@ export class GPTTestPage extends BasePage {
    * Wait for drawer animation to complete
    */
   async waitForDrawerAnimation(): Promise<void> {
-    await this.page.waitForTimeout(300)
+    // Wait for drawer dialog to appear or disappear based on current state
+    const drawer = this.page.getByRole('dialog', {name: 'Menu'})
+    try {
+      await drawer.waitFor({state: 'visible', timeout: 1000})
+      await drawer.waitFor({state: 'hidden', timeout: 1000})
+    } catch {
+      // Drawer animation might be too fast to catch
+    }
   }
 
   /**

@@ -22,7 +22,10 @@ test.describe('Folder Organization', () => {
       const saveFolderButton = page.locator('[data-testid="save-folder-button"]')
       await saveFolderButton.click()
 
-      await page.waitForTimeout(500)
+      // Wait for folder to appear in list
+      await expect(page.locator('[data-testid="folder-item"]').filter({hasText: 'Test Folder'})).toBeVisible({
+        timeout: 5000,
+      })
 
       const folderItem = page.locator('[data-testid="folder-item"]').filter({hasText: 'Test Folder'})
       expect(await folderItem.isVisible()).toBe(true)
@@ -50,7 +53,10 @@ test.describe('Folder Organization', () => {
       const saveFolderButton = page.locator('[data-testid="save-folder-button"]')
       await saveFolderButton.click()
 
-      await page.waitForTimeout(500)
+      // Wait for folder to appear
+      await expect(page.locator('[data-testid="folder-item"]').filter({hasText: 'My Folder'})).toBeVisible({
+        timeout: 5000,
+      })
 
       const gptCard = page.locator('[data-testid="user-gpt-card"]').filter({hasText: testGPT.name})
       const targetFolder = page.locator('[data-testid="folder-item"]').filter({hasText: 'My Folder'})
@@ -72,10 +78,11 @@ test.describe('Folder Organization', () => {
           )
           await page.mouse.up()
 
-          await page.waitForTimeout(500)
+          // Wait for drag-drop to complete
+          await expect(targetFolder).toBeVisible({timeout: 3000})
 
           await targetFolder.click()
-          await page.waitForTimeout(300)
+          await expect(page.locator('[data-testid="user-gpt-card"]').first()).toBeVisible({timeout: 5000})
 
           const gptInFolder = page.locator('[data-testid="user-gpt-card"]').filter({hasText: testGPT.name})
           const isInFolder = await gptInFolder.isVisible()
@@ -107,7 +114,10 @@ test.describe('Folder Organization', () => {
       const saveFolderButton = page.locator('[data-testid="save-folder-button"]')
       await saveFolderButton.click()
 
-      await page.waitForTimeout(500)
+      // Wait for folder to appear
+      await expect(page.locator('[data-testid="folder-item"]').filter({hasText: 'Target Folder'})).toBeVisible({
+        timeout: 5000,
+      })
 
       const gptCard = page.locator('[data-testid="user-gpt-card"]').filter({hasText: testGPT.name})
       const menuButton = gptCard.locator('[aria-label="GPT actions"]')
@@ -122,7 +132,8 @@ test.describe('Folder Organization', () => {
           const folderOption = page.locator('[data-testid="folder-option"]').filter({hasText: 'Target Folder'})
           if (await folderOption.isVisible()) {
             await folderOption.click()
-            await page.waitForTimeout(500)
+            // Wait for GPT to be moved
+            await expect(gptCard).not.toBeVisible({timeout: 3000})
           }
         }
       }
@@ -150,7 +161,10 @@ test.describe('Folder Organization', () => {
       const saveFolderButton = page.locator('[data-testid="save-folder-button"]')
       await saveFolderButton.click()
 
-      await page.waitForTimeout(500)
+      // Wait for folder to appear
+      await expect(page.locator('[data-testid="folder-item"]').filter({hasText: 'Folder to Delete'})).toBeVisible({
+        timeout: 5000,
+      })
 
       const folderItem = page.locator('[data-testid="folder-item"]').filter({hasText: 'Folder to Delete'})
 
@@ -166,7 +180,8 @@ test.describe('Folder Organization', () => {
             await confirmDelete.click()
           }
 
-          await page.waitForTimeout(500)
+          // Wait for folder to be deleted
+          await expect(folderItem).not.toBeVisible({timeout: 5000})
 
           const deletedFolder = page.locator('[data-testid="folder-item"]').filter({hasText: 'Folder to Delete'})
           expect(await deletedFolder.count()).toBe(0)
@@ -199,7 +214,10 @@ test.describe('Folder Organization', () => {
         const saveFolderButton = page.locator('[data-testid="save-folder-button"]')
         await saveFolderButton.click()
 
-        await page.waitForTimeout(300)
+        // Wait for folder creation
+        await expect(page.locator('[data-testid="folder-item"]').filter({hasText: `Level ${i} Folder`})).toBeVisible({
+          timeout: 5000,
+        })
 
         if (i === 4) {
           const errorMessage = page.locator('[data-testid="folder-depth-error"]')

@@ -10,6 +10,9 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 2 : undefined,
 
+  // Global timeout to prevent suite from hanging indefinitely (30 min in CI)
+  globalTimeout: process.env.CI ? 30 * 60 * 1000 : undefined,
+
   reporter: [
     ['html', {open: 'never'}],
     ['json', {outputFile: 'test-results/results.json'}],
@@ -25,6 +28,9 @@ export default defineConfig({
     locale: 'en-US',
     timezoneId: 'America/Phoenix',
     colorScheme: 'light',
+    // Action and navigation timeouts to prevent slow operations from hanging tests
+    actionTimeout: 10000,
+    navigationTimeout: 20000,
   },
 
   projects: [
@@ -43,14 +49,18 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     stdout: 'ignore',
     stderr: 'pipe',
+    // Explicit timeout for dev server startup (2 minutes)
+    timeout: 120 * 1000,
   },
 
   globalSetup: './tests/e2e/global-setup.ts',
   globalTeardown: './tests/e2e/global-teardown.ts',
 
-  timeout: 30 * 1000,
+  // Per-test timeout (45s in CI for slower environments, 30s locally)
+  timeout: process.env.CI ? 45 * 1000 : 30 * 1000,
   expect: {
-    timeout: 10000,
+    // Assertion timeout (15s in CI, 10s locally)
+    timeout: process.env.CI ? 15000 : 10000,
     toMatchSnapshot: {
       threshold: 0.2,
       maxDiffPixels: 1000,

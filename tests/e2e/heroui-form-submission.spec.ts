@@ -23,13 +23,11 @@ test.describe('HeroUI Form Submission', () => {
     await gptEditorPage.systemPromptTextarea.clear()
     await gptEditorPage.systemPromptTextarea.blur()
 
-    // Wait for validation to run (validation timing is set to 'blur')
-    await gptEditorPage.getPage().waitForTimeout(500)
-
+    // Wait for validation to run using assertion retry
     await expect(async () => {
       const hasErrors = await gptEditorPage.hasValidationErrors()
       expect(hasErrors).toBe(true)
-    }).toPass({timeout: 2000})
+    }).toPass({timeout: 5000})
 
     expect(await gptEditorPage.hasFieldError('name')).toBe(true)
     expect(await gptEditorPage.hasFieldError('description')).toBe(true)

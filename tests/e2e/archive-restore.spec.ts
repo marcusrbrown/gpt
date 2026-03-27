@@ -38,7 +38,8 @@ test.describe('GPT Archive and Restore Flow', () => {
       await confirmButton.click()
     }
 
-    await page.waitForTimeout(500)
+    // Wait for GPT to be removed from active list (archive mutation)
+    await expect(gptCard).not.toBeVisible({timeout: 5000})
 
     const activeGPTNames = await homePage.getUserGPTNames()
     expect(activeGPTNames).not.toContain(testGPT.name)
@@ -46,7 +47,7 @@ test.describe('GPT Archive and Restore Flow', () => {
     const archivedTab = page.locator('[data-testid="archived-tab"]')
     if (await archivedTab.isVisible()) {
       await archivedTab.click()
-      await page.waitForTimeout(300)
+      await expect(page.locator('[data-testid="user-gpt-card"]').first()).toBeVisible({timeout: 5000})
 
       const archivedCards = page.locator('[data-testid="user-gpt-card"]')
       const archivedCount = await archivedCards.count()
@@ -78,12 +79,13 @@ test.describe('GPT Archive and Restore Flow', () => {
       await confirmArchive.click()
     }
 
-    await page.waitForTimeout(500)
+    // Wait for archive to complete
+    await expect(gptCard).not.toBeVisible({timeout: 5000})
 
     const archivedTab = page.locator('[data-testid="archived-tab"]')
     if (await archivedTab.isVisible()) {
       await archivedTab.click()
-      await page.waitForTimeout(300)
+      await expect(page.locator('[data-testid="user-gpt-card"]').first()).toBeVisible({timeout: 5000})
 
       const archivedCard = page.locator('[data-testid="user-gpt-card"]').filter({hasText: testGPT.name})
       const restoreMenuButton = archivedCard.getByRole('button', {name: 'GPT actions'})
@@ -94,12 +96,13 @@ test.describe('GPT Archive and Restore Flow', () => {
       await expect(restoreOption).toBeVisible({timeout: 10000})
       await restoreOption.click({force: true})
 
-      await page.waitForTimeout(500)
+      // Wait for restore to complete
+      await expect(archivedCard).not.toBeVisible({timeout: 5000})
 
       const activeTab = page.locator('[data-testid="active-tab"]')
       if (await activeTab.isVisible()) {
         await activeTab.click()
-        await page.waitForTimeout(300)
+        await expect(page.locator('[data-testid="user-gpt-card"]').first()).toBeVisible({timeout: 5000})
       }
 
       const restoredNames = await homePage.getUserGPTNames()
@@ -131,12 +134,13 @@ test.describe('GPT Archive and Restore Flow', () => {
       await confirmArchive.click()
     }
 
-    await page.waitForTimeout(500)
+    // Wait for archive to complete
+    await expect(gptCard).not.toBeVisible({timeout: 5000})
 
     const archivedTab = page.locator('[data-testid="archived-tab"]')
     if (await archivedTab.isVisible()) {
       await archivedTab.click()
-      await page.waitForTimeout(300)
+      await expect(page.locator('[data-testid="user-gpt-card"]').first()).toBeVisible({timeout: 5000})
 
       const archivedCard = page.locator('[data-testid="user-gpt-card"]').filter({hasText: testGPT.name})
       const deleteMenuButton = archivedCard.getByRole('button', {name: 'GPT actions'})
@@ -152,7 +156,8 @@ test.describe('GPT Archive and Restore Flow', () => {
         await confirmDelete.click()
       }
 
-      await page.waitForTimeout(500)
+      // Wait for deletion to complete
+      await expect(archivedCard).not.toBeVisible({timeout: 5000})
 
       const remainingCards = page.locator('[data-testid="user-gpt-card"]').filter({hasText: testGPT.name})
       expect(await remainingCards.count()).toBe(0)
