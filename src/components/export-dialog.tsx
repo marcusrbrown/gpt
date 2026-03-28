@@ -2,7 +2,7 @@ import type {ExportFormat} from '@/services/conversation-export-service'
 import type {Conversation} from '@/types/gpt'
 import {cn} from '@/lib/design-system'
 import {Button, Modal, ModalBody, ModalFooter, ModalHeader, Radio, RadioGroup, Switch} from '@heroui/react'
-import {Download, FileJson, FileText} from 'lucide-react'
+import {FileJson, FileText} from 'lucide-react'
 import {useCallback, useState} from 'react'
 
 interface ExportDialogProps {
@@ -133,12 +133,7 @@ export function ExportDialog({isOpen, onClose, conversation, onExport}: ExportDi
         <Button variant="secondary" onPress={onClose}>
           Cancel
         </Button>
-        <Button
-          variant="primary"
-          onPress={handleExport}
-          isLoading={isExporting}
-          startContent={!isExporting && <Download className="w-4 h-4" />}
-        >
+        <Button variant="primary" onPress={handleExport} isPending={isExporting}>
           Export
         </Button>
       </ModalFooter>

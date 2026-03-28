@@ -11,7 +11,7 @@ import {
   Progress,
   Switch,
 } from '@heroui/react'
-import {AlertTriangle, Calendar, CheckCircle2, Database, Download, FileArchive, HardDrive, Upload} from 'lucide-react'
+import {AlertTriangle, Calendar, CheckCircle2, Database, Download, HardDrive, Upload} from 'lucide-react'
 import {useCallback, useRef, useState} from 'react'
 
 interface BackupRestorePanelProps {
@@ -234,13 +234,12 @@ export function BackupRestorePanel({
             )}
 
             <Button
-              variant="success"
+              variant="primary"
               className="w-full"
               onPress={() => {
                 handleCreateBackup().catch(console.error)
               }}
-              isLoading={isCreatingBackup}
-              startContent={!isCreatingBackup && <FileArchive className="w-4 h-4" />}
+              isPending={isCreatingBackup}
             >
               {isCreatingBackup ? 'Creating Backup...' : 'Create Backup'}
             </Button>
@@ -266,12 +265,8 @@ export function BackupRestorePanel({
                 aria-hidden="true"
                 onChange={handleFileSelect}
               />
-              <Button
-                variant="warning"
-                variant="secondary"
-                onPress={() => fileInputRef.current?.click()}
-                startContent={<Upload className="w-4 h-4" />}
-              >
+              <Button variant="secondary" onPress={() => fileInputRef.current?.click()}>
+                <Upload className="w-4 h-4" />
                 Select Backup File
               </Button>
               <p className="text-sm text-content-tertiary">Select a .zip backup file to restore your data</p>
@@ -356,11 +351,11 @@ export function BackupRestorePanel({
                   Cancel
                 </Button>
                 <Button
-                  variant="warning"
+                  variant="danger-soft"
                   onPress={() => {
                     handleRestore().catch(console.error)
                   }}
-                  isLoading={isRestoring}
+                  isPending={isRestoring}
                   isDisabled={isRestoring}
                 >
                   {wipeExisting ? 'Wipe & Restore' : 'Restore'}

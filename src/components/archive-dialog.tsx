@@ -1,6 +1,6 @@
 import type {GPTConfiguration} from '@/types/gpt'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Modal, ModalBody, ModalFooter, ModalHeader, useOverlayState} from '@heroui/react'
+import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from '@heroui/react'
 import {AlertTriangle, Archive, Trash2} from 'lucide-react'
 
 interface ArchiveDialogProps {
@@ -19,7 +19,7 @@ export function ArchiveDialog({gpt, mode, isOpen, onConfirm, onCancel, isLoading
   const Icon = isDelete ? Trash2 : Archive
   const title = isDelete ? 'Delete GPT Permanently' : 'Archive GPT'
   const confirmText = isDelete ? 'Delete Permanently' : 'Archive'
-  const confirmVariant = isDelete ? 'danger' : 'secondary'
+  const confirmVariant = isDelete ? 'danger' : ('secondary' as const)
 
   return (
     <Modal
@@ -73,7 +73,7 @@ export function ArchiveDialog({gpt, mode, isOpen, onConfirm, onCancel, isLoading
         <Button
           variant={confirmVariant}
           onPress={onConfirm}
-          isLoading={isLoading}
+          isPending={isLoading}
           data-testid={isDelete ? 'confirm-delete' : 'confirm-archive'}
         >
           {confirmText}

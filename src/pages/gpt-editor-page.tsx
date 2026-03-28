@@ -481,7 +481,7 @@ export function GPTEditorPage() {
                 isIconOnly
                 onPress={() => setIsVersionHistoryOpen(true)}
                 className={cn(ds.animation.buttonPress)}
-                title="Version History"
+                aria-label="Version History"
               >
                 <History size={18} />
               </Button>
@@ -492,7 +492,7 @@ export function GPTEditorPage() {
               isIconOnly
               onPress={() => importGptRef.current?.click()}
               className={cn(ds.animation.buttonPress)}
-              title="Import GPT Config"
+              aria-label="Import GPT Config"
             >
               <Upload size={18} />
             </Button>
@@ -503,7 +503,7 @@ export function GPTEditorPage() {
               onPress={handleExportGPT}
               isDisabled={isExporting}
               className={cn(ds.animation.buttonPress)}
-              title="Export GPT Config"
+              aria-label="Export GPT Config"
             >
               {isExporting ? <Spinner size="sm" /> : <Download size={18} />}
             </Button>
@@ -514,7 +514,7 @@ export function GPTEditorPage() {
               onPress={handleTestGpt}
               className="flex items-center shadow-sm"
               isDisabled={!gpt.id}
-              title="Test GPT"
+              aria-label="Test GPT"
             >
               <Play size={18} />
             </Button>
@@ -541,7 +541,6 @@ export function GPTEditorPage() {
           selectedKey={activeTab}
           onSelectionChange={key => setActiveTab(key as string)}
           variant="underlined"
-          variant="primary"
           aria-label="GPT Editor Sections"
           classNames={{
             base: 'w-full border-b border-default-200 bg-surface-primary z-10',

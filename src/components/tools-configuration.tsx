@@ -40,7 +40,7 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
           <div key={index} className="p-4 border rounded-lg space-y-4">
             <div className="flex justify-between items-start">
               <h4 className={cn(ds.text.heading.h4, 'text-content-primary')}>Tool {index + 1}</h4>
-              <Button onPress={() => onRemoveTool(index)} size="sm" variant="danger" variant="tertiary">
+              <Button onPress={() => onRemoveTool(index)} size="sm" variant="danger">
                 Remove
               </Button>
             </div>
