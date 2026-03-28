@@ -38,17 +38,21 @@ vi.mock('@/lib/design-system', () => ({
 }))
 
 // Mock HeroUI components
-vi.mock('@heroui/react', () => ({
-  Card: ({children, className, isHoverable, isPressable, onPress, ...props}: any) => (
+vi.mock('@heroui/react', () => {
+  const Card = ({children, className, isHoverable, isPressable, onPress, ...props}: any) => (
     <div className={className} data-hoverable={isHoverable} data-pressable={isPressable} onClick={onPress} {...props}>
       {children}
     </div>
-  ),
-  CardHeader: ({children, className}: any) => <div className={className}>{children}</div>,
-  CardBody: ({children, className}: any) => <div className={className}>{children}</div>,
-  CardFooter: ({children, className}: any) => <div className={className}>{children}</div>,
-  Skeleton: ({className}: any) => <div className={`skeleton ${className}`} />,
-}))
+  )
+  Card.Header = ({children, className}: any) => <div className={className}>{children}</div>
+  Card.Content = ({children, className}: any) => <div className={className}>{children}</div>
+  Card.Footer = ({children, className}: any) => <div className={className}>{children}</div>
+
+  return {
+    Card,
+    Skeleton: ({className}: any) => <div className={`skeleton ${className}`} />,
+  }
+})
 
 // Mock react-router-dom
 const mockNavigate = vi.fn()

@@ -4,9 +4,6 @@ import {cn, ds, responsive} from '@/lib/design-system'
 import {
   Button,
   Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
   Dropdown,
   DropdownItem,
   DropdownMenu,
@@ -217,7 +214,7 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
               )}
               data-testid="user-gpt-card"
             >
-              <CardHeader className="flex justify-between items-start gap-2">
+              <Card.Header className="flex justify-between items-start gap-2">
                 <div
                   className="flex-1 min-w-0 cursor-pointer"
                   onClick={() => onSelectGPT(gpt.id)}
@@ -314,11 +311,11 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
                     </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>
-              </CardHeader>
-              <CardBody className="cursor-pointer" onClick={() => onSelectGPT(gpt.id)}>
+              </Card.Header>
+              <Card.Content className="cursor-pointer" onClick={() => onSelectGPT(gpt.id)}>
                 <p className={cn(ds.text.body.small, 'line-clamp-2')}>{gpt.description || 'No description'}</p>
-              </CardBody>
-              <CardFooter className="cursor-pointer" onClick={() => onSelectGPT(gpt.id)}>
+              </Card.Content>
+              <Card.Footer className="cursor-pointer" onClick={() => onSelectGPT(gpt.id)}>
                 <div className="flex gap-2 flex-wrap">
                   {gpt.tags.slice(0, 3).map(tag => (
                     <span key={tag} className={cn('px-2 py-0.5 rounded-full text-xs bg-surface-tertiary')}>
@@ -327,7 +324,7 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
                   ))}
                   {gpt.tags.length > 3 && <span className={cn(ds.text.caption)}>+{gpt.tags.length - 3} more</span>}
                 </div>
-              </CardFooter>
+              </Card.Footer>
             </Card>
           ))}
         </div>

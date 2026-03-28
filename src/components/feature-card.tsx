@@ -1,7 +1,7 @@
 import type {LucideIcon} from 'lucide-react'
 import type {FC} from 'react'
 import {cn, compose, ds, theme} from '@/lib/design-system'
-import {Card, CardBody, CardFooter, CardHeader, Skeleton} from '@heroui/react'
+import {Card, Skeleton} from '@heroui/react'
 
 import {useNavigate} from 'react-router-dom'
 
@@ -53,7 +53,7 @@ export const FeatureCard: FC<FeatureCardProps> = ({
       isPressable={!isLoading && !error}
       onPress={handleCardPress}
     >
-      <CardHeader className={cn('pb-4')}>
+      <Card.Header className={cn('pb-4')}>
         {error ? (
           <div className="flex items-center gap-4">
             <div className={cn('rounded-lg p-3', 'bg-danger-50', 'text-danger')}>
@@ -83,9 +83,9 @@ export const FeatureCard: FC<FeatureCardProps> = ({
             </div>
           </div>
         )}
-      </CardHeader>
+      </Card.Header>
 
-      <CardBody className="pt-0">
+      <Card.Content className="pt-0">
         {error ? (
           <p className={cn(ds.text.body.base, 'text-danger')}>Unable to load feature data. Please try again later.</p>
         ) : isLoading ? (
@@ -96,9 +96,9 @@ export const FeatureCard: FC<FeatureCardProps> = ({
         ) : (
           <p className={cn(ds.text.body.base, 'line-clamp-2')}>{description}</p>
         )}
-      </CardBody>
+      </Card.Content>
 
-      <CardFooter className="pt-4">
+      <Card.Footer className="pt-4">
         {error || isLoading ? (
           <Skeleton className="h-4 w-32 rounded-lg" />
         ) : (
@@ -106,7 +106,7 @@ export const FeatureCard: FC<FeatureCardProps> = ({
             {isExternal ? 'Open in ChatGPT' : 'Learn more'} →
           </span>
         )}
-      </CardFooter>
+      </Card.Footer>
     </Card>
   )
 }

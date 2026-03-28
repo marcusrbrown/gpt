@@ -1,5 +1,5 @@
 import type {Conversation, ConversationMessage, GPTConfiguration} from '@/types/gpt'
-import {Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, Tooltip, useDisclosure} from '@heroui/react'
+import {Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, Tooltip, useOverlayState} from '@heroui/react'
 import {Menu, MessageSquare, MoreVertical, Trash2} from 'lucide-react'
 import React, {useEffect, useRef, useState} from 'react'
 
@@ -37,7 +37,7 @@ export function ChatInterface({
   processingMessage,
 }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const {isOpen, onOpen, onOpenChange} = useDisclosure()
+  const overlay = useOverlayState()
   const [isMobile, setIsMobile] = useState(false)
 
   // Auto-scroll to bottom
@@ -93,8 +93,8 @@ export function ChatInterface({
 
       {/* Mobile Drawer */}
       <Drawer
-        isOpen={isOpen}
-        onOpenChange={onOpenChange}
+        isOpen={overlay.isOpen}
+        onOpenChange={overlay.setOpen}
         placement="left"
         size="xs"
         backdrop="blur"
@@ -123,7 +123,7 @@ export function ChatInterface({
         <header className="h-14 flex items-center justify-between px-4 border-b border-border-subtle bg-surface-primary/80 backdrop-blur-md z-10 transition-colors">
           <div className="flex items-center gap-2 min-w-0">
             {isMobile && (
-              <Button isIconOnly variant="light" size="sm" onPress={onOpen} className="-ml-2">
+              <Button isIconOnly variant="light" size="sm" onPress={overlay.open} className="-ml-2">
                 <Menu size={20} className="text-content-secondary" />
               </Button>
             )}

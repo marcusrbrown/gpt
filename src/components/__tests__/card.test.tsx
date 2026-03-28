@@ -33,29 +33,33 @@ vi.mock('@/lib/design-system', () => ({
 }))
 
 // Mock HeroUI components
-vi.mock('@heroui/react', () => ({
-  Card: ({children, className, isHoverable, isPressable, as, ...props}: any) => {
+vi.mock('@heroui/react', () => {
+  const Card = ({children, className, isHoverable, isPressable, as, ...props}: any) => {
     const Component = (as as React.ElementType) ?? 'div'
     return (
       <Component className={className} data-hoverable={isHoverable} data-pressable={isPressable} {...props}>
         {children}
       </Component>
     )
-  },
-  CardHeader: ({children, className}: any) => <div className={className}>{children}</div>,
-  CardBody: ({children}: any) => <div>{children}</div>,
-  CardFooter: ({children}: any) => <div>{children}</div>,
-  Divider: () => <hr />,
-  Avatar: ({alt, src, size, isBordered, radius}: any) => (
-    <img alt={alt} src={src} data-size={size} data-bordered={isBordered} data-radius={radius} data-testid="avatar" />
-  ),
-  Link: ({children, href, isExternal, showAnchorIcon, className}: any) => (
-    <a href={href} data-external={isExternal} data-anchor-icon={showAnchorIcon} className={className}>
-      {children}
-    </a>
-  ),
-  Skeleton: ({className}: any) => <div className={`skeleton ${className}`} />,
-}))
+  }
+  Card.Header = ({children, className}: any) => <div className={className}>{children}</div>
+  Card.Content = ({children}: any) => <div>{children}</div>
+  Card.Footer = ({children}: any) => <div>{children}</div>
+
+  return {
+    Card,
+    Divider: () => <hr />,
+    Avatar: ({alt, src, size, isBordered, radius}: any) => (
+      <img alt={alt} src={src} data-size={size} data-bordered={isBordered} data-radius={radius} data-testid="avatar" />
+    ),
+    Link: ({children, href, isExternal, showAnchorIcon, className}: any) => (
+      <a href={href} data-external={isExternal} data-anchor-icon={showAnchorIcon} className={className}>
+        {children}
+      </a>
+    ),
+    Skeleton: ({className}: any) => <div className={`skeleton ${className}`} />,
+  }
+})
 
 describe('card', () => {
   const defaultProps: CardProps = {
