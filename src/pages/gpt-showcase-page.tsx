@@ -127,7 +127,7 @@ export function GPTShowcasePage() {
             <p data-testid="error-message" className="text-content-secondary mb-6">
               {error || 'GPT not found'}
             </p>
-            <Button color="primary" variant="flat" onPress={handleBack} startContent={<ChevronLeft size={18} />}>
+            <Button variant="primary" variant="secondary" onPress={handleBack} startContent={<ChevronLeft size={18} />}>
               Return to Library
             </Button>
           </Card.Content>
@@ -148,7 +148,7 @@ export function GPTShowcasePage() {
             <Button
               data-testid="showcase-back-button"
               isIconOnly
-              variant="light"
+              variant="tertiary"
               onPress={handleBack}
               aria-label="Back"
             >
@@ -160,7 +160,7 @@ export function GPTShowcasePage() {
               <Button
                 data-testid="showcase-edit-icon-button"
                 isIconOnly
-                variant="light"
+                variant="tertiary"
                 onPress={handleEdit}
                 aria-label="Edit"
               >
@@ -212,7 +212,7 @@ export function GPTShowcasePage() {
                         data-testid="gpt-tag"
                         key={tag}
                         size="sm"
-                        variant="flat"
+                        variant="secondary"
                         className="bg-surface-secondary text-content-secondary"
                       >
                         {tag}
@@ -223,7 +223,7 @@ export function GPTShowcasePage() {
                 <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                   <Button
                     data-testid="showcase-start-chatting-button"
-                    color="primary"
+                    variant="primary"
                     size="lg"
                     className="font-medium shadow-lg shadow-primary-500/20"
                     startContent={<MessageSquare size={20} />}
@@ -369,12 +369,12 @@ export function GPTShowcasePage() {
                   <span className="uppercase tracking-widest font-semibold">Model Configuration</span>
                   <div className="h-px bg-border-subtle grow min-w-5"></div>
                   {gpt.modelProvider && (
-                    <Chip variant="flat" size="sm" className="bg-surface-secondary text-content-secondary">
+                    <Chip variant="secondary" size="sm" className="bg-surface-secondary text-content-secondary">
                       {gpt.modelProvider}
                     </Chip>
                   )}
                   {gpt.modelName && (
-                    <Chip variant="flat" size="sm" className="bg-surface-secondary text-content-secondary">
+                    <Chip variant="secondary" size="sm" className="bg-surface-secondary text-content-secondary">
                       {gpt.modelName}
                     </Chip>
                   )}

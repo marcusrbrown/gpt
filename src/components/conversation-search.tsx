@@ -114,7 +114,7 @@ export function ConversationSearch({
         type="search"
         placeholder={placeholder}
         value={query}
-        onValueChange={handleQueryChange}
+        onChange={handleQueryChange}
         onFocus={() => setIsOpen(true)}
         onBlur={() => setTimeout(() => setIsOpen(false), 200)}
         startContent={<Search className="w-4 h-4 text-content-tertiary" />}

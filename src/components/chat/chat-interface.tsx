@@ -123,7 +123,7 @@ export function ChatInterface({
         <header className="h-14 flex items-center justify-between px-4 border-b border-border-subtle bg-surface-primary/80 backdrop-blur-md z-10 transition-colors">
           <div className="flex items-center gap-2 min-w-0">
             {isMobile && (
-              <Button isIconOnly variant="light" size="sm" onPress={overlay.open} className="-ml-2">
+              <Button isIconOnly variant="tertiary" size="sm" onPress={overlay.open} className="-ml-2">
                 <Menu size={20} className="text-content-secondary" />
               </Button>
             )}
@@ -139,7 +139,7 @@ export function ChatInterface({
             <Tooltip content="Clear conversation">
               <Button
                 isIconOnly
-                variant="light"
+                variant="tertiary"
                 size="sm"
                 className="text-content-tertiary hover:text-danger hover:bg-danger-50"
                 onPress={onClearConversation}
@@ -147,7 +147,7 @@ export function ChatInterface({
                 <Trash2 size={18} />
               </Button>
             </Tooltip>
-            <Button isIconOnly variant="light" size="sm" className="text-content-tertiary hover:text-content-primary">
+            <Button isIconOnly variant="tertiary" size="sm" className="text-content-tertiary hover:text-content-primary">
               <MoreVertical size={18} />
             </Button>
           </div>

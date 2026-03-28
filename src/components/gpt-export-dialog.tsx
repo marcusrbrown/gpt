@@ -131,19 +131,19 @@ export function GPTExportDialog({isOpen, onClose, gpt, gpts, onExport, isBulkExp
         <div className="space-y-3">
           <h3 className="text-sm font-medium text-content-secondary">Include</h3>
           <div className="space-y-3">
-            <Checkbox isSelected={includeKnowledge} onValueChange={setIncludeKnowledge} size="sm">
+            <Checkbox isSelected={includeKnowledge} onChange={setIncludeKnowledge} size="sm">
               <div className="flex flex-col">
                 <span className="text-sm">Knowledge files</span>
                 <span className="text-xs text-content-tertiary">Attached documents and extracted text</span>
               </div>
             </Checkbox>
-            <Checkbox isSelected={includeVersionHistory} onValueChange={setIncludeVersionHistory} size="sm">
+            <Checkbox isSelected={includeVersionHistory} onChange={setIncludeVersionHistory} size="sm">
               <div className="flex flex-col">
                 <span className="text-sm">Version history</span>
                 <span className="text-xs text-content-tertiary">Previous versions and change descriptions</span>
               </div>
             </Checkbox>
-            <Checkbox isSelected={includeConversations} onValueChange={setIncludeConversations} size="sm">
+            <Checkbox isSelected={includeConversations} onChange={setIncludeConversations} size="sm">
               <div className="flex flex-col">
                 <span className="text-sm">Conversations</span>
                 <span className="text-xs text-content-tertiary">All conversation history for this GPT</span>
@@ -154,11 +154,11 @@ export function GPTExportDialog({isOpen, onClose, gpt, gpts, onExport, isBulkExp
       </ModalBody>
 
       <ModalFooter>
-        <Button variant="flat" onPress={onClose} isDisabled={isExporting}>
+        <Button variant="secondary" onPress={onClose} isDisabled={isExporting}>
           Cancel
         </Button>
         <Button
-          color="primary"
+          variant="primary"
           onPress={() => {
             handleExport().catch(console.error)
           }}

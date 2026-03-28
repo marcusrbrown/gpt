@@ -1,6 +1,6 @@
 import type {GPTConfiguration} from '@/types/gpt'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Modal, ModalBody, ModalFooter, ModalHeader} from '@heroui/react'
+import {Button, Modal, ModalBody, ModalFooter, ModalHeader, useOverlayState} from '@heroui/react'
 import {AlertTriangle, Archive, Trash2} from 'lucide-react'
 
 interface ArchiveDialogProps {
@@ -19,18 +19,13 @@ export function ArchiveDialog({gpt, mode, isOpen, onConfirm, onCancel, isLoading
   const Icon = isDelete ? Trash2 : Archive
   const title = isDelete ? 'Delete GPT Permanently' : 'Archive GPT'
   const confirmText = isDelete ? 'Delete Permanently' : 'Archive'
-  const confirmColor = isDelete ? 'danger' : 'warning'
+  const confirmVariant = isDelete ? 'danger' : 'secondary'
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onCancel}
-      size="md"
-      placement="center"
-      backdrop="opaque"
-      classNames={{
-        backdrop: 'bg-black/50',
-        base: 'border border-border-default shadow-xl',
+      onOpenChange={open => {
+        if (!open) onCancel()
       }}
     >
       <ModalHeader className="flex items-center gap-2 pr-12">
@@ -72,14 +67,13 @@ export function ArchiveDialog({gpt, mode, isOpen, onConfirm, onCancel, isLoading
         </div>
       </ModalBody>
       <ModalFooter>
-        <Button variant="light" onPress={onCancel} isDisabled={isLoading}>
+        <Button variant="tertiary" onPress={onCancel} isDisabled={isLoading}>
           Cancel
         </Button>
         <Button
-          color={confirmColor}
+          variant={confirmVariant}
           onPress={onConfirm}
           isLoading={isLoading}
-          startContent={!isLoading && <Icon className="h-4 w-4" />}
           data-testid={isDelete ? 'confirm-delete' : 'confirm-archive'}
         >
           {confirmText}

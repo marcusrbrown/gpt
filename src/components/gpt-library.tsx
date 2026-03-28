@@ -152,7 +152,7 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
         </Tabs>
 
         <Button
-          color="primary"
+          variant="primary"
           className="flex items-center gap-2"
           startContent={<Plus className="h-4 w-4" />}
           onPress={onCreateGPT}
@@ -167,7 +167,7 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
           type="search"
           placeholder="Search GPTs..."
           value={searchQuery}
-          onValueChange={setSearchQuery}
+          onChange={setSearchQuery}
           startContent={<Search className="h-4 w-4 text-content-tertiary" />}
           variant="bordered"
           aria-label="Search GPTs"
@@ -193,7 +193,7 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
           {viewMode === 'active' && !searchQuery && (
             <Button
               className="mt-4 flex items-center gap-2"
-              color="primary"
+              variant="primary"
               onPress={onCreateGPT}
               startContent={<Plus className="h-4 w-4" />}
               data-testid="create-first-gpt-button"
@@ -237,7 +237,7 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
                   <DropdownTrigger>
                     <Button
                       size="sm"
-                      variant="light"
+                      variant="tertiary"
                       isIconOnly
                       aria-label="GPT actions"
                       onPress={e => e.continuePropagation()}
@@ -302,7 +302,7 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
                     <DropdownItem
                       key="delete"
                       className="text-danger"
-                      color="danger"
+                      variant="danger"
                       startContent={<Trash2 className="h-4 w-4" />}
                       onPress={() => handleDelete(gpt)}
                       data-testid="delete-gpt"

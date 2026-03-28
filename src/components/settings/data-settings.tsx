@@ -75,7 +75,7 @@ export function DataSettings() {
               <Button
                 isIconOnly
                 size="sm"
-                variant="light"
+                variant="tertiary"
                 onPress={() => {
                   refresh().catch(console.error)
                 }}
@@ -126,8 +126,8 @@ export function DataSettings() {
             </p>
           </div>
           <Button
-            color="danger"
-            variant="light"
+            variant="danger"
+            variant="tertiary"
             startContent={<Trash2 size={16} />}
             onPress={() => overlay.open()}
             className="flex items-center gap-2"
@@ -151,11 +151,11 @@ export function DataSettings() {
           <p className="mt-4 font-medium text-danger">This action cannot be undone.</p>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" onPress={() => overlay.close()}>
+          <Button variant="tertiary" onPress={() => overlay.close()}>
             Cancel
           </Button>
           <Button
-            color="danger"
+            variant="danger"
             onPress={() => {
               handleClearData().catch(console.error)
             }}
