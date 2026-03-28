@@ -35,35 +35,39 @@ vi.mock('@/lib/design-system', () => ({
 }))
 
 // Mock HeroUI components
-vi.mock('@heroui/react', () => ({
-  Card: ({children, className, isHoverable, 'data-testid': testId, ...props}: any) => (
+vi.mock('@heroui/react', () => {
+  const Card = ({children, className, isHoverable, 'data-testid': testId, ...props}: any) => (
     <div className={className} data-testid={testId} data-hoverable={isHoverable} {...props}>
       {children}
     </div>
-  ),
-  CardHeader: ({children, className}: any) => <div className={className}>{children}</div>,
-  CardBody: ({children}: any) => <div>{children}</div>,
-  CardFooter: ({children, className}: any) => <div className={className}>{children}</div>,
-  Divider: () => <hr />,
+  )
+  Card.Header = ({children, className}: any) => <div className={className}>{children}</div>
+  Card.Content = ({children}: any) => <div>{children}</div>
+  Card.Footer = ({children, className}: any) => <div className={className}>{children}</div>
 
-  Button: ({children, as: Component = 'button', to, startContent, ...props}: any) => {
-    if (typeof Component !== 'string') {
+  return {
+    Card,
+    Divider: () => <hr />,
+
+    Button: ({children, as: Component = 'button', to, startContent, ...props}: any) => {
+      if (typeof Component !== 'string') {
+        return (
+          <Component to={to} {...props}>
+            {startContent}
+            {children}
+          </Component>
+        )
+      }
       return (
-        <Component to={to} {...props}>
+        <button type="button" {...props}>
           {startContent}
           {children}
-        </Component>
+        </button>
       )
-    }
-    return (
-      <button type="button" {...props}>
-        {startContent}
-        {children}
-      </button>
-    )
-  },
-  Skeleton: ({className}: any) => <div className={`skeleton ${className}`} />,
-}))
+    },
+    Skeleton: ({className}: any) => <div className={`skeleton ${className}`} />,
+  }
+})
 
 // Mock Lucide React icons
 vi.mock('lucide-react', () => ({

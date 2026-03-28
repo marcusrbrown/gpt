@@ -53,8 +53,8 @@ export const Navbar = () => {
         <div className="flex items-center gap-3">
           <Button
             isIconOnly
-            variant="light"
-            color="default"
+            variant="tertiary"
+            variant="secondary"
             className={cn('lg:hidden min-w-[40px] h-[40px] flex items-center justify-center', ds.animation.transition)}
             onPress={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
@@ -100,8 +100,8 @@ export const Navbar = () => {
           <ButtonLink
             to="/settings"
             isIconOnly
-            variant="light"
-            color="default"
+            variant="tertiary"
+            variant="secondary"
             className={cn('hidden sm:flex min-w-[40px] h-[40px] items-center justify-center')}
             aria-label="Settings"
           >
@@ -110,8 +110,8 @@ export const Navbar = () => {
           <ButtonLink
             to="/backup"
             isIconOnly
-            variant="light"
-            color="default"
+            variant="tertiary"
+            variant="secondary"
             className={cn('hidden sm:flex min-w-[40px] h-[40px] items-center justify-center')}
             aria-label="Backup & Restore"
           >
@@ -120,8 +120,8 @@ export const Navbar = () => {
           <ButtonLink
             to="/docs"
             isIconOnly
-            variant="light"
-            color="default"
+            variant="tertiary"
+            variant="secondary"
             className={cn('min-w-[40px] h-[40px] flex items-center justify-center')}
             aria-label="Documentation"
           >
@@ -133,8 +133,8 @@ export const Navbar = () => {
             target="_blank"
             rel="noopener noreferrer"
             isIconOnly
-            variant="light"
-            color="default"
+            variant="tertiary"
+            variant="secondary"
             className={cn(
               'min-w-[40px] h-[40px] flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
             )}
@@ -166,8 +166,8 @@ export const Navbar = () => {
               <ButtonLink
                 to="/settings"
                 isIconOnly
-                variant="light"
-                color="primary"
+                variant="tertiary"
+                variant="primary"
                 size="lg"
                 className={cn('min-w-[44px] h-[44px] flex items-center justify-center')}
                 onPress={() => setIsMobileMenuOpen(false)}
@@ -194,8 +194,8 @@ export const Navbar = () => {
               />
               <ButtonLink
                 to="/backup"
-                variant="light"
-                color="default"
+                variant="tertiary"
+                variant="secondary"
                 className={cn('justify-start h-12', ds.animation.transition)}
                 onPress={() => setIsMobileMenuOpen(false)}
                 aria-label="Go to Backup & Restore"
@@ -205,8 +205,8 @@ export const Navbar = () => {
               </ButtonLink>
               <ButtonLink
                 to="/docs"
-                variant="light"
-                color="default"
+                variant="tertiary"
+                variant="secondary"
                 className={cn('justify-start h-12', ds.animation.transition)}
                 onPress={() => setIsMobileMenuOpen(false)}
                 aria-label="Go to Documentation"
@@ -219,8 +219,8 @@ export const Navbar = () => {
                 href="https://github.com/marcusrbrown/gpt"
                 target="_blank"
                 rel="noopener noreferrer"
-                variant="light"
-                color="default"
+                variant="tertiary"
+                variant="secondary"
                 className={cn('justify-start h-12', ds.animation.transition)}
                 aria-label="Visit GitHub repository (opens in new tab)"
               >

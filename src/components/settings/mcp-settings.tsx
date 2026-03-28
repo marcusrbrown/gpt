@@ -4,7 +4,7 @@ import {MCPServerForm} from '@/components/mcp/mcp-server-form'
 import {MCPToolExplorer} from '@/components/mcp/mcp-tool-explorer'
 import {useMCP} from '@/hooks/use-mcp'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
-import {addToast, Button, Modal, ModalBody, ModalContent, ModalHeader, Spinner, useDisclosure} from '@heroui/react'
+import {addToast, Button, Modal, ModalBody, ModalHeader, Spinner, useOverlayState} from '@heroui/react'
 import {XCircle} from 'lucide-react'
 import {useState} from 'react'
 
@@ -12,26 +12,26 @@ export function MCPSettings() {
   const {servers, isLoadingServers, addServer, updateServer, removeServer, error} = useMCP()
 
   // Add/Edit Modal
-  const {isOpen, onOpen, onClose} = useDisclosure()
+  const overlay = useOverlayState()
   const [editingServer, setEditingServer] = useState<MCPServerConfig | undefined>(undefined)
 
   // Tool Explorer Modal
-  const {isOpen: isToolOpen, onOpen: onToolOpen, onClose: onToolClose} = useDisclosure()
+  const toolOverlay = useOverlayState()
   const [viewingServerId, setViewingServerId] = useState<string | null>(null)
 
   const handleAddServer = () => {
     setEditingServer(undefined)
-    onOpen()
+    overlay.open()
   }
 
   const handleEditServer = (server: MCPServerConfig) => {
     setEditingServer(server)
-    onOpen()
+    overlay.open()
   }
 
   const handleViewTools = (serverId: string) => {
     setViewingServerId(serverId)
-    onToolOpen()
+    toolOverlay.open()
   }
 
   const handleSaveServer = async (config: Omit<MCPServerConfig, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -53,7 +53,7 @@ export function MCPSettings() {
           timeout: 4000,
         })
       }
-      onClose()
+      overlay.close()
     } catch (error) {
       addToast({
         title: 'Error',
@@ -110,7 +110,7 @@ export function MCPSettings() {
             Manage Model Context Protocol servers to extend AI capabilities with tools and resources.
           </p>
         </div>
-        <Button color="primary" onPress={handleAddServer} startContent={<span>+</span>}>
+        <Button variant="primary" onPress={handleAddServer} startContent={<span>+</span>}>
           Add Server
         </Button>
       </div>
@@ -128,7 +128,7 @@ export function MCPSettings() {
           <p className={cn(ds.text.body.small, 'text-default-500 mt-2 mb-4')}>
             Add an MCP server to connect tools, resources, and prompts.
           </p>
-          <Button variant="flat" color="primary" onPress={handleAddServer}>
+          <Button variant="secondary" variant="primary" onPress={handleAddServer}>
             Add Your First Server
           </Button>
         </div>
@@ -146,11 +146,16 @@ export function MCPSettings() {
         </div>
       )}
 
-      <MCPServerForm isOpen={isOpen} onClose={onClose} onSave={handleSaveServer} initialConfig={editingServer} />
+      <MCPServerForm
+        isOpen={overlay.isOpen}
+        onClose={() => overlay.close()}
+        onSave={handleSaveServer}
+        initialConfig={editingServer}
+      />
 
       <Modal
-        isOpen={isToolOpen}
-        onClose={onToolClose}
+        isOpen={toolOverlay.isOpen}
+        onClose={() => toolOverlay.close()}
         size="2xl"
         scrollBehavior="inside"
         classNames={{
@@ -158,10 +163,8 @@ export function MCPSettings() {
           header: 'border-b border-default-100',
         }}
       >
-        <ModalContent>
-          <ModalHeader>Server Tools</ModalHeader>
-          <ModalBody className="py-6">{viewingServerId && <MCPToolExplorer serverId={viewingServerId} />}</ModalBody>
-        </ModalContent>
+        <ModalHeader>Server Tools</ModalHeader>
+        <ModalBody className="py-6">{viewingServerId && <MCPToolExplorer serverId={viewingServerId} />}</ModalBody>
       </Modal>
     </div>
   )

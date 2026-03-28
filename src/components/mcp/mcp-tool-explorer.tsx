@@ -24,7 +24,7 @@ export function MCPToolExplorer({serverId}: MCPToolExplorerProps) {
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
         <h3 className={cn(ds.text.heading.h4)}>Available Tools</h3>
-        <Chip size="sm" variant="flat">
+        <Chip size="sm" variant="secondary">
           {tools.length} Tools
         </Chip>
       </div>

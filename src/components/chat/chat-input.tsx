@@ -52,7 +52,7 @@ export function ChatInput({onSendMessage, isDisabled, placeholder = 'Type a mess
         {/* Attachment Button (Future Feature) */}
         <Button
           isIconOnly
-          variant="light"
+          variant="tertiary"
           size="sm"
           className="text-content-tertiary hover:text-content-primary transition-colors data-[hover=true]:bg-surface-tertiary rounded-full h-9 w-9 shrink-0 mb-0.5"
           isDisabled={isDisabled}

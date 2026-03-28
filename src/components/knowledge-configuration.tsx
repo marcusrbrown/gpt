@@ -9,7 +9,7 @@ import type {
   UpdateSnippetInput,
 } from '@/types/knowledge'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Card, CardBody, Chip, Input, Radio, RadioGroup, Tab, Tabs, Textarea, Tooltip} from '@heroui/react'
+import {Button, Card, Chip, Input, Radio, RadioGroup, Tab, Tabs, Textarea, Tooltip} from '@heroui/react'
 import {AlertCircle, CheckCircle, FileText, Loader2, RefreshCw, Search, Trash2, Upload} from 'lucide-react'
 import {useRef, useState} from 'react'
 
@@ -143,33 +143,33 @@ export function KnowledgeConfiguration({
     switch (status) {
       case 'completed':
         return (
-          <Chip startContent={<CheckCircle className="w-3 h-3" />} color="success" variant="flat" size="sm">
+          <Chip startContent={<CheckCircle className="w-3 h-3" />} variant="success" variant="secondary" size="sm">
             Ready
           </Chip>
         )
       case 'processing':
         return (
-          <Chip startContent={<Loader2 className="w-3 h-3 animate-spin" />} color="primary" variant="flat" size="sm">
+          <Chip startContent={<Loader2 className="w-3 h-3 animate-spin" />} variant="primary" variant="secondary" size="sm">
             Processing
           </Chip>
         )
       case 'failed':
         return (
           <Tooltip content={error || 'Extraction failed'}>
-            <Chip startContent={<AlertCircle className="w-3 h-3" />} color="danger" variant="flat" size="sm">
+            <Chip startContent={<AlertCircle className="w-3 h-3" />} variant="danger" variant="secondary" size="sm">
               Failed
             </Chip>
           </Tooltip>
         )
       case 'unsupported':
         return (
-          <Chip variant="flat" size="sm" className="bg-content-tertiary/20 text-content-tertiary">
+          <Chip variant="secondary" size="sm" className="bg-content-tertiary/20 text-content-tertiary">
             Unsupported
           </Chip>
         )
       default:
         return (
-          <Chip color="warning" variant="flat" size="sm">
+          <Chip variant="warning" variant="secondary" size="sm">
             Pending
           </Chip>
         )
@@ -194,7 +194,7 @@ export function KnowledgeConfiguration({
         aria-label="Search knowledge base"
       />
 
-      <Tabs aria-label="Knowledge configuration" color="primary" variant="underlined">
+      <Tabs aria-label="Knowledge configuration" variant="primary" variant="underlined">
         <Tab key="files" title="Files">
           <div className="space-y-6 pt-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -203,7 +203,7 @@ export function KnowledgeConfiguration({
                 <RadioGroup
                   orientation="vertical"
                   value={extractionMode}
-                  onValueChange={val => onExtractionModeChange(val as 'manual' | 'auto')}
+                  onChange={val => onExtractionModeChange(val as 'manual' | 'auto')}
                   classNames={{
                     wrapper: 'gap-3',
                   }}
@@ -230,7 +230,7 @@ export function KnowledgeConfiguration({
                   onPress={() => {
                     onExtractAllPending().catch(console.error)
                   }}
-                  color="primary"
+                  variant="primary"
                   startContent={<RefreshCw className="w-4 h-4" />}
                 >
                   Extract All Pending ({pendingCount})
@@ -294,7 +294,7 @@ export function KnowledgeConfiguration({
                                 <Button
                                   isIconOnly
                                   size="sm"
-                                  variant="light"
+                                  variant="tertiary"
                                   onPress={() => {
                                     if (f.id) onExtractFile(f.id).catch(console.error)
                                   }}
@@ -306,8 +306,8 @@ export function KnowledgeConfiguration({
                               <Button
                                 isIconOnly
                                 size="sm"
-                                color="danger"
-                                variant="light"
+                                variant="danger"
+                                variant="tertiary"
                                 onPress={() => onRemoveFile(index)}
                                 aria-label="Remove file"
                               >
@@ -329,7 +329,7 @@ export function KnowledgeConfiguration({
           <div className="space-y-6 pt-4">
             <div className="grid gap-6">
               <Card>
-                <CardBody>
+                <Card.Content>
                   <div className="flex gap-2">
                     <Input
                       placeholder="https://example.com/docs"
@@ -338,11 +338,11 @@ export function KnowledgeConfiguration({
                       onChange={e => setNewUrlCache(e.target.value)}
                       className="flex-1"
                     />
-                    <Button onPress={handleCacheUrl} color="primary" className="h-full">
+                    <Button onPress={handleCacheUrl} variant="primary" className="h-full">
                       Cache URL
                     </Button>
                   </div>
-                </CardBody>
+                </Card.Content>
               </Card>
 
               {urls.length > 0 && (
@@ -360,8 +360,8 @@ export function KnowledgeConfiguration({
                       />
                       <Button
                         isIconOnly
-                        color="danger"
-                        variant="light"
+                        variant="danger"
+                        variant="tertiary"
                         onPress={() => onRemoveUrl(index)}
                         aria-label="Remove URL"
                       >
@@ -399,20 +399,20 @@ export function KnowledgeConfiguration({
                             </td>
                             <td className="px-4 py-3">
                               {url.status === 'ready' ? (
-                                <Chip color="success" variant="flat" size="sm">
+                                <Chip variant="success" variant="secondary" size="sm">
                                   Ready
                                 </Chip>
                               ) : url.status === 'fetching' ? (
                                 <Chip
-                                  color="primary"
-                                  variant="flat"
+                                  variant="primary"
+                                  variant="secondary"
                                   size="sm"
                                   startContent={<Loader2 className="w-3 h-3 animate-spin" />}
                                 >
                                   Fetching
                                 </Chip>
                               ) : (
-                                <Chip color="danger" variant="flat" size="sm">
+                                <Chip variant="danger" variant="secondary" size="sm">
                                   Failed
                                 </Chip>
                               )}
@@ -425,7 +425,7 @@ export function KnowledgeConfiguration({
                                 <Button
                                   isIconOnly
                                   size="sm"
-                                  variant="light"
+                                  variant="tertiary"
                                   onPress={() => {
                                     onRefreshCachedUrl(url.id).catch(console.error)
                                   }}
@@ -436,8 +436,8 @@ export function KnowledgeConfiguration({
                                 <Button
                                   isIconOnly
                                   size="sm"
-                                  color="danger"
-                                  variant="light"
+                                  variant="danger"
+                                  variant="tertiary"
                                   onPress={() => {
                                     onRemoveCachedUrl(url.id).catch(console.error)
                                   }}
@@ -461,7 +461,7 @@ export function KnowledgeConfiguration({
         <Tab key="snippets" title="Snippets">
           <div className="space-y-6 pt-4">
             <Card>
-              <CardBody className="space-y-4">
+              <Card.Content className="space-y-4">
                 <Input
                   label="Title"
                   placeholder="My code snippet"
@@ -495,7 +495,7 @@ export function KnowledgeConfiguration({
                 <div className="flex gap-2">
                   <Button
                     onPress={handleSaveSnippet}
-                    color="primary"
+                    variant="primary"
                     isDisabled={!snippetForm.title || !snippetForm.content}
                   >
                     {isEditingSnippet ? 'Update Snippet' : 'Save Snippet'}
@@ -506,27 +506,27 @@ export function KnowledgeConfiguration({
                         setIsEditingSnippet(null)
                         setSnippetForm({})
                       }}
-                      variant="light"
+                      variant="tertiary"
                     >
                       Cancel
                     </Button>
                   )}
                 </div>
-              </CardBody>
+              </Card.Content>
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {snippets &&
                 snippets.map(snippet => (
                   <Card key={snippet.id} className="h-full">
-                    <CardBody className="flex flex-col justify-between h-full">
+                    <Card.Content className="flex flex-col justify-between h-full">
                       <div>
                         <h4 className={cn('font-semibold mb-2', ds.text.body.base)}>{snippet.title}</h4>
                         <p className={cn('text-sm line-clamp-3 mb-3', ds.text.body.small)}>{snippet.content}</p>
                         {snippet.tags && snippet.tags.length > 0 && (
                           <div className="flex gap-1 flex-wrap mb-4">
                             {snippet.tags.map(tag => (
-                              <Chip key={tag} size="sm" variant="flat" className="text-xs">
+                              <Chip key={tag} size="sm" variant="secondary" className="text-xs">
                                 {tag}
                               </Chip>
                             ))}
@@ -534,13 +534,13 @@ export function KnowledgeConfiguration({
                         )}
                       </div>
                       <div className="flex gap-2 justify-end border-t border-border-default pt-3 mt-auto">
-                        <Button size="sm" variant="light" onPress={() => handleEditSnippet(snippet)}>
+                        <Button size="sm" variant="tertiary" onPress={() => handleEditSnippet(snippet)}>
                           Edit
                         </Button>
                         <Button
                           size="sm"
-                          variant="light"
-                          color="danger"
+                          variant="tertiary"
+                          variant="danger"
                           onPress={() => {
                             onDeleteSnippet(snippet.id).catch(console.error)
                           }}
@@ -548,7 +548,7 @@ export function KnowledgeConfiguration({
                           Delete
                         </Button>
                       </div>
-                    </CardBody>
+                    </Card.Content>
                   </Card>
                 ))}
             </div>
@@ -559,40 +559,40 @@ export function KnowledgeConfiguration({
           <div className="pt-4">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <Card>
-                <CardBody>
+                <Card.Content>
                   <p className={ds.text.body.small}>Total Files</p>
                   <p className="text-2xl font-bold text-content-primary">{summary?.filesCount || 0}</p>
-                </CardBody>
+                </Card.Content>
               </Card>
               <Card>
-                <CardBody>
+                <Card.Content>
                   <p className={ds.text.body.small}>Extracted Files</p>
                   <p className="text-2xl font-bold text-content-primary">{summary?.extractedFilesCount || 0}</p>
-                </CardBody>
+                </Card.Content>
               </Card>
               <Card>
-                <CardBody>
+                <Card.Content>
                   <p className={ds.text.body.small}>Pending Extraction</p>
                   <p className="text-2xl font-bold text-content-primary">{summary?.pendingExtractionCount || 0}</p>
-                </CardBody>
+                </Card.Content>
               </Card>
               <Card>
-                <CardBody>
+                <Card.Content>
                   <p className={ds.text.body.small}>Cached URLs</p>
                   <p className="text-2xl font-bold text-content-primary">{summary?.urlsCount || 0}</p>
-                </CardBody>
+                </Card.Content>
               </Card>
               <Card>
-                <CardBody>
+                <Card.Content>
                   <p className={ds.text.body.small}>Text Snippets</p>
                   <p className="text-2xl font-bold text-content-primary">{summary?.snippetsCount || 0}</p>
-                </CardBody>
+                </Card.Content>
               </Card>
               <Card>
-                <CardBody>
+                <Card.Content>
                   <p className={ds.text.body.small}>Total Storage</p>
                   <p className="text-2xl font-bold text-content-primary">{formatBytes(summary?.totalSize || 0)}</p>
-                </CardBody>
+                </Card.Content>
               </Card>
             </div>
           </div>

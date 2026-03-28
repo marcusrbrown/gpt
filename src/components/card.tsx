@@ -1,5 +1,5 @@
 import {cn, compose, ds} from '@/lib/design-system'
-import {Avatar, CardBody, CardFooter, CardHeader, Divider, Link, Card as NextUICard, Skeleton} from '@heroui/react'
+import {Avatar, CardHeader, CardContent, CardFooter, Separator, Link, Card as NextUICard, Skeleton} from '@heroui/react'
 
 import {useRef, type FC} from 'react'
 
@@ -29,19 +29,15 @@ export const Card: FC<CardProps> = ({
   return (
     <NextUICard
       ref={ref}
-      as="div"
       className={cn(
         compose.card('max-w-sm'),
-        'p-0 border-2', // Override compose.card padding since HeroUI Card handles internal spacing
+        'p-0 border-2 cursor-pointer',
         'hover:border-primary-300 dark:hover:border-primary-600',
         ds.animation.transition,
         ds.focus.ring,
         isLoading && ds.state.loading,
         error && ds.state.error,
       )}
-      isHoverable={!isLoading && !error}
-      isPressable={!isLoading && !error}
-      shadow="sm"
       data-testid="example-gpt-card"
     >
       {error ? (
@@ -66,18 +62,29 @@ export const Card: FC<CardProps> = ({
               </>
             ) : (
               <>
-                <Avatar alt="GPT Logo" isBordered radius="full" size="md" src={avatarUrl.toString()} />
+                <Avatar
+                  name="GPT Logo"
+                  radius="full"
+                  size="md"
+                  src={avatarUrl.toString()}
+                  className="ring-2 ring-primary-200"
+                />
                 <div className="flex flex-col">
                   <p className={cn(ds.text.heading.h4)}>{title}</p>
-                  <Link className={cn(ds.text.body.small)} href={authorUrl.toString()} isExternal>
+                  <Link
+                    className={cn(ds.text.body.small)}
+                    href={authorUrl.toString()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {author}
                   </Link>
                 </div>
               </>
             )}
           </CardHeader>
-          <Divider />
-          <CardBody>
+          <Separator />
+          <CardContent>
             {isLoading ? (
               <div className="space-y-2">
                 <Skeleton className="h-3 w-full rounded-lg" />
@@ -87,14 +94,20 @@ export const Card: FC<CardProps> = ({
             ) : (
               <p className={cn(ds.text.body.base)}>{description}</p>
             )}
-          </CardBody>
-          <Divider />
+          </CardContent>
+          <Separator />
           <CardFooter>
             {isLoading ? (
               <Skeleton className="h-4 w-32 rounded-lg" />
             ) : (
-              <Link href={gptUrl.toString()} isExternal showAnchorIcon color="primary" className="font-medium">
+              <Link
+                href={gptUrl.toString()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary hover:underline"
+              >
                 Open in ChatGPT
+                <span className="ml-1">↗</span>
               </Link>
             )}
           </CardFooter>

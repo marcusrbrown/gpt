@@ -228,7 +228,7 @@ export function MCPServerForm({isOpen, onClose, onSave, initialConfig}: MCPServe
               </Select>
 
               <div className="flex items-end pb-2">
-                <Checkbox isSelected={formState.enabled} onValueChange={v => updateField('enabled', v)} size="sm">
+                <Checkbox isSelected={formState.enabled} onChange={v => updateField('enabled', v)} size="sm">
                   Enabled
                 </Checkbox>
               </div>
@@ -391,11 +391,11 @@ export function MCPServerForm({isOpen, onClose, onSave, initialConfig}: MCPServe
           {error && <div className={cn(ds.form.errorText, 'text-center')}>{error}</div>}
         </ModalBody>
         <ModalFooter>
-          <Button variant="flat" onPress={onClose} isDisabled={isSaving}>
+          <Button variant="secondary" onPress={onClose} isDisabled={isSaving}>
             Cancel
           </Button>
           <Button
-            color="primary"
+            variant="primary"
             onPress={() => {
               handleSave().catch(console.error)
             }}
