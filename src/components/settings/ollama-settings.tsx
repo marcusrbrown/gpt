@@ -81,7 +81,7 @@ export function OllamaSettings() {
         <h2 className={cn(responsive.heading.large)}>Ollama Settings</h2>
         <Chip
           color={getStatusColor()}
-          variant="flat"
+          variant="secondary"
           startContent={isChecking ? <Spinner size="sm" color="current" /> : undefined}
           className={cn(ds.text.body.small, 'capitalize')}
         >
@@ -173,7 +173,7 @@ export function OllamaSettings() {
             onPress={() => {
               handleSaveUrl().catch(console.error)
             }}
-            color="primary"
+            variant="primary"
             isDisabled={!baseUrl.trim()}
             className={cn(ds.focus.ring, ds.animation.transition)}
             aria-label="Save Ollama settings"
@@ -187,7 +187,7 @@ export function OllamaSettings() {
             <h3 className={cn(ds.text.heading.h4, 'mb-2')}>Available Models</h3>
             <div className="flex flex-wrap gap-2">
               {models.map(model => (
-                <Chip key={model.name} variant="flat" size="sm" className="bg-default-100">
+                <Chip key={model.name} variant="secondary" size="sm" className="bg-default-100">
                   {model.name}
                 </Chip>
               ))}

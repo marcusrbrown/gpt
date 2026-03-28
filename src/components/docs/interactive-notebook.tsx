@@ -65,7 +65,7 @@ export function InteractiveNotebook({initialCells = DEFAULT_CELLS, onExecute}: I
                 onPress={() => {
                   handleExecute(cell.id).catch(console.error)
                 }}
-                color="primary"
+                variant="primary"
                 size="sm"
               >
                 Run
@@ -96,7 +96,7 @@ export function InteractiveNotebook({initialCells = DEFAULT_CELLS, onExecute}: I
       ))}
 
       <div className="flex gap-2">
-        <Button onPress={() => addCell('code')} color="success">
+        <Button onPress={() => addCell('code')} variant="success">
           Add Code Cell
         </Button>
         <Button onPress={() => addCell('markdown')} color="secondary">

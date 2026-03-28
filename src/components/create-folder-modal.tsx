@@ -71,7 +71,7 @@ export function CreateFolderModal({isOpen, onClose, onFolderCreated, parentFolde
           label="Folder Name"
           placeholder="Enter folder name"
           value={folderName}
-          onValueChange={value => {
+          onChange={value => {
             setFolderName(value)
             setError(null)
           }}
@@ -88,11 +88,11 @@ export function CreateFolderModal({isOpen, onClose, onFolderCreated, parentFolde
         )}
       </ModalBody>
       <ModalFooter>
-        <Button variant="light" onPress={handleClose} isDisabled={isLoading}>
+        <Button variant="tertiary" onPress={handleClose} isDisabled={isLoading}>
           Cancel
         </Button>
         <Button
-          color="primary"
+          variant="primary"
           onPress={() => {
             handleSubmit().catch(() => {})
           }}

@@ -68,7 +68,7 @@ export function ExportDialog({isOpen, onClose, conversation, onExport}: ExportDi
 
         <div className="space-y-3">
           <h3 className="text-sm font-medium text-content-secondary">Export Format</h3>
-          <RadioGroup value={format} onValueChange={value => setFormat(value as ExportFormat)}>
+          <RadioGroup value={format} onChange={value => setFormat(value as ExportFormat)}>
             <Radio
               value="json"
               classNames={{
@@ -113,13 +113,13 @@ export function ExportDialog({isOpen, onClose, conversation, onExport}: ExportDi
         <div className="space-y-3">
           <h3 className="text-sm font-medium text-content-secondary">Options</h3>
           <div className="space-y-4">
-            <Switch isSelected={includeMetadata} onValueChange={setIncludeMetadata} size="sm">
+            <Switch isSelected={includeMetadata} onChange={setIncludeMetadata} size="sm">
               <div className="flex flex-col">
                 <span className="text-sm">Include metadata</span>
                 <span className="text-xs text-content-tertiary">Model info, token usage, tool calls</span>
               </div>
             </Switch>
-            <Switch isSelected={includeTimestamps} onValueChange={setIncludeTimestamps} size="sm">
+            <Switch isSelected={includeTimestamps} onChange={setIncludeTimestamps} size="sm">
               <div className="flex flex-col">
                 <span className="text-sm">Include timestamps</span>
                 <span className="text-xs text-content-tertiary">Date and time for each message</span>
@@ -130,11 +130,11 @@ export function ExportDialog({isOpen, onClose, conversation, onExport}: ExportDi
       </ModalBody>
 
       <ModalFooter>
-        <Button variant="flat" onPress={onClose}>
+        <Button variant="secondary" onPress={onClose}>
           Cancel
         </Button>
         <Button
-          color="primary"
+          variant="primary"
           onPress={handleExport}
           isLoading={isExporting}
           startContent={!isExporting && <Download className="w-4 h-4" />}

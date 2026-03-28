@@ -89,8 +89,8 @@ export function SidebarContent({
       <div className="p-4 border-b border-border-default">
         <Button
           fullWidth
-          variant="flat"
-          color="primary"
+          variant="secondary"
+          variant="primary"
           startContent={<MessageSquare size={16} />}
           onPress={onClearConversation}
         >
@@ -123,7 +123,7 @@ export function SidebarContent({
             <p className="text-xs text-content-tertiary truncate">v{gptConfig.version}</p>
           </div>
           <Tooltip content="GPT Settings">
-            <Button isIconOnly size="sm" variant="light">
+            <Button isIconOnly size="sm" variant="tertiary">
               <Settings size={16} />
             </Button>
           </Tooltip>

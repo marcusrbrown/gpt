@@ -19,9 +19,9 @@ export function CapabilitiesConfiguration({capabilities, onCapabilityChange}: Ca
               key={key}
               id={key}
               size="md"
-              color="primary"
+              variant="primary"
               isSelected={typeof value === 'boolean' ? value : value.enabled}
-              onValueChange={() => onCapabilityChange(key as keyof GPTCapabilities)}
+              onChange={() => onCapabilityChange(key as keyof GPTCapabilities)}
             >
               {label}
             </Checkbox>

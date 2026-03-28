@@ -130,7 +130,7 @@ export function APISettings() {
             onPress={() => {
               handleSaveKey().catch(console.error)
             }}
-            color="primary"
+            variant="primary"
             isDisabled={!inputKey.trim()}
             className={cn(ds.focus.ring, ds.animation.transition)}
             aria-label="Save API key to local storage"
@@ -143,7 +143,7 @@ export function APISettings() {
               handleClearKey().catch(console.error)
             }}
             variant="bordered"
-            color="danger"
+            variant="danger"
             isDisabled={!isConfigured}
             className={cn(ds.focus.ring, ds.animation.transition)}
             aria-label="Clear saved API key from local storage"

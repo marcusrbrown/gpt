@@ -74,8 +74,8 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
             <Button
               as={Link}
               to={`/gpt/edit/${gpt.id}`}
-              variant="flat"
-              color="primary"
+              variant="secondary"
+              variant="primary"
               startContent={<Edit size={16} />}
               className={cn('flex items-center', ds.animation.buttonPress)}
               size="sm"
@@ -85,8 +85,8 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
             <Button
               as={Link}
               to={`/gpt/test/${gpt.id}`}
-              variant="solid"
-              color="primary"
+              variant="primary"
+              variant="primary"
               startContent={<Play size={16} />}
               className={cn('flex items-center', ds.animation.buttonPress)}
               size="sm"

@@ -104,7 +104,7 @@ export function VersionHistoryPanel({gptId, isOpen, onClose, onRestore}: Version
         )}
       </ModalBody>
       <ModalFooter>
-        <Button variant="light" onPress={onClose}>
+        <Button variant="tertiary" onPress={onClose}>
           Close
         </Button>
       </ModalFooter>

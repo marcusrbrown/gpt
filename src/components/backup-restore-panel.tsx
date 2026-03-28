@@ -210,23 +210,23 @@ export function BackupRestorePanel({
                 <Switch
                   {...heroui.switch.neutral}
                   isSelected={includeConversations}
-                  onValueChange={setIncludeConversations}
+                  onChange={setIncludeConversations}
                 />
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Include knowledge files</span>
-                <Switch {...heroui.switch.neutral} isSelected={includeKnowledge} onValueChange={setIncludeKnowledge} />
+                <Switch {...heroui.switch.neutral} isSelected={includeKnowledge} onChange={setIncludeKnowledge} />
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm">Include settings</span>
-                <Switch {...heroui.switch.neutral} isSelected={includeSettings} onValueChange={setIncludeSettings} />
+                <Switch {...heroui.switch.neutral} isSelected={includeSettings} onChange={setIncludeSettings} />
               </div>
             </div>
 
             {isCreatingBackup && (
               <Progress
                 value={backupProgress}
-                color="success"
+                variant="success"
                 size="sm"
                 className="mb-2"
                 aria-label="Backup progress"
@@ -234,7 +234,7 @@ export function BackupRestorePanel({
             )}
 
             <Button
-              color="success"
+              variant="success"
               className="w-full"
               onPress={() => {
                 handleCreateBackup().catch(console.error)
@@ -267,8 +267,8 @@ export function BackupRestorePanel({
                 onChange={handleFileSelect}
               />
               <Button
-                color="warning"
-                variant="flat"
+                variant="warning"
+                variant="secondary"
                 onPress={() => fileInputRef.current?.click()}
                 startContent={<Upload className="w-4 h-4" />}
               >
@@ -330,7 +330,7 @@ export function BackupRestorePanel({
                 </div>
 
                 <div className="p-4 bg-danger/10 rounded-lg">
-                  <Checkbox isSelected={wipeExisting} onValueChange={setWipeExisting} color="danger" size="sm">
+                  <Checkbox isSelected={wipeExisting} onChange={setWipeExisting} variant="danger" size="sm">
                     <div className="flex flex-col">
                       <span className="text-sm font-medium text-danger">Delete all existing data before restore</span>
                       <span className="text-xs text-content-tertiary">
@@ -340,23 +340,23 @@ export function BackupRestorePanel({
                   </Checkbox>
                 </div>
 
-                {isRestoring && <Progress isIndeterminate color="warning" size="sm" aria-label="Restore progress" />}
+                {isRestoring && <Progress isIndeterminate variant="warning" size="sm" aria-label="Restore progress" />}
               </>
             )}
           </ModalBody>
 
           <ModalFooter>
             {restoreResult ? (
-              <Button color="primary" onPress={handleCloseRestoreModal}>
+              <Button variant="primary" onPress={handleCloseRestoreModal}>
                 Done
               </Button>
             ) : (
               <>
-                <Button variant="flat" onPress={handleCloseRestoreModal} isDisabled={isRestoring}>
+                <Button variant="secondary" onPress={handleCloseRestoreModal} isDisabled={isRestoring}>
                   Cancel
                 </Button>
                 <Button
-                  color="warning"
+                  variant="warning"
                   onPress={() => {
                     handleRestore().catch(console.error)
                   }}

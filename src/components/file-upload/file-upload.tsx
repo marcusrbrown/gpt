@@ -164,7 +164,7 @@ export function FileUpload({
           {isLoading ? (
             <div className={cn('flex flex-col items-center gap-3 w-full', ds.animation.fadeIn)}>
               <div className="flex items-center gap-2">
-                <Spinner size="sm" color="primary" />
+                <Spinner size="sm" variant="primary" />
                 <span className={cn(ds.text.body.small, 'text-content-secondary')}>{loadingMessage}</span>
               </div>
 

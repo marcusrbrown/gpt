@@ -60,7 +60,7 @@ export function NoProvidersPrompt() {
       </p>
 
       <Button
-        color="primary"
+        variant="primary"
         size="lg"
         startContent={<Settings size={18} />}
         onPress={handleNavigateToSettings}
