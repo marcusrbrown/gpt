@@ -37,19 +37,14 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Core React libraries
-          react: ['react', 'react-dom'],
-          // Router
-          router: ['react-router-dom'],
-          // UI library
-          heroui: ['@heroui/react'],
-          // OpenAI and AI libraries
-          ai: ['openai'],
-          // Editor
-          monaco: ['@monaco-editor/react'],
-          // Icons and utilities
-          utils: ['lucide-react', 'clsx', 'uuid', 'zod'],
+        manualChunks: (id: string) => {
+          if (id.includes('react') || id.includes('react-dom')) return 'react'
+          if (id.includes('react-router-dom')) return 'router'
+          if (id.includes('@heroui')) return 'heroui'
+          if (id.includes('openai')) return 'ai'
+          if (id.includes('@monaco-editor')) return 'monaco'
+          if (id.includes('lucide-react') || id.includes('clsx') || id.includes('uuid') || id.includes('zod'))
+            return 'utils'
         },
       },
     },
