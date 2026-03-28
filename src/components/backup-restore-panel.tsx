@@ -2,8 +2,6 @@ import {cn, ds, heroui} from '@/lib/design-system'
 import {
   Button,
   Card,
-  CardBody,
-  CardHeader,
   Checkbox,
   Modal,
   ModalBody,
@@ -154,14 +152,14 @@ export function BackupRestorePanel({
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card className={ds.card.base}>
-          <CardHeader className="flex gap-3">
+          <Card.Header className="flex gap-3">
             <Database className="w-6 h-6 text-primary" />
             <div className="flex flex-col">
               <p className="text-md font-semibold">Storage Overview</p>
               <p className="text-small text-content-tertiary">Current data statistics</p>
             </div>
-          </CardHeader>
-          <CardBody className="space-y-4">
+          </Card.Header>
+          <Card.Content className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-3 bg-surface-secondary rounded-lg">
                 <p className="text-2xl font-bold text-primary">{itemCounts.gpts}</p>
@@ -194,18 +192,18 @@ export function BackupRestorePanel({
                 <span className="text-sm font-medium">{formatDate(lastBackupDate)}</span>
               </div>
             )}
-          </CardBody>
+          </Card.Content>
         </Card>
 
         <Card className={ds.card.base}>
-          <CardHeader className="flex gap-3">
+          <Card.Header className="flex gap-3">
             <Download className="w-6 h-6 text-success" />
             <div className="flex flex-col">
               <p className="text-md font-semibold">Create Backup</p>
               <p className="text-small text-content-tertiary">Export all your data</p>
             </div>
-          </CardHeader>
-          <CardBody className="space-y-4">
+          </Card.Header>
+          <Card.Content className="space-y-4">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm">Include conversations</span>
@@ -246,18 +244,18 @@ export function BackupRestorePanel({
             >
               {isCreatingBackup ? 'Creating Backup...' : 'Create Backup'}
             </Button>
-          </CardBody>
+          </Card.Content>
         </Card>
 
         <Card className={cn(ds.card.base, 'md:col-span-2')}>
-          <CardHeader className="flex gap-3">
+          <Card.Header className="flex gap-3">
             <Upload className="w-6 h-6 text-warning" />
             <div className="flex flex-col">
               <p className="text-md font-semibold">Restore from Backup</p>
               <p className="text-small text-content-tertiary">Import data from a backup file</p>
             </div>
-          </CardHeader>
-          <CardBody>
+          </Card.Header>
+          <Card.Content>
             <div className="flex items-center gap-4">
               <input
                 ref={fileInputRef}
@@ -288,7 +286,7 @@ export function BackupRestorePanel({
                 </p>
               </div>
             </div>
-          </CardBody>
+          </Card.Content>
         </Card>
       </div>
 

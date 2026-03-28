@@ -9,7 +9,7 @@ import type {
   UpdateSnippetInput,
 } from '@/types/knowledge'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Card, CardBody, Chip, Input, Radio, RadioGroup, Tab, Tabs, Textarea, Tooltip} from '@heroui/react'
+import {Button, Card, Chip, Input, Radio, RadioGroup, Tab, Tabs, Textarea, Tooltip} from '@heroui/react'
 import {AlertCircle, CheckCircle, FileText, Loader2, RefreshCw, Search, Trash2, Upload} from 'lucide-react'
 import {useRef, useState} from 'react'
 
@@ -329,7 +329,7 @@ export function KnowledgeConfiguration({
           <div className="space-y-6 pt-4">
             <div className="grid gap-6">
               <Card>
-                <CardBody>
+                <Card.Content>
                   <div className="flex gap-2">
                     <Input
                       placeholder="https://example.com/docs"
@@ -342,7 +342,7 @@ export function KnowledgeConfiguration({
                       Cache URL
                     </Button>
                   </div>
-                </CardBody>
+                </Card.Content>
               </Card>
 
               {urls.length > 0 && (
@@ -461,7 +461,7 @@ export function KnowledgeConfiguration({
         <Tab key="snippets" title="Snippets">
           <div className="space-y-6 pt-4">
             <Card>
-              <CardBody className="space-y-4">
+              <Card.Content className="space-y-4">
                 <Input
                   label="Title"
                   placeholder="My code snippet"
@@ -512,14 +512,14 @@ export function KnowledgeConfiguration({
                     </Button>
                   )}
                 </div>
-              </CardBody>
+              </Card.Content>
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {snippets &&
                 snippets.map(snippet => (
                   <Card key={snippet.id} className="h-full">
-                    <CardBody className="flex flex-col justify-between h-full">
+                    <Card.Content className="flex flex-col justify-between h-full">
                       <div>
                         <h4 className={cn('font-semibold mb-2', ds.text.body.base)}>{snippet.title}</h4>
                         <p className={cn('text-sm line-clamp-3 mb-3', ds.text.body.small)}>{snippet.content}</p>
@@ -548,7 +548,7 @@ export function KnowledgeConfiguration({
                           Delete
                         </Button>
                       </div>
-                    </CardBody>
+                    </Card.Content>
                   </Card>
                 ))}
             </div>
@@ -559,40 +559,40 @@ export function KnowledgeConfiguration({
           <div className="pt-4">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <Card>
-                <CardBody>
+                <Card.Content>
                   <p className={ds.text.body.small}>Total Files</p>
                   <p className="text-2xl font-bold text-content-primary">{summary?.filesCount || 0}</p>
-                </CardBody>
+                </Card.Content>
               </Card>
               <Card>
-                <CardBody>
+                <Card.Content>
                   <p className={ds.text.body.small}>Extracted Files</p>
                   <p className="text-2xl font-bold text-content-primary">{summary?.extractedFilesCount || 0}</p>
-                </CardBody>
+                </Card.Content>
               </Card>
               <Card>
-                <CardBody>
+                <Card.Content>
                   <p className={ds.text.body.small}>Pending Extraction</p>
                   <p className="text-2xl font-bold text-content-primary">{summary?.pendingExtractionCount || 0}</p>
-                </CardBody>
+                </Card.Content>
               </Card>
               <Card>
-                <CardBody>
+                <Card.Content>
                   <p className={ds.text.body.small}>Cached URLs</p>
                   <p className="text-2xl font-bold text-content-primary">{summary?.urlsCount || 0}</p>
-                </CardBody>
+                </Card.Content>
               </Card>
               <Card>
-                <CardBody>
+                <Card.Content>
                   <p className={ds.text.body.small}>Text Snippets</p>
                   <p className="text-2xl font-bold text-content-primary">{summary?.snippetsCount || 0}</p>
-                </CardBody>
+                </Card.Content>
               </Card>
               <Card>
-                <CardBody>
+                <Card.Content>
                   <p className={ds.text.body.small}>Total Storage</p>
                   <p className="text-2xl font-bold text-content-primary">{formatBytes(summary?.totalSize || 0)}</p>
-                </CardBody>
+                </Card.Content>
               </Card>
             </div>
           </div>

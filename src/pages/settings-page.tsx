@@ -5,7 +5,7 @@ import {DataSettings} from '@/components/settings/data-settings'
 import {MCPSettings} from '@/components/settings/mcp-settings'
 import {ProviderSettings} from '@/components/settings/provider-settings'
 import {cn, ds} from '@/lib/design-system'
-import {Card, CardBody, Tab, Tabs} from '@heroui/react'
+import {Card, Tab, Tabs} from '@heroui/react'
 import {Database, Palette, Plug, Settings} from 'lucide-react'
 import {useCallback} from 'react'
 import {useSearchParams} from 'react-router-dom'
@@ -108,9 +108,9 @@ export function SettingsPage() {
               }
             >
               <Card className="mt-6 shadow-sm">
-                <CardBody className="p-6">
+                <Card.Content className="p-6">
                   <ProviderSettings />
-                </CardBody>
+                </Card.Content>
               </Card>
             </Tab>
 
@@ -124,9 +124,9 @@ export function SettingsPage() {
               }
             >
               <Card className="mt-6 shadow-sm">
-                <CardBody className="p-6">
+                <Card.Content className="p-6">
                   <MCPSettings />
-                </CardBody>
+                </Card.Content>
               </Card>
             </Tab>
 
@@ -140,9 +140,9 @@ export function SettingsPage() {
               }
             >
               <Card className="mt-6 shadow-sm">
-                <CardBody className="p-6">
+                <Card.Content className="p-6">
                   <AppearanceSettings />
-                </CardBody>
+                </Card.Content>
               </Card>
             </Tab>
 
@@ -156,9 +156,9 @@ export function SettingsPage() {
               }
             >
               <Card className="mt-6 shadow-sm">
-                <CardBody className="p-6">
+                <Card.Content className="p-6">
                   <DataSettings />
-                </CardBody>
+                </Card.Content>
               </Card>
             </Tab>
           </Tabs>

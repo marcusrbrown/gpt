@@ -1,7 +1,7 @@
 import type {GPTConfiguration} from '@/types/gpt'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Card, CardBody, Chip, Skeleton, Tooltip} from '@heroui/react'
+import {Button, Card, Chip, Skeleton, Tooltip} from '@heroui/react'
 import {
   BookOpen,
   Bot,
@@ -119,7 +119,7 @@ export function GPTShowcasePage() {
     return (
       <div className={cn(ds.layout.container, 'py-8 min-h-screen flex items-center justify-center')}>
         <Card role="alert" data-testid="error-card" className="max-w-md w-full mx-auto shadow-lg border-danger-100">
-          <CardBody className="text-center py-12">
+          <Card.Content className="text-center py-12">
             <div className="w-16 h-16 bg-danger-50 text-danger-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <Sparkles size={32} />
             </div>
@@ -130,7 +130,7 @@ export function GPTShowcasePage() {
             <Button color="primary" variant="flat" onPress={handleBack} startContent={<ChevronLeft size={18} />}>
               Return to Library
             </Button>
-          </CardBody>
+          </Card.Content>
         </Card>
       </div>
     )
@@ -296,20 +296,20 @@ export function GPTShowcasePage() {
                       )}
                       onPress={() => handleStarterClick(starter)}
                     >
-                      <CardBody className="py-4 px-5 flex flex-row items-start gap-3">
+                      <Card.Content className="py-4 px-5 flex flex-row items-start gap-3">
                         <div className="mt-0.5 min-w-4">
                           <MessageSquare size={16} className="text-primary-500 opacity-70" />
                         </div>
                         <p className="text-content-primary text-sm font-medium leading-relaxed text-left">{starter}</p>
-                      </CardBody>
+                      </Card.Content>
                     </Card>
                   ))}
                 </div>
               ) : (
                 <Card className="bg-surface-secondary/30 border-dashed border-border-default">
-                  <CardBody data-testid="no-starters-message" className="py-8 text-center text-content-tertiary">
+                  <Card.Content data-testid="no-starters-message" className="py-8 text-center text-content-tertiary">
                     <p>No conversation starters configured.</p>
-                  </CardBody>
+                  </Card.Content>
                 </Card>
               )}
             </section>
@@ -322,7 +322,7 @@ export function GPTShowcasePage() {
                   Knowledge Base
                 </h2>
                 <Card className="bg-surface-secondary/20 border border-border-subtle">
-                  <CardBody>
+                  <Card.Content>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {gpt.knowledge.files.length > 0 && (
                         <div className="flex items-center gap-3 p-3 rounded-lg bg-surface-primary border border-border-subtle">
@@ -357,7 +357,7 @@ export function GPTShowcasePage() {
                         </div>
                       )}
                     </div>
-                  </CardBody>
+                  </Card.Content>
                 </Card>
               </section>
             )}

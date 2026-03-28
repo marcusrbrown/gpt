@@ -1,5 +1,5 @@
 import {cn, compose, ds} from '@/lib/design-system'
-import {Avatar, CardBody, CardFooter, CardHeader, Divider, Link, Card as NextUICard, Skeleton} from '@heroui/react'
+import {Avatar, CardHeader, CardContent, CardFooter, Separator, Link, Card as NextUICard, Skeleton} from '@heroui/react'
 
 import {useRef, type FC} from 'react'
 
@@ -76,8 +76,8 @@ export const Card: FC<CardProps> = ({
               </>
             )}
           </CardHeader>
-          <Divider />
-          <CardBody>
+          <Separator />
+          <CardContent>
             {isLoading ? (
               <div className="space-y-2">
                 <Skeleton className="h-3 w-full rounded-lg" />
@@ -87,8 +87,8 @@ export const Card: FC<CardProps> = ({
             ) : (
               <p className={cn(ds.text.body.base)}>{description}</p>
             )}
-          </CardBody>
-          <Divider />
+          </CardContent>
+          <Separator />
           <CardFooter>
             {isLoading ? (
               <Skeleton className="h-4 w-32 rounded-lg" />
