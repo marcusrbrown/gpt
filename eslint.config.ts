@@ -31,6 +31,7 @@ export default defineConfig(
     rules: {
       '@typescript-eslint/strict-boolean-expressions': 'off',
       '@typescript-eslint/switch-exhaustiveness-check': 'off',
+      'perfectionist/sort-imports': 'off',
     },
   },
 
