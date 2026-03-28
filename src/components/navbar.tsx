@@ -24,7 +24,7 @@ const ButtonLink = ({
       )}
       onPress={() => {
         onPress?.()
-        Promise.resolve(navigate(to)).catch(console.error)
+        void navigate(to)
       }}
       {...props}
     >
