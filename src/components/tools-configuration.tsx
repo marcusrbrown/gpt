@@ -1,6 +1,6 @@
 import type {MCPTool} from '@/types/gpt'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Input, Select, SelectItem} from '@heroui/react'
+import {Button, Input, Select, TextField, Label, FieldError, ListBox, ListBoxItem} from '@heroui/react'
 
 interface FormErrors {
   tools: {
@@ -45,63 +45,73 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
               </Button>
             </div>
             <div className={cn(ds.form.fieldRow, 'grid grid-cols-1 gap-4 sm:grid-cols-2')}>
-              <div>
-                <label className={cn(ds.form.label)}>Name</label>
+              <TextField isInvalid={!!errors.tools[index]?.name} className="flex flex-col gap-1">
+                <Label className={cn(ds.form.label)}>Name</Label>
                 <Input
                   value={tool.name}
                   onChange={e => onToolChange(index, 'name', e.target.value)}
                   required
-                  isInvalid={!!errors.tools[index]?.name}
-                  errorMessage={errors.tools[index]?.name}
                   className={cn(ds.focus.ring, ds.animation.transition)}
                 />
-              </div>
-              <div>
-                <label className={cn(ds.form.label)}>Description</label>
+                <FieldError>{errors.tools[index]?.name}</FieldError>
+              </TextField>
+              <TextField isInvalid={!!errors.tools[index]?.description} className="flex flex-col gap-1">
+                <Label className={cn(ds.form.label)}>Description</Label>
                 <Input
                   value={tool.description}
                   onChange={e => onToolChange(index, 'description', e.target.value)}
                   required
-                  isInvalid={!!errors.tools[index]?.description}
-                  errorMessage={errors.tools[index]?.description}
                   className={cn(ds.focus.ring, ds.animation.transition)}
                 />
-              </div>
-              <div>
-                <label className={cn(ds.form.label)}>Endpoint</label>
+                <FieldError>{errors.tools[index]?.description}</FieldError>
+              </TextField>
+              <TextField isInvalid={!!errors.tools[index]?.endpoint} className="flex flex-col gap-1">
+                <Label className={cn(ds.form.label)}>Endpoint</Label>
                 <Input
                   value={tool.endpoint}
                   onChange={e => onToolChange(index, 'endpoint', e.target.value)}
                   required
-                  isInvalid={!!errors.tools[index]?.endpoint}
-                  errorMessage={errors.tools[index]?.endpoint}
                   className={cn(ds.focus.ring, ds.animation.transition)}
                 />
-              </div>
-              <div>
-                <label className={cn(ds.form.label)}>Authentication Type</label>
+                <FieldError>{errors.tools[index]?.endpoint}</FieldError>
+              </TextField>
+              <div className="flex flex-col gap-1">
+                <Label className={cn(ds.form.label)}>Authentication Type</Label>
                 <Select
-                  selectedKeys={tool.authentication?.type ? [tool.authentication.type] : []}
-                  onSelectionChange={keys => {
-                    const value = Array.from(keys)[0] as string
+                  selectedKey={tool.authentication?.type}
+                  onSelectionChange={key => {
+                    if (!key) return
                     onToolChange(index, 'authentication', {
-                      type: value as 'bearer' | 'api_key',
+                      type: String(key) as 'bearer' | 'api_key',
                       value: tool.authentication?.value || '',
                     })
                   }}
                   placeholder="Select type..."
                   className={cn(ds.form.fieldGroup, ds.focus.ring, ds.animation.transition)}
-                  isInvalid={!!errors.tools[index]?.authentication}
-                  errorMessage={errors.tools[index]?.authentication}
                 >
-                  {AUTH_TYPES.map(type => (
-                    <SelectItem key={type.value}>{type.label}</SelectItem>
-                  ))}
+                  <Select.Trigger>
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Popover>
+                    <ListBox>
+                      {AUTH_TYPES.map(type => (
+                        <ListBoxItem id={type.value} key={type.value} textValue={type.label}>
+                          {type.label}
+                        </ListBoxItem>
+                      ))}
+                    </ListBox>
+                  </Select.Popover>
                 </Select>
+                {errors.tools[index]?.authentication && (
+                  <div className="text-danger text-sm mt-1">{errors.tools[index]?.authentication}</div>
+                )}
               </div>
               {tool.authentication && (
-                <div className="sm:col-span-2">
-                  <label className={cn(ds.form.label)}>Authentication Value</label>
+                <TextField
+                  isInvalid={!!errors.tools[index]?.authentication}
+                  className="sm:col-span-2 flex flex-col gap-1"
+                >
+                  <Label className={cn(ds.form.label)}>Authentication Value</Label>
                   <Input
                     type="password"
                     value={tool.authentication.value}
@@ -112,11 +122,10 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
                       })
                     }
                     required
-                    isInvalid={!!errors.tools[index]?.authentication}
-                    errorMessage={errors.tools[index]?.authentication}
                     className={cn(ds.focus.ring, ds.animation.transition)}
                   />
-                </div>
+                  <FieldError>{errors.tools[index]?.authentication}</FieldError>
+                </TextField>
               )}
             </div>
           </div>

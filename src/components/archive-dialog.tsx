@@ -19,7 +19,7 @@ export function ArchiveDialog({gpt, mode, isOpen, onConfirm, onCancel, isLoading
   const Icon = isDelete ? Trash2 : Archive
   const title = isDelete ? 'Delete GPT Permanently' : 'Archive GPT'
   const confirmText = isDelete ? 'Delete Permanently' : 'Archive'
-  const confirmVariant = isDelete ? 'danger' : ('secondary' as const)
+  const confirmVariant = isDelete ? 'danger' : 'secondary'
 
   return (
     <Modal
