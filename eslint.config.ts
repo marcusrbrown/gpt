@@ -5,6 +5,7 @@ import {defineConfig, type Config} from '@bfra.me/eslint-config'
 const tempIgnores: string[] = [
   'docs/**/*.md/*.tsx',
   'tests/visual/**.md/*.ts',
+  '.github/agents/**/*.md/**',
   // '**/forms/__tests__/form-field-wrapper.test.tsx',
 ]
 
@@ -42,6 +43,13 @@ export default defineConfig(
       '@typescript-eslint/no-unsafe-return': 'off',
     },
   } as Config,
+
+  {
+    files: ['**/*.{ts,tsx}'],
+    rules: {
+      'react/no-implicit-key': 'off',
+    },
+  },
 
   {
     files: ['src/**/*.tsx'],
