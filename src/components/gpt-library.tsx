@@ -154,10 +154,10 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
         <Button
           variant="primary"
           className="flex items-center gap-2"
-          startContent={<Plus className="h-4 w-4" />}
           onPress={onCreateGPT}
           data-testid="new-gpt-button"
         >
+          <Plus className="h-4 w-4" />
           New GPT
         </Button>
       </div>
@@ -195,9 +195,9 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
               className="mt-4 flex items-center gap-2"
               variant="primary"
               onPress={onCreateGPT}
-              startContent={<Plus className="h-4 w-4" />}
               data-testid="create-first-gpt-button"
             >
+              <Plus className="h-4 w-4" />
               Create your first GPT
             </Button>
           )}

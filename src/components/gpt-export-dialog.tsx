@@ -2,7 +2,7 @@ import type {GPTExportOptions} from '@/types/export-import'
 import type {GPTConfiguration} from '@/types/gpt'
 import {cn} from '@/lib/design-system'
 import {Button, Checkbox, Modal, ModalBody, ModalFooter, ModalHeader} from '@heroui/react'
-import {Download, FileJson, Package} from 'lucide-react'
+import {FileJson, Package} from 'lucide-react'
 import {useCallback, useState} from 'react'
 
 interface GPTExportDialogProps {
@@ -162,8 +162,7 @@ export function GPTExportDialog({isOpen, onClose, gpt, gpts, onExport, isBulkExp
           onPress={() => {
             handleExport().catch(console.error)
           }}
-          isLoading={isExporting}
-          startContent={!isExporting && <Download className="w-4 h-4" />}
+          isPending={isExporting}
         >
           {isBulkExport ? 'Export ZIP' : 'Export JSON'}
         </Button>

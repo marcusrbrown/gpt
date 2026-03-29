@@ -399,7 +399,7 @@ export function MCPServerForm({isOpen, onClose, onSave, initialConfig}: MCPServe
             onPress={() => {
               handleSave().catch(console.error)
             }}
-            isLoading={isSaving}
+            isPending={isSaving}
           >
             Save Server
           </Button>

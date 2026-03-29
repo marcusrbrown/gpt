@@ -125,13 +125,8 @@ export function DataSettings() {
               Permanently delete all GPTs, conversations, and settings. This cannot be undone.
             </p>
           </div>
-          <Button
-            variant="danger"
-            variant="tertiary"
-            startContent={<Trash2 size={16} />}
-            onPress={() => overlay.open()}
-            className="flex items-center gap-2"
-          >
+          <Button variant="danger" onPress={() => overlay.open()} className="flex items-center gap-2">
+            <Trash2 size={16} />
             Clear Data
           </Button>
         </div>
@@ -159,7 +154,7 @@ export function DataSettings() {
             onPress={() => {
               handleClearData().catch(console.error)
             }}
-            isLoading={isClearing}
+            isPending={isClearing}
           >
             Delete Everything
           </Button>

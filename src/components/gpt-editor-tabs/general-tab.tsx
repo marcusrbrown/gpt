@@ -143,7 +143,6 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
                 <Button
                   isIconOnly
                   variant="danger"
-                  variant="tertiary"
                   onPress={() => handleRemoveStarter(index)}
                   className={ds.animation.buttonPress}
                 >

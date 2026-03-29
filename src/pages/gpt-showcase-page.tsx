@@ -127,7 +127,8 @@ export function GPTShowcasePage() {
             <p data-testid="error-message" className="text-content-secondary mb-6">
               {error || 'GPT not found'}
             </p>
-            <Button variant="primary" variant="secondary" onPress={handleBack} startContent={<ChevronLeft size={18} />}>
+            <Button variant="secondary" onPress={handleBack}>
+              <ChevronLeft size={18} />
               Return to Library
             </Button>
           </Card.Content>
@@ -226,19 +227,19 @@ export function GPTShowcasePage() {
                     variant="primary"
                     size="lg"
                     className="font-medium shadow-lg shadow-primary-500/20"
-                    startContent={<MessageSquare size={20} />}
                     onPress={handleStartConversation}
                   >
+                    <MessageSquare size={20} />
                     Start Chatting
                   </Button>
                   <Button
                     data-testid="showcase-edit-button"
-                    variant="bordered"
+                    variant="outline"
                     size="lg"
-                    startContent={<Edit2 size={18} />}
                     onPress={handleEdit}
                     className="border-border-default hover:bg-surface-secondary"
                   >
+                    <Edit2 size={18} />
                     Edit
                   </Button>
                 </div>

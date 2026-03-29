@@ -121,11 +121,11 @@ export function MCPServerCard({server, onEdit, onDelete, onViewTools}: MCPServer
             {server.authentication.type === 'none' ? 'No Auth' : server.authentication.type}
           </Chip>
           {server.enabled ? (
-            <Chip size="sm" variant="success" variant="dot" className="border-none pl-0">
+            <Chip size="sm" variant="dot" className="border-none pl-0">
               Enabled
             </Chip>
           ) : (
-            <Chip size="sm" variant="secondary" variant="dot" className="border-none pl-0">
+            <Chip size="sm" variant="dot" className="border-none pl-0">
               Disabled
             </Chip>
           )}
@@ -133,11 +133,11 @@ export function MCPServerCard({server, onEdit, onDelete, onViewTools}: MCPServer
 
         <div className="flex gap-2">
           {status === 'connected' && (
-            <Button size="sm" variant="tertiary" variant="primary" onPress={() => onViewTools(server.id)} className="h-8">
+            <Button size="sm" variant="primary" onPress={() => onViewTools(server.id)} className="h-8">
               View Tools
             </Button>
           )}
-          <Button size="sm" variant="tertiary" variant="danger" onPress={() => onDelete(server.id)} className="h-8">
+          <Button size="sm" variant="danger" onPress={() => onDelete(server.id)} className="h-8">
             Delete
           </Button>
         </div>

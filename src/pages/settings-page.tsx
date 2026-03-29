@@ -89,7 +89,6 @@ export function SettingsPage() {
             selectedKey={selectedTab}
             onSelectionChange={handleTabChange}
             variant="underlined"
-            variant="primary"
             classNames={{
               base: 'w-full',
               tabList: 'gap-4 w-full relative rounded-none border-b border-divider p-0',

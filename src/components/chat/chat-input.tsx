@@ -77,8 +77,7 @@ export function ChatInput({onSendMessage, isDisabled, placeholder = 'Type a mess
         <Button
           isIconOnly
           size="sm"
-          color={message.trim() ? 'primary' : 'default'}
-          variant={message.trim() ? 'solid' : 'flat'}
+          variant={message.trim() ? 'primary' : 'ghost'}
           isDisabled={!message.trim() || isDisabled}
           onPress={handleSend}
           className={cn(

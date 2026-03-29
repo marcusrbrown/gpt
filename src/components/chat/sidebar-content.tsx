@@ -71,8 +71,7 @@ export function SidebarContent({
           {items.map(conv => (
             <Button
               key={conv.id}
-              variant={conv.id === currentConversationId ? 'flat' : 'light'}
-              color={conv.id === currentConversationId ? 'primary' : 'default'}
+              variant={conv.id === currentConversationId ? 'secondary' : 'ghost'}
               className="w-full justify-start text-left h-auto py-2 px-2 text-sm truncate"
               onPress={() => onSelectConversation(conv.id)}
             >
@@ -87,13 +86,8 @@ export function SidebarContent({
   return (
     <div className="h-full flex flex-col">
       <div className="p-4 border-b border-border-default">
-        <Button
-          fullWidth
-          variant="secondary"
-          variant="primary"
-          startContent={<MessageSquare size={16} />}
-          onPress={onClearConversation}
-        >
+        <Button fullWidth variant="primary" onPress={onClearConversation}>
+          <MessageSquare size={16} />
           New Chat
         </Button>
       </div>
