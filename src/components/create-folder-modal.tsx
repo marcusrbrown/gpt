@@ -1,6 +1,6 @@
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Input, Modal, ModalBody, ModalFooter, ModalHeader} from '@heroui/react'
+import {Button, Input, Modal, TextField, Label, Description, FieldError} from '@heroui/react'
 import {Folder} from 'lucide-react'
 import {useCallback, useState} from 'react'
 
@@ -60,48 +60,54 @@ export function CreateFolderModal({isOpen, onClose, onFolderCreated, parentFolde
   )
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} placement="center">
-      <ModalHeader className="flex items-center gap-2">
-        <Folder className="h-5 w-5" />
-        <span>Create New Folder</span>
-      </ModalHeader>
-      <ModalBody>
-        <Input
-          autoFocus
-          label="Folder Name"
-          placeholder="Enter folder name"
-          value={folderName}
-          onChange={value => {
-            setFolderName(value)
-            setError(null)
-          }}
-          onKeyDown={handleKeyDown}
-          isInvalid={!!error}
-          errorMessage={error}
-          maxLength={50}
-          description={parentFolderId ? 'This folder will be created inside the selected folder' : undefined}
-        />
-        {parentFolderId && (
-          <p className={cn(ds.text.caption, 'text-content-tertiary mt-2')}>
-            Note: Folders can be nested up to 3 levels deep.
-          </p>
-        )}
-      </ModalBody>
-      <ModalFooter>
-        <Button variant="tertiary" onPress={handleClose} isDisabled={isLoading}>
-          Cancel
-        </Button>
-        <Button
-          variant="primary"
-          onPress={() => {
-            handleSubmit().catch(() => {})
-          }}
-          isPending={isLoading}
-          isDisabled={!folderName.trim()}
-        >
-          Create Folder
-        </Button>
-      </ModalFooter>
+    <Modal isOpen={isOpen} onOpenChange={open => !open && handleClose()}>
+      <Modal.Backdrop />
+      <Modal.Container placement="center">
+        <Modal.Dialog>
+          <Modal.Header className="flex items-center gap-2">
+            <Folder className="h-5 w-5" />
+            <span>Create New Folder</span>
+          </Modal.Header>
+          <Modal.Body>
+            <TextField isInvalid={!!error} className="flex flex-col gap-1">
+              <Label>Folder Name</Label>
+              <Input
+                autoFocus
+                placeholder="Enter folder name"
+                value={folderName}
+                onChange={e => {
+                  setFolderName(e.target.value)
+                  setError(null)
+                }}
+                onKeyDown={handleKeyDown}
+                maxLength={50}
+              />
+              {parentFolderId && <Description>This folder will be created inside the selected folder</Description>}
+              <FieldError>{error}</FieldError>
+            </TextField>
+            {parentFolderId && (
+              <p className={cn(ds.text.caption, 'text-content-tertiary mt-2')}>
+                Note: Folders can be nested up to 3 levels deep.
+              </p>
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="tertiary" onPress={handleClose} isDisabled={isLoading}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onPress={() => {
+                handleSubmit().catch(() => {})
+              }}
+              isPending={isLoading}
+              isDisabled={!folderName.trim()}
+            >
+              Create Folder
+            </Button>
+          </Modal.Footer>
+        </Modal.Dialog>
+      </Modal.Container>
     </Modal>
   )
 }

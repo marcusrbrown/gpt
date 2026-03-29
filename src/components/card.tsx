@@ -62,13 +62,10 @@ export const Card: FC<CardProps> = ({
               </>
             ) : (
               <>
-                <Avatar
-                  name="GPT Logo"
-                  radius="full"
-                  size="md"
-                  src={avatarUrl.toString()}
-                  className="ring-2 ring-primary-200"
-                />
+                <Avatar size="md" className="ring-2 ring-primary-200">
+                  <Avatar.Image src={avatarUrl.toString()} alt="GPT Logo" />
+                  <Avatar.Fallback>GL</Avatar.Fallback>
+                </Avatar>
                 <div className="flex flex-col">
                   <p className={cn(ds.text.heading.h4)}>{title}</p>
                   <Link

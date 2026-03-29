@@ -1,8 +1,7 @@
 import {useAIProvider} from '@/hooks/use-ai-provider'
 import {useSession} from '@/hooks/use-session'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
-import {addToast, Button, Input} from '@heroui/react'
-import {XCircle} from 'lucide-react'
+import {Button, Input, TextField, Description, toast} from '@heroui/react'
 import {useState} from 'react'
 
 export function APISettings() {
@@ -23,27 +22,19 @@ export function APISettings() {
       await setSecret('openai', inputKey)
       const result = await validateProvider('openai', inputKey)
       if (result.valid) {
-        addToast({
-          title: 'API Key Saved',
+        toast.success('API Key Saved', {
           description: 'Your OpenAI API key has been saved and validated.',
-          color: 'success',
           timeout: 4000,
         })
       } else {
-        addToast({
-          title: 'Validation Failed',
+        toast.danger('Validation Failed', {
           description: 'The API key could not be validated. Please check and try again.',
-          color: 'danger',
-          icon: <XCircle size={20} />,
           timeout: 5000,
         })
       }
     } catch (error_: unknown) {
-      addToast({
-        title: 'Error',
+      toast.danger('Error', {
         description: 'Failed to save API key. Please try again.',
-        color: 'danger',
-        icon: <XCircle size={20} />,
         timeout: 5000,
       })
       console.error('Error saving API key:', error_)
@@ -54,18 +45,13 @@ export function APISettings() {
     try {
       await deleteSecret('openai')
       setInputKey('')
-      addToast({
-        title: 'API Key Cleared',
+      toast.success('API Key Cleared', {
         description: 'Your OpenAI API key has been removed.',
-        color: 'success',
         timeout: 4000,
       })
     } catch (error_: unknown) {
-      addToast({
-        title: 'Error',
+      toast.danger('Error', {
         description: 'Failed to clear API key. Please try again.',
-        color: 'danger',
-        icon: <XCircle size={20} />,
         timeout: 5000,
       })
       console.error('Error clearing API key:', error_)
@@ -98,26 +84,27 @@ export function APISettings() {
         )}
 
         <div className="flex items-center mb-2">
-          <Input
-            type={showApiKey ? 'text' : 'password'}
-            value={inputKey}
-            onChange={handleInputChange}
-            onFocus={() => {
-              if (!inputKey && isConfigured) {
-                loadCurrentKey().catch(console.error)
-              }
-            }}
-            placeholder="sk-..."
-            className={cn('flex-1 mr-2', ds.focus.ring, ds.animation.transition)}
-            description="Your OpenAI API key for testing GPT configurations"
-            aria-label="Enter your OpenAI API key"
-            classNames={{
-              description: 'text-content-secondary',
-            }}
-          />
+          <TextField className="flex-1 mr-2">
+            <Input
+              type={showApiKey ? 'text' : 'password'}
+              value={inputKey}
+              onChange={handleInputChange}
+              onFocus={() => {
+                if (!inputKey && isConfigured) {
+                  loadCurrentKey().catch(console.error)
+                }
+              }}
+              placeholder="sk-..."
+              className={cn(ds.focus.ring, ds.animation.transition)}
+              aria-label="Enter your OpenAI API key"
+            />
+            <Description className="text-content-secondary">
+              Your OpenAI API key for testing GPT configurations
+            </Description>
+          </TextField>
           <Button
             onPress={toggleShowApiKey}
-            variant="bordered"
+            variant="outline"
             className={cn('min-w-20 px-3', ds.focus.ring, ds.animation.transition)}
             aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
           >

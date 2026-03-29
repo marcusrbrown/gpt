@@ -91,7 +91,7 @@ function App() {
                 <Suspense
                   fallback={
                     <div className="grow flex items-center justify-center">
-                      <Spinner size="lg" color="primary" />
+                      <Spinner size="lg" color="current" />
                     </div>
                   }
                 >

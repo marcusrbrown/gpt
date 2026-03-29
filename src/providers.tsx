@@ -1,4 +1,4 @@
-import {ToastProvider} from '@heroui/react'
+import {Toast} from '@heroui/react'
 import {ThemeProvider as NextThemesProvider} from 'next-themes'
 import {AIProvider} from './contexts/ai-provider-context'
 import {ConversationProvider} from './contexts/conversation-provider'
@@ -13,19 +13,7 @@ export interface ProvidersProps {
 export const Providers = ({children}: ProvidersProps): React.ReactElement => {
   return (
     <NextThemesProvider attribute="class" defaultTheme="system" enableSystem={true}>
-      <ToastProvider
-        placement="bottom-right"
-        maxVisibleToasts={3}
-        toastProps={{
-          radius: 'lg',
-          classNames: {
-            base: '!bg-surface-secondary border! !border-border-default shadow-lg! opacity-100!',
-            title: 'font-medium text-content-primary',
-            description: 'text-small text-content-secondary',
-            closeButton: 'text-content-tertiary hover:text-content-primary',
-          },
-        }}
-      />
+      <Toast.Provider placement="bottom end" />
       <StorageProvider>
         <SessionProvider>
           <AIProvider>

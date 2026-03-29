@@ -42,16 +42,14 @@ export const FeatureCard: FC<FeatureCardProps> = ({
       className={cn(
         compose.card(),
         'max-w-sm',
-        'cursor-pointer',
+        !isLoading && !error && 'cursor-pointer hover:shadow-md transition-all',
         'group',
         ds.focus.ring,
         ds.animation.cardHover,
         isLoading && ds.state.loading,
         error && ds.state.error,
       )}
-      isHoverable={!isLoading && !error}
-      isPressable={!isLoading && !error}
-      onPress={handleCardPress}
+      onClick={!isLoading && !error ? handleCardPress : undefined}
     >
       <Card.Header className={cn('pb-4')}>
         {error ? (

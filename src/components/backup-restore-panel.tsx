@@ -1,16 +1,5 @@
 import {cn, ds, heroui} from '@/lib/design-system'
-import {
-  Button,
-  Card,
-  Checkbox,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Progress,
-  Switch,
-} from '@heroui/react'
+import {Button, Card, Checkbox, Modal, ProgressBar, Switch} from '@heroui/react'
 import {AlertTriangle, Calendar, CheckCircle2, Database, Download, HardDrive, Upload} from 'lucide-react'
 import {useCallback, useRef, useState} from 'react'
 
@@ -224,13 +213,17 @@ export function BackupRestorePanel({
             </div>
 
             {isCreatingBackup && (
-              <Progress
+              <ProgressBar
                 value={backupProgress}
-                variant="success"
+                color="success"
                 size="sm"
                 className="mb-2"
                 aria-label="Backup progress"
-              />
+              >
+                <ProgressBar.Track>
+                  <ProgressBar.Fill />
+                </ProgressBar.Track>
+              </ProgressBar>
             )}
 
             <Button
@@ -285,85 +278,94 @@ export function BackupRestorePanel({
         </Card>
       </div>
 
-      <Modal isOpen={isRestoreModalOpen} onClose={handleCloseRestoreModal} size="md">
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">
-            <h2 className="text-lg font-semibold">Restore Backup</h2>
-            {selectedFile && <p className="text-sm text-content-tertiary font-normal">{selectedFile.name}</p>}
-          </ModalHeader>
+      <Modal isOpen={isRestoreModalOpen} onOpenChange={setIsRestoreModalOpen}>
+        <Modal.Backdrop />
+        <Modal.Container size="md">
+          <Modal.Dialog>
+            <Modal.Header className="flex flex-col gap-1">
+              <h2 className="text-lg font-semibold">Restore Backup</h2>
+              {selectedFile && <p className="text-sm text-content-tertiary font-normal">{selectedFile.name}</p>}
+            </Modal.Header>
 
-          <ModalBody className="gap-4">
-            {restoreResult ? (
-              <div className="text-center py-4">
-                {restoreResult.success ? (
-                  <>
-                    <CheckCircle2 className="w-12 h-12 mx-auto mb-4 text-success" />
-                    <h3 className="text-lg font-semibold mb-2">Restore Complete</h3>
-                    <p className="text-content-secondary">Successfully imported {restoreResult.imported} items.</p>
-                  </>
-                ) : (
-                  <>
-                    <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-danger" />
-                    <h3 className="text-lg font-semibold mb-2">Restore Failed</h3>
-                    <div className="text-left bg-danger/10 rounded-lg p-3 mt-4">
-                      <ul className="text-sm text-danger space-y-1">
-                        {restoreResult.errors.map(err => (
-                          <li key={err}>{err}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : (
-              <>
-                <div className="p-4 bg-surface-secondary rounded-lg">
-                  <p className="text-sm text-content-secondary">
-                    You are about to restore data from a backup file. This will import GPT configurations,
-                    conversations, and settings.
-                  </p>
+            <Modal.Body className="gap-4">
+              {restoreResult ? (
+                <div className="text-center py-4">
+                  {restoreResult.success ? (
+                    <>
+                      <CheckCircle2 className="w-12 h-12 mx-auto mb-4 text-success" />
+                      <h3 className="text-lg font-semibold mb-2">Restore Complete</h3>
+                      <p className="text-content-secondary">Successfully imported {restoreResult.imported} items.</p>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-danger" />
+                      <h3 className="text-lg font-semibold mb-2">Restore Failed</h3>
+                      <div className="text-left bg-danger/10 rounded-lg p-3 mt-4">
+                        <ul className="text-sm text-danger space-y-1">
+                          {restoreResult.errors.map(err => (
+                            <li key={err}>{err}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </>
+                  )}
                 </div>
+              ) : (
+                <>
+                  <div className="p-4 bg-surface-secondary rounded-lg">
+                    <p className="text-sm text-content-secondary">
+                      You are about to restore data from a backup file. This will import GPT configurations,
+                      conversations, and settings.
+                    </p>
+                  </div>
 
-                <div className="p-4 bg-danger/10 rounded-lg">
-                  <Checkbox isSelected={wipeExisting} onChange={setWipeExisting} variant="danger" size="sm">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-danger">Delete all existing data before restore</span>
-                      <span className="text-xs text-content-tertiary">
-                        This will permanently remove all current data
-                      </span>
-                    </div>
-                  </Checkbox>
-                </div>
+                  <div className="p-4 bg-danger/10 rounded-lg">
+                    <Checkbox isSelected={wipeExisting} onChange={setWipeExisting}>
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-danger">Delete all existing data before restore</span>
+                        <span className="text-xs text-content-tertiary">
+                          This will permanently remove all current data
+                        </span>
+                      </div>
+                    </Checkbox>
+                  </div>
 
-                {isRestoring && <Progress isIndeterminate variant="warning" size="sm" aria-label="Restore progress" />}
-              </>
-            )}
-          </ModalBody>
+                  {isRestoring && (
+                    <ProgressBar isIndeterminate color="warning" size="sm" aria-label="Restore progress">
+                      <ProgressBar.Track>
+                        <ProgressBar.Fill />
+                      </ProgressBar.Track>
+                    </ProgressBar>
+                  )}
+                </>
+              )}
+            </Modal.Body>
 
-          <ModalFooter>
-            {restoreResult ? (
-              <Button variant="primary" onPress={handleCloseRestoreModal}>
-                Done
-              </Button>
-            ) : (
-              <>
-                <Button variant="secondary" onPress={handleCloseRestoreModal} isDisabled={isRestoring}>
-                  Cancel
+            <Modal.Footer>
+              {restoreResult ? (
+                <Button variant="primary" onPress={handleCloseRestoreModal}>
+                  Done
                 </Button>
-                <Button
-                  variant="danger-soft"
-                  onPress={() => {
-                    handleRestore().catch(console.error)
-                  }}
-                  isPending={isRestoring}
-                  isDisabled={isRestoring}
-                >
-                  {wipeExisting ? 'Wipe & Restore' : 'Restore'}
-                </Button>
-              </>
-            )}
-          </ModalFooter>
-        </ModalContent>
+              ) : (
+                <>
+                  <Button variant="secondary" onPress={handleCloseRestoreModal} isDisabled={isRestoring}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="danger-soft"
+                    onPress={() => {
+                      handleRestore().catch(console.error)
+                    }}
+                    isPending={isRestoring}
+                    isDisabled={isRestoring}
+                  >
+                    {wipeExisting ? 'Wipe & Restore' : 'Restore'}
+                  </Button>
+                </>
+              )}
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
       </Modal>
     </div>
   )

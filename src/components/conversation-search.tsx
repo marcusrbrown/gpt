@@ -82,7 +82,8 @@ export function ConversationSearch({
   }, [])
 
   const handleQueryChange = useCallback(
-    (value: string) => {
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value
       setQuery(value)
       debouncedSearch(value)
     },
@@ -110,16 +111,25 @@ export function ConversationSearch({
 
   return (
     <div className={cn('relative', className)} onKeyDown={handleKeyDown}>
-      <Input
-        type="search"
-        placeholder={placeholder}
-        value={query}
-        onChange={handleQueryChange}
-        onFocus={() => setIsOpen(true)}
-        onBlur={() => setTimeout(() => setIsOpen(false), 200)}
-        startContent={<Search className="w-4 h-4 text-content-tertiary" />}
-        endContent={
-          query ? (
+      <div className="relative flex items-center w-full bg-surface-secondary rounded-lg border border-border-default focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500 transition-all">
+        <div className="pl-3 flex items-center pointer-events-none">
+          <Search className="w-4 h-4 text-content-tertiary" />
+        </div>
+        <Input
+          type="search"
+          placeholder={placeholder}
+          value={query}
+          onChange={handleQueryChange}
+          onFocus={() => setIsOpen(true)}
+          onBlur={() => setTimeout(() => setIsOpen(false), 200)}
+          className="flex-1 bg-transparent border-none focus:ring-0 px-3 py-2"
+          aria-label="Search conversations"
+          aria-expanded={isOpen && results.length > 0}
+          aria-controls="search-results"
+          role="combobox"
+        />
+        <div className="pr-3 flex items-center">
+          {query ? (
             <button
               type="button"
               onClick={handleClear}
@@ -130,16 +140,9 @@ export function ConversationSearch({
             </button>
           ) : isSearching ? (
             <Spinner size="sm" />
-          ) : null
-        }
-        classNames={{
-          inputWrapper: 'bg-surface-secondary',
-        }}
-        aria-label="Search conversations"
-        aria-expanded={isOpen && results.length > 0}
-        aria-controls="search-results"
-        role="combobox"
-      />
+          ) : null}
+        </div>
+      </div>
 
       {isOpen && query.trim() && (
         <div

@@ -1,7 +1,7 @@
 import type {GPTCapabilities, GPTConfiguration} from '@/types/gpt'
 import {CapabilitiesConfiguration} from '@/components/capabilities-configuration'
 import {cn, ds, responsive} from '@/lib/design-system'
-import {Button, Input, Textarea} from '@heroui/react'
+import {Button, Input, TextArea, TextField, FieldError} from '@heroui/react'
 
 interface GeneralTabProps {
   gpt: GPTConfiguration
@@ -54,15 +54,8 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
           <label htmlFor="name" className={cn(ds.form.label, 'sm:w-32 sm:pt-3 shrink-0')}>
             Name
           </label>
-          <Input
-            type="text"
-            name="name"
-            id="name"
-            value={gpt.name}
-            onChange={handleInputChange}
-            onBlur={() => handleFieldValidation('name', gpt.name, gpt, 'blur')}
+          <TextField
             isInvalid={!!errors.name}
-            errorMessage={errors.name}
             isRequired
             className={cn(
               'flex-1',
@@ -70,22 +63,25 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
               ds.animation.transition,
               ds.animation.formFocus,
             )}
-          />
+          >
+            <Input
+              type="text"
+              name="name"
+              id="name"
+              value={gpt.name}
+              onChange={handleInputChange}
+              onBlur={() => handleFieldValidation('name', gpt.name, gpt, 'blur')}
+            />
+            <FieldError>{errors.name}</FieldError>
+          </TextField>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
           <label htmlFor="description" className={cn(ds.form.label, 'sm:w-32 sm:pt-3 shrink-0')}>
             Description
           </label>
-          <Textarea
-            name="description"
-            id="description"
-            value={gpt.description}
-            onChange={handleInputChange}
-            onBlur={() => handleFieldValidation('description', gpt.description, gpt, 'blur')}
-            minRows={3}
+          <TextField
             isInvalid={!!errors.description}
-            errorMessage={errors.description}
             isRequired
             className={cn(
               'flex-1',
@@ -93,7 +89,17 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
               ds.animation.transition,
               ds.animation.formFocus,
             )}
-          />
+          >
+            <TextArea
+              name="description"
+              id="description"
+              value={gpt.description}
+              onChange={handleInputChange}
+              onBlur={() => handleFieldValidation('description', gpt.description, gpt, 'blur')}
+              rows={3}
+            />
+            <FieldError>{errors.description}</FieldError>
+          </TextField>
         </div>
       </div>
 
@@ -107,15 +113,8 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
             </label>
             <p className={cn(ds.text.caption, 'text-content-secondary mt-1')}>Define behavior and persona.</p>
           </div>
-          <Textarea
-            name="systemPrompt"
-            id="systemPrompt"
-            value={gpt.systemPrompt}
-            onChange={handleInputChange}
-            onBlur={() => handleFieldValidation('systemPrompt', gpt.systemPrompt, gpt, 'blur')}
-            minRows={5}
+          <TextField
             isInvalid={!!errors.systemPrompt}
-            errorMessage={errors.systemPrompt}
             isRequired
             className={cn(
               'flex-1',
@@ -123,7 +122,17 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
               ds.animation.transition,
               ds.animation.formFocus,
             )}
-          />
+          >
+            <TextArea
+              name="systemPrompt"
+              id="systemPrompt"
+              value={gpt.systemPrompt}
+              onChange={handleInputChange}
+              onBlur={() => handleFieldValidation('systemPrompt', gpt.systemPrompt, gpt, 'blur')}
+              rows={5}
+            />
+            <FieldError>{errors.systemPrompt}</FieldError>
+          </TextField>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">

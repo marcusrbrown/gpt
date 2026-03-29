@@ -1,7 +1,7 @@
 import {useStorage} from '@/hooks/use-storage'
 import {useStorageQuota} from '@/hooks/use-storage-quota'
 import {cn, ds} from '@/lib/design-system'
-import {addToast, Button, Modal, ModalBody, ModalFooter, ModalHeader, Progress, useOverlayState} from '@heroui/react'
+import {Button, Modal, ProgressBar, toast, useOverlayState} from '@heroui/react'
 import {Archive, RefreshCw, Trash2} from 'lucide-react'
 import {useState} from 'react'
 import {Link as RouterLink} from 'react-router-dom'
@@ -28,20 +28,16 @@ export function DataSettings() {
     setIsClearing(true)
     try {
       await storage.clearAll()
-      addToast({
-        title: 'Data Cleared',
+      toast.success('Data Cleared', {
         description: 'All local data has been deleted.',
-        color: 'success',
         timeout: 2000,
       })
       overlay.close()
       // Refresh storage stats after clearing data instead of reloading the page
       await refresh()
     } catch (error_) {
-      addToast({
-        title: 'Error',
+      toast.danger('Error', {
         description: 'Failed to clear data. Please try again.',
-        color: 'danger',
         timeout: 5000,
       })
       console.error('Failed to clear data:', error_)
@@ -53,7 +49,7 @@ export function DataSettings() {
   const getProgressColor = () => {
     if (percentage > 90) return 'danger'
     if (percentage > 70) return 'warning'
-    return 'primary'
+    return 'accent'
   }
 
   return (
@@ -86,13 +82,17 @@ export function DataSettings() {
               </Button>
             </div>
           </div>
-          <Progress
+          <ProgressBar
             value={percentage}
             color={getProgressColor()}
             aria-label="Storage usage"
             className="h-2"
             isIndeterminate={isLoading}
-          />
+          >
+            <ProgressBar.Track>
+              <ProgressBar.Fill />
+            </ProgressBar.Track>
+          </ProgressBar>
           {percentage > 80 && (
             <p className={cn(ds.text.body.small, 'text-warning-600')}>
               Storage is getting full. Consider exporting and clearing old data.
@@ -106,15 +106,12 @@ export function DataSettings() {
             <p className={cn(ds.text.body.base, 'font-medium')}>Backup & Restore</p>
             <p className={cn(ds.text.body.small)}>Export your GPTs and settings or restore from a backup file.</p>
           </div>
-          <Button
-            as={RouterLink}
-            to="/backup"
-            variant="bordered"
-            startContent={<Archive size={16} />}
-            className="flex items-center gap-2"
-          >
-            Manage Backups
-          </Button>
+          <RouterLink to="/backup">
+            <Button variant="outline" className="flex items-center gap-2">
+              <Archive size={16} />
+              Manage Backups
+            </Button>
+          </RouterLink>
         </div>
 
         {/* Clear Data */}
@@ -133,32 +130,37 @@ export function DataSettings() {
       </div>
 
       {/* Confirmation Modal */}
-      <Modal isOpen={overlay.isOpen} onClose={() => overlay.close()} placement="center">
-        <ModalHeader className="flex flex-col gap-1">Clear All Data</ModalHeader>
-        <ModalBody>
-          <p>Are you sure you want to delete all local data? This will remove:</p>
-          <ul className="list-disc list-inside mt-2 space-y-1 text-content-secondary">
-            <li>All your custom GPT configurations</li>
-            <li>All conversation history</li>
-            <li>All saved API keys and settings</li>
-            <li>All folders and organization</li>
-          </ul>
-          <p className="mt-4 font-medium text-danger">This action cannot be undone.</p>
-        </ModalBody>
-        <ModalFooter>
-          <Button variant="tertiary" onPress={() => overlay.close()}>
-            Cancel
-          </Button>
-          <Button
-            variant="danger"
-            onPress={() => {
-              handleClearData().catch(console.error)
-            }}
-            isPending={isClearing}
-          >
-            Delete Everything
-          </Button>
-        </ModalFooter>
+      <Modal state={overlay}>
+        <Modal.Backdrop />
+        <Modal.Container placement="center">
+          <Modal.Dialog>
+            <Modal.Header className="flex flex-col gap-1">Clear All Data</Modal.Header>
+            <Modal.Body>
+              <p>Are you sure you want to delete all local data? This will remove:</p>
+              <ul className="list-disc list-inside mt-2 space-y-1 text-content-secondary">
+                <li>All your custom GPT configurations</li>
+                <li>All conversation history</li>
+                <li>All saved API keys and settings</li>
+                <li>All folders and organization</li>
+              </ul>
+              <p className="mt-4 font-medium text-danger">This action cannot be undone.</p>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="tertiary" onPress={() => overlay.close()}>
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                onPress={() => {
+                  handleClearData().catch(console.error)
+                }}
+                isPending={isClearing}
+              >
+                Delete Everything
+              </Button>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
       </Modal>
     </div>
   )

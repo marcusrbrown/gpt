@@ -1,7 +1,7 @@
 import type {FC} from 'react'
 import type {GPTConfiguration} from '../types/gpt'
 import {cn, compose, ds} from '@/lib/design-system'
-import {Button, Card, Divider, Skeleton} from '@heroui/react'
+import {Button, Card, Separator, Skeleton} from '@heroui/react'
 
 import {Edit, Play} from 'lucide-react'
 import {useNavigate} from 'react-router-dom'
@@ -16,7 +16,7 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
   const navigate = useNavigate()
 
   const handleNavigate = (path: string) => {
-    navigate(path).catch(console.error)
+    navigate(path)
   }
 
   return (
@@ -30,8 +30,6 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
         isLoading && ds.state.loading,
         error && ds.state.error,
       )}
-      isHoverable={!isLoading && !error}
-      shadow="sm"
       data-testid="user-gpt-card"
     >
       <Card.Header className="flex gap-4 pb-3">
@@ -54,7 +52,7 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
           </div>
         )}
       </Card.Header>
-      <Divider />
+      <Separator />
       <Card.Content>
         {error ? (
           <p className={cn(ds.text.body.base, 'text-danger')}>Unable to load GPT data. Please try again later.</p>
@@ -68,7 +66,7 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
           <p className={cn(ds.text.body.base, 'line-clamp-3')}>{gpt.description || 'No description provided.'}</p>
         )}
       </Card.Content>
-      <Divider />
+      <Separator />
       <Card.Footer className="flex justify-between gap-3">
         {error || isLoading ? (
           <>

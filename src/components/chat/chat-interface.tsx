@@ -1,5 +1,5 @@
 import type {Conversation, ConversationMessage, GPTConfiguration} from '@/types/gpt'
-import {Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, Tooltip, useOverlayState} from '@heroui/react'
+import {Button, Drawer, Tooltip, useOverlayState} from '@heroui/react'
 import {Menu, MessageSquare, MoreVertical, Trash2} from 'lucide-react'
 import React, {useEffect, useRef, useState} from 'react'
 
@@ -92,29 +92,22 @@ export function ChatInterface({
       </div>
 
       {/* Mobile Drawer */}
-      <Drawer
-        isOpen={overlay.isOpen}
-        onOpenChange={overlay.setOpen}
-        placement="left"
-        size="xs"
-        backdrop="blur"
-        classNames={{
-          base: 'bg-surface-primary/95 backdrop-blur-md',
-          header: 'border-b border-border-subtle',
-        }}
-      >
-        <DrawerContent>
-          <DrawerHeader>Menu</DrawerHeader>
-          <DrawerBody className="p-0">
-            <SidebarContent
-              gptConfig={gptConfig}
-              conversations={conversations}
-              currentConversationId={currentConversationId}
-              onSelectConversation={onSelectConversation}
-              onClearConversation={onClearConversation}
-            />
-          </DrawerBody>
-        </DrawerContent>
+      <Drawer state={overlay}>
+        <Drawer.Backdrop variant="blur" />
+        <Drawer.Content placement="left" className="bg-surface-primary/95 backdrop-blur-md">
+          <Drawer.Dialog>
+            <Drawer.Header className="border-b border-border-subtle">Menu</Drawer.Header>
+            <Drawer.Body className="p-0">
+              <SidebarContent
+                gptConfig={gptConfig}
+                conversations={conversations}
+                currentConversationId={currentConversationId}
+                onSelectConversation={onSelectConversation}
+                onClearConversation={onClearConversation}
+              />
+            </Drawer.Body>
+          </Drawer.Dialog>
+        </Drawer.Content>
       </Drawer>
 
       {/* Main Chat Area */}
@@ -136,18 +129,26 @@ export function ChatInterface({
             </div>
           </div>
           <div className="flex items-center gap-1">
-            <Tooltip content="Clear conversation">
-              <Button
-                isIconOnly
-                variant="tertiary"
-                size="sm"
-                className="text-content-tertiary hover:text-danger hover:bg-danger-50"
-                onPress={onClearConversation}
-              >
-                <Trash2 size={18} />
-              </Button>
+            <Tooltip>
+              <Tooltip.Trigger>
+                <Button
+                  isIconOnly
+                  variant="tertiary"
+                  size="sm"
+                  className="text-content-tertiary hover:text-danger hover:bg-danger-50"
+                  onPress={onClearConversation}
+                >
+                  <Trash2 size={18} />
+                </Button>
+              </Tooltip.Trigger>
+              <Tooltip.Content>Clear conversation</Tooltip.Content>
             </Tooltip>
-            <Button isIconOnly variant="tertiary" size="sm" className="text-content-tertiary hover:text-content-primary">
+            <Button
+              isIconOnly
+              variant="tertiary"
+              size="sm"
+              className="text-content-tertiary hover:text-content-primary"
+            >
               <MoreVertical size={18} />
             </Button>
           </div>

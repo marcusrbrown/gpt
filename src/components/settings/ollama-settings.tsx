@@ -1,8 +1,8 @@
 import {isHttpsToLocalhostScenario, useOllamaStatus} from '@/hooks/use-ollama-status'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
 import {getOllamaProvider} from '@/services/providers/ollama-provider'
-import {addToast, Button, Chip, Input, Spinner} from '@heroui/react'
-import {AlertTriangle, XCircle} from 'lucide-react'
+import {Button, Chip, Input, Spinner, TextField, Description, toast} from '@heroui/react'
+import {AlertTriangle} from 'lucide-react'
 import {useMemo, useState} from 'react'
 
 export function OllamaSettings() {
@@ -28,18 +28,13 @@ export function OllamaSettings() {
       const provider = getOllamaProvider()
       provider.configure({baseUrl})
       await checkNow()
-      addToast({
-        title: 'Settings Saved',
+      toast.success('Settings Saved', {
         description: 'Ollama configuration has been updated.',
-        color: 'success',
         timeout: 4000,
       })
     } catch (error_: unknown) {
-      addToast({
-        title: 'Error',
+      toast.danger('Error', {
         description: 'Failed to save Ollama settings. Please try again.',
-        color: 'danger',
-        icon: <XCircle size={20} />,
         timeout: 5000,
       })
       console.error('Error saving Ollama URL:', error_)
@@ -79,13 +74,11 @@ export function OllamaSettings() {
     <div className={cn(compose.card(), theme.surface(1))}>
       <div className="flex justify-between items-center mb-4">
         <h2 className={cn(responsive.heading.large)}>Ollama Settings</h2>
-        <Chip
-          color={getStatusColor()}
-          variant="secondary"
-          startContent={isChecking ? <Spinner size="sm" color="current" /> : undefined}
-          className={cn(ds.text.body.small, 'capitalize')}
-        >
-          {getStatusLabel()}
+        <Chip color={getStatusColor()} variant="secondary" className={cn(ds.text.body.small, 'capitalize')}>
+          <div className="flex items-center gap-1">
+            {isChecking && <Spinner size="sm" color="current" />}
+            {getStatusLabel()}
+          </div>
         </Chip>
       </div>
 
@@ -143,24 +136,23 @@ export function OllamaSettings() {
         )}
 
         <div className="flex items-center mb-2">
-          <Input
-            type="url"
-            value={baseUrl}
-            onChange={handleBaseUrlChange}
-            placeholder="http://localhost:11434"
-            className={cn('flex-1 mr-2', ds.focus.ring, ds.animation.transition)}
-            description="Base URL for your Ollama instance"
-            aria-label="Ollama Base URL"
-            classNames={{
-              description: 'text-content-secondary',
-            }}
-          />
+          <TextField className="flex-1 mr-2">
+            <Input
+              type="url"
+              value={baseUrl}
+              onChange={handleBaseUrlChange}
+              placeholder="http://localhost:11434"
+              className={cn(ds.focus.ring, ds.animation.transition)}
+              aria-label="Ollama Base URL"
+            />
+            <Description className="text-content-secondary">Base URL for your Ollama instance</Description>
+          </TextField>
           <Button
             onPress={() => {
               checkNow().catch(console.error)
             }}
-            isLoading={isChecking}
-            variant="bordered"
+            isPending={isChecking}
+            variant="outline"
             className={cn('min-w-24 px-3', ds.focus.ring, ds.animation.transition)}
             aria-label="Test connection to Ollama"
           >

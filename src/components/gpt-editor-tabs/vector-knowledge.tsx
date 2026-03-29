@@ -73,7 +73,7 @@ export function VectorKnowledge({files, vectorStores, onCreateVectorStore, onDel
             onChange={e => setNewStoreName(e.target.value)}
             className={cn('mt-1', ds.animation.formFocus)}
             placeholder="My Knowledge Base"
-            isDisabled={isCreating}
+            disabled={isCreating}
           />
         </div>
 

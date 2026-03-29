@@ -85,22 +85,22 @@ export const Navbar = () => {
         {/* Center section - Search */}
         <div className="flex-1 max-w-2xl mx-4 flex items-center">
           <div className="relative w-full">
-            <Input
-              type="search"
-              placeholder="Search documentation..."
-              startContent={<Search className={cn(theme.content('tertiary'), 'mr-1')} size={16} aria-hidden="true" />}
-              size="md"
-              variant="bordered"
-              className={cn(ds.animation.transition)}
-              classNames={{
-                base: 'h-10',
-                input: 'text-sm pr-9',
-                inputWrapper: cn(theme.surface(1), 'h-10 flex items-center'),
-                innerWrapper: 'flex items-center',
-                mainWrapper: 'h-10',
-              }}
-              aria-label="Search documentation"
-            />
+            <div
+              className={cn(
+                theme.surface(1),
+                'h-10 flex items-center rounded-lg border border-border-default focus-within:ring-2 focus-within:ring-primary-500 transition-all',
+              )}
+            >
+              <div className="pl-3 flex items-center pointer-events-none">
+                <Search className={cn(theme.content('tertiary'))} size={16} aria-hidden="true" />
+              </div>
+              <Input
+                type="search"
+                placeholder="Search documentation..."
+                className="flex-1 bg-transparent border-none focus:ring-0 px-3 py-2 text-sm"
+                aria-label="Search documentation"
+              />
+            </div>
           </div>
         </div>
 
@@ -180,19 +180,22 @@ export const Navbar = () => {
 
             {/* Navigation content - Settings removed from list (available in header) */}
             <nav className={cn(ds.layout.container, 'flex flex-col gap-4 py-6')} aria-label="Mobile navigation">
-              <Input
-                type="search"
-                placeholder="Search documentation..."
-                startContent={<Search className={cn(theme.content('tertiary'), 'mr-1')} size={16} aria-hidden="true" />}
-                size="sm"
-                variant="bordered"
-                className={cn(ds.animation.transition)}
-                classNames={{
-                  input: 'text-sm pr-9',
-                  inputWrapper: cn(theme.surface(1), 'min-h-[40px]'),
-                }}
-                aria-label="Search documentation"
-              />
+              <div
+                className={cn(
+                  theme.surface(1),
+                  'min-h-[40px] flex items-center rounded-lg border border-border-default focus-within:ring-2 focus-within:ring-primary-500 transition-all',
+                )}
+              >
+                <div className="pl-3 flex items-center pointer-events-none">
+                  <Search className={cn(theme.content('tertiary'))} size={16} aria-hidden="true" />
+                </div>
+                <Input
+                  type="search"
+                  placeholder="Search documentation..."
+                  className="flex-1 bg-transparent border-none focus:ring-0 px-3 py-2 text-sm"
+                  aria-label="Search documentation"
+                />
+              </div>
               <ButtonLink
                 to="/backup"
                 variant="secondary"

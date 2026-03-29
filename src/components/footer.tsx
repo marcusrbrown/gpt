@@ -14,8 +14,9 @@ export const Footer: FC = () => {
       <Link
         className="flex items-center gap-2 text-current"
         href={siteConfig.links.github}
-        isExternal
-        title="@marcusrbrown on GitHub"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="@marcusrbrown on GitHub"
       >
         <span className="text-sm text-content-secondary">Made with 🖤 by</span>
         <span className="text-primary-600 dark:text-content-primary font-semibold text-sm">Marcus R. Brown</span>

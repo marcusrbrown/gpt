@@ -1,18 +1,7 @@
 import type {GPTConfiguration} from '@/types/gpt'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds, responsive} from '@/lib/design-system'
-import {
-  Button,
-  Card,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-  Input,
-  Spinner,
-  Tab,
-  Tabs,
-} from '@heroui/react'
+import {Button, Card, Dropdown, Input, Spinner, Tabs, TextField} from '@heroui/react'
 import {Archive, Copy, Download, Edit, MoreVertical, Plus, RotateCcw, Search, Trash2} from 'lucide-react'
 import {useCallback, useEffect, useMemo, useState} from 'react'
 import {ArchiveDialog} from './archive-dialog'
@@ -139,16 +128,15 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
   return (
     <div className="flex flex-col h-full" data-testid="gpt-library">
       <div className="flex items-center justify-between mb-6">
-        <Tabs
-          selectedKey={viewMode}
-          onSelectionChange={key => setViewMode(key as ViewMode)}
-          aria-label="GPT view mode"
-          classNames={{
-            tabContent: 'text-default-600 group-data-[selected=true]:text-default-foreground',
-          }}
-        >
-          <Tab key="active" title="Active" data-testid="active-tab" />
-          <Tab key="archived" title="Archived" data-testid="archived-tab" />
+        <Tabs selectedKey={viewMode} onSelectionChange={key => setViewMode(key as ViewMode)} aria-label="GPT view mode">
+          <Tabs.List>
+            <Tabs.Tab id="active" data-testid="active-tab">
+              Active
+            </Tabs.Tab>
+            <Tabs.Tab id="archived" data-testid="archived-tab">
+              Archived
+            </Tabs.Tab>
+          </Tabs.List>
         </Tabs>
 
         <Button
@@ -163,22 +151,19 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
       </div>
 
       <div className="mb-4">
-        <Input
-          type="search"
-          placeholder="Search GPTs..."
-          value={searchQuery}
-          onChange={setSearchQuery}
-          startContent={<Search className="h-4 w-4 text-content-tertiary" />}
-          variant="bordered"
-          aria-label="Search GPTs"
-          classNames={{
-            base: 'max-w-md',
-            input: 'text-sm',
-            inputWrapper: 'h-10 flex items-center',
-            innerWrapper: 'flex items-center',
-            mainWrapper: 'h-10',
-          }}
-        />
+        <div className="relative flex items-center w-full max-w-md bg-surface-secondary rounded-lg border border-border-default focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500 transition-all h-10">
+          <div className="pl-3 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 text-content-tertiary" />
+          </div>
+          <Input
+            type="search"
+            placeholder="Search GPTs..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            aria-label="Search GPTs"
+            className="flex-1 bg-transparent border-none focus:ring-0 px-3 py-2 text-sm"
+          />
+        </div>
       </div>
 
       {isLoading ? (
@@ -233,8 +218,8 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
                   </h3>
                   <p className={cn(ds.text.body.small, 'truncate')}>{formatDate(gpt.updatedAt)}</p>
                 </div>
-                <Dropdown placement="bottom-end">
-                  <DropdownTrigger>
+                <Dropdown>
+                  <Dropdown.Trigger>
                     <Button
                       size="sm"
                       variant="tertiary"
@@ -244,72 +229,70 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
                     >
                       <MoreVertical className="h-4 w-4" />
                     </Button>
-                  </DropdownTrigger>
-                  <DropdownMenu
-                    aria-label="GPT actions menu"
-                    classNames={{
-                      base: 'min-w-[160px]',
-                      list: 'bg-content1 shadow-lg border border-border-default rounded-lg',
-                    }}
-                  >
-                    <DropdownItem
-                      key="edit"
-                      startContent={<Edit className="h-4 w-4" />}
-                      onPress={() => onEditGPT(gpt.id)}
-                      data-testid="edit-gpt"
+                  </Dropdown.Trigger>
+                  <Dropdown.Popover placement="bottom end">
+                    <Dropdown.Menu
+                      aria-label="GPT actions menu"
+                      className="min-w-[160px] bg-content1 shadow-lg border border-border-default rounded-lg"
                     >
-                      Edit
-                    </DropdownItem>
-                    <DropdownItem
-                      key="duplicate"
-                      startContent={<Copy className="h-4 w-4" />}
-                      onPress={() => {
-                        handleDuplicate(gpt).catch(() => {})
-                      }}
-                      data-testid="duplicate-gpt"
-                    >
-                      Duplicate
-                    </DropdownItem>
-                    <DropdownItem
-                      key="export"
-                      startContent={<Download className="h-4 w-4" />}
-                      onPress={() => handleExport(gpt)}
-                      data-testid="export-gpt"
-                    >
-                      Export
-                    </DropdownItem>
-                    {viewMode === 'active' ? (
-                      <DropdownItem
-                        key="archive"
-                        startContent={<Archive className="h-4 w-4" />}
-                        onPress={() => handleArchive(gpt)}
-                        data-testid="archive-gpt"
-                      >
-                        Archive
-                      </DropdownItem>
-                    ) : (
-                      <DropdownItem
-                        key="restore"
-                        startContent={<RotateCcw className="h-4 w-4" />}
-                        onPress={() => {
-                          handleRestore(gpt).catch(() => {})
+                      <Dropdown.Item id="edit" onAction={() => onEditGPT(gpt.id)} data-testid="edit-gpt">
+                        <div className="flex items-center gap-2">
+                          <Edit className="h-4 w-4" />
+                          Edit
+                        </div>
+                      </Dropdown.Item>
+                      <Dropdown.Item
+                        id="duplicate"
+                        onAction={() => {
+                          handleDuplicate(gpt).catch(() => {})
                         }}
-                        data-testid="restore-gpt"
+                        data-testid="duplicate-gpt"
                       >
-                        Restore
-                      </DropdownItem>
-                    )}
-                    <DropdownItem
-                      key="delete"
-                      className="text-danger"
-                      variant="danger"
-                      startContent={<Trash2 className="h-4 w-4" />}
-                      onPress={() => handleDelete(gpt)}
-                      data-testid="delete-gpt"
-                    >
-                      Delete
-                    </DropdownItem>
-                  </DropdownMenu>
+                        <div className="flex items-center gap-2">
+                          <Copy className="h-4 w-4" />
+                          Duplicate
+                        </div>
+                      </Dropdown.Item>
+                      <Dropdown.Item id="export" onAction={() => handleExport(gpt)} data-testid="export-gpt">
+                        <div className="flex items-center gap-2">
+                          <Download className="h-4 w-4" />
+                          Export
+                        </div>
+                      </Dropdown.Item>
+                      {viewMode === 'active' ? (
+                        <Dropdown.Item id="archive" onAction={() => handleArchive(gpt)} data-testid="archive-gpt">
+                          <div className="flex items-center gap-2">
+                            <Archive className="h-4 w-4" />
+                            Archive
+                          </div>
+                        </Dropdown.Item>
+                      ) : (
+                        <Dropdown.Item
+                          id="restore"
+                          onAction={() => {
+                            handleRestore(gpt).catch(() => {})
+                          }}
+                          data-testid="restore-gpt"
+                        >
+                          <div className="flex items-center gap-2">
+                            <RotateCcw className="h-4 w-4" />
+                            Restore
+                          </div>
+                        </Dropdown.Item>
+                      )}
+                      <Dropdown.Item
+                        id="delete"
+                        className="text-danger"
+                        onAction={() => handleDelete(gpt)}
+                        data-testid="delete-gpt"
+                      >
+                        <div className="flex items-center gap-2">
+                          <Trash2 className="h-4 w-4" />
+                          Delete
+                        </div>
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown.Popover>
                 </Dropdown>
               </Card.Header>
               <Card.Content className="cursor-pointer" onClick={() => onSelectGPT(gpt.id)}>

@@ -420,7 +420,7 @@ export function GPTEditorPage() {
           aria-live="polite"
         >
           <div className={cn(ds.card.base, ds.card.elevated, 'flex items-center gap-3 p-4')}>
-            <Spinner size="md" variant="primary" />
+            <Spinner size="md" />
             <span className={cn(ds.text.body.base, 'text-content-primary')}>Validating...</span>
           </div>
         </div>

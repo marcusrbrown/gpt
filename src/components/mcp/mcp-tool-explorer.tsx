@@ -29,42 +29,51 @@ export function MCPToolExplorer({serverId}: MCPToolExplorerProps) {
         </Chip>
       </div>
 
-      <Accordion variant="splitted" className="px-0">
+      <Accordion variant="default" className="px-0">
         {tools.map(tool => (
           <AccordionItem
             key={tool.name}
+            id={tool.name}
             aria-label={tool.name}
-            title={
-              <div className="flex items-center gap-2">
-                <span className="font-mono font-medium">{tool.name}</span>
-              </div>
-            }
-            subtitle={
-              <span className="text-default-500 text-sm truncate max-w-md block">
-                {tool.description || 'No description provided'}
-              </span>
-            }
-            classNames={{
-              base: cn(theme.surface(1), 'border', theme.border()),
-              title: 'text-sm',
-              content: 'text-sm text-default-600',
-            }}
+            className={cn(theme.surface(1), 'border', theme.border())}
           >
-            <div className="flex flex-col gap-4 pb-2">
-              {tool.description && (
-                <div>
-                  <h4 className="text-xs font-semibold text-default-500 uppercase tracking-wider mb-1">Description</h4>
-                  <p>{tool.description}</p>
+            <Accordion.Heading>
+              <Accordion.Trigger className="text-sm">
+                <div className="flex flex-col items-start text-left">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-medium">{tool.name}</span>
+                  </div>
+                  <span className="text-default-500 text-sm truncate max-w-md block">
+                    {tool.description || 'No description provided'}
+                  </span>
                 </div>
-              )}
+              </Accordion.Trigger>
+            </Accordion.Heading>
+            <Accordion.Panel>
+              <Accordion.Body className="text-sm text-default-600">
+                <div className="flex flex-col gap-4 pb-2">
+                  {tool.description && (
+                    <div>
+                      <h4 className="text-xs font-semibold text-default-500 uppercase tracking-wider mb-1">
+                        Description
+                      </h4>
+                      <p>{tool.description}</p>
+                    </div>
+                  )}
 
-              <div>
-                <h4 className="text-xs font-semibold text-default-500 uppercase tracking-wider mb-1">Input Schema</h4>
-                <div className="bg-default-50 rounded-lg p-3 border border-default-100 overflow-x-auto">
-                  <pre className="text-xs font-mono text-default-700">{JSON.stringify(tool.inputSchema, null, 2)}</pre>
+                  <div>
+                    <h4 className="text-xs font-semibold text-default-500 uppercase tracking-wider mb-1">
+                      Input Schema
+                    </h4>
+                    <div className="bg-default-50 rounded-lg p-3 border border-default-100 overflow-x-auto">
+                      <pre className="text-xs font-mono text-default-700">
+                        {JSON.stringify(tool.inputSchema, null, 2)}
+                      </pre>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </Accordion.Body>
+            </Accordion.Panel>
           </AccordionItem>
         ))}
       </Accordion>

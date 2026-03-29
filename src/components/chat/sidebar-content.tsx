@@ -116,10 +116,13 @@ export function SidebarContent({
             <p className="text-sm font-medium text-content-primary truncate">{gptConfig.name}</p>
             <p className="text-xs text-content-tertiary truncate">v{gptConfig.version}</p>
           </div>
-          <Tooltip content="GPT Settings">
-            <Button isIconOnly size="sm" variant="tertiary">
-              <Settings size={16} />
-            </Button>
+          <Tooltip>
+            <Tooltip.Trigger>
+              <Button isIconOnly size="sm" variant="tertiary">
+                <Settings size={16} />
+              </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>GPT Settings</Tooltip.Content>
           </Tooltip>
         </div>
       </div>

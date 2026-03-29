@@ -4,8 +4,7 @@ import {MCPServerForm} from '@/components/mcp/mcp-server-form'
 import {MCPToolExplorer} from '@/components/mcp/mcp-tool-explorer'
 import {useMCP} from '@/hooks/use-mcp'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
-import {addToast, Button, Modal, ModalBody, ModalHeader, Spinner, useOverlayState} from '@heroui/react'
-import {XCircle} from 'lucide-react'
+import {Button, Modal, Spinner, toast, useOverlayState} from '@heroui/react'
 import {useState} from 'react'
 
 export function MCPSettings() {
@@ -38,28 +37,21 @@ export function MCPSettings() {
     try {
       if (editingServer) {
         await updateServer(editingServer.id, config)
-        addToast({
-          title: 'Server Updated',
+        toast.success('Server Updated', {
           description: `MCP server "${config.name}" has been updated.`,
-          color: 'success',
           timeout: 4000,
         })
       } else {
         await addServer(config)
-        addToast({
-          title: 'Server Added',
+        toast.success('Server Added', {
           description: `MCP server "${config.name}" has been added.`,
-          color: 'success',
           timeout: 4000,
         })
       }
       overlay.close()
     } catch (error) {
-      addToast({
-        title: 'Error',
+      toast.danger('Error', {
         description: 'Failed to save MCP server configuration. Please try again.',
-        color: 'danger',
-        icon: <XCircle size={20} />,
         timeout: 5000,
       })
       console.error('Failed to save server:', error)
@@ -73,19 +65,14 @@ export function MCPSettings() {
     if (window.confirm('Are you sure you want to delete this server configuration?')) {
       removeServer(serverId)
         .then(() => {
-          addToast({
-            title: 'Server Deleted',
+          toast.success('Server Deleted', {
             description: 'MCP server configuration has been removed.',
-            color: 'success',
             timeout: 4000,
           })
         })
         .catch(error => {
-          addToast({
-            title: 'Error',
+          toast.danger('Error', {
             description: 'Failed to delete MCP server. Please try again.',
-            color: 'danger',
-            icon: <XCircle size={20} />,
             timeout: 5000,
           })
           console.error('Failed to delete server:', error)
@@ -154,18 +141,16 @@ export function MCPSettings() {
         initialConfig={editingServer}
       />
 
-      <Modal
-        isOpen={toolOverlay.isOpen}
-        onClose={() => toolOverlay.close()}
-        size="2xl"
-        scrollBehavior="inside"
-        classNames={{
-          base: cn(theme.surface(1), 'border', theme.border()),
-          header: 'border-b border-default-100',
-        }}
-      >
-        <ModalHeader>Server Tools</ModalHeader>
-        <ModalBody className="py-6">{viewingServerId && <MCPToolExplorer serverId={viewingServerId} />}</ModalBody>
+      <Modal state={toolOverlay}>
+        <Modal.Backdrop />
+        <Modal.Container size="lg" scroll="inside" className={cn(theme.surface(1), 'border', theme.border())}>
+          <Modal.Dialog>
+            <Modal.Header className="border-b border-default-100">Server Tools</Modal.Header>
+            <Modal.Body className="py-6">
+              {viewingServerId && <MCPToolExplorer serverId={viewingServerId} />}
+            </Modal.Body>
+          </Modal.Dialog>
+        </Modal.Container>
       </Modal>
     </div>
   )

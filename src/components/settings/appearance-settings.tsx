@@ -1,7 +1,7 @@
 import type {Key} from 'react'
 import {useReducedMotion} from '@/hooks/use-reduced-motion'
 import {cn, ds} from '@/lib/design-system'
-import {addToast, Select, SelectItem, Switch} from '@heroui/react'
+import {ListBox, ListBoxItem, Select, Switch, toast} from '@heroui/react'
 import {Monitor, Moon, Sun} from 'lucide-react'
 import {useTheme} from 'next-themes'
 
@@ -19,20 +19,15 @@ export function AppearanceSettings() {
   const {theme: currentTheme, setTheme} = useTheme()
   const prefersReducedMotion = useReducedMotion()
 
-  const handleThemeChange = (keys: 'all' | Set<Key>) => {
-    if (keys === 'all') return
-    const selected = Array.from(keys)[0]
-    if (typeof selected === 'string') {
-      setTheme(selected)
-      const themeLabel = selected.charAt(0).toUpperCase() + selected.slice(1)
-      addToast({
-        title: 'Theme Updated',
-        description: `Theme changed to ${themeLabel}.`,
-        color: 'success',
-        timeout: 3000,
-        shouldShowTimeoutProgress: true,
-      })
-    }
+  const handleThemeChange = (key: Key | null) => {
+    if (!key) return
+    const selected = String(key)
+    setTheme(selected)
+    const themeLabel = selected.charAt(0).toUpperCase() + selected.slice(1)
+    toast.success('Theme Updated', {
+      description: `Theme changed to ${themeLabel}.`,
+      timeout: 3000,
+    })
   }
 
   return (
@@ -50,21 +45,25 @@ export function AppearanceSettings() {
           </div>
           <Select
             aria-label="Theme selection"
-            selectedKeys={currentTheme ? [currentTheme] : ['system']}
+            selectedKey={currentTheme || 'system'}
             onSelectionChange={handleThemeChange}
             className="w-full sm:w-48"
-            size="sm"
-            popoverProps={{
-              classNames: {
-                content: '!bg-surface-secondary border border-border-default',
-              },
-            }}
           >
-            {themeOptions.map(option => (
-              <SelectItem key={option.key} startContent={<option.icon size={16} />}>
-                {option.label}
-              </SelectItem>
-            ))}
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Popover className="bg-surface-secondary border border-border-default">
+              <ListBox>
+                {themeOptions.map(option => (
+                  <ListBoxItem id={option.key} key={option.key} textValue={option.label}>
+                    <div className="flex items-center gap-2">
+                      <option.icon size={16} />
+                      <span>{option.label}</span>
+                    </div>
+                  </ListBoxItem>
+                ))}
+              </ListBox>
+            </Select.Popover>
           </Select>
         </div>
 

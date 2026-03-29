@@ -1,6 +1,6 @@
 import type {GPTConfiguration} from '@/types/gpt'
 import {cn, ds, responsive} from '@/lib/design-system'
-import {Input, Slider} from '@heroui/react'
+import {Input, Slider, TextField, Label, Description} from '@heroui/react'
 
 interface AdvancedSettingsTabProps {
   gpt: GPTConfiguration
@@ -24,25 +24,27 @@ export function AdvancedSettingsTab({gpt, onUpdate}: AdvancedSettingsTabProps) {
 
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <Input
-              label="Model Name"
-              labelPlacement="outside"
-              value={gpt.modelName || ''}
-              onChange={e => onUpdate({modelName: e.target.value})}
-              placeholder="e.g. gpt-4o"
-              description="Specific model identifier to use (optional)."
-            />
+            <TextField className="flex flex-col gap-1">
+              <Label>Model Name</Label>
+              <Input
+                value={gpt.modelName || ''}
+                onChange={e => onUpdate({modelName: e.target.value})}
+                placeholder="e.g. gpt-4o"
+              />
+              <Description>Specific model identifier to use (optional).</Description>
+            </TextField>
           </div>
 
           <div>
-            <Input
-              type="number"
-              label="Max Tokens"
-              labelPlacement="outside"
-              value={gpt.modelSettings?.maxTokens?.toString() || ''}
-              onChange={e => handleModelSettingsChange('maxTokens', Number.parseInt(e.target.value) || 0)}
-              placeholder="e.g. 4096"
-            />
+            <TextField className="flex flex-col gap-1">
+              <Label>Max Tokens</Label>
+              <Input
+                type="number"
+                value={gpt.modelSettings?.maxTokens?.toString() || ''}
+                onChange={e => handleModelSettingsChange('maxTokens', Number.parseInt(e.target.value) || 0)}
+                placeholder="e.g. 4096"
+              />
+            </TextField>
           </div>
         </div>
 
@@ -53,7 +55,6 @@ export function AdvancedSettingsTab({gpt, onUpdate}: AdvancedSettingsTabProps) {
               <span className={ds.text.body.small}>{gpt.modelSettings?.temperature ?? 0.7}</span>
             </div>
             <Slider
-              size="sm"
               step={0.1}
               maxValue={2}
               minValue={0}
@@ -61,7 +62,12 @@ export function AdvancedSettingsTab({gpt, onUpdate}: AdvancedSettingsTabProps) {
               value={gpt.modelSettings?.temperature ?? 0.7}
               onChange={value => handleModelSettingsChange('temperature', value as number)}
               className="max-w-md"
-            />
+            >
+              <Slider.Track>
+                <Slider.Fill />
+                <Slider.Thumb />
+              </Slider.Track>
+            </Slider>
             <p className={cn(ds.text.caption, 'mt-1 text-content-secondary')}>
               Controls randomness: Lowering results in less random completions.
             </p>
@@ -73,7 +79,6 @@ export function AdvancedSettingsTab({gpt, onUpdate}: AdvancedSettingsTabProps) {
               <span className={ds.text.body.small}>{gpt.modelSettings?.topP ?? 1}</span>
             </div>
             <Slider
-              size="sm"
               step={0.1}
               maxValue={1}
               minValue={0}
@@ -81,7 +86,12 @@ export function AdvancedSettingsTab({gpt, onUpdate}: AdvancedSettingsTabProps) {
               value={gpt.modelSettings?.topP ?? 1}
               onChange={value => handleModelSettingsChange('topP', value as number)}
               className="max-w-md"
-            />
+            >
+              <Slider.Track>
+                <Slider.Fill />
+                <Slider.Thumb />
+              </Slider.Track>
+            </Slider>
             <p className={cn(ds.text.caption, 'mt-1 text-content-secondary')}>
               Controls diversity via nucleus sampling.
             </p>
@@ -93,7 +103,6 @@ export function AdvancedSettingsTab({gpt, onUpdate}: AdvancedSettingsTabProps) {
               <span className={ds.text.body.small}>{gpt.modelSettings?.frequencyPenalty ?? 0}</span>
             </div>
             <Slider
-              size="sm"
               step={0.1}
               maxValue={2}
               minValue={0}
@@ -101,7 +110,12 @@ export function AdvancedSettingsTab({gpt, onUpdate}: AdvancedSettingsTabProps) {
               value={gpt.modelSettings?.frequencyPenalty ?? 0}
               onChange={value => handleModelSettingsChange('frequencyPenalty', value as number)}
               className="max-w-md"
-            />
+            >
+              <Slider.Track>
+                <Slider.Fill />
+                <Slider.Thumb />
+              </Slider.Track>
+            </Slider>
             <p className={cn(ds.text.caption, 'mt-1 text-content-secondary')}>
               Decreases likelihood of repeating the same line verbatim.
             </p>
@@ -113,7 +127,6 @@ export function AdvancedSettingsTab({gpt, onUpdate}: AdvancedSettingsTabProps) {
               <span className={ds.text.body.small}>{gpt.modelSettings?.presencePenalty ?? 0}</span>
             </div>
             <Slider
-              size="sm"
               step={0.1}
               maxValue={2}
               minValue={0}
@@ -121,7 +134,12 @@ export function AdvancedSettingsTab({gpt, onUpdate}: AdvancedSettingsTabProps) {
               value={gpt.modelSettings?.presencePenalty ?? 0}
               onChange={value => handleModelSettingsChange('presencePenalty', value as number)}
               className="max-w-md"
-            />
+            >
+              <Slider.Track>
+                <Slider.Fill />
+                <Slider.Thumb />
+              </Slider.Track>
+            </Slider>
             <p className={cn(ds.text.caption, 'mt-1 text-content-secondary')}>
               Increases likelihood of talking about new topics.
             </p>

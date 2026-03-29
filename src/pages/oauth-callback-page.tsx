@@ -84,7 +84,7 @@ export function OAuthCallbackPage() {
     <main className={cn(ds.layout.container, 'py-16 text-center')}>
       {status === 'processing' && (
         <div className="flex flex-col items-center gap-4">
-          <Spinner size="lg" variant="primary" />
+          <Spinner size="lg" />
           <h1 className={cn(ds.text.heading.h2)}>Completing Authentication</h1>
           <p className={cn(ds.text.body.base, 'text-default-500')}>
             Please wait while we complete the authentication process...

@@ -9,7 +9,20 @@ import type {
   UpdateSnippetInput,
 } from '@/types/knowledge'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Card, Chip, Input, Radio, RadioGroup, Tab, Tabs, Textarea, Tooltip} from '@heroui/react'
+import {
+  Button,
+  Card,
+  Chip,
+  Input,
+  Radio,
+  RadioGroup,
+  Tabs,
+  TextArea,
+  TextField,
+  Label,
+  Tooltip,
+  FieldError,
+} from '@heroui/react'
 import {AlertCircle, CheckCircle, FileText, Loader2, RefreshCw, Search, Trash2, Upload} from 'lucide-react'
 import {useRef, useState} from 'react'
 
@@ -143,33 +156,45 @@ export function KnowledgeConfiguration({
     switch (status) {
       case 'completed':
         return (
-          <Chip startContent={<CheckCircle className="w-3 h-3" />} variant="flat" size="sm">
-            Ready
+          <Chip variant="secondary" size="sm">
+            <div className="flex items-center gap-1">
+              <CheckCircle className="w-3 h-3" />
+              Ready
+            </div>
           </Chip>
         )
       case 'processing':
         return (
-          <Chip startContent={<Loader2 className="w-3 h-3 animate-spin" />} variant="flat" size="sm">
-            Processing
+          <Chip variant="secondary" size="sm">
+            <div className="flex items-center gap-1">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              Processing
+            </div>
           </Chip>
         )
       case 'failed':
         return (
-          <Tooltip content={error || 'Extraction failed'}>
-            <Chip startContent={<AlertCircle className="w-3 h-3" />} variant="flat" size="sm">
-              Failed
-            </Chip>
+          <Tooltip>
+            <Tooltip.Trigger>
+              <Chip variant="secondary" size="sm">
+                <div className="flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  Failed
+                </div>
+              </Chip>
+            </Tooltip.Trigger>
+            <Tooltip.Content>{error || 'Extraction failed'}</Tooltip.Content>
           </Tooltip>
         )
       case 'unsupported':
         return (
-          <Chip variant="flat" size="sm" className="bg-content-tertiary/20 text-content-tertiary">
+          <Chip variant="secondary" size="sm" className="bg-content-tertiary/20 text-content-tertiary">
             Unsupported
           </Chip>
         )
       default:
         return (
-          <Chip variant="flat" size="sm">
+          <Chip variant="secondary" size="sm">
             Pending
           </Chip>
         )
@@ -180,22 +205,31 @@ export function KnowledgeConfiguration({
 
   return (
     <div className={cn(ds.form.fieldGroup)}>
-      <Input
-        placeholder="Search knowledge base..."
-        startContent={
-          isSearching ? (
+      <div className="relative flex items-center w-full bg-surface-secondary rounded-lg border border-border-default focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500 transition-all h-10 mb-4">
+        <div className="pl-3 flex items-center pointer-events-none">
+          {isSearching ? (
             <Loader2 className="w-4 h-4 animate-spin" />
           ) : (
             <Search className="w-4 h-4 text-content-tertiary" />
-          )
-        }
-        onChange={e => handleSearch(e.target.value)}
-        className="mb-4"
-        aria-label="Search knowledge base"
-      />
+          )}
+        </div>
+        <Input
+          placeholder="Search knowledge base..."
+          onChange={e => handleSearch(e.target.value)}
+          aria-label="Search knowledge base"
+          className="flex-1 bg-transparent border-none focus:ring-0 px-3 py-2 text-sm"
+        />
+      </div>
 
-      <Tabs aria-label="Knowledge configuration" variant="underlined">
-        <Tab key="files" title="Files">
+      <Tabs aria-label="Knowledge configuration">
+        <Tabs.List>
+          <Tabs.Tab id="files">Files</Tabs.Tab>
+          <Tabs.Tab id="urls">URLs</Tabs.Tab>
+          <Tabs.Tab id="snippets">Snippets</Tabs.Tab>
+          <Tabs.Tab id="summary">Summary</Tabs.Tab>
+        </Tabs.List>
+
+        <Tabs.Panel id="files">
           <div className="space-y-6 pt-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="w-full max-w-md">
@@ -204,23 +238,21 @@ export function KnowledgeConfiguration({
                   orientation="vertical"
                   value={extractionMode}
                   onChange={val => onExtractionModeChange(val as 'manual' | 'auto')}
-                  classNames={{
-                    wrapper: 'gap-3',
-                  }}
+                  className="gap-3"
                 >
                   <div className="flex items-center justify-between p-2 rounded-lg hover:bg-surface-secondary/50 transition-colors">
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">Manual</span>
                       <span className="text-xs text-content-tertiary">Extract when ready</span>
                     </div>
-                    <Radio value="manual" aria-label="Manual" classNames={{base: 'm-0 p-0'}} />
+                    <Radio value="manual" aria-label="Manual" className="m-0 p-0" />
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-lg hover:bg-surface-secondary/50 transition-colors">
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">Auto-extract</span>
                       <span className="text-xs text-content-tertiary">Extract on upload</span>
                     </div>
-                    <Radio value="auto" aria-label="Auto-extract" classNames={{base: 'm-0 p-0'}} />
+                    <Radio value="auto" aria-label="Auto-extract" className="m-0 p-0" />
                   </div>
                 </RadioGroup>
               </div>
@@ -322,22 +354,23 @@ export function KnowledgeConfiguration({
               </div>
             )}
           </div>
-        </Tab>
+        </Tabs.Panel>
 
-        <Tab key="urls" title="URLs">
+        <Tabs.Panel id="urls">
           <div className="space-y-6 pt-4">
             <div className="grid gap-6">
               <Card>
                 <Card.Content>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="https://example.com/docs"
-                      label="Add URL to cache"
-                      value={newUrlCache}
-                      onChange={e => setNewUrlCache(e.target.value)}
-                      className="flex-1"
-                    />
-                    <Button onPress={handleCacheUrl} variant="primary" className="h-full">
+                  <div className="flex gap-2 items-end">
+                    <TextField className="flex-1 flex flex-col gap-1">
+                      <Label>Add URL to cache</Label>
+                      <Input
+                        placeholder="https://example.com/docs"
+                        value={newUrlCache}
+                        onChange={e => setNewUrlCache(e.target.value)}
+                      />
+                    </TextField>
+                    <Button onPress={handleCacheUrl} variant="primary" className="h-10">
                       Cache URL
                     </Button>
                   </div>
@@ -349,14 +382,14 @@ export function KnowledgeConfiguration({
                   <h4 className={ds.text.heading.h4}>Simple URLs (Legacy)</h4>
                   {urls.map((url, index) => (
                     <div key={`legacy-url-${url || 'empty'}-${index}`} className="flex gap-2 items-center">
-                      <Input
-                        value={url}
-                        onChange={e => onUrlChange(index, e.target.value)}
-                        className="flex-1"
-                        isInvalid={!!errors.knowledge.urls[index]}
-                        errorMessage={errors.knowledge.urls[index]}
-                        aria-label={`URL ${index + 1}`}
-                      />
+                      <TextField isInvalid={!!errors.knowledge.urls[index]} className="flex-1 flex flex-col gap-1">
+                        <Input
+                          value={url}
+                          onChange={e => onUrlChange(index, e.target.value)}
+                          aria-label={`URL ${index + 1}`}
+                        />
+                        <FieldError>{errors.knowledge.urls[index]}</FieldError>
+                      </TextField>
                       <Button isIconOnly variant="danger" onPress={() => onRemoveUrl(index)} aria-label="Remove URL">
                         <Trash2 className="w-4 h-4" />
                       </Button>
@@ -392,19 +425,18 @@ export function KnowledgeConfiguration({
                             </td>
                             <td className="px-4 py-3">
                               {url.status === 'ready' ? (
-                                <Chip variant="flat" size="sm">
+                                <Chip variant="secondary" size="sm">
                                   Ready
                                 </Chip>
                               ) : url.status === 'fetching' ? (
-                                <Chip
-                                  variant="flat"
-                                  size="sm"
-                                  startContent={<Loader2 className="w-3 h-3 animate-spin" />}
-                                >
-                                  Fetching
+                                <Chip variant="secondary" size="sm">
+                                  <div className="flex items-center gap-1">
+                                    <Loader2 className="w-3 h-3 animate-spin" />
+                                    Fetching
+                                  </div>
                                 </Chip>
                               ) : (
-                                <Chip variant="flat" size="sm">
+                                <Chip variant="secondary" size="sm">
                                   Failed
                                 </Chip>
                               )}
@@ -447,42 +479,48 @@ export function KnowledgeConfiguration({
               )}
             </div>
           </div>
-        </Tab>
+        </Tabs.Panel>
 
-        <Tab key="snippets" title="Snippets">
+        <Tabs.Panel id="snippets">
           <div className="space-y-6 pt-4">
             <Card>
               <Card.Content className="space-y-4">
-                <Input
-                  label="Title"
-                  placeholder="My code snippet"
-                  value={snippetForm.title || ''}
-                  onChange={e => setSnippetForm(prev => ({...prev, title: e.target.value}))}
-                  isRequired
-                />
-                <Textarea
-                  label="Content"
-                  placeholder="Paste your text..."
-                  value={snippetForm.content || ''}
-                  onChange={e => setSnippetForm(prev => ({...prev, content: e.target.value}))}
-                  minRows={8}
-                  maxLength={100000}
-                  isRequired
-                />
-                <Input
-                  label="Tags (comma-separated)"
-                  placeholder="typescript, react, hooks"
-                  value={snippetForm.tags?.join(', ') || ''}
-                  onChange={e =>
-                    setSnippetForm(prev => ({
-                      ...prev,
-                      tags: e.target.value
-                        .split(',')
-                        .map(t => t.trim())
-                        .filter(Boolean),
-                    }))
-                  }
-                />
+                <TextField className="flex flex-col gap-1">
+                  <Label>Title</Label>
+                  <Input
+                    placeholder="My code snippet"
+                    value={snippetForm.title || ''}
+                    onChange={e => setSnippetForm(prev => ({...prev, title: e.target.value}))}
+                    required
+                  />
+                </TextField>
+                <TextField className="flex flex-col gap-1">
+                  <Label>Content</Label>
+                  <TextArea
+                    placeholder="Paste your text..."
+                    value={snippetForm.content || ''}
+                    onChange={e => setSnippetForm(prev => ({...prev, content: e.target.value}))}
+                    rows={8}
+                    maxLength={100000}
+                    required
+                  />
+                </TextField>
+                <TextField className="flex flex-col gap-1">
+                  <Label>Tags (comma-separated)</Label>
+                  <Input
+                    placeholder="typescript, react, hooks"
+                    value={snippetForm.tags?.join(', ') || ''}
+                    onChange={e =>
+                      setSnippetForm(prev => ({
+                        ...prev,
+                        tags: e.target.value
+                          .split(',')
+                          .map(t => t.trim())
+                          .filter(Boolean),
+                      }))
+                    }
+                  />
+                </TextField>
                 <div className="flex gap-2">
                   <Button
                     onPress={handleSaveSnippet}
@@ -517,7 +555,7 @@ export function KnowledgeConfiguration({
                         {snippet.tags && snippet.tags.length > 0 && (
                           <div className="flex gap-1 flex-wrap mb-4">
                             {snippet.tags.map(tag => (
-                              <Chip key={tag} size="sm" variant="flat" className="text-xs">
+                              <Chip key={tag} size="sm" variant="secondary" className="text-xs">
                                 {tag}
                               </Chip>
                             ))}
@@ -543,9 +581,9 @@ export function KnowledgeConfiguration({
                 ))}
             </div>
           </div>
-        </Tab>
+        </Tabs.Panel>
 
-        <Tab key="summary" title="Summary">
+        <Tabs.Panel id="summary">
           <div className="pt-4">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <Card>
@@ -586,7 +624,7 @@ export function KnowledgeConfiguration({
               </Card>
             </div>
           </div>
-        </Tab>
+        </Tabs.Panel>
       </Tabs>
     </div>
   )
