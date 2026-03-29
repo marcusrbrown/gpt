@@ -110,7 +110,8 @@ export function MCPSettings() {
             Manage Model Context Protocol servers to extend AI capabilities with tools and resources.
           </p>
         </div>
-        <Button variant="primary" onPress={handleAddServer} startContent={<span>+</span>}>
+        <Button variant="primary" onPress={handleAddServer}>
+          <span>+</span>
           Add Server
         </Button>
       </div>
@@ -128,7 +129,7 @@ export function MCPSettings() {
           <p className={cn(ds.text.body.small, 'text-default-500 mt-2 mb-4')}>
             Add an MCP server to connect tools, resources, and prompts.
           </p>
-          <Button variant="secondary" variant="primary" onPress={handleAddServer}>
+          <Button variant="primary" onPress={handleAddServer}>
             Add Your First Server
           </Button>
         </div>

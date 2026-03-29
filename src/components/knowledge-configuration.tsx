@@ -143,33 +143,33 @@ export function KnowledgeConfiguration({
     switch (status) {
       case 'completed':
         return (
-          <Chip startContent={<CheckCircle className="w-3 h-3" />} variant="success" variant="secondary" size="sm">
+          <Chip startContent={<CheckCircle className="w-3 h-3" />} variant="flat" size="sm">
             Ready
           </Chip>
         )
       case 'processing':
         return (
-          <Chip startContent={<Loader2 className="w-3 h-3 animate-spin" />} variant="primary" variant="secondary" size="sm">
+          <Chip startContent={<Loader2 className="w-3 h-3 animate-spin" />} variant="flat" size="sm">
             Processing
           </Chip>
         )
       case 'failed':
         return (
           <Tooltip content={error || 'Extraction failed'}>
-            <Chip startContent={<AlertCircle className="w-3 h-3" />} variant="danger" variant="secondary" size="sm">
+            <Chip startContent={<AlertCircle className="w-3 h-3" />} variant="flat" size="sm">
               Failed
             </Chip>
           </Tooltip>
         )
       case 'unsupported':
         return (
-          <Chip variant="secondary" size="sm" className="bg-content-tertiary/20 text-content-tertiary">
+          <Chip variant="flat" size="sm" className="bg-content-tertiary/20 text-content-tertiary">
             Unsupported
           </Chip>
         )
       default:
         return (
-          <Chip variant="warning" variant="secondary" size="sm">
+          <Chip variant="flat" size="sm">
             Pending
           </Chip>
         )
@@ -194,7 +194,7 @@ export function KnowledgeConfiguration({
         aria-label="Search knowledge base"
       />
 
-      <Tabs aria-label="Knowledge configuration" variant="primary" variant="underlined">
+      <Tabs aria-label="Knowledge configuration" variant="underlined">
         <Tab key="files" title="Files">
           <div className="space-y-6 pt-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -231,8 +231,8 @@ export function KnowledgeConfiguration({
                     onExtractAllPending().catch(console.error)
                   }}
                   variant="primary"
-                  startContent={<RefreshCw className="w-4 h-4" />}
                 >
+                  <RefreshCw className="w-4 h-4" />
                   Extract All Pending ({pendingCount})
                 </Button>
               )}
@@ -307,7 +307,6 @@ export function KnowledgeConfiguration({
                                 isIconOnly
                                 size="sm"
                                 variant="danger"
-                                variant="tertiary"
                                 onPress={() => onRemoveFile(index)}
                                 aria-label="Remove file"
                               >
@@ -358,13 +357,7 @@ export function KnowledgeConfiguration({
                         errorMessage={errors.knowledge.urls[index]}
                         aria-label={`URL ${index + 1}`}
                       />
-                      <Button
-                        isIconOnly
-                        variant="danger"
-                        variant="tertiary"
-                        onPress={() => onRemoveUrl(index)}
-                        aria-label="Remove URL"
-                      >
+                      <Button isIconOnly variant="danger" onPress={() => onRemoveUrl(index)} aria-label="Remove URL">
                         <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
@@ -399,20 +392,19 @@ export function KnowledgeConfiguration({
                             </td>
                             <td className="px-4 py-3">
                               {url.status === 'ready' ? (
-                                <Chip variant="success" variant="secondary" size="sm">
+                                <Chip variant="flat" size="sm">
                                   Ready
                                 </Chip>
                               ) : url.status === 'fetching' ? (
                                 <Chip
-                                  variant="primary"
-                                  variant="secondary"
+                                  variant="flat"
                                   size="sm"
                                   startContent={<Loader2 className="w-3 h-3 animate-spin" />}
                                 >
                                   Fetching
                                 </Chip>
                               ) : (
-                                <Chip variant="danger" variant="secondary" size="sm">
+                                <Chip variant="flat" size="sm">
                                   Failed
                                 </Chip>
                               )}
@@ -437,7 +429,6 @@ export function KnowledgeConfiguration({
                                   isIconOnly
                                   size="sm"
                                   variant="danger"
-                                  variant="tertiary"
                                   onPress={() => {
                                     onRemoveCachedUrl(url.id).catch(console.error)
                                   }}
@@ -526,7 +517,7 @@ export function KnowledgeConfiguration({
                         {snippet.tags && snippet.tags.length > 0 && (
                           <div className="flex gap-1 flex-wrap mb-4">
                             {snippet.tags.map(tag => (
-                              <Chip key={tag} size="sm" variant="secondary" className="text-xs">
+                              <Chip key={tag} size="sm" variant="flat" className="text-xs">
                                 {tag}
                               </Chip>
                             ))}
@@ -539,7 +530,6 @@ export function KnowledgeConfiguration({
                         </Button>
                         <Button
                           size="sm"
-                          variant="tertiary"
                           variant="danger"
                           onPress={() => {
                             onDeleteSnippet(snippet.id).catch(console.error)

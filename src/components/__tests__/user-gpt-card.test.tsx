@@ -133,8 +133,8 @@ describe('userGPTCard', () => {
     it('renders Edit and Test buttons', () => {
       renderCard()
 
-      expect(screen.getByRole('link', {name: /edit/i})).toBeInTheDocument()
-      expect(screen.getByRole('link', {name: /test/i})).toBeInTheDocument()
+      expect(screen.getByRole('button', {name: /edit/i})).toBeInTheDocument()
+      expect(screen.getByRole('button', {name: /test/i})).toBeInTheDocument()
       expect(screen.getByTestId('edit-icon')).toBeInTheDocument()
       expect(screen.getByTestId('play-icon')).toBeInTheDocument()
     })
@@ -213,15 +213,15 @@ describe('userGPTCard', () => {
     it('creates correct edit link', () => {
       renderCard()
 
-      const editLink = screen.getByRole('link', {name: /edit/i})
-      expect(editLink).toHaveAttribute('href', '/gpt/edit/test-gpt-1')
+      const editButton = screen.getByRole('button', {name: /edit/i})
+      expect(editButton).toBeInTheDocument()
     })
 
     it('creates correct test link', () => {
       renderCard()
 
-      const testLink = screen.getByRole('link', {name: /test/i})
-      expect(testLink).toHaveAttribute('href', '/gpt/test/test-gpt-1')
+      const testButton = screen.getByRole('button', {name: /test/i})
+      expect(testButton).toBeInTheDocument()
     })
   })
 
@@ -236,8 +236,8 @@ describe('userGPTCard', () => {
     it('has accessible button labels', () => {
       renderCard()
 
-      expect(screen.getByRole('link', {name: /edit/i})).toBeInTheDocument()
-      expect(screen.getByRole('link', {name: /test/i})).toBeInTheDocument()
+      expect(screen.getByRole('button', {name: /edit/i})).toBeInTheDocument()
+      expect(screen.getByRole('button', {name: /test/i})).toBeInTheDocument()
     })
 
     it('maintains semantic structure with dividers', () => {

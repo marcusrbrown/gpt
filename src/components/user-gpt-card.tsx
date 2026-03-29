@@ -4,7 +4,7 @@ import {cn, compose, ds} from '@/lib/design-system'
 import {Button, Card, Divider, Skeleton} from '@heroui/react'
 
 import {Edit, Play} from 'lucide-react'
-import {Link} from 'react-router-dom'
+import {useNavigate} from 'react-router-dom'
 
 export interface UserGPTCardProps {
   gpt: GPTConfiguration
@@ -13,6 +13,12 @@ export interface UserGPTCardProps {
 }
 
 export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error = null}) => {
+  const navigate = useNavigate()
+
+  const handleNavigate = (path: string) => {
+    navigate(path).catch(console.error)
+  }
+
   return (
     <Card
       className={cn(
@@ -72,25 +78,21 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
         ) : (
           <>
             <Button
-              as={Link}
-              to={`/gpt/edit/${gpt.id}`}
+              onPress={() => handleNavigate(`/gpt/edit/${gpt.id}`)}
               variant="secondary"
-              variant="primary"
-              startContent={<Edit size={16} />}
-              className={cn('flex items-center', ds.animation.buttonPress)}
+              className={cn('flex items-center gap-1', ds.animation.buttonPress)}
               size="sm"
             >
+              <Edit size={16} />
               Edit
             </Button>
             <Button
-              as={Link}
-              to={`/gpt/test/${gpt.id}`}
+              onPress={() => handleNavigate(`/gpt/test/${gpt.id}`)}
               variant="primary"
-              variant="primary"
-              startContent={<Play size={16} />}
-              className={cn('flex items-center', ds.animation.buttonPress)}
+              className={cn('flex items-center gap-1', ds.animation.buttonPress)}
               size="sm"
             >
+              <Play size={16} />
               Test
             </Button>
           </>

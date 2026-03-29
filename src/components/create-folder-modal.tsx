@@ -96,7 +96,7 @@ export function CreateFolderModal({isOpen, onClose, onFolderCreated, parentFolde
           onPress={() => {
             handleSubmit().catch(() => {})
           }}
-          isLoading={isLoading}
+          isPending={isLoading}
           isDisabled={!folderName.trim()}
         >
           Create Folder

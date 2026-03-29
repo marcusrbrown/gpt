@@ -12,7 +12,6 @@ export const ThemeSwitch: FC = () => {
       onPress={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')}
       isIconOnly
       variant="tertiary"
-      variant="secondary"
       className={cn(
         'min-w-[40px] h-[40px] flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
         'active:scale-[0.98] active:shadow-sm transition-transform duration-100',

@@ -1,27 +1,37 @@
 import {ThemeSwitch} from '@/components/theme-switch'
 import {cn, ds, theme} from '@/lib/design-system'
-import {Button, Input, type ButtonProps} from '@heroui/react'
+import {Button, Input} from '@heroui/react'
 import {Archive, BookOpen, Github, Menu, Search, Settings, X} from 'lucide-react'
-import {useEffect, useState, type ElementType} from 'react'
-import {Link as RouterLink, type LinkProps} from 'react-router-dom'
+import {useEffect, useState} from 'react'
+import {Link as RouterLink, useNavigate} from 'react-router-dom'
 
-type ButtonLinkProps = ButtonProps & {
-  to: string
-} & Omit<LinkProps, keyof {to: string; className: string}>
-
-const ButtonLink = ({to, children, className, ...props}: ButtonLinkProps) => (
-  <Button
-    as={RouterLink as ElementType}
-    to={to}
-    className={cn(
-      'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
-      className,
-    )}
-    {...props}
-  >
-    {children}
-  </Button>
-)
+const ButtonLink = ({
+  to,
+  children,
+  className,
+  onPress,
+  ...props
+}: {to: string; children: React.ReactNode; className?: string; onPress?: () => void} & Omit<
+  React.ComponentProps<typeof Button>,
+  'onPress'
+>) => {
+  const navigate = useNavigate()
+  return (
+    <Button
+      className={cn(
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
+        className,
+      )}
+      onPress={() => {
+        onPress?.()
+        Promise.resolve(navigate(to)).catch(console.error)
+      }}
+      {...props}
+    >
+      {children}
+    </Button>
+  )
+}
 
 export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -54,7 +64,6 @@ export const Navbar = () => {
           <Button
             isIconOnly
             variant="tertiary"
-            variant="secondary"
             className={cn('lg:hidden min-w-[40px] h-[40px] flex items-center justify-center', ds.animation.transition)}
             onPress={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
@@ -101,7 +110,6 @@ export const Navbar = () => {
             to="/settings"
             isIconOnly
             variant="tertiary"
-            variant="secondary"
             className={cn('hidden sm:flex min-w-[40px] h-[40px] items-center justify-center')}
             aria-label="Settings"
           >
@@ -111,7 +119,6 @@ export const Navbar = () => {
             to="/backup"
             isIconOnly
             variant="tertiary"
-            variant="secondary"
             className={cn('hidden sm:flex min-w-[40px] h-[40px] items-center justify-center')}
             aria-label="Backup & Restore"
           >
@@ -121,27 +128,22 @@ export const Navbar = () => {
             to="/docs"
             isIconOnly
             variant="tertiary"
-            variant="secondary"
             className={cn('min-w-[40px] h-[40px] flex items-center justify-center')}
             aria-label="Documentation"
           >
             <BookOpen size={20} className={theme.content('primary')} />
           </ButtonLink>
-          <Button
-            as="a"
+          <a
             href="https://github.com/marcusrbrown/gpt"
             target="_blank"
             rel="noopener noreferrer"
-            isIconOnly
-            variant="tertiary"
-            variant="secondary"
             className={cn(
               'min-w-[40px] h-[40px] flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
             )}
             aria-label="GitHub repository"
           >
             <Github size={20} className={theme.content('primary')} />
-          </Button>
+          </a>
           <ThemeSwitch />
         </nav>
       </div>
@@ -166,7 +168,6 @@ export const Navbar = () => {
               <ButtonLink
                 to="/settings"
                 isIconOnly
-                variant="tertiary"
                 variant="primary"
                 size="lg"
                 className={cn('min-w-[44px] h-[44px] flex items-center justify-center')}
@@ -194,7 +195,6 @@ export const Navbar = () => {
               />
               <ButtonLink
                 to="/backup"
-                variant="tertiary"
                 variant="secondary"
                 className={cn('justify-start h-12', ds.animation.transition)}
                 onPress={() => setIsMobileMenuOpen(false)}
@@ -205,7 +205,6 @@ export const Navbar = () => {
               </ButtonLink>
               <ButtonLink
                 to="/docs"
-                variant="tertiary"
                 variant="secondary"
                 className={cn('justify-start h-12', ds.animation.transition)}
                 onPress={() => setIsMobileMenuOpen(false)}
@@ -214,19 +213,16 @@ export const Navbar = () => {
                 <BookOpen size={20} className={cn(theme.content('primary'), 'mr-3')} aria-hidden="true" />
                 Documentation
               </ButtonLink>
-              <Button
-                as="a"
+              <a
                 href="https://github.com/marcusrbrown/gpt"
                 target="_blank"
                 rel="noopener noreferrer"
-                variant="tertiary"
-                variant="secondary"
-                className={cn('justify-start h-12', ds.animation.transition)}
+                className={cn('justify-start h-12 flex items-center', ds.animation.transition)}
                 aria-label="Visit GitHub repository (opens in new tab)"
               >
                 <Github size={20} className={cn(theme.content('primary'), 'mr-3')} aria-hidden="true" />
                 GitHub
-              </Button>
+              </a>
             </nav>
           </div>
         </>

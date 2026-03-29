@@ -139,7 +139,6 @@ export function AnthropicSettings() {
             onPress={() => {
               handleClearKey().catch(console.error)
             }}
-            variant="bordered"
             variant="danger"
             isDisabled={!isConfigured}
             className={cn(ds.focus.ring, ds.animation.transition)}
