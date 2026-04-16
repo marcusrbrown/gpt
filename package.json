@@ -78,7 +78,7 @@
     "@vitejs/plugin-react-swc": "4.3.0",
     "@vitest/coverage-v8": "4.1.4",
     "@vitest/eslint-plugin": "1.6.15",
-    "autoprefixer": "10.4.27",
+    "autoprefixer": "10.5.0",
     "eslint": "10.2.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-prettier": "5.5.5",
