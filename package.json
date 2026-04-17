@@ -39,7 +39,7 @@
     "@langchain/openai": "1.4.4",
     "@modelcontextprotocol/sdk": "1.29.0",
     "@monaco-editor/react": "4.7.0",
-    "@react-aria/ssr": "3.9.10",
+    "@react-aria/ssr": "3.10.0",
     "clsx": "2.1.1",
     "dexie": "4.4.2",
     "file-saver": "2.0.5",
