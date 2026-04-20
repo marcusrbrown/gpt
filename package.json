@@ -59,7 +59,7 @@
     "zod": "4.3.6"
   },
   "devDependencies": {
-    "@axe-core/playwright": "4.11.1",
+    "@axe-core/playwright": "4.11.2",
     "@bfra.me/eslint-config": "0.50.1",
     "@bfra.me/prettier-config": "0.16.6",
     "@bfra.me/tsconfig": "0.12.1",
