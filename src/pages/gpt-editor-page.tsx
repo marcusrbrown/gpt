@@ -376,8 +376,8 @@ export function GPTEditorPage() {
       a.click()
       a.remove()
       URL.revokeObjectURL(url)
-    } catch (error) {
-      console.error('Error exporting GPT:', error)
+    } catch (error_) {
+      console.error('Error exporting GPT:', error_)
     } finally {
       setIsExporting(false)
     }

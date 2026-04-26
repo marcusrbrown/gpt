@@ -1,7 +1,7 @@
 import {Button} from '@heroui/react'
 import Editor from '@monaco-editor/react'
 import {useCallback, useState} from 'react'
-import {cn, ds, theme} from '../../lib/design-system'
+import {cn, ds, theme} from '@/lib/design-system'
 
 interface NotebookCell {
   id: string

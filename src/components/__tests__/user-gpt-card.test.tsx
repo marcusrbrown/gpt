@@ -1,4 +1,4 @@
-import type {GPTConfiguration} from '../../types/gpt'
+import type {GPTConfiguration} from '@/types/gpt'
 import {render, screen} from '@testing-library/react'
 import React from 'react'
 import {MemoryRouter} from 'react-router-dom'

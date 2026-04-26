@@ -134,8 +134,8 @@ export function GPTTestPage() {
       setIsChatLoading(false)
 
       return {assistantId: assistant.id, threadId: thread.id, title: newName}
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Failed to initialize assistant')
+    } catch (error_) {
+      setError(error_ instanceof Error ? error_.message : 'Failed to initialize assistant')
       setIsChatLoading(false)
       return null
     }
@@ -312,9 +312,9 @@ export function GPTTestPage() {
                         result = toolResult.isError
                           ? {error: 'Tool execution failed', details: toolResult}
                           : toolResult.content
-                      } catch (error) {
-                        console.error('Tool execution error:', error)
-                        result = {error: error instanceof Error ? error.message : 'Unknown tool execution error'}
+                      } catch (error_) {
+                        console.error('Tool execution error:', error_)
+                        result = {error: error_ instanceof Error ? error_.message : 'Unknown tool execution error'}
                       }
                     } else {
                       // Fallback to mock if MCP is not set up for this tool
@@ -338,8 +338,8 @@ export function GPTTestPage() {
 
               // Submit outputs and continue streaming
               await openAIService.submitToolOutputs(currentThreadId, currentRunId, toolOutputs)
-            } catch (error) {
-              console.error('Error handling tool calls:', error)
+            } catch (error_) {
+              console.error('Error handling tool calls:', error_)
               setError('Failed to execute tools')
             }
           }
@@ -427,8 +427,8 @@ export function GPTTestPage() {
       } else {
         throw new Error('Thread ID is missing')
       }
-    } catch (error) {
-      setError(error instanceof Error ? error.message : 'Error sending message')
+    } catch (error_) {
+      setError(error_ instanceof Error ? error_.message : 'Error sending message')
       setIsChatLoading(false)
     }
   }
@@ -478,8 +478,8 @@ export function GPTTestPage() {
 
               handleStreamUpdate(typedUpdate, threadId, activeRunId).catch(console.error)
             })
-          } catch (error) {
-            setError(error instanceof Error ? error.message : 'Error regenerating')
+          } catch (error_) {
+            setError(error_ instanceof Error ? error_.message : 'Error regenerating')
             setIsChatLoading(false)
           }
         }

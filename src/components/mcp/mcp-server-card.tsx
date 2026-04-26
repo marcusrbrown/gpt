@@ -25,8 +25,8 @@ export function MCPServerCard({server, onEdit, onDelete, onViewTools}: MCPServer
       } else {
         await connect(server.id)
       }
-    } catch (error) {
-      console.error('Failed to toggle connection:', error)
+    } catch (error_) {
+      console.error('Failed to toggle connection:', error_)
     } finally {
       setIsToggling(false)
     }
