@@ -420,7 +420,7 @@ export function GPTEditorPage() {
           aria-live="polite"
         >
           <div className={cn(ds.card.base, ds.card.elevated, 'flex items-center gap-3 p-4')}>
-            <Spinner size="md" color="primary" />
+            <Spinner size="md" variant="primary" />
             <span className={cn(ds.text.body.base, 'text-content-primary')}>Validating...</span>
           </div>
         </div>
@@ -477,44 +477,44 @@ export function GPTEditorPage() {
 
             {gptId && (
               <Button
-                variant="flat"
+                variant="secondary"
                 isIconOnly
                 onPress={() => setIsVersionHistoryOpen(true)}
                 className={cn(ds.animation.buttonPress)}
-                title="Version History"
+                aria-label="Version History"
               >
                 <History size={18} />
               </Button>
             )}
 
             <Button
-              variant="flat"
+              variant="secondary"
               isIconOnly
               onPress={() => importGptRef.current?.click()}
               className={cn(ds.animation.buttonPress)}
-              title="Import GPT Config"
+              aria-label="Import GPT Config"
             >
               <Upload size={18} />
             </Button>
 
             <Button
-              variant="flat"
+              variant="secondary"
               isIconOnly
               onPress={handleExportGPT}
               isDisabled={isExporting}
               className={cn(ds.animation.buttonPress)}
-              title="Export GPT Config"
+              aria-label="Export GPT Config"
             >
               {isExporting ? <Spinner size="sm" /> : <Download size={18} />}
             </Button>
 
             <Button
-              color="primary"
+              variant="primary"
               isIconOnly
               onPress={handleTestGpt}
               className="flex items-center shadow-sm"
               isDisabled={!gpt.id}
-              title="Test GPT"
+              aria-label="Test GPT"
             >
               <Play size={18} />
             </Button>
@@ -528,7 +528,7 @@ export function GPTEditorPage() {
             className={cn(ds.state.error, 'mt-4 p-3 rounded-lg flex items-center justify-between')}
           >
             <span>{importError}</span>
-            <Button size="sm" variant="light" onPress={() => setImportError(null)}>
+            <Button size="sm" variant="tertiary" onPress={() => setImportError(null)}>
               Dismiss
             </Button>
           </div>
@@ -541,7 +541,6 @@ export function GPTEditorPage() {
           selectedKey={activeTab}
           onSelectionChange={key => setActiveTab(key as string)}
           variant="underlined"
-          color="primary"
           aria-label="GPT Editor Sections"
           classNames={{
             base: 'w-full border-b border-default-200 bg-surface-primary z-10',

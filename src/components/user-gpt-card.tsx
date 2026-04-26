@@ -1,10 +1,10 @@
 import type {FC} from 'react'
 import type {GPTConfiguration} from '../types/gpt'
 import {cn, compose, ds} from '@/lib/design-system'
-import {Button, Card, CardBody, CardFooter, CardHeader, Divider, Skeleton} from '@heroui/react'
+import {Button, Card, Divider, Skeleton} from '@heroui/react'
 
 import {Edit, Play} from 'lucide-react'
-import {Link} from 'react-router-dom'
+import {useNavigate} from 'react-router-dom'
 
 export interface UserGPTCardProps {
   gpt: GPTConfiguration
@@ -13,6 +13,12 @@ export interface UserGPTCardProps {
 }
 
 export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error = null}) => {
+  const navigate = useNavigate()
+
+  const handleNavigate = (path: string) => {
+    navigate(path).catch(console.error)
+  }
+
   return (
     <Card
       className={cn(
@@ -28,7 +34,7 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
       shadow="sm"
       data-testid="user-gpt-card"
     >
-      <CardHeader className="flex gap-4 pb-3">
+      <Card.Header className="flex gap-4 pb-3">
         {error ? (
           <div className="flex flex-col">
             <p className={cn(ds.text.heading.h4, 'text-danger')}>Error Loading GPT</p>
@@ -47,9 +53,9 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
             <p className={cn(ds.text.body.small)}>Updated: {new Date(gpt.updatedAt).toLocaleDateString()}</p>
           </div>
         )}
-      </CardHeader>
+      </Card.Header>
       <Divider />
-      <CardBody>
+      <Card.Content>
         {error ? (
           <p className={cn(ds.text.body.base, 'text-danger')}>Unable to load GPT data. Please try again later.</p>
         ) : isLoading ? (
@@ -61,9 +67,9 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
         ) : (
           <p className={cn(ds.text.body.base, 'line-clamp-3')}>{gpt.description || 'No description provided.'}</p>
         )}
-      </CardBody>
+      </Card.Content>
       <Divider />
-      <CardFooter className="flex justify-between gap-3">
+      <Card.Footer className="flex justify-between gap-3">
         {error || isLoading ? (
           <>
             <Skeleton className="h-10 w-20 rounded-lg" />
@@ -72,30 +78,26 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
         ) : (
           <>
             <Button
-              as={Link}
-              to={`/gpt/edit/${gpt.id}`}
-              variant="flat"
-              color="primary"
-              startContent={<Edit size={16} />}
-              className={cn('flex items-center', ds.animation.buttonPress)}
+              onPress={() => handleNavigate(`/gpt/edit/${gpt.id}`)}
+              variant="secondary"
+              className={cn('flex items-center gap-1', ds.animation.buttonPress)}
               size="sm"
             >
+              <Edit size={16} />
               Edit
             </Button>
             <Button
-              as={Link}
-              to={`/gpt/test/${gpt.id}`}
-              variant="solid"
-              color="primary"
-              startContent={<Play size={16} />}
-              className={cn('flex items-center', ds.animation.buttonPress)}
+              onPress={() => handleNavigate(`/gpt/test/${gpt.id}`)}
+              variant="primary"
+              className={cn('flex items-center gap-1', ds.animation.buttonPress)}
               size="sm"
             >
+              <Play size={16} />
               Test
             </Button>
           </>
         )}
-      </CardFooter>
+      </Card.Footer>
     </Card>
   )
 }

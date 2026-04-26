@@ -142,8 +142,7 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
                 />
                 <Button
                   isIconOnly
-                  color="danger"
-                  variant="light"
+                  variant="danger"
                   onPress={() => handleRemoveStarter(index)}
                   className={ds.animation.buttonPress}
                 >
@@ -151,7 +150,7 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
                 </Button>
               </div>
             ))}
-            <Button size="sm" variant="flat" onPress={handleAddStarter} className={cn(ds.animation.buttonPress)}>
+            <Button size="sm" variant="secondary" onPress={handleAddStarter} className={cn(ds.animation.buttonPress)}>
               + Add Starter
             </Button>
           </div>

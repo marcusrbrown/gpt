@@ -68,7 +68,7 @@ export function FormFieldWrapper({
 
         {isLoading && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-            <Spinner size="sm" color="primary" />
+            <Spinner size="sm" variant="primary" />
           </div>
         )}
       </div>

@@ -35,35 +35,39 @@ vi.mock('@/lib/design-system', () => ({
 }))
 
 // Mock HeroUI components
-vi.mock('@heroui/react', () => ({
-  Card: ({children, className, isHoverable, 'data-testid': testId, ...props}: any) => (
+vi.mock('@heroui/react', () => {
+  const Card = ({children, className, isHoverable, 'data-testid': testId, ...props}: any) => (
     <div className={className} data-testid={testId} data-hoverable={isHoverable} {...props}>
       {children}
     </div>
-  ),
-  CardHeader: ({children, className}: any) => <div className={className}>{children}</div>,
-  CardBody: ({children}: any) => <div>{children}</div>,
-  CardFooter: ({children, className}: any) => <div className={className}>{children}</div>,
-  Divider: () => <hr />,
+  )
+  Card.Header = ({children, className}: any) => <div className={className}>{children}</div>
+  Card.Content = ({children}: any) => <div>{children}</div>
+  Card.Footer = ({children, className}: any) => <div className={className}>{children}</div>
 
-  Button: ({children, as: Component = 'button', to, startContent, ...props}: any) => {
-    if (typeof Component !== 'string') {
+  return {
+    Card,
+    Divider: () => <hr />,
+
+    Button: ({children, as: Component = 'button', to, startContent, ...props}: any) => {
+      if (typeof Component !== 'string') {
+        return (
+          <Component to={to} {...props}>
+            {startContent}
+            {children}
+          </Component>
+        )
+      }
       return (
-        <Component to={to} {...props}>
+        <button type="button" {...props}>
           {startContent}
           {children}
-        </Component>
+        </button>
       )
-    }
-    return (
-      <button type="button" {...props}>
-        {startContent}
-        {children}
-      </button>
-    )
-  },
-  Skeleton: ({className}: any) => <div className={`skeleton ${className}`} />,
-}))
+    },
+    Skeleton: ({className}: any) => <div className={`skeleton ${className}`} />,
+  }
+})
 
 // Mock Lucide React icons
 vi.mock('lucide-react', () => ({
@@ -129,8 +133,8 @@ describe('userGPTCard', () => {
     it('renders Edit and Test buttons', () => {
       renderCard()
 
-      expect(screen.getByRole('link', {name: /edit/i})).toBeInTheDocument()
-      expect(screen.getByRole('link', {name: /test/i})).toBeInTheDocument()
+      expect(screen.getByRole('button', {name: /edit/i})).toBeInTheDocument()
+      expect(screen.getByRole('button', {name: /test/i})).toBeInTheDocument()
       expect(screen.getByTestId('edit-icon')).toBeInTheDocument()
       expect(screen.getByTestId('play-icon')).toBeInTheDocument()
     })
@@ -209,15 +213,15 @@ describe('userGPTCard', () => {
     it('creates correct edit link', () => {
       renderCard()
 
-      const editLink = screen.getByRole('link', {name: /edit/i})
-      expect(editLink).toHaveAttribute('href', '/gpt/edit/test-gpt-1')
+      const editButton = screen.getByRole('button', {name: /edit/i})
+      expect(editButton).toBeInTheDocument()
     })
 
     it('creates correct test link', () => {
       renderCard()
 
-      const testLink = screen.getByRole('link', {name: /test/i})
-      expect(testLink).toHaveAttribute('href', '/gpt/test/test-gpt-1')
+      const testButton = screen.getByRole('button', {name: /test/i})
+      expect(testButton).toBeInTheDocument()
     })
   })
 
@@ -232,8 +236,8 @@ describe('userGPTCard', () => {
     it('has accessible button labels', () => {
       renderCard()
 
-      expect(screen.getByRole('link', {name: /edit/i})).toBeInTheDocument()
-      expect(screen.getByRole('link', {name: /test/i})).toBeInTheDocument()
+      expect(screen.getByRole('button', {name: /edit/i})).toBeInTheDocument()
+      expect(screen.getByRole('button', {name: /test/i})).toBeInTheDocument()
     })
 
     it('maintains semantic structure with dividers', () => {

@@ -108,7 +108,7 @@ export function VectorKnowledge({files, vectorStores, onCreateVectorStore, onDel
         </div>
 
         <Button
-          color="primary"
+          variant="primary"
           onPress={handleCreateStore}
           isDisabled={isCreating || selectedFiles.length === 0 || !newStoreName.trim()}
           className={cn(ds.animation.buttonPress)}
@@ -133,9 +133,8 @@ export function VectorKnowledge({files, vectorStores, onCreateVectorStore, onDel
                   </p>
                 </div>
                 <Button
-                  color="danger"
+                  variant="danger-soft"
                   size="sm"
-                  variant="ghost"
                   onPress={() => onDeleteVectorStore(store.id)}
                   className={cn(ds.animation.buttonPress)}
                 >

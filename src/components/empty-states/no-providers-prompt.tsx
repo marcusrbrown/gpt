@@ -60,12 +60,12 @@ export function NoProvidersPrompt() {
       </p>
 
       <Button
-        color="primary"
+        variant="primary"
         size="lg"
-        startContent={<Settings size={18} />}
         onPress={handleNavigateToSettings}
         className={cn('flex items-center gap-2', ds.animation.transition)}
       >
+        <Settings size={18} />
         Configure Providers
       </Button>
     </div>
