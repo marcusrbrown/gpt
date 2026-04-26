@@ -103,8 +103,8 @@ export function KnowledgeConfiguration({
         }
         setSnippetForm({})
         setIsEditingSnippet(null)
-      } catch (error) {
-        console.error('Failed to save snippet', error)
+      } catch (error_) {
+        console.error('Failed to save snippet', error_)
       }
     }
     save().catch(console.error)

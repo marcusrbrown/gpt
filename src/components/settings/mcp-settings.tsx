@@ -54,7 +54,7 @@ export function MCPSettings() {
         })
       }
       onClose()
-    } catch (error) {
+    } catch (error_) {
       addToast({
         title: 'Error',
         description: 'Failed to save MCP server configuration. Please try again.',
@@ -62,8 +62,8 @@ export function MCPSettings() {
         icon: <XCircle size={20} />,
         timeout: 5000,
       })
-      console.error('Failed to save server:', error)
-      throw error
+      console.error('Failed to save server:', error_)
+      throw error_
     }
   }
 

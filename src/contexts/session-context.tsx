@@ -88,8 +88,8 @@ export function SessionProvider({children}: SessionProviderProps) {
           setServicesReady(true)
           setIsInitialized(true)
         })
-      } catch (error) {
-        console.error('Failed to initialize security services:', error)
+      } catch (error_) {
+        console.error('Failed to initialize security services:', error_)
         if (!cancelled) {
           queueMicrotask(() => setIsInitialized(true))
         }

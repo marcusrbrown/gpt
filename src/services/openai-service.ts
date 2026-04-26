@@ -135,8 +135,8 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
     while (true) {
       try {
         return await fn()
-      } catch (error) {
-        const apiError = error as OpenAIError
+      } catch (error_) {
+        const apiError = error_ as OpenAIError
 
         // Only retry on potentially transient errors
         const shouldRetry =
@@ -147,7 +147,7 @@ const createOpenAIService = (config: OpenAIServiceConfig = {apiKey: null}) => {
             apiError.code === 'ECONNABORTED' || // Timeout
             apiError.code === 'ECONNRESET') // Connection reset
 
-        if (!shouldRetry) throw error
+        if (!shouldRetry) throw error_
 
         retries++
         console.warn(`Retry attempt ${retries}/${maxRetries} after ${delay}ms`)
