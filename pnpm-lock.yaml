@@ -92,7 +92,7 @@ importers:
         version: 4.11.3(playwright-core@1.59.1)
       '@bfra.me/eslint-config':
         specifier: 0.50.1
-        version: 0.50.1(f04b70117c0a2609deb1615434040ded)
+        version: 0.50.1(539760b3f035c1ea4256e1b04fb40195)
       '@bfra.me/prettier-config':
         specifier: 0.16.6
         version: 0.16.6(prettier@3.8.3)
@@ -142,8 +142,8 @@ importers:
         specifier: 4.1.5
         version: 4.1.5(vitest@4.1.5)
       '@vitest/eslint-plugin':
-        specifier: 1.6.16
-        version: 1.6.16(@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3)(vitest@4.1.5)
+        specifier: 1.6.17
+        version: 1.6.17(@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3)(vitest@4.1.5)
       autoprefixer:
         specifier: 10.5.0
         version: 10.5.0(postcss@8.5.14)
@@ -3047,8 +3047,8 @@ packages:
       '@vitest/browser':
         optional: true
 
-  '@vitest/eslint-plugin@1.6.16':
-    resolution: {integrity: sha512-2pBN1F1JXq6zTSaYC58CMJa7pGxXIRsLfOioeZM4cPE3pRdSh1ySTSoHPQlOTEF5WgoVzWZQxhGQ3ygT78hOVg==}
+  '@vitest/eslint-plugin@1.6.17':
+    resolution: {integrity: sha512-sIVY9ZeVcXyPxFCNRkIt8Yw4keKIcUyp9/8qnmuomPwE+ST1htw5sZsbqdUMTiah9SmCg1JYoK9RqdDtPeNYYg==}
     engines: {node: '>=18'}
     peerDependencies:
       '@typescript-eslint/eslint-plugin': '*'
@@ -6098,7 +6098,7 @@ snapshots:
     dependencies:
       is-in-ci: 2.0.0
 
-  '@bfra.me/eslint-config@0.50.1(f04b70117c0a2609deb1615434040ded)':
+  '@bfra.me/eslint-config@0.50.1(539760b3f035c1ea4256e1b04fb40195)':
     dependencies:
       '@bfra.me/es': 0.1.0
       '@eslint-community/eslint-plugin-eslint-comments': 4.6.0(eslint@10.3.0(jiti@2.7.0))
@@ -6128,7 +6128,7 @@ snapshots:
       typescript-eslint: 8.56.1(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3)
     optionalDependencies:
       '@eslint-react/eslint-plugin': 2.13.0(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3)
-      '@vitest/eslint-plugin': 1.6.16(@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3)(vitest@4.1.5)
+      '@vitest/eslint-plugin': 1.6.17(@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3)(vitest@4.1.5)
       eslint-config-prettier: 10.1.8(eslint@10.3.0(jiti@2.7.0))
       eslint-plugin-prettier: 5.5.5(eslint-config-prettier@10.1.8(eslint@10.3.0(jiti@2.7.0)))(eslint@10.3.0(jiti@2.7.0))(prettier@3.8.3)
       eslint-plugin-react-hooks: 7.0.1(eslint@10.3.0(jiti@2.7.0))
@@ -9868,7 +9868,7 @@ snapshots:
       tinyrainbow: 3.1.0
       vitest: 4.1.5(@opentelemetry/api@1.9.1)(@types/node@24.12.2)(@vitest/coverage-v8@4.1.5)(jsdom@29.1.1)(vite@8.0.11(@types/node@24.12.2)(jiti@2.7.0)(yaml@2.8.3))
 
-  '@vitest/eslint-plugin@1.6.16(@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3)(vitest@4.1.5)':
+  '@vitest/eslint-plugin@1.6.17(@typescript-eslint/eslint-plugin@8.56.1(@typescript-eslint/parser@8.56.1(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3)(vitest@4.1.5)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.58.2
       '@typescript-eslint/utils': 8.58.2(eslint@10.3.0(jiti@2.7.0))(typescript@5.9.3)
