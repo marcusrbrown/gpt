@@ -27,6 +27,12 @@ NextThemesProvider → HeroUIProvider → ToastProvider → StorageProvider → 
 - Async handlers: `.catch(console.error)` in onPress/onClick
 - Errors: `catch (error_)`, re-throw for boundaries
 
+## Key Files
+
+| File          | Purpose                                         |
+| ------------- | ----------------------------------------------- |
+| `hero.ts`     | HeroUI Vite plugin configuration for Tailwind v4 |
+
 ## Where to Look
 
 | Task           | Location                                                                     |
