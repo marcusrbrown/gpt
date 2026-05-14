@@ -125,6 +125,8 @@ env:
     - Stale issues (no activity >30 days; recommend next step)
     - Stale PRs (no activity >7 days; stale >14 days)
     - Unassigned bugs (label bug, no assignee)
+    - Quality gate status (lint, test, build, accessibility, E2E — note
+      any recent failures on main)
     - Cross-project intelligence (check marcusrbrown/mrbro.dev,
       marcusrbrown/tokentoilet, and marcusrbrown/vbs for similar
       maintenance items, security advisories, or convention improvements
@@ -522,7 +524,6 @@ jobs:
               || ''
             }}
           token: ${{ secrets.FRO_BOT_PAT }}
-          persist-credentials: false
 
       - name: Setup pnpm
         uses: ./.github/actions/setup-pnpm
