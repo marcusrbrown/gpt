@@ -96,8 +96,8 @@ importers:
         specifier: 0.50.1
         version: 0.50.1(539760b3f035c1ea4256e1b04fb40195)
       '@bfra.me/prettier-config':
-        specifier: 0.16.6
-        version: 0.16.6(prettier@3.8.3)
+        specifier: 0.16.8
+        version: 0.16.8(prettier@3.8.3)
       '@bfra.me/tsconfig':
         specifier: 0.12.1
         version: 0.12.1
@@ -375,8 +375,8 @@ packages:
       eslint-plugin-react-refresh:
         optional: true
 
-  '@bfra.me/prettier-config@0.16.6':
-    resolution: {integrity: sha512-8RZhQMnyfRNbwqHmr4gKLLKQ0fowr14FFCvt60iWoyCBOfkEdahSrneuZqMqhY3ABKP8P3/sTJd+t1Q5zSRqSQ==}
+  '@bfra.me/prettier-config@0.16.8':
+    resolution: {integrity: sha512-za9XRq/GQUe2hO3uIKlJfTAKm8cJxjObvavlAaHebuKx/aHkM33tgPKnCQWRf+q8lB6nwphVzCqTGk6z6rfnXg==}
     peerDependencies:
       prettier: ^3.0.0
 
@@ -5492,9 +5492,6 @@ packages:
   text-decoder@1.2.7:
     resolution: {integrity: sha512-vlLytXkeP4xvEq2otHeJfSQIRyWxo/oZGEbXrtEEF9Hnmrdly59sUbzZ/QgyWuLYHctCHxFF4tRQZNQ9k60ExQ==}
 
-  third-party-web@0.29.0:
-    resolution: {integrity: sha512-nBDSJw5B7Sl1YfsATG2XkW5qgUPODbJhXw++BKygi9w6O/NKS98/uY/nR/DxDq2axEjL6halHW1v+jhm/j1DBQ==}
-
   third-party-web@0.29.2:
     resolution: {integrity: sha512-fegtha91tq2DHphyoiBXVHjVi2YG9zFaRnboT9C28tO1en9Y3wJsfspuy40F+u5wl3hHVbw7cnd1b67kEGHb8g==}
 
@@ -6149,7 +6146,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@bfra.me/prettier-config@0.16.6(prettier@3.8.3)':
+  '@bfra.me/prettier-config@0.16.8(prettier@3.8.3)':
     dependencies:
       prettier: 3.8.3
 
@@ -11347,7 +11344,7 @@ snapshots:
       puppeteer-core: 24.43.0
       robots-parser: 3.0.1
       speedline-core: 1.4.3
-      third-party-web: 0.29.0
+      third-party-web: 0.29.2
       tldts-icann: 7.0.30
       web-features: 3.26.0
       ws: 7.5.10
@@ -12631,8 +12628,6 @@ snapshots:
       b4a: 1.8.0
     transitivePeerDependencies:
       - react-native-b4a
-
-  third-party-web@0.29.0: {}
 
   third-party-web@0.29.2: {}
 
