@@ -28,7 +28,8 @@ src/
 ├── pages/          # Route-level components
 ├── services/       # Business logic, providers, storage
 ├── types/          # Zod schemas → TypeScript types
-└── test/           # Test setup
+├── test/           # Test setup
+└── hero.ts         # HeroUI Vite plugin config for Tailwind v4
 
 tests/
 ├── e2e/            # Full user flow tests
