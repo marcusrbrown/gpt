@@ -29,8 +29,7 @@ GitHub configuration: CI/CD, repo settings, Renovate.
 | `renovate.yaml`             | schedule                   | Dependency updates                                 |
 | `update-repo-settings.yaml` | push                       | Sync .github/settings.yml                          |
 | `cache-cleanup.yaml`        | PR close/weekly            | GitHub Actions cache cleanup                       |
-| `fro-bot.yaml`              | mentions/PR/daily/dispatch | AI agent: reviews, triage, maintenance             |
-| `fro-bot-autoheal.yaml`     | daily/dispatch             | AI agent: autohealing (fix PRs, security, quality) |
+| `fro-bot.yaml`              | mentions/PR/daily/dispatch | AI agent: reviews, maintenance, autohealing        |
 | `copilot-setup-steps.yaml`  | dispatch/push/PR (self)    | Copilot coding agent environment setup             |
 
 ## Conventions
