@@ -102,6 +102,7 @@
   "pnpm": {
     "overrides": {
       "fast-uri": ">=3.1.2",
+      "langsmith": ">=0.6.0",
       "path-to-regexp": ">=8.4.0"
     }
   }
