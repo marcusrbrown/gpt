@@ -1,6 +1,6 @@
-import type {ExportFormat} from '../services/conversation-export-service'
-import type {SearchResult} from '../services/conversation-search-service'
-import type {Conversation, ConversationMessage} from '../types/gpt'
+import type {ExportFormat} from '@/services/conversation-export-service'
+import type {SearchResult} from '@/services/conversation-search-service'
+import type {Conversation, ConversationMessage} from '@/types/gpt'
 import {createContext} from 'react'
 
 export type BulkAction = 'pin' | 'unpin' | 'archive' | 'unarchive' | 'delete'

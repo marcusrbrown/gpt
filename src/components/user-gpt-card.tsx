@@ -1,5 +1,5 @@
 import type {FC} from 'react'
-import type {GPTConfiguration} from '../types/gpt'
+import type {GPTConfiguration} from '@/types/gpt'
 import {cn, compose, ds} from '@/lib/design-system'
 import {Button, Card, CardBody, CardFooter, CardHeader, Divider, Skeleton} from '@heroui/react'
 
