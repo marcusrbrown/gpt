@@ -74,7 +74,7 @@
     "@types/node": "24.12.4",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "@typescript/native-preview": "7.0.0-dev.20260527.1",
+    "@typescript/native-preview": "7.0.0-dev.20260527.2",
     "@vitejs/plugin-react-swc": "4.3.1",
     "@vitest/coverage-v8": "4.1.7",
     "@vitest/eslint-plugin": "1.6.18",
@@ -98,7 +98,7 @@
     "vite-tsconfig-paths": "6.1.1",
     "vitest": "4.1.7"
   },
-  "packageManager": "pnpm@10.34.0",
+  "packageManager": "pnpm@10.34.1",
   "pnpm": {
     "overrides": {
       "fast-uri": ">=3.1.2",
