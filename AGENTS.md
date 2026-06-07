@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Local-first GPT creation platform | React 19 + TypeScript 5.9 + Vite 7 | HeroUI + TailwindCSS 4 | IndexedDB (Dexie) + Web Crypto
+Local-first GPT creation platform | React 19 + TypeScript 5.9 + Vite 8 | HeroUI + TailwindCSS 4 | IndexedDB (Dexie) + Web Crypto
 
 ## Commands
 
