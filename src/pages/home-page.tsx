@@ -65,14 +65,12 @@ export function HomePage() {
       </header>
 
       <div className="flex flex-1 overflow-hidden border-t border-border-default">
-        <aside className="hidden md:block">
-          <FolderSidebar
-            key={folderRefreshKey}
-            selectedFolderId={selectedFolderId}
-            onFolderSelect={handleFolderSelect}
-            onCreateFolder={handleCreateFolder}
-          />
-        </aside>
+        <FolderSidebar
+          key={folderRefreshKey}
+          selectedFolderId={selectedFolderId}
+          onFolderSelect={handleFolderSelect}
+          onCreateFolder={handleCreateFolder}
+        />
 
         <section className={cn('flex-1 overflow-auto p-6', ds.layout.container)}>
           <GPTLibrary
