@@ -65,7 +65,7 @@
     "@bfra.me/tsconfig": "0.13.1",
     "@eslint-react/eslint-plugin": "2.13.0",
     "@playwright/test": "1.60.0",
-    "@tailwindcss/typography": "0.5.19",
+    "@tailwindcss/typography": "0.5.20",
     "@tailwindcss/vite": "4.3.0",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.2",
