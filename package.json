@@ -98,7 +98,7 @@
     "vite-tsconfig-paths": "6.1.1",
     "vitest": "4.1.8"
   },
-  "packageManager": "pnpm@10.34.1",
+  "packageManager": "pnpm@10.34.2",
   "pnpm": {
     "overrides": {
       "fast-uri": ">=3.1.2",
