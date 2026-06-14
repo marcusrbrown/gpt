@@ -83,14 +83,14 @@ export function OllamaSettings() {
           color={getStatusColor()}
           variant="flat"
           startContent={isChecking ? <Spinner size="sm" color="current" /> : undefined}
-          className={cn(ds.text.body.small, 'capitalize')}
+          className="capitalize text-success-900"
         >
           {getStatusLabel()}
         </Chip>
       </div>
 
       <div className={cn(ds.form.fieldGroup)}>
-        <p className={cn(ds.text.body.small, 'mb-2')}>
+        <p className="mb-2 text-sm leading-relaxed text-content-secondary">
           Connect to your local Ollama instance to use open-source models like Llama 3, Mistral, and Gemma.
         </p>
 
@@ -99,14 +99,14 @@ export function OllamaSettings() {
             <div className="flex items-start gap-2">
               <AlertTriangle size={18} className="text-warning-600 mt-0.5 shrink-0" />
               <div>
-                <p className={cn(ds.text.body.small, 'text-warning-700 font-medium mb-1')}>
+                <p className="mb-1 text-sm font-medium leading-relaxed text-warning-800">
                   Browser Security Restriction
                 </p>
-                <p className={cn(ds.text.body.small, 'text-warning-600 mb-2')}>
+                <p className="mb-2 text-sm leading-relaxed text-warning-700">
                   This site is served over HTTPS, but Ollama runs on HTTP localhost. Browsers block these "mixed
                   content" requests for security. To use Ollama:
                 </p>
-                <ol className={cn(ds.text.body.small, 'text-warning-600 list-decimal list-inside space-y-1 mb-2')}>
+                <ol className="mb-2 list-inside list-decimal space-y-1 text-sm leading-relaxed text-warning-700">
                   <li>
                     Start Ollama with CORS enabled:{' '}
                     <code className="bg-warning-100 px-1 rounded text-xs">OLLAMA_ORIGINS="*" ollama serve</code>
@@ -121,15 +121,15 @@ export function OllamaSettings() {
         )}
 
         {status === 'connected' && (
-          <p className={cn(ds.text.body.small, 'mb-2 text-success-700')}>
+          <p className="mb-2 text-sm leading-relaxed text-success-800">
             ✓ Connected to Ollama ({models.length} models available)
           </p>
         )}
 
         {status === 'cors_error' && (
           <div className={cn('p-3 mb-4 rounded-lg bg-danger-50 border border-danger-200')}>
-            <p className={cn(ds.text.body.small, 'text-danger-700 font-medium mb-1')}>CORS Configuration Required</p>
-            <p className={cn(ds.text.body.small, 'text-danger-600 mb-2')}>
+            <p className="mb-1 text-sm font-medium leading-relaxed text-danger-800">CORS Configuration Required</p>
+            <p className="mb-2 text-sm leading-relaxed text-danger-700">
               To enable browser access, set the OLLAMA_ORIGINS environment variable:
             </p>
             <code className={cn('block p-2 rounded bg-white text-danger-800 text-xs font-mono')}>
@@ -139,7 +139,7 @@ export function OllamaSettings() {
         )}
 
         {error && status !== 'cors_error' && (
-          <p className={cn(ds.text.body.small, 'mb-2 text-danger-600')}>Error: {error}</p>
+          <p className="mb-2 text-sm leading-relaxed text-danger-700">Error: {error}</p>
         )}
 
         <div className="flex items-center mb-2">
@@ -198,7 +198,7 @@ export function OllamaSettings() {
 
       <div className={cn('mt-4 pt-4', 'border-t', theme.border())}>
         <h3 className={cn(ds.text.heading.h4, 'mb-2')}>About Ollama</h3>
-        <p className={cn(ds.text.body.small)}>
+        <p className="text-sm leading-relaxed text-content-secondary">
           Ollama allows you to run large language models locally. It's fast, private, and free. Visit{' '}
           <a
             href="https://ollama.com"
