@@ -384,8 +384,10 @@ describe('import-service', () => {
 
     it('ConversationExportSchema rejects missing messages array', () => {
       const data = createValidConversationExport()
-      // @ts-expect-error Testing invalid data
-      delete data.conversation.messages
+      const conversation = data.conversation as Partial<typeof data.conversation> & {
+        messages?: typeof data.conversation.messages
+      }
+      delete conversation.messages
       const result = ConversationExportSchema.safeParse(data)
       expect(result.success).toBe(false)
     })
