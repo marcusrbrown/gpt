@@ -8,6 +8,10 @@ describe('KnowledgeService', () => {
   let service: KnowledgeService
   const testGptId = 'test-gpt-123'
 
+  type KnowledgeServiceWithExtractText = KnowledgeService & {
+    extractText: (blob: Blob, maxChars: number) => Promise<string>
+  }
+
   beforeEach(async () => {
     await db.delete()
     await db.open()
@@ -56,7 +60,7 @@ describe('KnowledgeService', () => {
       const [added] = await service.addKnowledgeFiles(testGptId, [file])
       if (!added) throw new Error('File not added')
 
-      vi.spyOn(service as any, 'extractText').mockResolvedValue('Hello World')
+      vi.spyOn(service as unknown as KnowledgeServiceWithExtractText, 'extractText').mockResolvedValue('Hello World')
 
       await service.extractKnowledgeFile(added.id)
 
@@ -248,7 +252,9 @@ describe('KnowledgeService', () => {
 
   describe('Search', () => {
     beforeEach(async () => {
-      vi.spyOn(service as any, 'extractText').mockResolvedValue('File contains searchable text')
+      vi.spyOn(service as unknown as KnowledgeServiceWithExtractText, 'extractText').mockResolvedValue(
+        'File contains searchable text',
+      )
 
       const file = new File(['File contains searchable text'], 'doc.txt', {type: 'text/plain'})
       const [added] = await service.addKnowledgeFiles(testGptId, [file])
