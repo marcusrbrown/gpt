@@ -90,14 +90,12 @@ function conversationToExportData(conv: Conversation, gptName: string): Conversa
     title: conv.title,
     createdAt: toISOString(conv.createdAt),
     updatedAt: toISOString(conv.updatedAt),
-    messages: conv.messages.map(
-      (msg): MessageExport => ({
-        role: msg.role,
-        content: msg.content,
-        timestamp: toISOString(msg.timestamp),
-        metadata: undefined,
-      }),
-    ),
+    messages: conv.messages.map((msg): MessageExport => ({
+      role: msg.role,
+      content: msg.content,
+      timestamp: toISOString(msg.timestamp),
+      metadata: undefined,
+    })),
     tags: conv.tags,
     isPinned: conv.isPinned,
   }
