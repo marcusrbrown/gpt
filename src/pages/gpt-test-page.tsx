@@ -166,14 +166,7 @@ export function GPTTestPage() {
   interface Run {
     id: string
     status:
-      | 'queued'
-      | 'in_progress'
-      | 'requires_action'
-      | 'cancelling'
-      | 'cancelled'
-      | 'failed'
-      | 'completed'
-      | 'expired'
+      'queued' | 'in_progress' | 'requires_action' | 'cancelling' | 'cancelled' | 'failed' | 'completed' | 'expired'
     required_action?: {
       submit_tool_outputs?: {
         tool_calls: ToolCall[]
