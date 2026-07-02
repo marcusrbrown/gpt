@@ -1,17 +1,30 @@
 import type {CreateSnippetInput, UpdateSnippetInput} from '@/types/knowledge'
 import {db} from '@/lib/database'
 import {KnowledgeService} from '@/services/knowledge-service'
-import {beforeEach, describe, expect, it, vi} from 'vitest'
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import 'fake-indexeddb/auto'
 
 describe('KnowledgeService', () => {
   let service: KnowledgeService
   const testGptId = 'test-gpt-123'
 
+  interface KnowledgeServicePrototypeWithExtractText {
+    extractText: (blob: Blob, maxChars: number) => Promise<string>
+  }
+
+  const mockExtractText = (value: string) =>
+    vi
+      .spyOn(KnowledgeService.prototype as unknown as KnowledgeServicePrototypeWithExtractText, 'extractText')
+      .mockResolvedValue(value)
+
   beforeEach(async () => {
     await db.delete()
     await db.open()
     service = new KnowledgeService()
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   describe('File Operations', () => {
@@ -53,10 +66,10 @@ describe('KnowledgeService', () => {
 
     it('should extract text from plain text file', async () => {
       const file = new File(['Hello World'], 'text.txt', {type: 'text/plain'})
+      mockExtractText('Hello World')
+
       const [added] = await service.addKnowledgeFiles(testGptId, [file])
       if (!added) throw new Error('File not added')
-
-      vi.spyOn(service as any, 'extractText').mockResolvedValue('Hello World')
 
       await service.extractKnowledgeFile(added.id)
 
@@ -248,7 +261,7 @@ describe('KnowledgeService', () => {
 
   describe('Search', () => {
     beforeEach(async () => {
-      vi.spyOn(service as any, 'extractText').mockResolvedValue('File contains searchable text')
+      mockExtractText('File contains searchable text')
 
       const file = new File(['File contains searchable text'], 'doc.txt', {type: 'text/plain'})
       const [added] = await service.addKnowledgeFiles(testGptId, [file])
@@ -292,6 +305,8 @@ describe('KnowledgeService', () => {
   describe('Knowledge Summary', () => {
     it('should provide accurate summary', async () => {
       const file = new File(['content'], 'test.txt', {type: 'text/plain'})
+      mockExtractText('content')
+
       await service.addKnowledgeFiles(testGptId, [file])
 
       await service.createSnippet(testGptId, {title: 'Snippet', content: 'Content'})
