@@ -84,6 +84,16 @@ export function OllamaSettings() {
           variant="flat"
           startContent={isChecking ? <Spinner size="sm" color="current" /> : undefined}
           className={cn(ds.text.body.small, 'capitalize')}
+          classNames={{
+            content:
+              status === 'connected'
+                ? 'text-success-800'
+                : status === 'checking'
+                  ? 'text-warning-800'
+                  : status === 'disconnected' || status === 'cors_error'
+                    ? 'text-danger-800'
+                    : 'text-content-primary',
+          }}
         >
           {getStatusLabel()}
         </Chip>
