@@ -7,8 +7,12 @@ import 'fake-indexeddb/auto'
 describe('KnowledgeService', () => {
   let service: KnowledgeService
   const testGptId = 'test-gpt-123'
+  type ExtractTextSpyTarget = Record<'extractText', (blob: Blob, maxChars: number) => Promise<string>>
+
+  const getExtractTextSpyTarget = () => KnowledgeService.prototype as unknown as ExtractTextSpyTarget
 
   beforeEach(async () => {
+    vi.restoreAllMocks()
     await db.delete()
     await db.open()
     service = new KnowledgeService()
@@ -56,7 +60,7 @@ describe('KnowledgeService', () => {
       const [added] = await service.addKnowledgeFiles(testGptId, [file])
       if (!added) throw new Error('File not added')
 
-      vi.spyOn(service as any, 'extractText').mockResolvedValue('Hello World')
+      vi.spyOn(getExtractTextSpyTarget(), 'extractText').mockResolvedValue('Hello World')
 
       await service.extractKnowledgeFile(added.id)
 
@@ -248,7 +252,7 @@ describe('KnowledgeService', () => {
 
   describe('Search', () => {
     beforeEach(async () => {
-      vi.spyOn(service as any, 'extractText').mockResolvedValue('File contains searchable text')
+      vi.spyOn(getExtractTextSpyTarget(), 'extractText').mockResolvedValue('File contains searchable text')
 
       const file = new File(['File contains searchable text'], 'doc.txt', {type: 'text/plain'})
       const [added] = await service.addKnowledgeFiles(testGptId, [file])

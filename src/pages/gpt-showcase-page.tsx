@@ -90,9 +90,9 @@ export function GPTShowcasePage() {
         } else {
           setError('GPT not found')
         }
-      } catch (loadError: unknown) {
+      } catch (error_: unknown) {
         if (!isMounted) return
-        setError(loadError instanceof Error ? loadError.message : 'Failed to load GPT')
+        setError(error_ instanceof Error ? error_.message : 'Failed to load GPT')
       } finally {
         if (isMounted) {
           setIsLoading(false)
