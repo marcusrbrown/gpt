@@ -1,12 +1,17 @@
 autoInstallPeers: true
 
-onlyBuiltDependencies:
-  - '@heroui/shared-utils'
-  - '@swc/core'
-  - '@tailwindcss/oxide'
-  - esbuild
-  - simple-git-hooks
-  - unrs-resolver
+allowBuilds:
+  '@heroui/shared-utils': true
+  '@swc/core': true
+  '@tailwindcss/oxide': true
+  esbuild: true
+  simple-git-hooks: true
+  unrs-resolver: true
+
+overrides:
+  fast-uri: '>=3.1.2'
+  langsmith: '>=0.6.0'
+  path-to-regexp: '>=8.4.0'
 
 savePrefix: ''
 
