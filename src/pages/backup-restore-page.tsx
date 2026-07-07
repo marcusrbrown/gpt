@@ -1,9 +1,12 @@
 import {BackupRestorePanel} from '@/components/backup-restore-panel'
 import {DefaultLayout} from '@/components/layouts'
-import {useStorage} from '@/hooks/use-storage'
+import {db} from '@/lib/database'
 import {downloadFullBackup} from '@/services/export-service'
 import {restoreBackup} from '@/services/import-service'
+import {useStorage} from '@/hooks/use-storage'
 import {useCallback, useEffect, useState} from 'react'
+
+const LAST_BACKUP_DATE_SETTING_KEY = 'lastBackupDate'
 
 interface ItemCounts {
   gpts: number
@@ -35,9 +38,9 @@ export function BackupRestorePage() {
 
         setStorageUsed(storage.used ?? 0)
 
-        const lastBackup = localStorage.getItem('lastBackupDate')
-        if (lastBackup) {
-          setLastBackupDate(new Date(lastBackup))
+        const lastBackup = await db.settings.get(LAST_BACKUP_DATE_SETTING_KEY)
+        if (typeof lastBackup?.value === 'string') {
+          setLastBackupDate(new Date(lastBackup.value))
         }
       } catch (error_) {
         console.error('Failed to load stats:', error_)
@@ -51,7 +54,7 @@ export function BackupRestorePage() {
     await downloadFullBackup()
 
     const now = new Date()
-    localStorage.setItem('lastBackupDate', now.toISOString())
+    await db.settings.put({key: LAST_BACKUP_DATE_SETTING_KEY, value: now.toISOString()})
     setLastBackupDate(now)
   }, [])
 
