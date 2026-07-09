@@ -83,12 +83,11 @@ export function OllamaSettings() {
           color={getStatusColor()}
           variant="solid"
           startContent={isChecking ? <Spinner size="sm" color="current" /> : undefined}
-          classNames={{content: 'text-content-primary'}}
           className={cn(ds.text.body.small, 'capitalize')}
           classNames={{
             content:
               status === 'connected'
-                ? 'text-success-800'
+                ? 'text-content-primary'
                 : status === 'checking'
                   ? 'text-warning-800'
                   : status === 'disconnected' || status === 'cors_error'
@@ -101,7 +100,7 @@ export function OllamaSettings() {
       </div>
 
       <div className={cn(ds.form.fieldGroup)}>
-        <p className={cn(ds.text.body.small, 'mb-2')}>
+        <p className={cn(ds.text.body.small, 'mb-2 text-content-secondary')}>
           Connect to your local Ollama instance to use open-source models like Llama 3, Mistral, and Gemma.
         </p>
 
