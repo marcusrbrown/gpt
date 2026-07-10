@@ -87,11 +87,11 @@ export function OllamaSettings() {
           classNames={{
             content:
               status === 'connected'
-                ? 'text-content-primary'
+                ? 'text-success-900'
                 : status === 'checking'
-                  ? 'text-warning-800'
+                  ? 'text-warning-900'
                   : status === 'disconnected' || status === 'cors_error'
-                    ? 'text-danger-800'
+                    ? 'text-danger-900'
                     : 'text-content-primary',
           }}
         >
