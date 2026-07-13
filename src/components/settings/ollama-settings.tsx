@@ -83,17 +83,16 @@ export function OllamaSettings() {
           color={getStatusColor()}
           variant="solid"
           startContent={isChecking ? <Spinner size="sm" color="current" /> : undefined}
-          classNames={{content: 'text-content-primary'}}
           className={cn(ds.text.body.small, 'capitalize')}
           classNames={{
             content:
               status === 'connected'
-                ? 'text-success-800'
+                ? 'text-default-foreground'
                 : status === 'checking'
-                  ? 'text-warning-800'
+                  ? 'text-default-foreground'
                   : status === 'disconnected' || status === 'cors_error'
-                    ? 'text-danger-800'
-                    : 'text-content-primary',
+                    ? 'text-default-foreground'
+                    : 'text-default-foreground',
           }}
         >
           {getStatusLabel()}
