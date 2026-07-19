@@ -90,7 +90,7 @@
     "lighthouse": "13.4.0",
     "lint-staged": "16.4.0",
     "playwright-lighthouse": "4.0.0",
-    "prettier": "3.9.4",
+    "prettier": "3.9.5",
     "simple-git-hooks": "2.13.1",
     "tailwindcss": "4.3.2",
     "typescript": "5.9.3",
