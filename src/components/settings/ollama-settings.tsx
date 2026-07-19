@@ -87,12 +87,12 @@ export function OllamaSettings() {
           classNames={{
             content:
               status === 'connected'
-                ? 'text-default-foreground'
+                ? 'text-success-900'
                 : status === 'checking'
-                  ? 'text-default-foreground'
+                  ? 'text-warning-900'
                   : status === 'disconnected' || status === 'cors_error'
-                    ? 'text-default-foreground'
-                    : 'text-default-foreground',
+                    ? 'text-danger-900'
+                    : 'text-content-primary',
           }}
         >
           {getStatusLabel()}
