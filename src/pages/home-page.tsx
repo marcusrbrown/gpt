@@ -54,6 +54,8 @@ export function HomePage() {
 
   return (
     <main
+      id="main-content"
+      tabIndex={-1}
       className={cn(ds.animation.fadeIn, 'flex flex-col h-[calc(100vh-var(--header-height)-var(--footer-height,0px))]')}
     >
       <header className={cn(ds.layout.container, 'text-center py-8 md:py-12')}>
