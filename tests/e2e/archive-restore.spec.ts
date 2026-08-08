@@ -1,5 +1,10 @@
+import type {Locator} from '@playwright/test'
 import {expect, test} from './fixtures'
 import {GPTDataFactory} from './utils/test-data-factory'
+
+async function waitForDialogToClose(confirmButton: Locator) {
+  await expect(confirmButton).not.toBeVisible({timeout: 10000})
+}
 
 test.describe('GPT Archive and Restore Flow', () => {
   test.beforeEach(async ({homePage}) => {
@@ -36,6 +41,7 @@ test.describe('GPT Archive and Restore Flow', () => {
     const confirmButton = page.locator('[data-testid="confirm-archive"]')
     if (await confirmButton.isVisible()) {
       await confirmButton.click()
+      await waitForDialogToClose(confirmButton)
     }
 
     // Wait for GPT to be removed from active list (archive mutation)
@@ -77,6 +83,7 @@ test.describe('GPT Archive and Restore Flow', () => {
     const confirmArchive = page.locator('[data-testid="confirm-archive"]')
     if (await confirmArchive.isVisible()) {
       await confirmArchive.click()
+      await waitForDialogToClose(confirmArchive)
     }
 
     // Wait for archive to complete
@@ -154,6 +161,7 @@ test.describe('GPT Archive and Restore Flow', () => {
       const confirmDelete = page.locator('[data-testid="confirm-delete"]')
       if (await confirmDelete.isVisible()) {
         await confirmDelete.click()
+        await waitForDialogToClose(confirmDelete)
       }
 
       // Wait for deletion to complete
