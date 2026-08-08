@@ -100,7 +100,7 @@ export function OllamaSettings() {
       </div>
 
       <div className={cn(ds.form.fieldGroup)}>
-        <p className={cn(ds.text.body.small, 'mb-2')}>
+        <p className={cn(ds.text.body.small, 'text-content-secondary mb-2')}>
           Connect to your local Ollama instance to use open-source models like Llama 3, Mistral, and Gemma.
         </p>
 
