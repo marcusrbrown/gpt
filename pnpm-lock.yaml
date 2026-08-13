@@ -94,7 +94,7 @@ importers:
         version: 4.12.1(playwright-core@1.62.1)
       '@bfra.me/eslint-config':
         specifier: 0.50.1
-        version: 0.50.1(fb55102f870dc0bdba110518f8f0ce68)
+        version: 0.50.1(4b3e0dd695a8e814d57aa92021c8277d)
       '@bfra.me/prettier-config':
         specifier: 0.16.9
         version: 0.16.9(prettier@3.9.6)
@@ -162,8 +162,8 @@ importers:
         specifier: 7.0.1
         version: 7.0.1(eslint@10.8.1(jiti@2.7.0))
       eslint-plugin-react-refresh:
-        specifier: 0.5.3
-        version: 0.5.3(eslint@10.8.1(jiti@2.7.0))
+        specifier: 0.5.4
+        version: 0.5.4(eslint@10.8.1(jiti@2.7.0))
       fake-indexeddb:
         specifier: 6.2.5
         version: 6.2.5
@@ -3122,6 +3122,7 @@ packages:
   '@xmldom/xmldom@0.8.13':
     resolution: {integrity: sha512-KRYzxepc14G/CEpEGc3Yn+JKaAeT63smlDr+vjB8jRfgTBBI9wRj/nkQEO+ucV8p8I9bfKLWp37uHgFrbntPvw==}
     engines: {node: '>=10.0.0'}
+    deprecated: this version has critical issues, please update to the latest version
 
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
@@ -3748,8 +3749,8 @@ packages:
       eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
       typescript: '>=4.8.4 <6.0.0'
 
-  eslint-plugin-react-refresh@0.5.3:
-    resolution: {integrity: sha512-5EMmLCV98Pi4o/f/3DP/v/tNqLHMIc9I8LKClNDWhZ9JTho89/kQcitCXQBMG7sAfVRK0Ie3T2EDOzp1YXYiVA==}
+  eslint-plugin-react-refresh@0.5.4:
+    resolution: {integrity: sha512-7bqTKz7T0r+HKWFarNXByDE9/5+73wI2ru+M3zuqGbR7s/b/5/pQJXZoufWlrngqGqoZto73ZkGumCdLxk+4rw==}
     peerDependencies:
       eslint: ^9 || ^10
 
@@ -6026,7 +6027,7 @@ snapshots:
     dependencies:
       is-in-ci: 2.0.0
 
-  '@bfra.me/eslint-config@0.50.1(fb55102f870dc0bdba110518f8f0ce68)':
+  '@bfra.me/eslint-config@0.50.1(4b3e0dd695a8e814d57aa92021c8277d)':
     dependencies:
       '@bfra.me/es': 0.1.0
       '@eslint-community/eslint-plugin-eslint-comments': 4.6.0(eslint@10.8.1(jiti@2.7.0))
@@ -6060,7 +6061,7 @@ snapshots:
       eslint-config-prettier: 10.1.8(eslint@10.8.1(jiti@2.7.0))
       eslint-plugin-prettier: 5.5.6(eslint-config-prettier@10.1.8(eslint@10.8.1(jiti@2.7.0)))(eslint@10.8.1(jiti@2.7.0))(prettier@3.9.6)
       eslint-plugin-react-hooks: 7.0.1(eslint@10.8.1(jiti@2.7.0))
-      eslint-plugin-react-refresh: 0.5.3(eslint@10.8.1(jiti@2.7.0))
+      eslint-plugin-react-refresh: 0.5.4(eslint@10.8.1(jiti@2.7.0))
     transitivePeerDependencies:
       - '@eslint/json'
       - '@typescript-eslint/eslint-plugin'
@@ -10498,7 +10499,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-react-refresh@0.5.3(eslint@10.8.1(jiti@2.7.0)):
+  eslint-plugin-react-refresh@0.5.4(eslint@10.8.1(jiti@2.7.0)):
     dependencies:
       eslint: 10.8.1(jiti@2.7.0)
 
