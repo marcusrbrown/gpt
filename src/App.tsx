@@ -40,7 +40,11 @@ function App() {
             <Route
               path="/gpt/:gptId"
               element={
-                <main className={cn('min-h-[calc(100vh-var(--header-height))]', ds.animation.fadeIn)}>
+                <main
+                  id="main-content"
+                  tabIndex={-1}
+                  className={cn('min-h-[calc(100vh-var(--header-height))]', ds.animation.fadeIn)}
+                >
                   <GPTShowcasePage />
                 </main>
               }
@@ -49,7 +53,11 @@ function App() {
             <Route
               path="/gpt/new"
               element={
-                <main className={cn('h-[calc(100vh-var(--header-height))]', ds.animation.slideIn)}>
+                <main
+                  id="main-content"
+                  tabIndex={-1}
+                  className={cn('h-[calc(100vh-var(--header-height))]', ds.animation.slideIn)}
+                >
                   <GPTEditorPage />
                 </main>
               }
@@ -57,7 +65,11 @@ function App() {
             <Route
               path="/gpt/edit/:gptId"
               element={
-                <main className={cn('h-[calc(100vh-var(--header-height))]', ds.animation.slideIn)}>
+                <main
+                  id="main-content"
+                  tabIndex={-1}
+                  className={cn('h-[calc(100vh-var(--header-height))]', ds.animation.slideIn)}
+                >
                   <GPTEditorPage />
                 </main>
               }
@@ -66,9 +78,9 @@ function App() {
             <Route
               path="/gpt/test/:gptId"
               element={
-                <div className={ds.animation.slideIn}>
+                <main id="main-content" tabIndex={-1} className={ds.animation.slideIn}>
                   <GPTTestPage />
-                </div>
+                </main>
               }
             />
 
