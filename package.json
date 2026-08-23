@@ -33,10 +33,10 @@
   "prettier": "@bfra.me/prettier-config/120-proof",
   "dependencies": {
     "@heroui/react": "2.8.10",
-    "@langchain/anthropic": "1.5.7",
+    "@langchain/anthropic": "1.5.8",
     "@langchain/core": "1.2.9",
     "@langchain/langgraph": "1.4.7",
-    "@langchain/openai": "1.5.9",
+    "@langchain/openai": "1.5.10",
     "@modelcontextprotocol/sdk": "1.29.0",
     "@monaco-editor/react": "4.7.0",
     "@react-aria/ssr": "3.10.1",
