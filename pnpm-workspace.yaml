@@ -20,4 +20,4 @@ shamefullyHoist: true
 shellEmulator: true
 
 minimumReleaseAgeExclude:
-  - '@bfra.me/prettier-config@0.16.10'
+  - '@bfra.me/prettier-config@0.16.10 || 0.16.11'
