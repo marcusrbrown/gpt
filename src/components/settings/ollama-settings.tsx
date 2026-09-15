@@ -81,7 +81,7 @@ export function OllamaSettings() {
         <h2 className={cn(responsive.heading.large)}>Ollama Settings</h2>
         <Chip
           color={getStatusColor()}
-          variant="solid"
+          variant="flat"
           startContent={isChecking ? <Spinner size="sm" color="current" /> : undefined}
           className={cn(ds.text.body.small, 'capitalize')}
           classNames={{
@@ -112,7 +112,7 @@ export function OllamaSettings() {
                 <p className={cn(ds.text.body.base, 'text-warning-900 font-medium mb-1')}>
                   Browser Security Restriction
                 </p>
-                <p className={cn(ds.text.body.base, 'text-warning-800 mb-2')}>
+                <p className={cn(ds.text.body.base, 'text-content-primary mb-2')}>
                   This site is served over HTTPS, but Ollama runs on HTTP localhost. Browsers block these "mixed
                   content" requests for security. To use Ollama:
                 </p>
