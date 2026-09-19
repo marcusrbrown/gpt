@@ -94,10 +94,10 @@ importers:
         version: 4.12.1(playwright-core@1.63.0)
       '@bfra.me/eslint-config':
         specifier: 0.50.1
-        version: 0.50.1(d541f18a30e32d6e415565f46ac4ce1d)
+        version: 0.50.1(c82249423ead210bf9418fa8b638a481)
       '@bfra.me/prettier-config':
         specifier: 0.16.11
-        version: 0.16.11(prettier@3.9.6)
+        version: 0.16.11(prettier@3.9.7)
       '@bfra.me/tsconfig':
         specifier: 0.13.2
         version: 0.13.2
@@ -157,7 +157,7 @@ importers:
         version: 10.1.8(eslint@10.10.0(jiti@2.7.0))
       eslint-plugin-prettier:
         specifier: 5.5.6
-        version: 5.5.6(eslint-config-prettier@10.1.8(eslint@10.10.0(jiti@2.7.0)))(eslint@10.10.0(jiti@2.7.0))(prettier@3.9.6)
+        version: 5.5.6(eslint-config-prettier@10.1.8(eslint@10.10.0(jiti@2.7.0)))(eslint@10.10.0(jiti@2.7.0))(prettier@3.9.7)
       eslint-plugin-react-hooks:
         specifier: 7.0.1
         version: 7.0.1(eslint@10.10.0(jiti@2.7.0))
@@ -183,8 +183,8 @@ importers:
         specifier: 4.0.0
         version: 4.0.0(lighthouse@13.4.0)(playwright-core@1.63.0)
       prettier:
-        specifier: 3.9.6
-        version: 3.9.6
+        specifier: 3.9.7
+        version: 3.9.7
       simple-git-hooks:
         specifier: 2.13.1
         version: 2.13.1
@@ -5072,8 +5072,8 @@ packages:
     resolution: {integrity: sha512-SxToR7P8Y2lWmv/kTzVLC1t/GDI2WGjMwNhLLE9qtH8Q13C+aEmuRlzDst4Up4s0Wc8sF2M+J57iB3cMLqftfg==}
     engines: {node: '>=6.0.0'}
 
-  prettier@3.9.6:
-    resolution: {integrity: sha512-OpN0zzVdiaiAhxpuuj5efpIS4sY9j7bY6uR5mnj5yPzGkdkjNKSJeUThPb60Jw29QuAZgA4o+/iB49kFiaBX6g==}
+  prettier@3.9.7:
+    resolution: {integrity: sha512-T3mF5P7HFzZVLDQuCUNtJj6WK1pcpLMweMNUVwGb01bLNkH9AkKxtZvmInw8K6bnn2O3d6/5RHl6zSHiBAD0Og==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -6077,7 +6077,7 @@ snapshots:
     dependencies:
       is-in-ci: 2.0.0
 
-  '@bfra.me/eslint-config@0.50.1(d541f18a30e32d6e415565f46ac4ce1d)':
+  '@bfra.me/eslint-config@0.50.1(c82249423ead210bf9418fa8b638a481)':
     dependencies:
       '@bfra.me/es': 0.1.0
       '@eslint-community/eslint-plugin-eslint-comments': 4.6.0(eslint@10.10.0(jiti@2.7.0))
@@ -6109,7 +6109,7 @@ snapshots:
       '@eslint-react/eslint-plugin': 2.13.0(eslint@10.10.0(jiti@2.7.0))(typescript@5.9.3)
       '@vitest/eslint-plugin': 1.6.20(@typescript-eslint/eslint-plugin@8.59.3(@typescript-eslint/parser@8.56.1(eslint@10.10.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.10.0(jiti@2.7.0))(typescript@5.9.3))(eslint@10.10.0(jiti@2.7.0))(typescript@5.9.3)(vitest@4.1.11)
       eslint-config-prettier: 10.1.8(eslint@10.10.0(jiti@2.7.0))
-      eslint-plugin-prettier: 5.5.6(eslint-config-prettier@10.1.8(eslint@10.10.0(jiti@2.7.0)))(eslint@10.10.0(jiti@2.7.0))(prettier@3.9.6)
+      eslint-plugin-prettier: 5.5.6(eslint-config-prettier@10.1.8(eslint@10.10.0(jiti@2.7.0)))(eslint@10.10.0(jiti@2.7.0))(prettier@3.9.7)
       eslint-plugin-react-hooks: 7.0.1(eslint@10.10.0(jiti@2.7.0))
       eslint-plugin-react-refresh: 0.5.7(eslint@10.10.0(jiti@2.7.0))
     transitivePeerDependencies:
@@ -6123,9 +6123,9 @@ snapshots:
       - supports-color
       - typescript
 
-  '@bfra.me/prettier-config@0.16.11(prettier@3.9.6)':
+  '@bfra.me/prettier-config@0.16.11(prettier@3.9.7)':
     dependencies:
-      prettier: 3.9.6
+      prettier: 3.9.7
 
   '@bfra.me/tsconfig@0.13.2': {}
 
@@ -10489,10 +10489,10 @@ snapshots:
       - supports-color
       - typescript
 
-  eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.10.0(jiti@2.7.0)))(eslint@10.10.0(jiti@2.7.0))(prettier@3.9.6):
+  eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.10.0(jiti@2.7.0)))(eslint@10.10.0(jiti@2.7.0))(prettier@3.9.7):
     dependencies:
       eslint: 10.10.0(jiti@2.7.0)
-      prettier: 3.9.6
+      prettier: 3.9.7
       prettier-linter-helpers: 1.0.1
       synckit: 0.11.13
     optionalDependencies:
@@ -12015,7 +12015,7 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier@3.9.6: {}
+  prettier@3.9.7: {}
 
   pretty-format@27.5.1:
     dependencies:
