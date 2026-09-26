@@ -81,7 +81,7 @@ export function OAuthCallbackPage() {
   }, [searchParams, navigate])
 
   return (
-    <main className={cn(ds.layout.container, 'py-16 text-center')}>
+    <main id="main-content" tabIndex={-1} className={cn(ds.layout.container, 'py-16 text-center')}>
       {status === 'processing' && (
         <div className="flex flex-col items-center gap-4">
           <Spinner size="lg" color="primary" />
