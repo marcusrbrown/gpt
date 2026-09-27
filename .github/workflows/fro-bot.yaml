@@ -524,6 +524,8 @@ jobs:
               || ''
             }}
           token: ${{ secrets.FRO_BOT_PAT }}
+          persist-credentials: >-
+            ${{ !contains(fromJSON('["pull_request", "issue_comment", "issues"]'), github.event_name) }}
 
       - name: Setup pnpm
         uses: ./.github/actions/setup-pnpm
@@ -546,7 +548,7 @@ jobs:
           fi
 
       - name: Run Fro Bot
-        uses: fro-bot/agent@a4976f45a51458c349eb232aa1795f6fa25d5500 # v0.93.1
+        uses: fro-bot/agent@258dade582f006c504cbc7f41669a423d52172fb # v0.116.0
         env:
           OPENCODE_PROMPT_ARTIFACT: 'true'
           IS_SUNDAY_UTC: ${{ env.IS_SUNDAY_UTC || 'false' }}
