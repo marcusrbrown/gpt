@@ -13,6 +13,7 @@ overrides:
   ip-address: '>=10.3.1 <11.0.0'
   langsmith: '>=0.6.0'
   path-to-regexp: '>=8.4.0'
+  undici: '>=7.29.0 <8.0.0'
   ws@7: '>=7.5.11 <8.0.0'
 
 importers:
@@ -33,7 +34,7 @@ importers:
         version: 1.4.7(@langchain/core@1.2.12(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.1))(openai@6.45.0(zod@4.4.3)))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(zod@4.4.3)
       '@langchain/openai':
         specifier: 1.5.13
-        version: 1.5.13(@langchain/core@1.2.12(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.1))(openai@6.45.0(zod@4.4.3)))(undici@7.25.0)
+        version: 1.5.13(@langchain/core@1.2.12(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.1))(openai@6.45.0(zod@4.4.3)))(undici@7.30.0)
       '@modelcontextprotocol/sdk':
         specifier: 1.29.0
         version: 1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3)
@@ -4890,7 +4891,7 @@ packages:
       '@aws-sdk/credential-provider-node': '>=3.972.0 <4'
       '@smithy/hash-node': '>=4.3.0 <5'
       '@smithy/signature-v4': '>=5.4.0 <6'
-      undici: '>=5 <9'
+      undici: '>=7.29.0 <8.0.0'
       ws: ^8.21.0
       zod: ^3.25 || ^4.0
     peerDependenciesMeta:
@@ -5606,8 +5607,8 @@ packages:
   undici-types@7.18.2:
     resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
 
-  undici@7.25.0:
-    resolution: {integrity: sha512-xXnp4kTyor2Zq+J1FfPI6Eq3ew5h6Vl0F/8d9XU5zZQf1tX9s2Su1/3PiMmUANFULpmksxkClamIZcaUqryHsQ==}
+  undici@7.30.0:
+    resolution: {integrity: sha512-dkrQXeHSaoamnItlYbmzG0wFYrM0ZwDxCIg0A7aKjTyyhh9svRzCNFEzV+Vm05/yehjCzjDZ31KXfGEjYSztDQ==}
     engines: {node: '>=20.18.1'}
 
   unist-util-is@6.0.1:
@@ -7591,11 +7592,11 @@ snapshots:
       - svelte
       - vue
 
-  '@langchain/openai@1.5.13(@langchain/core@1.2.12(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.1))(openai@6.45.0(zod@4.4.3)))(undici@7.25.0)':
+  '@langchain/openai@1.5.13(@langchain/core@1.2.12(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.1))(openai@6.45.0(zod@4.4.3)))(undici@7.30.0)':
     dependencies:
       '@langchain/core': 1.2.12(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.1))(openai@6.45.0(zod@4.4.3))
       js-tiktoken: 1.0.21
-      openai: 7.15.0(undici@7.25.0)(zod@4.4.3)
+      openai: 7.15.0(undici@7.30.0)(zod@4.4.3)
       zod: 4.4.3
     transitivePeerDependencies:
       - '@aws-sdk/credential-provider-node'
@@ -11130,7 +11131,7 @@ snapshots:
       saxes: 6.0.0
       symbol-tree: 3.2.4
       tough-cookie: 6.0.1
-      undici: 7.25.0
+      undici: 7.30.0
       w3c-xmlserializer: 5.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
@@ -11864,9 +11865,9 @@ snapshots:
     optionalDependencies:
       zod: 4.4.3
 
-  openai@7.15.0(undici@7.25.0)(zod@4.4.3):
+  openai@7.15.0(undici@7.30.0)(zod@4.4.3):
     optionalDependencies:
-      undici: 7.25.0
+      undici: 7.30.0
       zod: 4.4.3
 
   option@0.2.4: {}
@@ -12577,7 +12578,7 @@ snapshots:
 
   undici-types@7.18.2: {}
 
-  undici@7.25.0: {}
+  undici@7.30.0: {}
 
   unist-util-is@6.0.1:
     dependencies:
