@@ -40,6 +40,7 @@ coverage
 
 !.ai/
 .ai/*
+!.ai/AGENTS.md
 !.ai/analysis/
 !.ai/analysis/*
 !.ai/docs/
@@ -52,6 +53,7 @@ coverage
 !.ai/testing-reports/*
 !RFCs/
 RFCs/*
+!RFCs/AGENTS.md
 !RFCs/RFC-*.md
 !RFCs/RFCS.md
 

@@ -570,3 +570,17 @@ jobs:
           opencode-config: ${{ secrets.OPENCODE_CONFIG }}
           prompt: ${{ env.PROMPT }}
           timeout: 0
+          # Unset resolves to working-dir, whose preamble forbids branch/commit/
+          # push/PR and hands delivery to a caller that implements none of that —
+          # so autoheal edits are silently discarded (see marcusrbrown/mrbro.dev#425).
+          # Gated to the same autoheal runs as the push credential and prompt
+          # selection above; maintenance/review stay working-dir (report-only).
+          output-mode: >-
+            ${{
+              (
+                (github.event_name == 'schedule' && github.event.schedule == '30 3 * * *')
+                || (github.event_name == 'workflow_dispatch' && inputs.mode == 'autoheal')
+              )
+              && 'branch-pr'
+              || 'working-dir'
+            }}
