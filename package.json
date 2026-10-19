@@ -34,7 +34,7 @@
   "dependencies": {
     "@heroui/react": "2.8.10",
     "@langchain/anthropic": "1.5.12",
-    "@langchain/core": "1.2.17",
+    "@langchain/core": "1.2.18",
     "@langchain/langgraph": "1.4.7",
     "@langchain/openai": "1.6.2",
     "@modelcontextprotocol/sdk": "1.31.0",
@@ -44,7 +44,7 @@
     "dexie": "4.4.4",
     "file-saver": "2.0.5",
     "jszip": "3.10.1",
-    "langchain": "1.5.16",
+    "langchain": "1.5.18",
     "lru-cache": "11.5.1",
     "lucide-react": "0.577.0",
     "mammoth": "1.12.0",
