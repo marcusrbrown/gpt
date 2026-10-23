@@ -75,7 +75,7 @@ export function DocLayout({children, sidebar}: DocLayoutProps) {
       </aside>
 
       {/* Main content */}
-      <main className="flex-1 overflow-auto lg:pl-(--sidebar-width)">
+      <main id="main-content" tabIndex={-1} className="flex-1 overflow-auto lg:pl-(--sidebar-width)">
         <div className={cn(ds.layout.container, 'py-6')}>
           <Breadcrumbs />
           {children}
