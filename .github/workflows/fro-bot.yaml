@@ -183,26 +183,29 @@ env:
     Renovate owns routine dependency/version bumps (configured via
     marcusrbrown/renovate-config preset with bfra-me automerge rules).
     You may change dependency versions only when remediating a confirmed
-    security advisory (critical/high) or repairing an existing
-    security-update PR. Do not create non-security version-bump PRs, and
-    do not batch unrelated dependency changes into a security fix. Do NOT
-    modify package.json versions outside category 2 security remediation.
+    security advisory (critical/high) in a new PR you open. Do not create
+    non-security version-bump PRs, and do not batch unrelated dependency
+    changes into a security fix. Do NOT modify package.json versions
+    outside category 2 security remediation.
 
-    TRUSTED AUTHORS
-    Trusted PR authors for branch repair are Marcus and these automation bots:
-    - renovate[bot]
-    - dependabot[bot]
-    - mrbro-bot[bot]
-    - fro-bot
+    BRANCH REPAIR AUTHORS
+    Push repairs only to PR branches authored by Marcus (marcusrbrown) or
+    fro-bot. Never push to a branch authored by renovate[bot],
+    dependabot[bot], mrbro-bot[bot], or any other bot: a push makes
+    Renovate stop updating that PR. For a bot-authored PR, comment the
+    diagnosis on the PR instead. If a code fix is needed outside the
+    dependency bump, open a separate small PR against the default branch.
+    Do not tick Dependency Dashboard checkboxes; report stuck or
+    conflicting Renovate PRs under "Needs Human Attention".
 
     1. ERRORED PRs
        Find open PRs with failing CI checks. Skip dependency/security update
        PRs here; handle them only in category 2.
        Only fix PRs whose head branch is in this repository, writable by
-       this token, and authored by a trusted source (repository
-       owner/collaborator with write access, or an approved automation bot
-       such as Renovate/Dependabot). If author trust cannot be established,
-       skip the PR and log it under "Needs Human Attention".
+       this token, and authored by Marcus or fro-bot (see BRANCH REPAIR
+       AUTHORS). For PRs authored by any other bot, do not push: post a
+       diagnosis comment only. If the author cannot be established, skip
+       the PR and log it under "Needs Human Attention".
        If the PR touches workflows, automation prompts, package-manager
        config, lockfiles, or execution scripts, do not run project commands
        from that branch. Skip it and log why.
@@ -221,7 +224,9 @@ env:
     2. SECURITY
        Review Dependabot/Renovate alerts and open PRs for vulnerable deps.
        - If a security update PR exists but has conflicts or failures,
-         fix and push to that PR branch.
+         follow BRANCH REPAIR AUTHORS: push only if it is authored by
+         Marcus or fro-bot; for a bot-authored PR, comment the diagnosis
+         and log it under "Needs Human Attention". Never push to it.
        - For unaddressed critical/high advisories with no existing PR,
          create a new PR with the remediation.
        - Do NOT bulk-update unrelated deps in a security PR.
@@ -413,18 +418,22 @@ env:
       note the archival in a line like:
       "_[Archived N older updates on YYYY-MM-DD]_"
     - DO NOT comment on individual issues or PRs unless category 1 fixed
-      a failing PR (then ONLY post the fix-summary comment on that PR).
+      a failing PR (then ONLY post the fix-summary comment on that PR) or
+      category 1 or 2 diagnosed a bot-authored PR (then ONLY post one
+      diagnosis comment on that PR).
 
     Hard boundaries:
     - Never force-push, rewrite history, or delete branches.
-    - Never push directly to the default branch. Direct pushes are allowed
-      only to an existing non-default PR branch you are repairing under
-      category 1 or category 2.
+    - Never push directly to the default branch. Pushes are allowed only
+      to a new branch you create for a PR, or to an existing non-default
+      PR branch authored by Marcus or fro-bot that you are repairing under
+      category 1 or category 2. Never push to a branch authored by any bot.
     - Never merge PRs, submit reviews/approvals, close/reopen PRs or
       issues, or modify branch protection, EXCEPT for closing duplicate
       "Daily Autohealing Report" issues as described in the perpetual issue
       hygiene section above. This workflow may only push fixes, open/update
-      PRs, open/update issues, and comment on PRs when a fix was pushed.
+      PRs, open/update issues, and comment on PRs when a fix was pushed or a
+      bot-authored PR was diagnosed.
     - Never modify secrets, org settings, environments, or branch
       protection.
     - Never make checks pass by disabling tests, deleting failing
@@ -566,6 +575,17 @@ jobs:
           auth-json: ${{ secrets.OPENCODE_AUTH_JSON }}
           github-token: ${{ secrets.FRO_BOT_PAT }}
           model: ${{ vars.FRO_BOT_MODEL }}
+          # Autoheal must deliver its fixes as PRs; under the default `working-dir`
+          # mode the agent cannot push or open PRs, so its edits would be discarded.
+          output-mode: >-
+            ${{
+              (
+                (github.event_name == 'schedule' && github.event.schedule == '30 3 * * *')
+                || (github.event_name == 'workflow_dispatch' && inputs.mode == 'autoheal')
+              )
+              && 'branch-pr'
+              || 'working-dir'
+            }}
           omo-providers: ${{ secrets.OMO_PROVIDERS }}
           opencode-config: ${{ secrets.OPENCODE_CONFIG }}
           prompt: ${{ env.PROMPT }}
