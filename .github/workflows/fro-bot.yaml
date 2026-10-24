@@ -367,7 +367,7 @@ env:
     ### Errored PRs
     | PR | Failure | Fix | Status |
     | --- | --- | --- | --- |
-    | #N | [root cause] | [what was fixed] | ✅ Fixed / ⚠️ Needs review / ⏭️ Skipped |
+    | #N | [root cause] | [what was fixed] | ✅ Fixed / 🔎 Diagnosed / ⚠️ Needs review / ⏭️ Skipped |
 
     ### Security
     | Advisory / PR | Severity | Action Taken |
