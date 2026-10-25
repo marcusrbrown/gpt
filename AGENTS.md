@@ -102,8 +102,6 @@ tests/
 | `notebooks/` | [notebooks/AGENTS.md](notebooks/AGENTS.md) |
 | `docs/`      | [docs/AGENTS.md](docs/AGENTS.md)           |
 | `.github/`   | [.github/AGENTS.md](.github/AGENTS.md)     |
-| `RFCs/`      | [RFCs/AGENTS.md](RFCs/AGENTS.md)           |
-| `.ai/`       | [.ai/AGENTS.md](.ai/AGENTS.md)             |
 
 ## References
 
