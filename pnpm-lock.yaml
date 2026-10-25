@@ -8,12 +8,14 @@ overrides:
   '@xmldom/xmldom': '>=0.8.15 <0.9.0'
   brace-expansion@2: '>=2.1.2 <3.0.0'
   brace-expansion@5: '>=5.0.7 <6.0.0'
+  body-parser: '>=2.4.0 <3.0.0'
   browserslist: '>=4.28.7 <5.0.0'
   dompurify: '>=3.4.17 <4.0.0'
   fast-uri: '>=3.1.6 <4.0.0'
   ip-address: '>=10.7.4 <11.0.0'
   langsmith: '>=0.6.0'
   path-to-regexp: '>=8.4.0'
+  undici: '>=7.30.1 <8.0.0'
   ws@7: '>=7.5.11 <8.0.0'
 
 importers:
@@ -34,7 +36,7 @@ importers:
         version: 1.4.7(@langchain/core@1.2.20(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.1))(openai@6.45.0(zod@4.6.6)))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(zod@4.6.6)
       '@langchain/openai':
         specifier: 1.6.3
-        version: 1.6.3(@langchain/core@1.2.20(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.1))(openai@6.45.0(zod@4.6.6)))(undici@7.30.0)
+        version: 1.6.3(@langchain/core@1.2.20(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.1))(openai@6.45.0(zod@4.6.6)))(undici@7.30.1)
       '@modelcontextprotocol/sdk':
         specifier: 1.32.0
         version: 1.32.0(@cfworker/json-schema@4.1.1)(zod@4.6.6)
@@ -3291,8 +3293,8 @@ packages:
   bluebird@3.4.7:
     resolution: {integrity: sha512-iD3898SR7sWVRHbiQv+sHUtHnMvC1o3nW5rAcqnq3uOn07DSAppZYUkIGslDz6gXC7HfunPe7YVBgoEJASPcHA==}
 
-  body-parser@2.3.0:
-    resolution: {integrity: sha512-2cGmJupaNgg+QUwVLAucDuWuoMZ6EX9iHDRswZ5lsNYEmwPaRknMPCLZz07yTzVq/83p4o/wzbDZbBrTvGGTIw==}
+  body-parser@2.4.0:
+    resolution: {integrity: sha512-Ifk1KcLrxaGt1occQagQNFNNOqRt1LFuehEnHHzB8Z6cRgIxRU1TBaiIsUiCdA+gy5PL7Y1IX31DNKkRmxtXjQ==}
     engines: {node: '>=18'}
 
   brace-expansion@2.1.7:
@@ -4385,8 +4387,8 @@ packages:
       ws:
         optional: true
 
-  legacy-javascript@0.0.3:
-    resolution: {integrity: sha512-1r6MT4dVaJyXt4G07Cm2cQ0AUaLJdefiEp4SmIAylA++gnEQ82YvmzE58RkM5EP0fk5hROLCslUPGnwIYdZQVA==}
+  legacy-javascript@0.0.4:
+    resolution: {integrity: sha512-UTmeKBVxnfJcpmpOvzzNnLsQT99BXHpPlc/ZKddIRmWmrR0fw6335I3lq4+sJoP60UTbBNaYsGYVPc65YB1x3A==}
 
   levn@0.4.1:
     resolution: {integrity: sha512-+bT2uH4E5LGE7h/n3evcS/sQlJXCpIp6ym8OWJ5eV6+67Dsql/LaaT7qJBAt2rzfoa/5QBGBhxDix1dMt2kQKQ==}
@@ -4918,7 +4920,7 @@ packages:
       '@aws-sdk/credential-provider-node': '>=3.972.0 <4'
       '@smithy/hash-node': '>=4.3.0 <5'
       '@smithy/signature-v4': '>=5.4.0 <6'
-      undici: '>=5 <9'
+      undici: '>=7.30.1 <8.0.0'
       ws: ^8.21.0
       zod: ^3.25 || ^4.0
     peerDependenciesMeta:
@@ -5138,6 +5140,10 @@ packages:
 
   qs@6.16.0:
     resolution: {integrity: sha512-h6fhOIaRrID2CbEY2fqs+7t+UXZo+MLAnU5gRIq85uFtdiUPCdsApMlHhXogKVM4HM2DVbIjGNTTYH2OcmP1vA==}
+    engines: {node: '>=0.6'}
+
+  qs@6.16.1:
+    resolution: {integrity: sha512-5Px6J7rfHBAGUhNQ3es4YzcOdBBw0SDcVtThJml4RdnKw4tKs2epA0kPZ+K8X+WiHktT93RHVcQ/3ym5aTCgtg==}
     engines: {node: '>=0.6'}
 
   quansync@0.2.11:
@@ -5634,8 +5640,8 @@ packages:
   undici-types@7.24.6:
     resolution: {integrity: sha512-WRNW+sJgj5OBN4/0JpHFqtqzhpbnV0GuB+OozA9gCL7a993SmU+1JBZCzLNxYsbMfIeDL+lTsphD5jN5N+n0zg==}
 
-  undici@7.30.0:
-    resolution: {integrity: sha512-dkrQXeHSaoamnItlYbmzG0wFYrM0ZwDxCIg0A7aKjTyyhh9svRzCNFEzV+Vm05/yehjCzjDZ31KXfGEjYSztDQ==}
+  undici@7.30.1:
+    resolution: {integrity: sha512-03KrMbjIFDWQR5RNPrSw3bd1r12JpyFQl9/yxjUbJtqkjmllqC5lFjZh6ujeuJCKr8EOQvRW872Oy/az+nLYxg==}
     engines: {node: '>=20.18.1'}
 
   unist-util-is@6.0.1:
@@ -7631,11 +7637,11 @@ snapshots:
       - svelte
       - vue
 
-  '@langchain/openai@1.6.3(@langchain/core@1.2.20(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.1))(openai@6.45.0(zod@4.6.6)))(undici@7.30.0)':
+  '@langchain/openai@1.6.3(@langchain/core@1.2.20(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.1))(openai@6.45.0(zod@4.6.6)))(undici@7.30.1)':
     dependencies:
       '@langchain/core': 1.2.20(@opentelemetry/api@1.9.1)(@opentelemetry/sdk-trace-base@1.30.1(@opentelemetry/api@1.9.1))(openai@6.45.0(zod@4.6.6))
       js-tiktoken: 1.0.21
-      openai: 7.27.0(undici@7.30.0)(zod@4.6.6)
+      openai: 7.27.0(undici@7.30.1)(zod@4.6.6)
       zod: 4.6.6
     transitivePeerDependencies:
       - '@aws-sdk/credential-provider-node'
@@ -7986,7 +7992,7 @@ snapshots:
 
   '@paulirish/trace_engine@0.0.65':
     dependencies:
-      legacy-javascript: 0.0.3
+      legacy-javascript: 0.0.4
       third-party-web: 0.30.0
 
   '@pkgr/core@0.3.6': {}
@@ -10073,7 +10079,7 @@ snapshots:
 
   bluebird@3.4.7: {}
 
-  body-parser@2.3.0:
+  body-parser@2.4.0:
     dependencies:
       bytes: 3.1.2
       content-type: 2.1.0
@@ -10081,7 +10087,7 @@ snapshots:
       http-errors: 2.0.1
       iconv-lite: 0.7.3
       on-finished: 2.4.1
-      qs: 6.16.0
+      qs: 6.16.1
       raw-body: 3.0.2
       type-is: 2.1.0
     transitivePeerDependencies:
@@ -10828,7 +10834,7 @@ snapshots:
   express@5.2.1:
     dependencies:
       accepts: 2.0.0
-      body-parser: 2.3.0
+      body-parser: 2.4.0
       content-disposition: 1.1.0
       content-type: 1.0.5
       cookie: 0.7.2
@@ -11175,7 +11181,7 @@ snapshots:
       saxes: 6.0.0
       symbol-tree: 3.2.4
       tough-cookie: 6.0.2
-      undici: 7.30.0
+      undici: 7.30.1
       w3c-xmlserializer: 5.0.0
       webidl-conversions: 8.0.1
       whatwg-mimetype: 5.0.0
@@ -11246,7 +11252,7 @@ snapshots:
       '@opentelemetry/sdk-trace-base': 1.30.1(@opentelemetry/api@1.9.1)
       openai: 6.45.0(zod@4.6.6)
 
-  legacy-javascript@0.0.3: {}
+  legacy-javascript@0.0.4: {}
 
   levn@0.4.1:
     dependencies:
@@ -11920,9 +11926,9 @@ snapshots:
     optionalDependencies:
       zod: 4.6.6
 
-  openai@7.27.0(undici@7.30.0)(zod@4.6.6):
+  openai@7.27.0(undici@7.30.1)(zod@4.6.6):
     optionalDependencies:
-      undici: 7.30.0
+      undici: 7.30.1
       zod: 4.6.6
 
   option@0.2.4: {}
@@ -12115,6 +12121,11 @@ snapshots:
       hookified: 2.2.0
 
   qs@6.16.0:
+    dependencies:
+      es-define-property: 1.0.1
+      side-channel: 1.1.1
+
+  qs@6.16.1:
     dependencies:
       es-define-property: 1.0.1
       side-channel: 1.1.1
@@ -12636,7 +12647,7 @@ snapshots:
 
   undici-types@7.24.6: {}
 
-  undici@7.30.0: {}
+  undici@7.30.1: {}
 
   unist-util-is@6.0.1:
     dependencies:
