@@ -66,11 +66,12 @@ export function GPTTestPage() {
     loadGptData().catch(console.error)
   }, [gptId, storage])
 
-  // Reset to a new chat whenever the conversation ID or storage changes and no conversation is selected.
+  // Reset to a new chat only when the conversation ID changes to none. Keyed on the ID alone: the storage context
+  // value changes identity on unrelated state (isLoading, error, storageWarning) and must not wipe an in-progress chat.
   // Adjusting state during render (rather than in an effect) avoids a cascading re-render.
-  const [resetSource, setResetSource] = useState({currentConversationId, storage})
-  if (resetSource.currentConversationId !== currentConversationId || resetSource.storage !== storage) {
-    setResetSource({currentConversationId, storage})
+  const [resetConversationId, setResetConversationId] = useState(currentConversationId)
+  if (resetConversationId !== currentConversationId) {
+    setResetConversationId(currentConversationId)
     if (!currentConversationId) {
       setMessages([])
       setConversationName('New Chat')
