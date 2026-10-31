@@ -135,6 +135,9 @@ env:
     REVIEW BACKLOG CAP
     Marcus reviews every PR by hand. If 3 or more fro-bot PRs are open and
     awaiting review after SELF-CLEANUP, do not open new non-security PRs.
+    Count only PRs whose commits are all authored by fro-bot and that
+    marcusrbrown has not commented on or reviewed; PRs a human has touched
+    are tracked under Progressive Improvement instead.
     Record each would-be fix under "Tasks for Agents" instead. Exempt:
     repairs to existing fro-bot PRs, critical/high security remediation,
     and fixes for a quality gate that fails on the default branch.
