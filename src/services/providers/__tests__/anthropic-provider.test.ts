@@ -51,11 +51,11 @@ async function expectGeneratorThrows(
     for await (const chunk of generator) {
       expect(chunk).toBeDefined()
     }
-  } catch (caughtError) {
+  } catch (error_) {
     if (errorType) {
-      expect(caughtError).toBeInstanceOf(errorType)
+      expect(error_).toBeInstanceOf(errorType)
     }
-    return caughtError as ProviderError
+    return error_ as ProviderError
   }
   throw new Error('Expected generator to throw')
 }
