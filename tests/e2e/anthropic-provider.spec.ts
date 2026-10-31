@@ -80,7 +80,7 @@ test.describe('Anthropic Provider Integration', () => {
       await openSettingsPanel(page)
 
       const anthropicSection = page.locator('div').filter({hasText: 'Anthropic API Settings'}).last()
-      const clearButton = anthropicSection.locator('button[aria-label="Clear saved API key from local storage"]')
+      const clearButton = anthropicSection.locator('button[aria-label="Clear API key from local storage"]')
       await expect(clearButton).toBeDisabled()
     })
 
@@ -260,7 +260,7 @@ test.describe('Anthropic Provider Integration', () => {
       await expect(saveButton).toBeEnabled({timeout: 15000})
 
       // Now check if clear button becomes enabled (depends on if key was saved)
-      const clearButton = anthropicSection.locator('button[aria-label="Clear saved API key from local storage"]')
+      const clearButton = anthropicSection.locator('button[aria-label="Clear API key from local storage"]')
 
       // If clear is enabled, click it and verify input clears
       const isEnabled = await clearButton.isEnabled()
@@ -291,7 +291,7 @@ test.describe('Anthropic Provider Integration', () => {
       const saveButton = anthropicSection.locator('button[aria-label="Save API key to local storage"]')
       await expect(saveButton).toBeVisible()
 
-      const clearButton = anthropicSection.locator('button[aria-label="Clear saved API key from local storage"]')
+      const clearButton = anthropicSection.locator('button[aria-label="Clear API key from local storage"]')
       await expect(clearButton).toBeVisible()
     })
 

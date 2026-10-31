@@ -146,7 +146,7 @@ export function APISettings() {
             color="danger"
             isDisabled={!isConfigured}
             className={cn(ds.focus.ring, ds.animation.transition)}
-            aria-label="Clear saved API key from local storage"
+            aria-label="Clear API key from local storage"
           >
             Clear API Key
           </Button>
