@@ -2,7 +2,7 @@ import {ThemeSwitch} from '@/components/theme-switch'
 import {cn, ds, theme} from '@/lib/design-system'
 import {Button, Input, type ButtonProps} from '@heroui/react'
 import {Archive, BookOpen, Github, Menu, Search, Settings, X} from 'lucide-react'
-import {useEffect, useState, type ElementType} from 'react'
+import {useEffect, useState, type ElementType, type MouseEvent} from 'react'
 import {Link as RouterLink, type LinkProps} from 'react-router-dom'
 
 type ButtonLinkProps = ButtonProps & {
@@ -26,6 +26,16 @@ const ButtonLink = ({to, children, className, ...props}: ButtonLinkProps) => (
 export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
+  const handleSkipToMainContent = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault()
+
+    const mainContent = document.querySelector<HTMLElement>('#main-content')
+    if (mainContent instanceof HTMLElement) {
+      mainContent.focus()
+      mainContent.scrollIntoView({block: 'start'})
+    }
+  }
+
   // Handle keyboard navigation for mobile menu
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -48,6 +58,18 @@ export const Navbar = () => {
 
   return (
     <header className={cn('w-full h-(--header-height) border-b', theme.surface(0), theme.border())}>
+      <a
+        href="#main-content"
+        onClick={handleSkipToMainContent}
+        className={cn(
+          'sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:px-4 focus:py-2 focus:shadow-lg focus:outline-none',
+          ds.focus.ring,
+          theme.surface(2),
+          theme.content('primary'),
+        )}
+      >
+        Skip to main content
+      </a>
       <div className={cn('flex items-center justify-between h-full', ds.layout.container)}>
         {/* Left section - Logo */}
         <div className="flex items-center gap-3">
