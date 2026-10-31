@@ -32,7 +32,7 @@ export function GPTShowcasePage() {
   const {getGPT} = useStorage()
   const [gpt, setGpt] = useState<GPTConfiguration | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   // All hooks must be called before any conditional returns
   const handleBack = useCallback(() => {
@@ -73,11 +73,7 @@ export function GPTShowcasePage() {
   )
 
   useEffect(() => {
-    if (!gptId) {
-      setIsLoading(false)
-      setError('No GPT ID provided')
-      return
-    }
+    if (!gptId) return
 
     let isMounted = true
 
@@ -88,11 +84,11 @@ export function GPTShowcasePage() {
         if (config) {
           setGpt(config)
         } else {
-          setError('GPT not found')
+          setLoadError('GPT not found')
         }
       } catch (error_: unknown) {
         if (!isMounted) return
-        setError(error_ instanceof Error ? error_.message : 'Failed to load GPT')
+        setLoadError(error_ instanceof Error ? error_.message : 'Failed to load GPT')
       } finally {
         if (isMounted) {
           setIsLoading(false)
@@ -107,7 +103,11 @@ export function GPTShowcasePage() {
     }
   }, [gptId, getGPT])
 
-  if (isLoading) {
+  // A missing route param is derived during render rather than synced into state
+  const isMissingId = !gptId
+  const error = isMissingId ? 'No GPT ID provided' : loadError
+
+  if (isLoading && !isMissingId) {
     return (
       <div className={cn(ds.layout.container, 'py-8 min-h-screen flex flex-col justify-center')}>
         <GPTShowcaseSkeleton />

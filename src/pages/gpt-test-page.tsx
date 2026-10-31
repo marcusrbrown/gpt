@@ -66,6 +66,18 @@ export function GPTTestPage() {
     loadGptData().catch(console.error)
   }, [gptId, storage])
 
+  // Reset to a new chat whenever the conversation ID or storage changes and no conversation is selected.
+  // Adjusting state during render (rather than in an effect) avoids a cascading re-render.
+  const [resetSource, setResetSource] = useState({currentConversationId, storage})
+  if (resetSource.currentConversationId !== currentConversationId || resetSource.storage !== storage) {
+    setResetSource({currentConversationId, storage})
+    if (!currentConversationId) {
+      setMessages([])
+      setConversationName('New Chat')
+      setThreadId(null)
+    }
+  }
+
   // Load Conversation History when ID changes
   useEffect(() => {
     const loadConversation = async () => {
@@ -86,11 +98,6 @@ export function GPTTestPage() {
 
     if (currentConversationId) {
       loadConversation().catch(console.error)
-    } else {
-      // New chat
-      setMessages([])
-      setConversationName('New Chat')
-      setThreadId(null)
     }
   }, [currentConversationId, storage])
 
@@ -435,7 +442,11 @@ export function GPTTestPage() {
     const state = location.state as {initialPrompt?: string} | null
     if (state?.initialPrompt) {
       initialPromptProcessed.current = true
-      handleSendMessage(state.initialPrompt).catch(console.error)
+      const {initialPrompt} = state
+      // Defer the send out of the effect body: handleSendMessage updates state synchronously
+      queueMicrotask(() => {
+        handleSendMessage(initialPrompt).catch(console.error)
+      })
       // Clear history state so we don't re-send on refresh
       window.history.replaceState({}, '')
     }

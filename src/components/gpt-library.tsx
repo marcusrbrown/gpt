@@ -42,21 +42,39 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
   const [isActionLoading, setIsActionLoading] = useState(false)
   const [exportGPT, setExportGPT] = useState<GPTConfiguration | null>(null)
 
-  const loadGPTs = useCallback(async () => {
-    setIsLoading(true)
+  const fetchGPTs = useCallback(async (): Promise<GPTConfiguration[]> => {
     try {
-      const result = viewMode === 'active' ? await getAllGPTs() : await getArchivedGPTs()
-      setGpts(result)
+      return viewMode === 'active' ? await getAllGPTs() : await getArchivedGPTs()
     } catch {
-      setGpts([])
-    } finally {
-      setIsLoading(false)
+      return []
     }
   }, [getAllGPTs, getArchivedGPTs, viewMode])
 
+  // Explicit reload (after archive/restore/duplicate/delete): show the spinner while refetching
+  const loadGPTs = useCallback(async () => {
+    setIsLoading(true)
+    setGpts(await fetchGPTs())
+    setIsLoading(false)
+  }, [fetchGPTs])
+
+  // Sync the list from storage. The loading flag is raised by whatever changes the query (see handleViewModeChange).
   useEffect(() => {
-    loadGPTs().catch(() => {})
-  }, [loadGPTs])
+    fetchGPTs()
+      .then(result => {
+        setGpts(result)
+        setIsLoading(false)
+      })
+      .catch(() => {})
+  }, [fetchGPTs])
+
+  const handleViewModeChange = useCallback(
+    (mode: ViewMode) => {
+      if (mode === viewMode) return
+      setIsLoading(true)
+      setViewMode(mode)
+    },
+    [viewMode],
+  )
 
   const filteredGPTs = useMemo(() => {
     let result = gpts
@@ -144,7 +162,7 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
       <div className="flex items-center justify-between mb-6">
         <Tabs
           selectedKey={viewMode}
-          onSelectionChange={key => setViewMode(key as ViewMode)}
+          onSelectionChange={key => handleViewModeChange(key as ViewMode)}
           aria-label="GPT view mode"
           classNames={{
             tabContent: 'text-default-600 group-data-[selected=true]:text-default-foreground',

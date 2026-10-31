@@ -146,7 +146,10 @@ export function useOllamaStatus(options: UseOllamaStatusOptions = {}): OllamaSta
     isMountedRef.current = true
 
     if (autoStart) {
-      checkStatus().catch(console.error)
+      // Defer the first check out of the effect body: checkStatus updates state synchronously
+      queueMicrotask(() => {
+        checkStatus().catch(console.error)
+      })
 
       intervalRef.current = setInterval(() => {
         checkStatus().catch(console.error)
