@@ -3,6 +3,14 @@
   extends: ['github>marcusrbrown/renovate-config#5.2.16'],
   packageRules: [
     {
+      description: [
+        'Hold HeroUI v2 (`@heroui/react`) below v3 until the v3 cutover (#2162).',
+        'Match `depName`, not `packageName`: the aliased v3 deps (`@heroui-v3/*`) resolve to the same `@heroui/react` package name.',
+      ],
+      matchDepNames: ['@heroui/react'],
+      allowedVersions: '<3',
+    },
+    {
       description: ['Automerge unstable minor updates of `lucide-react` once a month.'],
       matchCurrentVersion: '/^v?0/',
       matchPackageNames: ['lucide-react'],

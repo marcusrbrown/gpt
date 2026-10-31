@@ -404,6 +404,43 @@ All design tokens automatically support dark mode through CSS custom properties.
 />
 ```
 
+## v2/v3 Coexistence (HeroUI migration, #2162)
+
+HeroUI v2 and v3 are installed side by side until cutover. v2 stays the default; a component moves to v3 only in its own migration PR.
+
+### Packages and imports
+
+| Import from         | Version | Notes                                                  |
+| ------------------- | ------- | ------------------------------------------------------ |
+| `@heroui/react`     | v2      | Default. `HeroUIProvider` and `src/hero.ts` stay.      |
+| `@heroui-v3/react`  | v3      | Alias of `@heroui/react@3.2.7` (`npm:` alias).         |
+| `@heroui-v3/styles` | v3      | Alias of `@heroui/styles@3.2.7`, used only by the CSS. |
+
+- A file may import from both packages. Never import the same name from both without an `as` alias (`import {Button as ButtonV3} from '@heroui-v3/react'`).
+- Keep both `@heroui-v3/*` aliases on the same exact version.
+- Renovate holds `@heroui/react` below v3 (`.github/renovate.json5`, matched by `depName`). Remove that rule at cutover.
+
+### Styles: a separate Tailwind root
+
+v3 styles live in `src/styles/heroui-v3.css`, which is its own Tailwind compile. `src/index.css` does not import `@heroui-v3/styles`.
+
+Why: v3's `@theme inline` block defines `background`, `foreground`, `overlay`, `focus`, `default`, `success`, `warning`, `danger` (and their `-foreground` keys). Inside the app's root those keys re-point the v2 plugin utilities (`bg-background`, `text-default-foreground`, `border-danger`, ...) to v3 oklch colours, and import order does not change that. A separate root keeps v3's theme bridge out of the app's utilities, so v2 components render unchanged.
+
+Rules:
+
+- A migrated component module imports `@/styles/heroui-v3.css` (a side-effect import) next to its `@heroui-v3/react` import.
+- Add one `@import '@heroui-v3/styles/components/<name>.css' layer(components);` per migrated component family to `src/styles/heroui-v3.css`.
+- Component CSS is not self-contained. The file already imports the prelude (`utilities`, `variants`, `themes/default`). Shared components must be imported before the components that use them: `close-button`, `description`, `error-message`, `field-error`, `label`.
+- Skipped on purpose: `base/base.css` and `base/scrollbar.css`. They add global rules (`*` border colour, `--z-index-toast`, view-transition) that would change v2 components. Overlay components (Modal, Drawer, Popover, Tooltip, Dropdown, Select) need `@heroui-v3/styles/base/overlay-motion.css` (import it with `layer(base)`).
+- v3 components use v3 tokens (radius, colours, spacing), not the app's `@theme` overrides.
+- Dark mode works through the `.dark` class set by `next-themes`; v3's variables follow it.
+
+Remaining overlaps are plain CSS variables and do not affect v2 utilities: the app's `:root`/`.dark` also defines `--surface-secondary`, `--surface-tertiary`, `--background-secondary`, `--background-tertiary` and `--accent-hover`, and wins over v3's values of the same names.
+
+### Cutover
+
+After the last component migrates and the v2 plugin is removed: replace the per-component imports with `@import '@heroui/styles';` in `src/index.css` (the full package, as upstream documents), delete `src/styles/heroui-v3.css` and the side-effect imports, rename the aliases back to `@heroui/*`, and drop the Renovate hold. The colour-key collision no longer exists once v2 utilities are gone.
+
 ## Migration Guidelines
 
 When updating existing components to use the design system:

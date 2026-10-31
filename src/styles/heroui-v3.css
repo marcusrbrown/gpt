@@ -1,0 +1,16 @@
+/*
+ * HeroUI v3 styles for migrated components. This file is its own Tailwind root, not part of
+ * src/index.css: v3's `@theme inline` colour keys (background, foreground, default, success,
+ * warning, danger, overlay, focus) would otherwise re-point the v2 plugin utilities used by every
+ * unmigrated component. Add one component @import per migrated family; see docs/design-system.md.
+ */
+@layer theme, base, components, utilities;
+
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/utilities.css' layer(utilities) source(none);
+
+@import '@heroui-v3/styles/utilities';
+@import '@heroui-v3/styles/variants';
+@import '@heroui-v3/styles/themes/default' layer(theme);
+
+@import '@heroui-v3/styles/components/button.css' layer(components);
