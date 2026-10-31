@@ -53,102 +53,41 @@ export const NETWORK_CONDITIONS = {
 } as const
 
 /**
- * Lighthouse configuration options
- */
-export interface LighthouseOptions {
-  formFactor?: 'desktop' | 'mobile'
-  screenEmulation?: {
-    mobile: boolean
-    width: number
-    height: number
-    deviceScaleFactor: number
-    disabled: boolean
-  }
-  throttling?: {
-    rttMs: number
-    throughputKbps: number
-    cpuSlowdownMultiplier: number
-  }
-}
-
-/**
  * Performance test result interface
+ *
+ * All values come from the browser Performance API (Chromium). Nothing here is
+ * a Lighthouse score; category scores and Speed Index are intentionally absent.
  */
 export interface PerformanceTestResult {
   url: string
   timestamp: string
-  scores: {
-    performance: number
-    accessibility: number
-    bestPractices: number
-    seo: number
-  }
   metrics: {
+    /** First Contentful Paint (ms) */
     fcp: number
+    /** Largest Contentful Paint (ms) */
     lcp: number
+    /** Cumulative Layout Shift (unitless, largest session window) */
     cls: number
+    /** Approximate Total Blocking Time (ms), from long tasks after FCP */
     tbt: number
-    speedIndex: number
-    tti: number
+    /** Time from fetch start to end of the load event (ms) */
+    loadComplete: number
   }
-  audits: Record<string, unknown>
   passed: boolean
   failures: string[]
 }
 
 /**
- * Default Lighthouse configuration for performance testing
- */
-export const DEFAULT_LIGHTHOUSE_CONFIG: LighthouseOptions = {
-  formFactor: 'desktop',
-  screenEmulation: {
-    mobile: false,
-    width: 1920,
-    height: 1080,
-    deviceScaleFactor: 1,
-    disabled: false,
-  },
-  throttling: {
-    rttMs: 40,
-    throughputKbps: 10 * 1024,
-    cpuSlowdownMultiplier: 1,
-  },
-}
-
-/**
- * Mobile Lighthouse configuration
- */
-export const MOBILE_LIGHTHOUSE_CONFIG: LighthouseOptions = {
-  formFactor: 'mobile',
-  screenEmulation: {
-    mobile: true,
-    width: 375,
-    height: 667,
-    deviceScaleFactor: 2,
-    disabled: false,
-  },
-  throttling: {
-    rttMs: 150,
-    throughputKbps: 1.6 * 1024,
-    cpuSlowdownMultiplier: 4,
-  },
-}
-
-/**
- * Run Lighthouse audit on a page using browser Performance API
+ * Collect real performance metrics for the current page using the browser Performance API
  *
- * Uses browser Performance API for metrics measurement rather than full Lighthouse CLI
- * to enable reliable execution within Playwright test context. Full Lighthouse integration
- * should be configured in separate CI workflow with proper Chrome debugging port.
+ * This is not a Lighthouse run: there is no throttling and no category scoring.
+ * It reports FCP, LCP, CLS and an approximate TBT, then checks them against the
+ * Core Web Vitals thresholds and the FCP budget.
  *
  * @param page - Playwright page instance
- * @param _options - Lighthouse configuration options (reserved for future use)
- * @returns Performance test results with Core Web Vitals and scores
+ * @returns Measured metrics and any threshold failures
  */
-export async function runLighthouseAudit(
-  page: Page,
-  _options: LighthouseOptions = DEFAULT_LIGHTHOUSE_CONFIG,
-): Promise<PerformanceTestResult> {
+export async function collectPerformanceMetrics(page: Page): Promise<PerformanceTestResult> {
   const url = page.url()
 
   const metrics = await measureCustomMetrics(page)
@@ -156,21 +95,13 @@ export async function runLighthouseAudit(
   const result: PerformanceTestResult = {
     url,
     timestamp: new Date().toISOString(),
-    scores: {
-      performance: 0.9,
-      accessibility: 0.95,
-      bestPractices: 0.9,
-      seo: 0.9,
-    },
     metrics: {
       fcp: metrics.fcp,
       lcp: metrics.lcp,
-      cls: metrics.cls || 0,
-      tbt: 0,
-      speedIndex: 0,
-      tti: metrics.loadComplete,
+      cls: metrics.cls,
+      tbt: metrics.tbt,
+      loadComplete: metrics.loadComplete,
     },
-    audits: {},
     passed: true,
     failures: [],
   }
@@ -212,6 +143,11 @@ export async function waitForPageLoad(page: Page): Promise<void> {
 /**
  * Measure performance metrics using browser Performance API
  *
+ * LCP, CLS and long tasks are not available through `performance.getEntriesByType`,
+ * so they are read with buffered PerformanceObservers. TBT is approximated as the
+ * sum of (duration - 50ms) over long tasks that start after FCP; Lighthouse's TTI
+ * window is not available here.
+ *
  * @param page - Playwright page instance
  * @returns Performance metrics including navigation timing, paint metrics, and resource count
  */
@@ -221,26 +157,79 @@ export async function measureCustomMetrics(page: Page): Promise<{
   loadComplete: number
   fcp: number
   lcp: number
-  cls: number | undefined
+  cls: number
+  tbt: number
   resourceCount: number
 }> {
-  return page.evaluate(() => {
+  return page.evaluate(async () => {
+    interface LayoutShiftEntry extends PerformanceEntry {
+      value: number
+      hadRecentInput: boolean
+    }
+
+    // Buffered observers deliver already-recorded entries asynchronously; drain them
+    // once the delivery task has run, then disconnect.
+    const collectEntries = async (type: string): Promise<PerformanceEntry[]> =>
+      new Promise(resolve => {
+        const entries: PerformanceEntry[] = []
+        const observer = new PerformanceObserver(list => {
+          entries.push(...list.getEntries())
+        })
+        observer.observe({type, buffered: true})
+        setTimeout(() => {
+          entries.push(...observer.takeRecords())
+          observer.disconnect()
+          resolve(entries)
+        }, 50)
+      })
+
     const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
     const paint = performance.getEntriesByType('paint')
-    const fcp = paint.find(entry => entry.name === 'first-contentful-paint')
-    const lcpEntries = performance.getEntriesByType('largest-contentful-paint')
-    // eslint-disable-next-line unicorn/prefer-at
-    const lcp = lcpEntries.length > 0 ? lcpEntries[lcpEntries.length - 1] : undefined
+    const fcpEntry = paint.find(entry => entry.name === 'first-contentful-paint')
+    const fcp = fcpEntry?.startTime ?? 0
 
-    let cls: number | undefined
+    const [lcpEntries, layoutShifts, longTasks] = await Promise.all([
+      collectEntries('largest-contentful-paint'),
+      collectEntries('layout-shift') as Promise<LayoutShiftEntry[]>,
+      collectEntries('longtask'),
+    ])
+
+    // The last LCP candidate is the final LCP value
+    const lcp = lcpEntries.at(-1)?.startTime ?? 0
+
+    // CLS: largest session window (gap < 1s, window <= 5s), ignoring input-driven shifts
+    let cls = 0
+    let sessionValue = 0
+    let sessionStart = 0
+    let previousShiftTime = 0
+    for (const shift of layoutShifts) {
+      if (shift.hadRecentInput) continue
+      if (sessionValue > 0 && shift.startTime - previousShiftTime < 1000 && shift.startTime - sessionStart < 5000) {
+        sessionValue += shift.value
+      } else {
+        sessionValue = shift.value
+        sessionStart = shift.startTime
+      }
+      previousShiftTime = shift.startTime
+      cls = Math.max(cls, sessionValue)
+    }
+
+    // TBT approximation: blocking portion (>50ms) of long tasks starting after FCP
+    let tbt = 0
+    if (fcp > 0) {
+      for (const task of longTasks) {
+        if (task.startTime >= fcp) tbt += Math.max(0, task.duration - 50)
+      }
+    }
 
     return {
       domContentLoaded: navigation ? navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart : 0,
       domComplete: navigation ? navigation.domComplete - navigation.fetchStart : 0,
       loadComplete: navigation ? navigation.loadEventEnd - navigation.fetchStart : 0,
-      fcp: fcp?.startTime || 0,
-      lcp: lcp?.startTime || 0,
+      fcp,
+      lcp,
       cls,
+      tbt,
       resourceCount: performance.getEntriesByType('resource').length,
     }
   })

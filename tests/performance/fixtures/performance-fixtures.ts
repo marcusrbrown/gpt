@@ -1,4 +1,4 @@
-import type {PerformanceTestResult} from '../utils/lighthouse-utils'
+import type {PerformanceTestResult} from '../utils/performance-utils'
 
 import {existsSync, mkdirSync, writeFileSync} from 'node:fs'
 import {join} from 'node:path'
@@ -11,7 +11,6 @@ import {test as base, expect as baseExpect} from '@playwright/test'
 interface PerformanceTestFixtures {
   // Store performance results for reporting
   performanceResults: PerformanceTestResult[]
-  deviceType: 'desktop' | 'mobile'
 }
 
 /**
@@ -19,9 +18,7 @@ interface PerformanceTestFixtures {
  * Provides utilities for performance measurement and reporting
  */
 export const test = base.extend<PerformanceTestFixtures>({
-  deviceType: ['desktop', {option: true}],
-
-  performanceResults: async ({context: _, deviceType}, use: (r: PerformanceTestResult[]) => Promise<void>) => {
+  performanceResults: async ({context: _}, use: (r: PerformanceTestResult[]) => Promise<void>, testInfo) => {
     const results: PerformanceTestResult[] = []
     await use(results)
 
@@ -31,27 +28,26 @@ export const test = base.extend<PerformanceTestFixtures>({
         mkdirSync(resultsDir, {recursive: true})
       }
 
-      const avgResult = results[0]
-      if (!avgResult) {
+      // Each test gets its own fixture instance, so the file holds the sample from
+      // the last test in the project that recorded a result.
+      const latestResult = results.at(-1)
+      if (!latestResult) {
         return
       }
 
-      const lighthouseJson = {
-        categories: {
-          performance: {score: avgResult.scores.performance},
-          accessibility: {score: avgResult.scores.accessibility},
-        },
-        audits: {
-          'largest-contentful-paint': {numericValue: avgResult.metrics.lcp},
-          'cumulative-layout-shift': {numericValue: avgResult.metrics.cls},
-          'first-contentful-paint': {numericValue: avgResult.metrics.fcp},
-          'speed-index': {numericValue: avgResult.metrics.speedIndex},
-          interactive: {numericValue: avgResult.metrics.tti},
+      const metricsJson = {
+        url: latestResult.url,
+        timestamp: latestResult.timestamp,
+        metrics: {
+          fcp: latestResult.metrics.fcp,
+          lcp: latestResult.metrics.lcp,
+          cls: latestResult.metrics.cls,
+          tbt: latestResult.metrics.tbt,
         },
       }
 
-      const outputPath = join(resultsDir, `lighthouse-${deviceType}.json`)
-      writeFileSync(outputPath, JSON.stringify(lighthouseJson, null, 2), 'utf-8')
+      const outputPath = join(resultsDir, `performance-metrics-${testInfo.project.name}.json`)
+      writeFileSync(outputPath, JSON.stringify(metricsJson, null, 2), 'utf-8')
       console.log(`Performance results written to ${outputPath}`)
     }
   },
@@ -61,21 +57,6 @@ export const test = base.extend<PerformanceTestFixtures>({
  * Custom expect matchers for performance testing
  */
 export const expect = baseExpect.extend({
-  /**
-   * Assert that a performance score meets the threshold
-   */
-  toMeetPerformanceThreshold(received: number, threshold: number) {
-    const pass = received >= threshold
-    const message = pass
-      ? () => `Expected performance score ${received} not to meet threshold ${threshold}`
-      : () => `Expected performance score ${received} to meet threshold ${threshold}`
-
-    return {
-      message,
-      pass,
-    }
-  },
-
   /**
    * Assert that a metric is within budget
    */

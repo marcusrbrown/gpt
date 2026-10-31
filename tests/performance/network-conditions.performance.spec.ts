@@ -5,7 +5,7 @@ import {
   measureCustomMetrics,
   waitForPageLoad,
   type NETWORK_CONDITIONS,
-} from './utils/lighthouse-utils'
+} from './utils/performance-utils'
 
 test.describe('Network Conditions Performance', () => {
   const pagePath = '/'
