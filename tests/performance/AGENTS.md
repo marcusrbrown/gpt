@@ -1,6 +1,6 @@
 # tests/performance/AGENTS.md
 
-Lighthouse-based performance testing with budgets.
+Performance testing with budgets. Metrics come from the browser Performance API (FCP, LCP, CLS, approximate TBT) — not Lighthouse.
 
 ## Structure
 
@@ -8,17 +8,17 @@ Lighthouse-based performance testing with budgets.
 performance/
 ├── config/performance-budgets.ts  # Metric thresholds
 ├── fixtures/                      # Test fixtures
-├── utils/lighthouse-utils.ts      # Runner helpers
+├── utils/performance-utils.ts     # Browser Performance API metrics
 └── *.performance.spec.ts          # Tests
 ```
 
 ## Budgets (Core Web Vitals)
 
-| Page       | LCP    | FCP    | CLS | TBT   | Score |
-| ---------- | ------ | ------ | --- | ----- | ----- |
-| Homepage   | 2500ms | 1800ms | 0.1 | 200ms | 0.90  |
-| GPT Editor | 3000ms | 2000ms | 0.1 | 300ms | 0.85  |
-| Settings   | 2300ms | 1700ms | 0.1 | 200ms | 0.92  |
+| Page       | LCP    | FCP    | CLS | TBT   |
+| ---------- | ------ | ------ | --- | ----- |
+| Homepage   | 2500ms | 1800ms | 0.1 | 200ms |
+| GPT Editor | 3000ms | 2000ms | 0.1 | 300ms |
+| Settings   | 2300ms | 1700ms | 0.1 | 200ms |
 
 ## Conventions
 
@@ -28,4 +28,4 @@ performance/
 ## Anti-Patterns
 
 - Never raise budgets without investigation
-- Never skip Lighthouse in CI
+- Never assert on values that are not measured (no hardcoded scores)

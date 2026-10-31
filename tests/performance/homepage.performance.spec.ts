@@ -1,12 +1,11 @@
 import {getBudgetForPage, validateAgainstBudget} from './config/performance-budgets'
 import {expect, test} from './fixtures/performance-fixtures'
 import {
+  collectPerformanceMetrics,
   CORE_WEB_VITALS_THRESHOLDS,
-  DEFAULT_LIGHTHOUSE_CONFIG,
   measureCustomMetrics,
-  runLighthouseAudit,
   waitForPageLoad,
-} from './utils/lighthouse-utils'
+} from './utils/performance-utils'
 
 test.describe('Homepage Performance', () => {
   const pagePath = '/'
@@ -17,11 +16,12 @@ test.describe('Homepage Performance', () => {
     await page.goto(pagePath)
     await waitForPageLoad(page)
 
-    // Run Lighthouse audit
-    const result = await runLighthouseAudit(page, DEFAULT_LIGHTHOUSE_CONFIG)
+    // Collect metrics from the browser Performance API
+    const result = await collectPerformanceMetrics(page)
     performanceResults.push(result)
 
-    // Verify Core Web Vitals
+    // Verify Core Web Vitals (LCP must actually be measured, not default to 0)
+    expect(result.metrics.lcp).toBeGreaterThan(0)
     expect(result.metrics.lcp).toBeLessThanOrEqual(CORE_WEB_VITALS_THRESHOLDS.LCP)
     expect(result.metrics.cls).toBeLessThanOrEqual(CORE_WEB_VITALS_THRESHOLDS.CLS)
   })
@@ -30,22 +30,20 @@ test.describe('Homepage Performance', () => {
     await page.goto(pagePath)
     await waitForPageLoad(page)
 
-    const result = await runLighthouseAudit(page, DEFAULT_LIGHTHOUSE_CONFIG)
+    const result = await collectPerformanceMetrics(page)
     performanceResults.push(result)
 
-    // Validate against budget
+    // validateAgainstBudget skips falsy values, so require real measurements first
+    expect(result.metrics.fcp).toBeGreaterThan(0)
+    expect(result.metrics.lcp).toBeGreaterThan(0)
+
+    // Validate measured metrics against budget
     const violations = validateAgainstBudget(
       {
         lcp: result.metrics.lcp,
         fcp: result.metrics.fcp,
         cls: result.metrics.cls,
         tbt: result.metrics.tbt,
-        speedIndex: result.metrics.speedIndex,
-        tti: result.metrics.tti,
-        performanceScore: result.scores.performance,
-        accessibilityScore: result.scores.accessibility,
-        bestPracticesScore: result.scores.bestPractices,
-        seoScore: result.scores.seo,
       },
       budget,
     )
@@ -87,10 +85,11 @@ test.describe('Homepage Performance', () => {
     await page.goto(pagePath)
     await waitForPageLoad(page)
 
-    const result = await runLighthouseAudit(page, DEFAULT_LIGHTHOUSE_CONFIG)
+    const result = await collectPerformanceMetrics(page)
     performanceResults.push(result)
 
     // FCP should be under 1.8 seconds for good user experience
+    expect(result.metrics.fcp).toBeGreaterThan(0)
     expect(result.metrics.fcp).toBeWithinBudget(budget.budgets.fcp)
   })
 
@@ -98,32 +97,21 @@ test.describe('Homepage Performance', () => {
     await page.goto(pagePath)
     await waitForPageLoad(page)
 
-    const result = await runLighthouseAudit(page, DEFAULT_LIGHTHOUSE_CONFIG)
+    const result = await collectPerformanceMetrics(page)
     performanceResults.push(result)
 
     // CLS should be under 0.1 for good visual stability
     expect(result.metrics.cls).toBeLessThanOrEqual(CORE_WEB_VITALS_THRESHOLDS.CLS)
   })
 
-  test('should have low Total Blocking Time', async ({page, performanceResults}) => {
+  test('should have low approximate Total Blocking Time', async ({page, performanceResults}) => {
     await page.goto(pagePath)
     await waitForPageLoad(page)
 
-    const result = await runLighthouseAudit(page, DEFAULT_LIGHTHOUSE_CONFIG)
+    const result = await collectPerformanceMetrics(page)
     performanceResults.push(result)
 
-    // TBT should be minimal to ensure interactivity
+    // TBT (approximated from long tasks after FCP) should be minimal to ensure interactivity
     expect(result.metrics.tbt).toBeWithinBudget(budget.budgets.tbt)
-  })
-
-  test('should meet Lighthouse performance score threshold', async ({page, performanceResults}) => {
-    await page.goto(pagePath)
-    await waitForPageLoad(page)
-
-    const result = await runLighthouseAudit(page, DEFAULT_LIGHTHOUSE_CONFIG)
-    performanceResults.push(result)
-
-    // Performance score should meet or exceed budget
-    expect(result.scores.performance).toMeetPerformanceThreshold(budget.budgets.performanceScore)
   })
 })

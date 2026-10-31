@@ -22,7 +22,6 @@ import {
   parseVisualResults,
   shouldFailAccessibility,
   shouldFailE2E,
-  shouldFailPerformance,
   shouldFailVisual,
 } from './lib/parsers/index.ts'
 
@@ -86,14 +85,9 @@ async function main(): Promise<void> {
       const results = parsePerformanceResults(resultsDir)
       commentBody = formatPerformanceResults(results)
       commentIdentifier = PERFORMANCE_COMMENT_IDENTIFIER
-      shouldFail = shouldFailPerformance(results)
 
       summaryWriter.writeHeading('Performance Test Results')
       summaryWriter.write(commentBody)
-
-      if (shouldFail) {
-        console.error(`❌ Performance score too low: ${results.averagePerformance.toFixed(1)}%`)
-      }
       break
     }
 

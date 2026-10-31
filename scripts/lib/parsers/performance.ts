@@ -1,40 +1,36 @@
 import {existsSync, readdirSync, readFileSync} from 'node:fs'
 import {join} from 'node:path'
 
-export interface LighthouseResult {
-  categories: {
-    performance: {score: number}
-    accessibility: {score: number}
-  }
-  audits: {
-    'largest-contentful-paint': {numericValue: number}
-    'cumulative-layout-shift': {numericValue: number}
-    'first-contentful-paint': {numericValue: number}
-    'speed-index': {numericValue: number}
-    interactive: {numericValue: number}
+/**
+ * Shape of `performance-metrics-<device>.json`, written by the performance test fixture.
+ * Values come from the browser Performance API, not Lighthouse.
+ */
+export interface PerformanceMetricsFile {
+  metrics: {
+    fcp: number
+    lcp: number
+    cls: number
+    tbt: number
   }
 }
 
 export interface PerformanceResults {
-  lighthouseResults: {
+  measurements: {
     file: string
-    performance: number
-    accessibility: number
+    fcp: number
     lcp: number
     cls: number
-    fcp: number
-    speedIndex: number
-    tti: number
+    tbt: number
   }[]
   hasResults: boolean
-  averagePerformance: number
 }
+
+const METRICS_FILE_PREFIX = 'performance-metrics-'
 
 export function parsePerformanceResults(resultsDir: string): PerformanceResults {
   const results: PerformanceResults = {
-    lighthouseResults: [],
+    measurements: [],
     hasResults: false,
-    averagePerformance: 0,
   }
 
   try {
@@ -43,42 +39,29 @@ export function parsePerformanceResults(resultsDir: string): PerformanceResults 
       return results
     }
 
-    const lighthouseFiles = readdirSync(resultsDir).filter(
-      file => file.startsWith('lighthouse-') && file.endsWith('.json'),
+    const metricsFiles = readdirSync(resultsDir).filter(
+      file => file.startsWith(METRICS_FILE_PREFIX) && file.endsWith('.json'),
     )
 
-    for (const file of lighthouseFiles) {
+    for (const file of metricsFiles) {
       const filePath = join(resultsDir, file)
       if (existsSync(filePath)) {
-        const content = JSON.parse(readFileSync(filePath, 'utf8')) as LighthouseResult
+        const {metrics} = JSON.parse(readFileSync(filePath, 'utf8')) as PerformanceMetricsFile
 
-        const performanceScore = Math.round(content.categories.performance.score * 100)
-        results.lighthouseResults.push({
+        results.measurements.push({
           file,
-          performance: performanceScore,
-          accessibility: Math.round(content.categories.accessibility.score * 100),
-          lcp: content.audits['largest-contentful-paint'].numericValue,
-          cls: content.audits['cumulative-layout-shift'].numericValue,
-          fcp: content.audits['first-contentful-paint'].numericValue,
-          speedIndex: content.audits['speed-index'].numericValue,
-          tti: content.audits.interactive.numericValue,
+          fcp: metrics.fcp,
+          lcp: metrics.lcp,
+          cls: metrics.cls,
+          tbt: metrics.tbt,
         })
 
         results.hasResults = true
       }
-    }
-
-    if (results.lighthouseResults.length > 0) {
-      results.averagePerformance =
-        results.lighthouseResults.reduce((sum, r) => sum + r.performance, 0) / results.lighthouseResults.length
     }
   } catch (error) {
     console.error('Failed to parse performance results:', error)
   }
 
   return results
-}
-
-export function shouldFailPerformance(results: PerformanceResults): boolean {
-  return results.hasResults && results.averagePerformance < 70
 }
