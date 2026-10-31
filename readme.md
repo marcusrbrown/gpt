@@ -37,7 +37,7 @@ For detailed design decisions, see [docs/overview.md](docs/overview.md) and the 
 
 ## Tech Stack
 
-- **Framework**: React 19, TypeScript 5.9, Vite 7
+- **Framework**: React 19, TypeScript 5.9, Vite 8
 - **Styling**: TailwindCSS 4, HeroUI
 - **Storage**: IndexedDB (Dexie.js), LRU Cache
 - **Security**: Web Crypto API (AES-GCM, PBKDF2)
