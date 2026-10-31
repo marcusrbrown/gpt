@@ -50,7 +50,6 @@ export function ChatInterface({
     const checkMobile = () => {
       // Avoid calling setState during effect if the value hasn't changed
       const mobile = window.innerWidth < 1024
-      // eslint-disable-next-line react-hooks-extra/no-direct-set-state-in-use-effect
       setIsMobile(previous => (previous === mobile ? previous : mobile))
     }
     checkMobile()

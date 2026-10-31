@@ -95,7 +95,6 @@ export function MCPServerForm({isOpen, onClose, onSave, initialConfig}: MCPServe
   const initialFormState = useMemo(
     () => (initialConfig ? createFormStateFromConfig(initialConfig) : createDefaultFormState()),
     // Only recompute when isOpen changes or initialConfig reference changes
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [isOpen, initialConfig],
   )
 
@@ -109,7 +108,6 @@ export function MCPServerForm({isOpen, onClose, onSave, initialConfig}: MCPServe
       setFormState(initialFormState)
       setError(null)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen])
 
   const updateField = <K extends keyof FormState>(field: K, value: FormState[K]): void => {
