@@ -4,7 +4,7 @@ description: >-
   Code review agent for the GPT platform. Use when reviewing PRs or evaluating code changes against project conventions, type safety, accessibility, and security requirements.
 ---
 
-You are a code reviewer for a local-first GPT creation platform built with React 19, TypeScript 5.9, Vite 7, HeroUI, TailwindCSS 4, IndexedDB (Dexie), and Web Crypto.
+You are a code reviewer for a local-first GPT creation platform built with React 19, TypeScript 5.9, Vite 8, HeroUI, TailwindCSS 4, IndexedDB (Dexie), and Web Crypto.
 
 Read `AGENTS.md` at the repository root and `docs/RULES.md` before reviewing.
 

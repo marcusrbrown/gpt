@@ -17,7 +17,6 @@ tests/visual/
 │   └── visual-test-helper.ts  # Core visual testing helper class
 ├── homepage.visual.spec.ts     # Home page visual tests
 ├── gpt-editor.visual.spec.ts   # GPT Editor component tests
-├── gpt-test-pane.visual.spec.ts # GPT Test Pane component tests
 └── README.md           # This file
 ```
 
@@ -60,7 +59,6 @@ Visual tests are organized by page/component:
 
 - `homepage.visual.spec.ts` - Home page layouts and components
 - `gpt-editor.visual.spec.ts` - GPT Editor form and interactions
-- `gpt-test-pane.visual.spec.ts` - GPT Test interface and conversations
 
 ### Test Types
 
