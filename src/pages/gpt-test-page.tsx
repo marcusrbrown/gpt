@@ -439,7 +439,7 @@ export function GPTTestPage() {
       // Clear history state so we don't re-send on refresh
       window.history.replaceState({}, '')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally run only when initialPrompt/gptConfig/apiKey change
+    // Intentionally run only when initialPrompt/gptConfig/apiKey change
   }, [location.state, gptConfig, apiKey])
 
   // Handle regeneration
