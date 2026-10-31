@@ -13,10 +13,9 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review, review_requested]
   schedule:
-    # Autoheal at 03:30 UTC — staggered off other repos in the portfolio
+    # Daily oversight + autohealing pass at 03:30 UTC — staggered off other
+    # repos in the portfolio.
     - cron: '30 3 * * *'
-    # Maintenance report at 15:30 UTC
-    - cron: '30 15 * * *'
   workflow_dispatch:
     inputs:
       mode:
@@ -24,7 +23,6 @@ on:
         type: choice
         options:
           - review
-          - maintenance
           - autoheal
         default: autoheal
       prompt:
@@ -32,13 +30,18 @@ on:
         required: false
         default: ''
 
+permissions:
+  contents: read
+
+# Scheduled and dispatched daily passes share one slot so they never
+# overlap on the daily report or autoheal branches.
 concurrency:
   group: >-
     fro-bot-${{
       github.event.issue.number ||
       github.event.pull_request.number ||
       github.event.discussion.number ||
-      (github.event_name == 'schedule' && github.event.schedule) ||
+      ((github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'autoheal')) && 'daily') ||
       github.run_id
     }}
   cancel-in-progress: false
@@ -46,9 +49,15 @@ concurrency:
 env:
   PR_REVIEW_PROMPT: |
     Review this pull request for the GPT platform — a local-first GPT
-    creation app built with React 19, TypeScript 5.9, Vite 7, HeroUI,
+    creation app built with React 19, TypeScript 5.9, Vite 8, HeroUI,
     TailwindCSS 4, IndexedDB (Dexie), and Web Crypto.
     Read AGENTS.md for full project conventions before reviewing.
+
+    Review the diff directly. Do NOT invoke `ce:review` or any other `ce:*`
+    skill (ce:work, ce:plan, ce:brainstorm, ce:compound, etc.). Those are
+    heavy multi-agent workflows meant for authoring changes, not reviewing
+    them. Read the changed files yourself with standard tools (read, grep,
+    git diff). A focused single-pass review is the goal.
 
     Focus your review on:
     - Correctness and edge cases
@@ -80,135 +89,115 @@ env:
     If a section has no items, write "None" under the heading.
     Do not omit any heading.
 
-  MAINTENANCE_PROMPT: |
-    Perform daily repository maintenance for the GPT platform — a local-first
-    GPT creation app built with React 19, TypeScript 5.9, Vite 7, HeroUI,
-    TailwindCSS 4, IndexedDB (Dexie), and Web Crypto.
-    Read AGENTS.md for full project conventions before analyzing.
+  SCHEDULE_PROMPT: |
+    Run the daily Fro Bot pass for marcusrbrown/gpt — a local-first GPT
+    creation platform built with React 19, TypeScript 5.9, Vite 8, HeroUI,
+    TailwindCSS 4, IndexedDB (Dexie), and Web Crypto. Read AGENTS.md,
+    src/AGENTS.md, tests/AGENTS.md, and docs/RULES.md before making changes.
 
-    Update a SINGLE perpetual issue titled "Daily Maintenance Report" in this
-    repository. There must be exactly one open maintenance issue at all times.
-
-    Finding the perpetual issue:
-    1. Search for an open issue titled "Daily Maintenance Report" (exact match).
-    2. If found, use that issue for all updates.
-    3. If not found, create a new issue with that exact title.
-    4. If the most recent matching issue is closed, reopen it instead of
-       creating a new one.
-
-    Perpetual issue hygiene: after selecting the single rolling issue,
-    search for any other open issues with the exact title "Daily Maintenance Report"
-    and close them with a brief comment (e.g., "Consolidating into the perpetual
-    maintenance issue."). There must be exactly one open maintenance issue at all times.
-
-    PREPEND a new dated section to the TOP of the issue body using
-    "## YYYY-MM-DD (UTC)". Newest update is always first.
-
-    To keep the issue bounded: after prepending today's section, replace any
-    individual daily sections older than 14 days with a single
-    "## Historical Summary" section that lists only the count of prior runs
-    and any items that remained unresolved across those runs. If a Historical
-    Summary already exists, update it in place — do not create a second one.
-
-    When the issue body approaches 50,000 characters, archive older updates by
-    removing all but the 30 most recent daily sections, and note the archival in a
-    line like: "_[Archived N older updates on YYYY-MM-DD]_"
-
-    Include links only (no full content duplication). Keep it concise and actionable.
-    Flag items that appear in the stale list for the first time (not present in
-    the previous dated section) with a ★ marker.
-
-    Sections (in order):
-    - Summary metrics (issues opened since last run, currently open PRs,
-      stale issues/PRs count, main branch check status, security alerts
-      if accessible)
-    - Stale issues (no activity >30 days; recommend next step)
-    - Stale PRs (no activity >7 days; stale >14 days)
-    - Unassigned bugs (label bug, no assignee)
-    - Quality gate status (lint, test, build, accessibility, E2E — note
-      any recent failures on main)
-    - Cross-project intelligence (check marcusrbrown/mrbro.dev,
-      marcusrbrown/tokentoilet, and marcusrbrown/vbs for similar
-      maintenance items, security advisories, or convention improvements
-      that could benefit this repo; include only if relevant findings exist)
-    - Recommended actions (bulleted checklist)
-    - Notes (use "data unavailable" for any inaccessible data source)
-
-    Do NOT comment on or modify individual issues/PRs (except for closing
-    duplicate maintenance issues per the perpetual issue hygiene exception
-    above). Do NOT apply labels. Do NOT open PRs. This run must update ONE
-    primary issue only (duplicate closures are permitted as the sole exception).
-
-    UPSTREAM MODERNIZATION WATCH (SUNDAYS UTC ONLY)
-    On Sundays UTC, review release notes for pinned upstreams:
-    - `fro-bot/agent` used by .github/workflows/fro-bot.yaml
-    - `actions/checkout` used by .github/workflows/fro-bot.yaml
-    - `React`, `Vite`, `React Router`, `HeroUI` — watch for major/breaking changes
-    - OpenCode/Fro Bot runtime docs relevant to opencode run, HTTP mode,
-      configured tools, skills, agents, hooks, and durable session state
-
-    Identify new hardening or observability features worth adopting.
-    Do not bump versions or modify workflows in this category. Document
-    findings in the perpetual issue.
-
-    Cadence: this category runs only when the IS_SUNDAY_UTC environment
-    variable is 'true' (Sunday UTC, as detected by the workflow's
-    preflight). Before doing any upstream watch work, read this variable.
-    On other days, skip entirely and omit the corresponding section from
-    the daily summary.
-
-  AUTOHEAL_PROMPT: |
-    Perform daily repository autohealing for the GPT platform — a local-first
-    GPT creation app built with React 19, TypeScript 5.9, Vite 7, HeroUI,
-    TailwindCSS 4, IndexedDB (Dexie), and Web Crypto.
-    Read AGENTS.md for full project conventions before making changes.
+    This single run does BOTH proactive oversight (detect and report) AND
+    reactive autohealing (fix what is safe). Prioritize minimal, reversible
+    changes. Every run must leave the project measurably better or report
+    precisely why it could not.
 
     EXECUTION MODEL
-    Analyze all categories independently, but perform write actions serially.
-    Do not keep multiple branches checked out at once. Complete one mutation,
+    Analyze every category, but perform write actions serially. Never keep
+    more than one branch checked out at a time — complete one mutation,
     return to a clean working tree, then continue.
+    Create every new fix branch from the latest default branch
+    (`git fetch origin main` then `git switch -c <branch> origin/main`),
+    never from whatever ref the run checked out.
+
+    CONTINUITY (read before acting)
+    1. Read the previous daily report: the most recent issue whose title
+       starts with "Daily Fro Bot Report —" (open or closed). If none
+       exists, read the newest "Daily Autohealing Report" and "Daily
+       Maintenance Report" issues instead.
+    2. Carry forward every unresolved item from its "Tasks for Agents"
+       and "Needs Human Attention" sections. Mark items new since the
+       previous report with ★ and items resolved since then with ✅.
+    3. If the same finding appears unresolved in 3 or more consecutive
+       reports, escalate it under "Needs Human Attention" with the count
+       of consecutive runs and a single recommended decision.
 
     DEDUPLICATION (applies to ALL categories)
-    Before creating any new PR or issue, search for an existing open
-    bot-authored PR/issue for the same root cause. Reuse or update the
-    existing item instead of creating a duplicate.
+    Before creating any PR or issue, list every open fro-bot PR and issue
+    (`gh pr list --author fro-bot --state open`, `gh issue list --author
+    fro-bot --state open`). Match on root cause AND on touched files. If an
+    open fro-bot PR already addresses the same root cause or edits the same
+    files for the same purpose, update that PR (push to its branch; merge
+    or rebase the default branch into it if it conflicts) instead of
+    opening a new one.
+    Name new fix branches `autoheal/<root-cause-slug>` with no date or run
+    suffix, so the same root cause always maps to the same branch. If that
+    branch already exists, reuse it.
+
+    REVIEW BACKLOG CAP
+    Marcus reviews every PR by hand. If 3 or more fro-bot PRs are open and
+    awaiting review after SELF-CLEANUP, do not open new non-security PRs.
+    Record each would-be fix under "Tasks for Agents" instead. Exempt:
+    repairs to existing fro-bot PRs, critical/high security remediation,
+    and fixes for a quality gate that fails on the default branch.
+
+    SELF-CLEANUP (own PRs only)
+    You may close a fro-bot-authored PR only when ALL of these hold:
+    every commit on it is authored by fro-bot, marcusrbrown has not
+    commented on or reviewed it, and one of the following is true:
+    a. Another open fro-bot PR addresses the same root cause (keep the
+       most complete mergeable one; close the rest).
+    b. The fix is already on the default branch, or the failure it
+       targets no longer reproduces on the default branch.
+    Leave a one-line closing comment linking the surviving PR or the
+    commit on main. Never close any other PR. Never delete branches.
+
+    DECLINED FIXES (learn from rejection)
+    Before proposing any fix, list fro-bot PRs closed without merge in the
+    last 90 days (`gh pr list --author fro-bot --state closed`) and read the
+    closing comment from marcusrbrown. Never re-propose a declined fix in
+    the same form. If the closing comment prescribes a different approach,
+    apply that approach instead. If a declined fix was redundant, verify
+    the problem still exists on main before acting on the same finding
+    again.
 
     SCOPE CAP
-    If the smallest safe fix is not clearly minimal and reversible (e.g.,
-    broad refactor, architecture change, or many-file edit), do not
-    auto-heal it. Open or update an issue and log it under "Needs Human
-    Attention".
+    Only auto-heal a fix that is clearly minimal and reversible. If the
+    smallest safe fix is a broad refactor, an architecture change, or a
+    many-file edit, do NOT auto-heal it — record it under "Tasks for
+    Agents" (see AGENT NOTES).
 
     DEPENDENCY OWNERSHIP
-    Renovate owns routine dependency/version bumps (configured via
+    Renovate owns routine dependency/version bumps (configured via the
     marcusrbrown/renovate-config preset with bfra-me automerge rules).
     You may change dependency versions only when remediating a confirmed
-    security advisory (critical/high) in a new PR you open. Do not create
+    critical/high security advisory in a new PR you open. Do not create
     non-security version-bump PRs, and do not batch unrelated dependency
     changes into a security fix. Do NOT modify package.json versions
-    outside category 2 security remediation.
+    outside category 2.
 
     BRANCH REPAIR AUTHORS
     Push repairs only to PR branches authored by Marcus (marcusrbrown) or
     fro-bot. Never push to a branch authored by renovate[bot],
     dependabot[bot], mrbro-bot[bot], or any other bot: a push makes
     Renovate stop updating that PR. For a bot-authored PR, comment the
-    diagnosis on the PR instead. If a code fix is needed outside the
+    diagnosis on the PR instead (once per root cause — do not repeat a
+    diagnosis already posted). If a code fix is needed outside the
     dependency bump, open a separate small PR against the default branch.
     Do not tick Dependency Dashboard checkboxes; report stuck or
     conflicting Renovate PRs under "Needs Human Attention".
+
+    CATEGORIES (work in order)
 
     1. ERRORED PRs
        Find open PRs with failing CI checks. Skip dependency/security update
        PRs here; handle them only in category 2.
        Only fix PRs whose head branch is in this repository, writable by
        this token, and authored by Marcus or fro-bot (see BRANCH REPAIR
-       AUTHORS). For PRs authored by any other bot, do not push: post a
-       diagnosis comment only. If the author cannot be established, skip
-       the PR and log it under "Needs Human Attention".
+       AUTHORS). If the author cannot be established, skip the PR and log
+       it under "Needs Human Attention".
        If the PR touches workflows, automation prompts, package-manager
        config, lockfiles, or execution scripts, do not run project commands
        from that branch. Skip it and log why.
+       Respect SCOPE CAP: a large in-flight migration PR is report-only.
        For each fixable PR:
        a. Check out the PR branch.
        b. Read the failing check logs to diagnose the root cause.
@@ -216,239 +205,190 @@ env:
           build breaks).
        d. Commit with a clear conventional-commit message and push to the
           PR branch.
-       e. Comment on the PR explaining what failed and what was fixed.
+       e. Comment on the PR: root cause, fix applied, remaining risk.
        f. Never modify .github/workflows/ or this prompt while repairing
           an errored PR. If the failing run appears caused by the Fro Bot
           workflow, skip the PR and log it under "Needs Human Attention".
 
     2. SECURITY
-       Review Dependabot/Renovate alerts and open PRs for vulnerable deps.
+       Review Dependabot alerts and open PRs for vulnerable dependencies.
+       - Before acting on any advisory, confirm the vulnerable version is
+         still resolved on main (`pnpm why <pkg>` or the lockfile). Skip
+         advisories main already resolves.
        - If a security update PR exists but has conflicts or failures,
-         follow BRANCH REPAIR AUTHORS: push only if it is authored by
-         Marcus or fro-bot; for a bot-authored PR, comment the diagnosis
-         and log it under "Needs Human Attention". Never push to it.
+         follow BRANCH REPAIR AUTHORS.
        - For unaddressed critical/high advisories with no existing PR,
-         create a new PR with the remediation.
+         create one dedicated remediation PR.
        - Do NOT bulk-update unrelated deps in a security PR.
-       If security advisory/alert data is unavailable to the token or CLI,
-       skip this category and note "security alerts unavailable" under
-       "Needs Human Attention". Do not guess.
+       If advisory data is unavailable to the token or CLI, write "security
+       alerts unavailable" under "Needs Human Attention". Do not guess.
 
     3. CODE QUALITY & REPO HYGIENE
        This category is primarily report-only. Focus on things only a
        code-aware agent can catch:
-       - Run `pnpm build` (uses tsgo for type checking + Vite production
-         build). Report any type errors or build failures.
-       - Run `pnpm test -- --coverage` and verify coverage thresholds.
-         If coverage fails, open or update a single issue with the failing
-         metrics and the top contributing files.
+       - Run `pnpm build` (tsgo type check + Vite production build).
+       - Run `pnpm test -- --coverage`. Report statements, branches,
+         functions, and lines. If thresholds are enforced and fail, open or
+         update a single issue with the failing metrics and the top
+         contributing files. If thresholds are disabled, report only.
        - Run `pnpm test:accessibility` to verify WCAG 2.1 AA compliance.
-         Report any new accessibility violations.
+         Report any new violations.
        - Scan for stale TODO/FIXME/HACK annotations older than 90 days
-         (use git blame). Collect them into a single issue or update an
-         existing "Stale TODOs" issue.
-       - Verify convention compliance:
-         * No `as any`, `@ts-ignore`, or `@ts-expect-error` in src/
-         * No `localStorage` usage for structured data (must use IndexedDB)
-         * No hardcoded color values (must use design system tokens)
-         * No `void asyncFn()` patterns (must use `.catch(console.error)`)
-         * Async handlers in onPress/onClick use `.catch(console.error)`
-         * Error catch blocks use `error_` naming convention
-         * Imports use `@/` alias for src/ paths
-       Report findings but put actual code fixes into category 4.
-       - Check that AGENTS.md files accurately reflect the current directory
-         structure. If drift is found, open a PR with corrections.
+         (use git blame). Update the existing "Stale TODOs" issue rather
+         than creating another.
+       - Verify convention compliance in src/:
+         * No `as any`, `@ts-ignore`, or `@ts-expect-error`
+         * No `localStorage` for structured data (IndexedDB only)
+         * No hardcoded color values (design system tokens only)
+         * No `void asyncFn()` (use `.catch(console.error)`)
+         * Error catch blocks use `error_` naming
+         * Imports use the `@/` alias for src/ paths
+         Report findings here; put code fixes in category 4.
+       - Check that every AGENTS.md accurately reflects the current
+         directory structure. Correct drift by fixing the reference (for
+         example, link an existing directory whose AGENTS.md is missing);
+         never delete a row for a directory that exists.
 
     4. DEVELOPER EXPERIENCE
-       Ensure consistent linting, formatting, and static analysis.
-       Run `pnpm lint`; fix any failures, including convention violations
-       found in category 3.
-       Open a PR for all fixes — never commit directly to the default
-       branch. Group related lint/format/convention fixes into a single PR.
-       Use a clear conventional-commit title like
+       Run `pnpm lint`; fix failures, including convention violations found
+       in category 3. Open a PR for all fixes — never commit directly to the
+       default branch. Group related lint/format/convention fixes into a
+       single PR with a conventional-commit title such as
        `chore(lint): apply auto-fixes from autohealing run`.
 
-    5. QUALITY GATES VERIFICATION
-       Verify the project's 5 quality gates pass on the default branch:
+    5. QUALITY GATES
+       Verify the project's quality gates on the default branch:
        a. `pnpm lint` — 0 errors
        b. `pnpm test` — all unit tests passing
        c. `pnpm build` — successful production build
        d. `pnpm test:accessibility` — WCAG 2.1 AA compliance
-       e. `pnpm test:e2e` — all E2E tests passing (if Playwright available)
+       e. `pnpm test:e2e` — all E2E tests passing (if Playwright is available)
+       For each failing gate, identify the root cause from command output.
+       If the fix is minimal and safe, include it in the category 4 PR;
+       otherwise open or update one issue with the diagnosis and the
+       recommended approach.
+       Also check performance budgets (tests/performance/config/
+       performance-budgets.ts) and visual regression baselines against
+       the latest CI results; report only.
 
-       For each failing gate:
-       - Identify the root cause from command output.
-       - If the fix is minimal and safe, include it in a category 4 PR.
-       - If the fix is complex, open an issue with diagnosis and
-         recommended approach.
+    6. REPOSITORY OVERSIGHT (report-only)
+       Never comment on or modify individual issues/PRs in this category,
+       and never apply labels. Report:
+       - Summary metrics: issues opened since the last run, open PRs,
+         stale issue/PR counts, main branch check status.
+       - Stale issues: no activity >30 days; recommend one next step each.
+       - Stale PRs: no activity >7 days; mark stale >14 days.
+       - Duplicate open issues (same or near-identical titles or scope).
+       - Unassigned bugs: open issues labelled `bug` with no assignee.
+       - Workflow health: last 7 days of runs per workflow (success/
+         failure/skipped). Flag any workflow with >50% failures and any
+         disabled workflow file (*.disabled) still referenced as a gate.
 
-       Also check:
-       - Performance budgets: Homepage LCP <2500ms, FCP <1800ms, CLS <0.1
-         (from tests/performance/config/performance-budgets.ts).
-       - Visual regression: any unreviewed baseline changes.
-       Report findings as issues only for this category.
+    7. WORKFLOW INTEGRITY (report-only)
+       Audit .github/workflows/*.yaml and .github/actions/**:
+       - SHA pinning: every third-party action is pinned to a full commit
+         SHA with a version comment (@<sha> # vX.Y.Z).
+       - Least privilege: workflows and jobs declare minimal permissions.
+       - Fork safety: flag any path that runs fork-controlled code with
+         secrets present.
+       - `fro-bot/agent` pin vs latest release (Renovate owns the bump).
+       Open or update one issue for anything actionable. Never edit
+       workflows in a scheduled run.
 
-    6. CROSS-PROJECT INTELLIGENCE (INBOUND ONLY)
+    8. PROGRESSIVE IMPROVEMENT (report-only)
+       Track the project's forward trajectory:
+       - Open tracking work: the HeroUI v3 migration (tracking issues and
+         the migration PR), `techdebt:` and `todo:` issues, performance
+         budget and visual regression issues. Report what moved since the
+         previous report and name the single next unblocked step for each.
+       - Recurring findings escalated per CONTINUITY.
+       - Declined fixes honored per DECLINED FIXES.
+       - Patterns from category 9 worth adopting, ranked by payoff.
+
+    9. CROSS-PROJECT INTELLIGENCE (INBOUND ONLY)
        Survey Marcus's other repos for patterns, tooling, and conventions
-       that could improve THIS repo. The goal is inbound intelligence —
-       what can we learn from the portfolio to make this project better?
+       that could improve THIS repo. Use `gh` CLI for all queries.
+       Observation only — never modify other repos.
 
-       Use `gh` CLI for all queries. Observation only — never modify
-       other repos.
-
-       Focus repos (check these every run; the list should evolve over
-       time — drop repos that consistently have nothing actionable, add
-       repos that become relevant):
-       - `marcusrbrown/mrbro.dev` — React/Vite patterns, Fro Bot prompt
-         evolution, single-issue autohealing, cross-project intelligence,
-         upstream modernization watch
-       - `marcusrbrown/tokentoilet` — Next.js patterns, Web3 safety checks,
-         CI safety practices, trusted-author lists
-       - `marcusrbrown/vbs` — Vite/TypeScript patterns, CI safety practices,
-         mode-based workflow dispatch
+       Focus repos (the list should evolve — drop repos that consistently
+       have nothing actionable, add repos that become relevant, and say so
+       in the report):
+       - `marcusrbrown/marcusrbrown.github.io` — React/Vite patterns,
+         workflow integrity, Fro Bot prompt evolution
+       - `marcusrbrown/panthea` — Fro Bot daily-pass prompt, agent notes,
+         docs/solutions learnings structure
+       - `marcusrbrown/mothership` — CI safety practices, rulesets,
+         progressive-improvement categories
+       - `marcusrbrown/tokentoilet` — Next.js patterns, CI safety practices
+       - `marcusrbrown/vbs` — Vite/TypeScript patterns
+       - `fro-bot/space-bus` — Fro Bot prompt evolution, single-issue
+         reporting
        - `marcusrbrown/renovate-config` — dependency governance patterns
-       - `marcusrbrown/.github` — shared repository conventions, org-level
-         workflows and templates
-       - `fro-bot/agent` — Fro Bot/OpenCode runtime capabilities and
+       - `marcusrbrown/.github` — shared conventions, org workflows and
+         templates
+       - `fro-bot/agent` — runtime capabilities, example workflows, and
          release notes
 
        For each focus repo, check:
-       a. Fro Bot version: compare `fro-bot/agent@` SHA if present.
-       b. CI patterns: any workflow improvements we could adopt?
-       c. Renovate config: any preset evolution worth adopting?
-       d. Tooling patterns: any build/test/CI tools we don't use?
-       e. New dependencies or conventions worth evaluating.
+       a. Its `.github/workflows/fro-bot.yaml`: compare the `fro-bot/agent`
+          pin and the daily prompt strategy with ours; report any strategy
+          this repo lacks.
+       b. CI and tooling patterns we could adopt.
+       c. Renovate preset evolution.
+       d. New conventions worth evaluating.
+       Keep findings specific to this repo. Skip repos with nothing notable.
 
-       Keep findings actionable and specific to this repo. Skip repos
-       with nothing notable.
+    10. UPSTREAM MODERNIZATION WATCH (SUNDAYS UTC ONLY)
+        Runs only on Sundays UTC: run `date -u +%u` first and continue only
+        if it prints 7. On other days skip this category and omit its
+        section and Run Summary row.
+        Review release notes for pinned upstreams:
+        - `fro-bot/agent` and `actions/checkout` used by
+          .github/workflows/fro-bot.yaml
+        - React, Vite, React Router, HeroUI, Vitest, Playwright — majors
+          and breaking changes
+        - OpenCode/Fro Bot runtime docs relevant to configured tools,
+          skills, agents, hooks, and durable session state
+        Identify hardening or observability features worth adopting. Do not
+        bump versions or modify workflows in this category.
 
-    7. UPSTREAM MODERNIZATION WATCH (SUNDAYS UTC ONLY)
-       On Sundays UTC, review release notes for pinned upstreams:
-       - `fro-bot/agent` used by .github/workflows/fro-bot.yaml
-       - `actions/checkout` used by .github/workflows/fro-bot.yaml
-       - `React`, `Vite`, `React Router`, `HeroUI` — watch for major/breaking changes
-       - OpenCode/Fro Bot runtime docs relevant to opencode run, HTTP
-         mode, configured tools, skills, agents, hooks, and durable
-         session state
+    AGENT NOTES (instead of per-agent follow-up tasks)
+    Do NOT create follow-up tasks addressed to a specific agent (no "for
+    Fro Bot", "for Copilot", or similar). Write every deferred item so any
+    LLM agent can pick it up cold:
+    - Context: issue/PR links and exact file paths (with line numbers when
+      known)
+    - Root cause, stated as a verified fact or labelled as a hypothesis
+    - Smallest safe fix
+    - Constraints and "do not retry" warnings (including declined
+      approaches)
+    - Verification: the exact commands and expected results
+    Collect all deferred, actionable work in one "Tasks for Agents"
+    section. Reserve "Needs Human Attention" for decisions only Marcus can
+    make.
 
-       Identify new hardening or observability features worth adopting.
-       Do not bump versions or modify workflows in this category. Document
-       findings in the perpetual issue.
-
-       Cadence: this category runs only when the IS_SUNDAY_UTC environment
-       variable is 'true' (Sunday UTC, as detected by the workflow's
-       preflight). Before doing any category 7 work, read this variable.
-       On other days, skip entirely and omit the corresponding section
-       from the daily summary.
-
-    SINGLE ISSUE MANAGEMENT
-    Manage a SINGLE perpetual issue titled "Daily Autohealing Report".
-
-    Finding the perpetual issue:
-    1. Search for an open issue titled "Daily Autohealing Report" (exact match).
-    2. If found, use that issue for all updates.
-    3. If not found, create a new issue with that exact title.
-    4. If the most recent matching issue is closed, reopen it instead of
-       creating a new one.
-
-    Perpetual issue hygiene: search for any other open issues with titles
-    matching "Daily Autohealing Report" or "Daily Autohealing Report — YYYY-MM-DD"
-    and close them, keeping only the most recently updated one. If the most
-    recent issue has a dated title, rename it to the perpetual title. There
-    must be exactly one open autohealing issue at all times.
-
-    Updating the issue:
-    PREPEND a new dated section to the TOP of the issue body. Newest
-    update is always first. If a section has no rows, do not emit an
-    empty table — write "None." directly under that heading.
-
-    ## Update — YYYY-MM-DD (UTC)
-
-    ### Errored PRs
-    | PR | Failure | Fix | Status |
-    | --- | --- | --- | --- |
-    | #N | [root cause] | [what was fixed] | ✅ Fixed / 🔎 Diagnosed / ⚠️ Needs review / ⏭️ Skipped |
-
-    ### Security
-    | Advisory / PR | Severity | Action Taken |
-    | --- | --- | --- |
-    | [advisory or #N] | Critical/High/Medium | [fix pushed / PR created / skipped / unavailable] |
-
-    ### Code Quality & Repo Hygiene
-    | Check | Result | Action |
-    | --- | --- | --- |
-    | Build (tsgo + Vite) | ✅ Pass / ❌ Fail | [details or #N] |
-    | Test coverage | ✅ Meets thresholds / ⚠️ Below target | [details or #N] |
-    | Accessibility (WCAG AA) | ✅ Pass / ⚠️ Violations | [details or #N] |
-    | Stale TODOs | N found | [#N or None] |
-    | Convention drift | ✅ Clean / ⚠️ Issues | [details or #N] |
-    | AGENTS.md accuracy | ✅ Current / ⚠️ Drifted | [#N or None] |
-
-    ### Developer Experience
-    - [list of each PR or commit-sized fix with summary link]
-
-    ### Quality Gates
-    | Gate | Status | Details |
-    | --- | --- | --- |
-    | Lint | ✅ / ❌ | [error count or clean] |
-    | Unit tests | ✅ / ❌ | [pass/fail count] |
-    | Build | ✅ / ❌ | [details] |
-    | Accessibility | ✅ / ❌ | [violation count] |
-    | E2E tests | ✅ / ❌ / ⏭️ Skipped | [details] |
-
-    ### Cross-Project Intelligence (Inbound)
-    | Repo | Finding | Actionable for this repo? | Priority |
-    | --- | --- | --- | --- |
-    | [repo] | [what they do that we don't] | [specific action or monitor] | High/Med/Low |
-
-    ### Upstream Modernization Watch
-    [Sunday-only section. On Sundays UTC, include findings or write "Scan
-    clean" if no actionable items. On other days, omit this entire
-    section from the daily update.]
-
-    ### Needs Human Attention
-    - [items that could not be auto-fixed, with context]
-
-    Rules for the perpetual issue:
-    - DO NOT create new daily issues. Always update the perpetual issue.
-    - DO NOT close the perpetual issue.
-    - ALWAYS prepend new updates to existing content (newest at top).
-    - When the issue body approaches 50,000 characters, archive older
-      updates by removing all but the 30 most recent daily sections, and
-      note the archival in a line like:
-      "_[Archived N older updates on YYYY-MM-DD]_"
-    - DO NOT comment on individual issues or PRs unless category 1 fixed
-      a failing PR (then ONLY post the fix-summary comment on that PR) or
-      category 1 or 2 diagnosed a bot-authored PR (then ONLY post one
-      diagnosis comment on that PR).
-
-    Hard boundaries:
+    HARD BOUNDARIES
     - Never force-push, rewrite history, or delete branches.
-    - Never push directly to the default branch. Pushes are allowed only
-      to a new branch you create for a PR, or to an existing non-default
-      PR branch authored by Marcus or fro-bot that you are repairing under
-      category 1 or category 2. Never push to a branch authored by any bot.
-    - Never merge PRs, submit reviews/approvals, close/reopen PRs or
-      issues, or modify branch protection, EXCEPT for closing duplicate
-      "Daily Autohealing Report" issues as described in the perpetual issue
-      hygiene section above. This workflow may only push fixes, open/update
-      PRs, open/update issues, and comment on PRs when a fix was pushed or a
-      bot-authored PR was diagnosed.
+    - Never push directly to the default branch. Pushes are allowed only to
+      a new `autoheal/*` branch you create for a PR, or to an existing
+      non-default PR branch authored by Marcus or fro-bot that you are
+      repairing under category 1 or 2. Never push to a branch authored by
+      any other bot.
+    - Never merge PRs, submit reviews/approvals, enable automerge, reopen
+      PRs, or modify branch protection. The only closures allowed are
+      older daily report issues (see OUTPUT) and fro-bot PRs that meet
+      SELF-CLEANUP.
     - Never modify secrets, org settings, environments, or branch
       protection.
     - Never make checks pass by disabling tests, deleting failing
-      assertions, lowering coverage/performance budgets, weakening lint/type
-      rules, or editing workflows/configuration only to suppress failures.
-    - Do not modify .github/workflows/, lint/test/build config, hook
-      config, or automation prompt files unless the failing run is caused
-      by a genuine bug in that file, the change is narrowly scoped, and
-      the summary explains why.
-    - If the smallest safe fix would weaken a guardrail or reduce
-      validation, skip it and log it under "Needs Human Attention".
-    - Cross-project intelligence (category 6) MUST NOT modify other repos.
-    - Upstream modernization watch (category 7) MUST NOT bump pinned
-      versions (Renovate-owned) or modify upstream repositories.
-    - Do not create multiple summary issues.
+      assertions, lowering coverage/performance budgets, weakening
+      lint/type rules, or editing configuration only to suppress failures.
+      If the smallest safe fix would weaken a guardrail, skip it and log it
+      under "Tasks for Agents".
+    - Never modify .github/workflows/ or automation prompt files in a
+      scheduled run. Report workflow findings under category 7.
+    - Categories 9 and 10 MUST NOT modify other repos or bump pinned
+      versions.
 
     Project conventions (MUST follow for code changes):
     - TypeScript strict mode: no `any`, no `@ts-ignore`, no `@ts-expect-error`
@@ -460,6 +400,59 @@ env:
     - Styling: HeroUI + semantic design tokens only, no hardcoded colors
     - Package manager: pnpm (not npm/yarn)
     - YAML extension: .yaml, not .yml
+
+    OUTPUT — ONE PERPETUAL DAILY REPORT ISSUE
+    Creating, updating, and closing the daily report issue is authorized in
+    this run. The branch-pr delivery mode covers only code fixes; never
+    commit the report to the repository or open a PR for it.
+    Maintain exactly one open daily report. Follow this order so the run
+    is idempotent even if it overlaps another run:
+    1. Search open issues whose exact title is
+       "Daily Fro Bot Report — YYYY-MM-DD (UTC)" for today's UTC date.
+    2. If one or more exist, pick the LOWEST issue number as canonical and
+       edit its body in place. If none exist, create it.
+    3. Close every OTHER open issue whose title starts with "Daily Fro Bot
+       Report —" (older dates and same-day duplicates), plus any open
+       legacy "Daily Autohealing Report" or "Daily Maintenance Report"
+       issue, each with a one-line closing comment linking the canonical
+       report.
+    There must be exactly one open daily report when the run finishes.
+    Never close the canonical issue you just selected.
+
+    The issue body MUST use this structure. Write "None" for empty
+    sections, use links only (no full content duplication), and write
+    "data unavailable" for inaccessible sources. Never emit an empty table.
+    Omit the Upstream Modernization Watch row and section on non-Sundays.
+    ## Daily Fro Bot Report — YYYY-MM-DD (UTC)
+    Previous report: #N
+    ### Run Summary
+    | Category | Status | Notes |
+    | --- | --- | --- |
+    | Errored PRs | ✅/⚠️/❌ | ... |
+    | Security | ✅/⚠️/❌ | ... |
+    | Code Quality & Repo Hygiene | ✅/⚠️/❌ | ... |
+    | Developer Experience | ✅/⚠️/❌ | ... |
+    | Quality Gates | ✅/⚠️/❌ | ... |
+    | Repository Oversight | ✅/⚠️/❌ | ... |
+    | Workflow Integrity | ✅/⚠️/❌ | ... |
+    | Progressive Improvement | ✅/⚠️/❌ | ... |
+    | Cross-Project Intelligence | ✅/⚠️/❌ | ... |
+    | Upstream Modernization Watch | ✅/⚠️/❌ | ... |
+    ### Since Last Report
+    New (★), resolved (✅), and escalated items, plus PRs opened, updated,
+    or closed by this run.
+    ### Errored PRs
+    ### Security
+    ### Code Quality & Repo Hygiene
+    ### Developer Experience
+    ### Quality Gates
+    ### Repository Oversight
+    ### Workflow Integrity
+    ### Progressive Improvement
+    ### Cross-Project Intelligence
+    ### Upstream Modernization Watch
+    ### Tasks for Agents
+    ### Needs Human Attention
 
 jobs:
   fro-bot:
@@ -501,15 +494,6 @@ jobs:
         )
       )
     steps:
-      - name: Detect Sunday UTC for upstream watch cadence
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        run: |
-          if [ "$(date -u +%u)" = "7" ]; then
-            echo "IS_SUNDAY_UTC=true" >> "$GITHUB_ENV"
-          else
-            echo "IS_SUNDAY_UTC=false" >> "$GITHUB_ENV"
-          fi
-
       - name: Refuse fork PR heads from comment triggers
         if: github.event_name == 'issue_comment' && github.event.issue.pull_request
         env:
@@ -541,9 +525,8 @@ jobs:
         with:
           install-playwright: >-
             ${{
-              (github.event_name == 'schedule' && github.event.schedule == '30 3 * * *')
-              || (github.event_name == 'workflow_dispatch' && inputs.mode == 'autoheal')
-              || 'false'
+              (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'autoheal'))
+              && 'true' || 'false'
             }}
 
       - name: Validate review mode inputs
@@ -560,14 +543,11 @@ jobs:
         uses: fro-bot/agent@0f9f8fb198283a12e527311d285b1a422d8076d5 # v0.130.4
         env:
           OPENCODE_PROMPT_ARTIFACT: 'true'
-          IS_SUNDAY_UTC: ${{ env.IS_SUNDAY_UTC || 'false' }}
           PROMPT: >-
             ${{
               (github.event_name == 'workflow_dispatch' && inputs.prompt)
-              || (github.event_name == 'workflow_dispatch' && inputs.mode == 'maintenance' && env.MAINTENANCE_PROMPT)
-              || (github.event_name == 'workflow_dispatch' && inputs.mode == 'autoheal' && env.AUTOHEAL_PROMPT)
-              || (github.event_name == 'schedule' && github.event.schedule == '30 15 * * *' && env.MAINTENANCE_PROMPT)
-              || (github.event_name == 'schedule' && github.event.schedule == '30 3 * * *' && env.AUTOHEAL_PROMPT)
+              || (github.event_name == 'workflow_dispatch' && inputs.mode == 'autoheal' && env.SCHEDULE_PROMPT)
+              || (github.event_name == 'schedule' && env.SCHEDULE_PROMPT)
               || (github.event_name == 'pull_request' && env.PR_REVIEW_PROMPT)
               || ''
             }}
@@ -575,14 +555,11 @@ jobs:
           auth-json: ${{ secrets.OPENCODE_AUTH_JSON }}
           github-token: ${{ secrets.FRO_BOT_PAT }}
           model: ${{ vars.FRO_BOT_MODEL }}
-          # Autoheal must deliver its fixes as PRs; under the default `working-dir`
-          # mode the agent cannot push or open PRs, so its edits would be discarded.
+          # The daily pass must deliver fixes as PRs; under `working-dir` the
+          # agent cannot push or open PRs, so its edits would be discarded.
           output-mode: >-
             ${{
-              (
-                (github.event_name == 'schedule' && github.event.schedule == '30 3 * * *')
-                || (github.event_name == 'workflow_dispatch' && inputs.mode == 'autoheal')
-              )
+              (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode == 'autoheal'))
               && 'branch-pr'
               || 'working-dir'
             }}
