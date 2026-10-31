@@ -135,8 +135,9 @@ env:
     REVIEW BACKLOG CAP
     Marcus reviews every PR by hand. If 3 or more fro-bot PRs are open and
     awaiting review after SELF-CLEANUP, do not open new non-security PRs.
-    Record each would-be fix under "Tasks for Agents" instead. Repairs to
-    existing fro-bot PRs and critical/high security remediation are exempt.
+    Record each would-be fix under "Tasks for Agents" instead. Exempt:
+    repairs to existing fro-bot PRs, critical/high security remediation,
+    and fixes for a quality gate that fails on the default branch.
 
     SELF-CLEANUP (own PRs only)
     You may close a fro-bot-authored PR only when ALL of these hold:
@@ -338,9 +339,9 @@ env:
        Keep findings specific to this repo. Skip repos with nothing notable.
 
     10. UPSTREAM MODERNIZATION WATCH (SUNDAYS UTC ONLY)
-        Runs only when the IS_SUNDAY_UTC environment variable is 'true'.
-        Read it before doing any category 10 work; on other days skip it
-        and omit its section and Run Summary row.
+        Runs only on Sundays UTC: run `date -u +%u` first and continue only
+        if it prints 7. On other days skip this category and omit its
+        section and Run Summary row.
         Review release notes for pinned upstreams:
         - `fro-bot/agent` and `actions/checkout` used by
           .github/workflows/fro-bot.yaml
@@ -493,15 +494,6 @@ jobs:
         )
       )
     steps:
-      - name: Detect Sunday UTC for upstream watch cadence
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
-        run: |
-          if [ "$(date -u +%u)" = "7" ]; then
-            echo "IS_SUNDAY_UTC=true" >> "$GITHUB_ENV"
-          else
-            echo "IS_SUNDAY_UTC=false" >> "$GITHUB_ENV"
-          fi
-
       - name: Refuse fork PR heads from comment triggers
         if: github.event_name == 'issue_comment' && github.event.issue.pull_request
         env:
@@ -551,7 +543,6 @@ jobs:
         uses: fro-bot/agent@0f9f8fb198283a12e527311d285b1a422d8076d5 # v0.130.4
         env:
           OPENCODE_PROMPT_ARTIFACT: 'true'
-          IS_SUNDAY_UTC: ${{ env.IS_SUNDAY_UTC || 'false' }}
           PROMPT: >-
             ${{
               (github.event_name == 'workflow_dispatch' && inputs.prompt)
