@@ -2,12 +2,14 @@ import {CreateFolderModal} from '@/components/create-folder-modal'
 import {NoProvidersPrompt} from '@/components/empty-states'
 import {FolderSidebar} from '@/components/folder-sidebar'
 import {GPTLibrary} from '@/components/gpt-library'
+import {useAIProvider} from '@/hooks/use-ai-provider'
 import {cn, ds} from '@/lib/design-system'
 import {useCallback, useState} from 'react'
 import {useNavigate} from 'react-router-dom'
 
 export function HomePage() {
   const navigate = useNavigate()
+  const {isLoading: isProvidersLoading} = useAIProvider()
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null)
   const [isCreateFolderOpen, setIsCreateFolderOpen] = useState(false)
   const [folderRefreshKey, setFolderRefreshKey] = useState(0)
@@ -64,7 +66,10 @@ export function HomePage() {
         <NoProvidersPrompt />
       </header>
 
-      <div className="flex flex-1 overflow-hidden border-t border-border-default">
+      {/* Stay hidden until provider init settles: NoProvidersPrompt mounts above and would otherwise shove this container down (CLS). */}
+      <div
+        className={cn('flex flex-1 overflow-hidden border-t border-border-default', isProvidersLoading && 'invisible')}
+      >
         <FolderSidebar
           key={folderRefreshKey}
           selectedFolderId={selectedFolderId}
