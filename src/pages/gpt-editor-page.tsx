@@ -139,8 +139,8 @@ export function GPTEditorPage() {
     loadGpt().catch(console.error)
   }, [gptId, getGPT])
 
-  const loadKnowledgeData = useCallback(async () => {
-    if (!gpt.id) return
+  const fetchKnowledgeData = useCallback(async () => {
+    if (!gpt.id) return undefined
 
     try {
       const [files, urls, snippetsData, summary] = await Promise.all([
@@ -150,18 +150,35 @@ export function GPTEditorPage() {
         knowledgeService.getKnowledgeSummary(gpt.id),
       ])
 
-      setKnowledgeFiles(files)
-      setCachedUrls(urls)
-      setSnippets(snippetsData)
-      setKnowledgeSummary(summary)
+      return {files, urls, snippetsData, summary}
     } catch (error_) {
       console.error('Failed to load knowledge data:', error_)
+      return undefined
     }
   }, [gpt.id, knowledgeService])
 
+  const loadKnowledgeData = useCallback(async () => {
+    const data = await fetchKnowledgeData()
+    if (!data) return
+
+    setKnowledgeFiles(data.files)
+    setCachedUrls(data.urls)
+    setSnippets(data.snippetsData)
+    setKnowledgeSummary(data.summary)
+  }, [fetchKnowledgeData])
+
   useEffect(() => {
-    loadKnowledgeData().catch(console.error)
-  }, [loadKnowledgeData])
+    const syncKnowledgeData = async () => {
+      const data = await fetchKnowledgeData()
+      if (!data) return
+
+      setKnowledgeFiles(data.files)
+      setCachedUrls(data.urls)
+      setSnippets(data.snippetsData)
+      setKnowledgeSummary(data.summary)
+    }
+    syncKnowledgeData().catch(console.error)
+  }, [fetchKnowledgeData])
 
   // -- Handlers --
 

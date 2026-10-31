@@ -84,9 +84,19 @@ export function MCPProvider({children}: MCPProviderProps) {
     }
   }, [service])
 
+  // Initial load: isLoadingServers starts true, so no synchronous state update is needed here
   useEffect(() => {
-    refreshServers().catch(console.error)
-  }, [refreshServers])
+    const loadServers = async () => {
+      try {
+        setServers(await service.listServers())
+      } catch (error_) {
+        setError(error_ instanceof Error ? error_ : new Error('Failed to load servers'))
+      } finally {
+        setIsLoadingServers(false)
+      }
+    }
+    loadServers().catch(console.error)
+  }, [service])
 
   // Subscribe to connection changes
   useEffect(() => {

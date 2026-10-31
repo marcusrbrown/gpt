@@ -12,7 +12,7 @@ import {
   Select,
   SelectItem,
 } from '@heroui/react'
-import {useMemo, useState} from 'react'
+import {useState} from 'react'
 import {z} from 'zod'
 
 interface MCPServerFormProps {
@@ -91,24 +91,21 @@ function createFormStateFromConfig(config: MCPServerConfig): FormState {
 }
 
 export function MCPServerForm({isOpen, onClose, onSave, initialConfig}: MCPServerFormProps) {
-  // Compute initial state only when modal opens or initialConfig changes
-  const initialFormState = useMemo(
-    () => (initialConfig ? createFormStateFromConfig(initialConfig) : createDefaultFormState()),
-    // Only recompute when isOpen changes or initialConfig reference changes
-    [isOpen, initialConfig],
+  const [formState, setFormState] = useState<FormState>(() =>
+    initialConfig ? createFormStateFromConfig(initialConfig) : createDefaultFormState(),
   )
-
-  const [formState, setFormState] = useState<FormState>(initialFormState)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen)
 
-  // Reset form when modal opens with fresh initial state
-  useMemo(() => {
+  // Reset form with fresh initial state each time the modal opens (adjusting state during render, not in an effect)
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen)
     if (isOpen) {
-      setFormState(initialFormState)
+      setFormState(initialConfig ? createFormStateFromConfig(initialConfig) : createDefaultFormState())
       setError(null)
     }
-  }, [isOpen])
+  }
 
   const updateField = <K extends keyof FormState>(field: K, value: FormState[K]): void => {
     setFormState(prev => ({...prev, [field]: value}))
