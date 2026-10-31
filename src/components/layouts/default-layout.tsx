@@ -18,6 +18,8 @@ const maxWidthClasses = {
 export function DefaultLayout({children, className, maxWidth = 'xl'}: DefaultLayoutProps) {
   return (
     <main
+      id="main-content"
+      tabIndex={-1}
       className={cn(
         'container mx-auto px-4 py-6',
         'min-h-[calc(100vh-var(--header-height)-var(--footer-height))]',
