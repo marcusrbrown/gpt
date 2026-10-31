@@ -497,28 +497,33 @@ jobs:
         )
       )
     steps:
-      - name: Refuse fork PR heads from comment triggers
-        if: github.event_name == 'issue_comment' && github.event.issue.pull_request
+      # A PR comment carries no head SHA. Resolve it for same-repository PRs
+      # only; it anchors the action's brokered push, the only way a comment
+      # reply can update the PR branch. Fork PRs resolve to empty and keep
+      # the default checkout, so fork code is never checked out.
+      - name: Resolve same-repo PR head
+        id: prehead
         env:
-          GH_TOKEN: ${{ secrets.FRO_BOT_PAT }}
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          IS_PR_COMMENT: ${{ github.event_name == 'issue_comment' && github.event.issue.pull_request != null }}
+          PR_NUMBER: ${{ github.event.issue.number }}
         run: |
-          pr_number="${{ github.event.issue.number }}"
-          is_fork=$(gh api "repos/${{ github.repository }}/pulls/${pr_number}" --jq '.head.repo.fork // "unknown"')
-          if [ "$is_fork" != "false" ]; then
-            echo "::error::Refusing to check out fork PR head from comment trigger (PR #${pr_number}, fork=${is_fork})."
-            exit 1
+          set -euo pipefail
+          sha=""
+          if [ "${IS_PR_COMMENT}" = "true" ]; then
+            pr_json="$(gh api "repos/${REPO}/pulls/${PR_NUMBER}")"
+            if [ "$(printf '%s' "${pr_json}" | jq -r '.head.repo.full_name // empty')" = "${REPO}" ]; then
+              sha="$(printf '%s' "${pr_json}" | jq -r '.head.sha // empty')"
+            fi
           fi
+          echo "sha=${sha}" >> "${GITHUB_OUTPUT}"
 
       - name: Checkout repository
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0
-          ref: >-
-            ${{
-              (github.event.issue.pull_request && format('refs/pull/{0}/head', github.event.issue.number))
-              || github.event.pull_request.head.sha
-              || ''
-            }}
+          ref: ${{ steps.prehead.outputs.sha || github.event.pull_request.head.sha || '' }}
           token: ${{ secrets.FRO_BOT_PAT }}
           persist-credentials: >-
             ${{ !contains(fromJSON('["pull_request", "issue_comment", "issues"]'), github.event_name) }}
@@ -557,6 +562,11 @@ jobs:
         with:
           auth-json: ${{ secrets.OPENCODE_AUTH_JSON }}
           github-token: ${{ secrets.FRO_BOT_PAT }}
+          trusted-head-sha: ${{ steps.prehead.outputs.sha }}
+          # Default brokered-push paths are src/, packages/*/src/ and docs/;
+          # tests/ is added for the e2e, accessibility, visual and performance
+          # suites. .github, scripts, package.json and lockfiles stay denied.
+          brokered-push-extra-paths: tests
           model: ${{ vars.FRO_BOT_MODEL }}
           # The daily pass must deliver fixes as PRs; under `working-dir` the
           # agent cannot push or open PRs, so its edits would be discarded.
