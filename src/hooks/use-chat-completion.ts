@@ -132,6 +132,16 @@ function createView(conversationId: string | undefined, isLoading: boolean): Cha
   }
 }
 
+/**
+ * Storage orders a conversation's messages by timestamp alone, so two messages made in the same millisecond (or after a
+ * clock step backwards) would swap on reload. A new message is therefore always at least 1 ms after the one before it.
+ */
+function timestampAfter(previous: ConversationMessage | undefined): Date {
+  const now = new Date()
+  const floor = previous?.timestamp.getTime()
+  return floor !== undefined && now.getTime() <= floor ? new Date(floor + 1) : now
+}
+
 function deriveTitle(content: string): string {
   const singleLine = content.replaceAll(/\s+/g, ' ').trim()
   return singleLine.length > MAX_TITLE_LENGTH
@@ -385,7 +395,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
         controller: new AbortController(),
         history,
         assistantId: crypto.randomUUID(),
-        assistantTimestamp: new Date(),
+        assistantTimestamp: timestampAfter(history.at(-1)),
         reply: '',
         settled: false,
         detached: false,
@@ -422,7 +432,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
         id: crypto.randomUUID(),
         role: 'user',
         content,
-        timestamp: new Date(),
+        timestamp: timestampAfter(view.messages.at(-1)),
       }
       await startTurn([...view.messages, userMessage], view)
     },

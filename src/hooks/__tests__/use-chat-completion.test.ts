@@ -308,6 +308,17 @@ function streamAt(provider: ProviderId, index: number): ScriptedStream {
   return stream
 }
 
+function timestamps(messages: ConversationMessage[]): number[] {
+  return messages.map(message => message.timestamp.getTime())
+}
+
+function expectStrictlyIncreasing(values: number[]): void {
+  expect(values.length).toBeGreaterThan(1)
+  for (let index = 1; index < values.length; index++) {
+    expect(values[index]).toBeGreaterThan(values[index - 1] ?? Number.NaN)
+  }
+}
+
 async function openConversationA() {
   const earlier = [makeMessage('user', 'earlier q'), makeMessage('assistant', 'earlier a')]
   env.stored.set('conv-a', makeConversation('conv-a', earlier))
@@ -730,6 +741,60 @@ describe('useChatCompletion', () => {
       expect(hook.result.current.messages).toHaveLength(2)
       await finish(streamAt('openai', 0), pending)
       expect(env.saveConversation).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('message order', () => {
+    // Storage sorts messages by timestamp alone, so equal or backwards timestamps reorder a conversation on reload.
+    afterEach(() => {
+      vi.useRealTimers()
+    })
+
+    it('gives every message a later timestamp than the one before, even when the clock does not move', async () => {
+      vi.useFakeTimers({toFake: ['Date']})
+      vi.setSystemTime(new Date('2026-03-01T00:00:00.000Z'))
+      hook = setup()
+
+      const first = startSend(hook, 'one')
+      await emit(streamAt('openai', 0), 'first reply', 'first reply')
+      await finish(streamAt('openai', 0), first)
+      const second = startSend(hook, 'two')
+      await finish(streamAt('openai', 1), second)
+
+      expect(hook.result.current.messages.map(message => message.content)).toEqual(['one', 'first reply', 'two', ''])
+      expectStrictlyIncreasing(timestamps(hook.result.current.messages))
+      expectStrictlyIncreasing(timestamps(savedMessages()))
+    })
+
+    it('stays ahead of the last message of a loaded conversation when the clock reads earlier', async () => {
+      vi.useFakeTimers({toFake: ['Date']})
+      vi.setSystemTime(new Date('2025-06-01T00:00:00.000Z'))
+      await openConversationA()
+      const lastLoaded = messageAt(1).timestamp.getTime()
+
+      const pending = startSend(hook, 'next')
+      await finish(streamAt('openai', 0), pending)
+
+      const all = timestamps(hook.result.current.messages)
+      expect(all[2]).toBeGreaterThan(lastLoaded)
+      expect(all[3]).toBeGreaterThan(all[2] ?? Number.NaN)
+    })
+
+    it('puts a regenerated reply after the user message it answers', async () => {
+      vi.useFakeTimers({toFake: ['Date']})
+      vi.setSystemTime(new Date('2026-03-01T00:00:00.000Z'))
+      hook = setup()
+      const first = startSend(hook, 'one')
+      await finish(streamAt('openai', 0), first)
+
+      let pending!: Promise<void>
+      act(() => {
+        pending = hook.result.current.regenerate()
+      })
+      await finish(streamAt('openai', 1), pending)
+
+      expect(hook.result.current.messages).toHaveLength(2)
+      expectStrictlyIncreasing(timestamps(hook.result.current.messages))
     })
   })
 
