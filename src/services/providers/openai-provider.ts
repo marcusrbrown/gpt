@@ -1,7 +1,32 @@
-import type {CompletionChunk, CompletionRequest, Model, ValidationResult} from '@/types/provider'
-import {ProviderError} from '@/types/provider'
+import type {CompletionChunk, CompletionRequest, Model, ProviderErrorType, ValidationResult} from '@/types/provider'
+import {ProviderError, ReplayDataSchema} from '@/types/provider'
 import OpenAI, {type ClientOptions} from 'openai'
 import {BaseLLMProvider} from './base-provider'
+
+type ResponseParams = Omit<OpenAI.Responses.ResponseCreateParamsNonStreaming, 'stream'>
+type ResponseInput = OpenAI.Responses.ResponseInputItem[]
+
+/**
+ * o-series (`o1`, `o3-mini`, `o4-mini`, ...) and the gpt-5 family reason before answering. They need encrypted
+ * reasoning requested to carry reasoning across stateless turns, and they reject `temperature`.
+ * `gpt-5-chat*` is the non-reasoning chat variant.
+ */
+export function isReasoningModel(model: string): boolean {
+  const id = model.toLowerCase()
+  return /^(?:o\d|gpt-5)/.test(id) && !id.startsWith('gpt-5-chat')
+}
+
+/** Replay data is opaque JSON from storage, so check the shape before sending it back to the API. */
+function isReasoningReplayItem(item: unknown): item is OpenAI.Responses.ResponseReasoningItem {
+  return (
+    typeof item === 'object' &&
+    item !== null &&
+    'type' in item &&
+    item.type === 'reasoning' &&
+    'encrypted_content' in item &&
+    typeof item.encrypted_content === 'string'
+  )
+}
 
 const OPENAI_MODELS: Model[] = [
   {
@@ -151,148 +176,179 @@ export class OpenAIProvider extends BaseLLMProvider {
     return OPENAI_MODELS
   }
 
+  /**
+   * Streams (or, with `stream: false`, fetches) one reply on the Responses API. Stateless: the full history goes in
+   * every call and `store: false` keeps nothing at OpenAI. Chat is text-only for now, so `request.tools` is ignored.
+   * Aborts throw an `AbortError` and emit no final chunk.
+   */
   async *createCompletion(request: CompletionRequest): AsyncIterable<CompletionChunk> {
     const client = this.ensureClient()
-
-    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = request.messages.map(msg => {
-      if (msg.role === 'tool' && msg.toolCallId) {
-        return {
-          role: 'tool' as const,
-          content: msg.content,
-          tool_call_id: msg.toolCallId,
-        }
-      }
-      return {
-        role: msg.role as 'system' | 'user' | 'assistant',
-        content: msg.content,
-      }
-    })
-
-    const tools: OpenAI.Chat.ChatCompletionTool[] | undefined = request.tools?.map(tool => ({
-      type: 'function' as const,
-      function: {
-        name: String(tool.name ?? ''),
-        description: String(tool.description ?? ''),
-        parameters: (tool.parameters ?? {}) as Record<string, unknown>,
-      },
-    }))
+    const {signal} = request
 
     try {
-      if (request.stream) {
-        const stream = await this.withRetry(async () =>
-          client.chat.completions.create({
-            model: request.model,
-            messages,
-            temperature: request.temperature,
-            max_tokens: request.maxTokens,
-            tools: tools && tools.length > 0 ? tools : undefined,
-            stream: true,
-          }),
-        )
+      signal?.throwIfAborted()
+      const params = this.buildParams(request)
 
-        let chunkId = ''
-        for await (const chunk of stream) {
-          chunkId = chunk.id
-          const delta = chunk.choices[0]?.delta
-          const finishReason = chunk.choices[0]?.finish_reason
-
-          const completionChunk: CompletionChunk = {
-            id: chunk.id,
-            content: delta?.content ?? undefined,
-            finishReason: this.mapFinishReason(finishReason),
-          }
-
-          if (delta?.tool_calls) {
-            completionChunk.toolCalls = delta.tool_calls
-              .filter(tc => tc.function?.name)
-              .map(tc => ({
-                id: tc.id ?? '',
-                name: tc.function?.name ?? '',
-                arguments: tc.function?.arguments ?? '',
-              }))
-          }
-
-          yield completionChunk
-        }
-
-        yield {id: chunkId, finishReason: 'stop'}
-      } else {
-        const response = await this.withRetry(async () =>
-          client.chat.completions.create({
-            model: request.model,
-            messages,
-            temperature: request.temperature,
-            max_tokens: request.maxTokens,
-            tools: tools && tools.length > 0 ? tools : undefined,
-            stream: false,
-          }),
-        )
-
-        const choice = response.choices[0]
-        const completionChunk: CompletionChunk = {
-          id: response.id,
-          content: choice?.message?.content ?? undefined,
-          finishReason: this.mapFinishReason(choice?.finish_reason),
-          usage: response.usage
-            ? {
-                promptTokens: response.usage.prompt_tokens,
-                completionTokens: response.usage.completion_tokens,
-              }
-            : undefined,
-        }
-
-        if (choice?.message?.tool_calls) {
-          completionChunk.toolCalls = choice.message.tool_calls
-            .filter(
-              (tc): tc is OpenAI.Chat.ChatCompletionMessageToolCall & {type: 'function'} => tc.type === 'function',
-            )
-            .map(tc => ({
-              id: tc.id,
-              name: tc.function.name,
-              arguments: tc.function.arguments,
-            }))
-        }
-
-        yield completionChunk
+      if (request.stream === false) {
+        const response = await client.responses.create({...params, stream: false}, {signal})
+        if (response.status === 'failed') throw this.mapResponseError(response.error)
+        yield {...this.buildFinalChunk(response), content: response.output_text}
+        return
       }
+
+      let responseId = ''
+      for await (const event of client.responses.stream(params, {signal})) {
+        // The SDK may still hold events it buffered before the abort; don't deliver them.
+        signal?.throwIfAborted()
+
+        switch (event.type) {
+          case 'response.output_text.delta':
+          case 'response.refusal.delta':
+            yield {id: responseId, content: event.delta}
+            break
+          case 'response.created':
+            responseId = event.response.id
+            break
+          case 'response.completed':
+          case 'response.incomplete':
+            yield this.buildFinalChunk(event.response)
+            return
+          case 'response.failed':
+            throw this.mapResponseError(event.response.error)
+          case 'error':
+            throw this.mapResponseError({code: event.code, message: event.message})
+          default:
+            break
+        }
+      }
+
+      throw new ProviderError('Response stream ended before completion', 'connection', 'openai')
     } catch (error_) {
-      throw this.mapError(error_)
+      throw this.mapError(error_, signal)
     }
   }
 
-  private mapFinishReason(reason: string | null | undefined): 'stop' | 'length' | 'tool_calls' | 'error' | undefined {
-    if (!reason) return undefined
-    switch (reason) {
-      case 'stop':
-        return 'stop'
-      case 'length':
-        return 'length'
-      case 'tool_calls':
-        return 'tool_calls'
+  private buildParams(request: CompletionRequest): ResponseParams {
+    if (request.messages.length === 0) {
+      throw new ProviderError('A completion needs at least one message', 'validation', 'openai')
+    }
+
+    const reasoning = isReasoningModel(request.model)
+
+    return {
+      model: request.model,
+      input: this.buildInput(request.messages, reasoning),
+      instructions: request.instructions || undefined,
+      store: false,
+      max_output_tokens: request.maxTokens,
+      // Reasoning models reject `temperature`.
+      temperature: reasoning ? undefined : request.temperature,
+      include: reasoning ? ['reasoning.encrypted_content'] : undefined,
+    }
+  }
+
+  /**
+   * History order is preserved. System-role messages stay in place as `system` input items (the API treats them
+   * as developer messages); `instructions` is a separate field and never merged with them. For reasoning models, an
+   * assistant message's stored reasoning items go in directly before it, as the API requires for stateless replay.
+   */
+  private buildInput(messages: CompletionRequest['messages'], replayReasoning: boolean): ResponseInput {
+    const input: ResponseInput = []
+
+    for (const message of messages) {
+      if (message.role === 'tool') {
+        throw new ProviderError('Tool messages are not supported yet', 'validation', 'openai')
+      }
+
+      if (message.role === 'assistant' && replayReasoning) {
+        const stored: unknown = message.replay?.openai
+        if (Array.isArray(stored)) input.push(...stored.filter(isReasoningReplayItem))
+      }
+
+      input.push({role: message.role, content: message.content})
+    }
+
+    return input
+  }
+
+  private buildFinalChunk(response: OpenAI.Responses.Response): CompletionChunk {
+    const chunk: CompletionChunk = {id: response.id, finishReason: this.mapFinishReason(response)}
+
+    if (response.usage) {
+      chunk.usage = {promptTokens: response.usage.input_tokens, completionTokens: response.usage.output_tokens}
+    }
+
+    // Reasoning items from an incomplete response aren't followed by their message, so they can't be replayed.
+    if (response.status === 'completed') {
+      const reasoningItems = response.output.filter(isReasoningReplayItem)
+      if (reasoningItems.length > 0) {
+        chunk.replay = ReplayDataSchema.parse({openai: reasoningItems})
+      }
+    }
+
+    return chunk
+  }
+
+  private mapFinishReason(response: OpenAI.Responses.Response): 'stop' | 'length' | 'error' {
+    if (response.status !== 'incomplete') return 'stop'
+    return response.incomplete_details?.reason === 'max_output_tokens' ? 'length' : 'error'
+  }
+
+  private mapResponseError(error: {code?: string | null; message: string} | null): ProviderError {
+    return new ProviderError(error?.message ?? 'The response failed', this.errorTypeFromCode(error?.code), 'openai')
+  }
+
+  private errorTypeFromCode(code: string | null | undefined): ProviderErrorType {
+    switch (code) {
+      case 'rate_limit_exceeded':
+      case 'insufficient_quota':
+        return 'rate_limit'
+      case 'server_error':
+        return 'server'
+      case 'invalid_api_key':
+        return 'authentication'
       default:
-        return undefined
+        return 'unknown'
     }
   }
 
-  private mapError(err: unknown): ProviderError {
-    if (err instanceof ProviderError) {
-      return err
+  private errorTypeFromStatus(status: number | undefined): ProviderErrorType | undefined {
+    switch (status) {
+      case 400:
+      case 422:
+        return 'validation'
+      case 401:
+        return 'authentication'
+      case 403:
+        return 'permission'
+      case 404:
+        return 'not_found'
+      case 429:
+        return 'rate_limit'
+      default:
+        return status !== undefined && status >= 500 ? 'server' : undefined
+    }
+  }
+
+  private mapError(err: unknown, signal?: AbortSignal): Error {
+    const abortError = this.toAbortError(err, signal)
+    if (abortError) return abortError
+    if (err instanceof ProviderError) return err
+
+    if (err instanceof OpenAI.APIConnectionTimeoutError) {
+      return new ProviderError(err.message, 'timeout', 'openai')
+    }
+    if (err instanceof OpenAI.APIConnectionError) {
+      return new ProviderError(err.message, 'connection', 'openai')
+    }
+    if (err instanceof OpenAI.APIError) {
+      const status = typeof err.status === 'number' ? err.status : undefined
+      const code = typeof err.code === 'string' ? err.code : undefined
+      const type = this.errorTypeFromStatus(status) ?? this.errorTypeFromCode(code)
+      return new ProviderError(err.message, type, 'openai', status)
     }
 
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    let errorType: 'authentication' | 'rate_limit' | 'server' | 'validation' | 'connection' | 'unknown' = 'unknown'
-
-    if (message.includes('401') || message.toLowerCase().includes('invalid api key')) {
-      errorType = 'authentication'
-    } else if (message.includes('429')) {
-      errorType = 'rate_limit'
-    } else if (message.includes('500') || message.includes('503')) {
-      errorType = 'server'
-    } else if (message.includes('ECONNREFUSED') || message.includes('ENOTFOUND')) {
-      errorType = 'connection'
-    }
-
-    return new ProviderError(message, errorType, 'openai')
+    return new ProviderError(err instanceof Error ? err.message : 'Unknown error', 'unknown', 'openai')
   }
 }
 
