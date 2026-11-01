@@ -1,5 +1,6 @@
 import {db} from '@/lib/database'
 
+import {getEncryptionService, type EncryptionService} from '@/services/encryption'
 import {z} from 'zod'
 
 export type SessionStatus = 'locked' | 'unlocking' | 'unlocked' | 'timing_out'
@@ -61,7 +62,7 @@ class SessionManagerImpl implements SessionManager {
   private activityHandler: (() => void) | null = null
   private isDestroyed = false
 
-  constructor() {
+  constructor(private readonly getEncryption: () => Pick<EncryptionService, 'lock'> = getEncryptionService) {
     this.initBroadcastChannel()
   }
 
@@ -137,6 +138,8 @@ class SessionManagerImpl implements SessionManager {
   }
 
   lock(): void {
+    // Every lock path (manual, idle timeout) ends here, so the key can never outlive a locked session.
+    this.getEncryption().lock()
     this.setState({status: 'locked', lastActivity: this.state.lastActivity})
     this.broadcast({type: 'LOCK'})
     this.stopTimeoutCheck()

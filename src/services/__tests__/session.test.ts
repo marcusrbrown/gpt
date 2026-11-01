@@ -1,12 +1,20 @@
 import {db} from '@/lib/database'
 
 import {
+  EncryptionError,
+  getEncryptionService,
+  resetEncryptionServiceForTesting,
+  type EncryptionService,
+} from '@/services/encryption'
+import {
   getSessionManager,
   initializeSessionManager,
   resetSessionManagerForTesting,
   type SessionManager,
 } from '@/services/session'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
+
+const PASSPHRASE = 'correct-passphrase'
 
 describe('SessionManager', () => {
   let manager: SessionManager
@@ -142,6 +150,44 @@ describe('SessionManager', () => {
 
       manager.extendSession()
       expect(manager.getState().status).toBe('unlocked')
+    })
+  })
+
+  describe('encryption key lifecycle', () => {
+    let encryption: EncryptionService
+
+    beforeEach(async () => {
+      resetEncryptionServiceForTesting()
+      encryption = getEncryptionService()
+      await encryption.initializePassphrase(PASSPHRASE)
+      await encryption.encryptSecret('openai', 'sk-test-key')
+    })
+
+    afterEach(() => {
+      encryption.lock()
+      resetEncryptionServiceForTesting()
+    })
+
+    it('clears the key when the idle timeout locks the session', async () => {
+      await expect(encryption.decryptSecret('openai')).resolves.toBe('sk-test-key')
+
+      vi.useFakeTimers()
+      manager.unlock()
+      vi.advanceTimersByTime(30 * 60 * 1000 + 10_000)
+
+      expect(manager.getState().status).toBe('locked')
+      expect(encryption.isUnlocked()).toBe(false)
+      await expect(encryption.decryptSecret('openai')).rejects.toMatchObject({
+        name: EncryptionError.name,
+        code: 'LOCKED',
+      })
+    })
+
+    it('clears the key on a manual lock', () => {
+      manager.unlock()
+      manager.lock()
+
+      expect(encryption.isUnlocked()).toBe(false)
     })
   })
 
