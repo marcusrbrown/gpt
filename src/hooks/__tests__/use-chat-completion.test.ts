@@ -482,7 +482,7 @@ describe('useChatCompletion', () => {
     it('drops saved replay data that no longer parses instead of sending it', async () => {
       const conversation = makeConversation('conv-a', [
         makeMessage('user', 'q'),
-        makeMessage('assistant', 'a', {replay: {openai: 'x', bogus: 1} as never}),
+        makeMessage('assistant', 'a', {provider: 'openai', model: 'gpt-4o', replay: {openai: 'x', bogus: 1} as never}),
       ])
       env.stored.set('conv-a', conversation)
       hook = setup({conversationId: 'conv-a'})
@@ -493,6 +493,111 @@ describe('useChatCompletion', () => {
       const pending = startSend(hook, 'next')
       expect(env.providers.openai.requests[0]?.messages[1]).toEqual({role: 'assistant', content: 'a'})
       await finish(streamAt('openai', 0), pending)
+    })
+
+    describe('replay safety', () => {
+      const replay = {openai: [{type: 'reasoning', id: 'rs_1', encrypted_content: 'enc'}]}
+
+      async function openWithReplayFrom(source: {provider?: ProviderId; model?: string}) {
+        env.stored.set(
+          'conv-a',
+          makeConversation('conv-a', [makeMessage('user', 'q'), makeMessage('assistant', 'a', {...source, replay})]),
+        )
+        hook = setup({conversationId: 'conv-a'})
+        await waitFor(() => {
+          expect(hook.result.current.isLoadingConversation).toBe(false)
+        })
+      }
+
+      it('sends replay from the same provider and model', async () => {
+        await openWithReplayFrom({provider: 'openai', model: 'gpt-4o'})
+        const pending = startSend(hook, 'next')
+        expect(env.providers.openai.requests[0]?.messages[1]).toEqual({role: 'assistant', content: 'a', replay})
+        await finish(streamAt('openai', 0), pending)
+      })
+
+      it('does not send replay produced by another model', async () => {
+        await openWithReplayFrom({provider: 'openai', model: 'o3-mini'})
+        const pending = startSend(hook, 'next')
+        expect(env.providers.openai.requests[0]?.messages[1]).toEqual({role: 'assistant', content: 'a'})
+        await finish(streamAt('openai', 0), pending)
+      })
+
+      it('does not send replay produced by another provider', async () => {
+        await openWithReplayFrom({provider: 'anthropic', model: 'gpt-4o'})
+        const pending = startSend(hook, 'next')
+        expect(env.providers.openai.requests[0]?.messages[1]).toEqual({role: 'assistant', content: 'a'})
+        await finish(streamAt('openai', 0), pending)
+      })
+
+      it('does not send replay that records no provider or model', async () => {
+        await openWithReplayFrom({})
+        const pending = startSend(hook, 'next')
+        expect(env.providers.openai.requests[0]?.messages[1]).toEqual({role: 'assistant', content: 'a'})
+        await finish(streamAt('openai', 0), pending)
+      })
+
+      it('retries exactly once without replay when the request is rejected as invalid', async () => {
+        await openWithReplayFrom({provider: 'openai', model: 'gpt-4o'})
+        const pending = startSend(hook, 'next')
+        expect(env.providers.openai.requests[0]?.messages[1]).toEqual({role: 'assistant', content: 'a', replay})
+
+        await act(async () => {
+          streamAt('openai', 0).fail(new ProviderError('encrypted content invalid', 'validation', 'openai', 400))
+        })
+        await waitFor(() => {
+          expect(env.providers.openai.streams).toHaveLength(2)
+        })
+        expect(env.providers.openai.requests[1]?.messages).toEqual([
+          {role: 'user', content: 'q'},
+          {role: 'assistant', content: 'a'},
+          {role: 'user', content: 'next'},
+        ])
+
+        await emit(streamAt('openai', 1), 'worked', 'worked')
+        await finish(streamAt('openai', 1), pending)
+        expect(hook.result.current.turnErrors).toEqual({})
+        expect(lastMessage(hook).content).toBe('worked')
+      })
+
+      it('does not retry a second time when the retry is rejected too', async () => {
+        await openWithReplayFrom({provider: 'openai', model: 'gpt-4o'})
+        const pending = startSend(hook, 'next')
+        await act(async () => {
+          streamAt('openai', 0).fail(new ProviderError('bad request', 'validation', 'openai', 400))
+        })
+        await waitFor(() => {
+          expect(env.providers.openai.streams).toHaveLength(2)
+        })
+        await act(async () => {
+          streamAt('openai', 1).fail(new ProviderError('still bad', 'validation', 'openai', 400))
+          await pending
+        })
+
+        expect(env.providers.openai.streams).toHaveLength(2)
+        const userMessage = messageAt(hook.result.current.messages.length - 1)
+        expect(hook.result.current.turnErrors[userMessage.id]).toEqual({message: 'still bad', type: 'validation'})
+      })
+
+      it('does not retry when no replay was sent', async () => {
+        await openWithReplayFrom({provider: 'openai', model: 'o3-mini'})
+        const pending = startSend(hook, 'next')
+        await act(async () => {
+          streamAt('openai', 0).fail(new ProviderError('bad request', 'validation', 'openai', 400))
+          await pending
+        })
+        expect(env.providers.openai.streams).toHaveLength(1)
+      })
+
+      it('does not retry other kinds of failure', async () => {
+        await openWithReplayFrom({provider: 'openai', model: 'gpt-4o'})
+        const pending = startSend(hook, 'next')
+        await act(async () => {
+          streamAt('openai', 0).fail(new ProviderError('down', 'server', 'openai', 500))
+          await pending
+        })
+        expect(env.providers.openai.streams).toHaveLength(1)
+      })
     })
 
     it('routes an Anthropic GPT to the Anthropic provider with the instructions and full history', async () => {

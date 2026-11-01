@@ -118,15 +118,27 @@ function deriveTitle(content: string): string {
     : singleLine || NEW_CHAT_TITLE
 }
 
-/** Replay data is opaque JSON from storage, so validate it before it goes back to a provider. */
-function toCompletionMessages(messages: ConversationMessage[]): CompletionMessage[] {
+/**
+ * Replay data is opaque JSON from storage, so validate it before it goes back to a provider. It is also tied to the
+ * provider and model that produced it (and to the key that encrypted it), so it is attached only when the message was
+ * made by `replayFor`. Pass `undefined` to send no replay at all.
+ */
+function toCompletionMessages(
+  messages: ConversationMessage[],
+  replayFor: {provider: ProviderId; model: string} | undefined,
+): CompletionMessage[] {
   const result: CompletionMessage[] = []
   for (const message of messages) {
     // Tool messages are unsupported in text chat. An empty reply (stopped before its first delta) has nothing to replay.
     if (message.role === 'tool') continue
     if (message.role === 'assistant' && message.content === '') continue
 
-    const parsed = message.role === 'assistant' ? ReplayDataSchema.safeParse(message.metadata?.replay) : undefined
+    const madeByTarget =
+      replayFor !== undefined &&
+      message.metadata?.provider === replayFor.provider &&
+      message.metadata.model === replayFor.model
+    const parsed =
+      message.role === 'assistant' && madeByTarget ? ReplayDataSchema.safeParse(message.metadata?.replay) : undefined
     result.push({
       role: message.role,
       content: message.content,
@@ -274,18 +286,33 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
         const request: CompletionRequest = {
           model: run.model,
           instructions: currentGpt?.systemPrompt || undefined,
-          messages: toCompletionMessages(run.history),
+          messages: toCompletionMessages(run.history, {provider: run.provider, model: run.model}),
           signal: run.controller.signal,
           stream: true,
         }
+        const sentReplay = request.messages.some(message => message.replay !== undefined)
 
-        for await (const chunk of provider.createCompletion(request)) {
-          if (run.settled) return
-          if (chunk.replay) replay = chunk.replay
-          if (chunk.content) {
-            run.reply += chunk.content
-            commitRun(run, {messages: snapshotRun(run)})
+        const consume = async (): Promise<void> => {
+          for await (const chunk of provider.createCompletion(request)) {
+            if (run.settled) return
+            if (chunk.replay) replay = chunk.replay
+            if (chunk.content) {
+              run.reply += chunk.content
+              commitRun(run, {messages: snapshotRun(run)})
+            }
           }
+        }
+
+        try {
+          await consume()
+        } catch (error_) {
+          // Encrypted reasoning that the API can no longer verify (another key or organization, an expired item) is
+          // rejected as a 400. ProviderError carries no error code, so a rejection about replay can't be told apart from
+          // other 400s: retry once without replay on any validation error, but only before any text arrived.
+          const rejected = error_ instanceof ProviderError && error_.type === 'validation'
+          if (run.settled || !sentReplay || !rejected || run.reply !== '') throw error_
+          request.messages = toCompletionMessages(run.history, undefined)
+          await consume()
         }
         if (run.settled) return
 
