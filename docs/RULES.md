@@ -67,20 +67,20 @@ localStorage is ONLY permitted for:
 
 ### Files
 
-| Type       | Convention               | Example                                   |
-| ---------- | ------------------------ | ----------------------------------------- |
-| Components | kebab-case               | `card.tsx`, `gpt-editor.tsx`              |
-| Hooks      | kebab-case, use- prefix  | `use-storage.ts`, `use-openai-service.ts` |
-| Tests      | kebab-case + .test/.spec | `card.test.tsx`, `home.spec.ts`           |
-| Types      | kebab-case               | `gpt.ts`, `agent.ts`                      |
-| Services   | kebab-case               | `openai-service.ts`, `storage.ts`         |
+| Type       | Convention               | Example                                    |
+| ---------- | ------------------------ | ------------------------------------------ |
+| Components | kebab-case               | `card.tsx`, `gpt-editor.tsx`               |
+| Hooks      | kebab-case, use- prefix  | `use-storage.ts`, `use-chat-completion.ts` |
+| Tests      | kebab-case + .test/.spec | `card.test.tsx`, `home.spec.ts`            |
+| Types      | kebab-case               | `gpt.ts`, `agent.ts`                       |
+| Services   | kebab-case               | `openai-provider.ts`, `storage.ts`         |
 
 ### Code
 
 | Type             | Convention               | Example                                |
 | ---------------- | ------------------------ | -------------------------------------- |
 | Components       | PascalCase               | `GPTEditor`, `UserGPTCard`             |
-| Hooks            | camelCase, use prefix    | `useStorage`, `useOpenAIService`       |
+| Hooks            | camelCase, use prefix    | `useStorage`, `useChatCompletion`      |
 | Functions        | camelCase                | `handleSubmit`, `createConfig`         |
 | Event handlers   | camelCase, handle prefix | `handleClick`, `handleSave`            |
 | Variables        | camelCase                | `isLoading`, `gptConfig`               |
@@ -653,7 +653,7 @@ App
 ```tsx
 // CORRECT: Access state through hooks
 const {gpts, saveGPT} = useStorage()
-const {service} = useOpenAIService()
+const chat = useChatCompletion({gpt, conversationId}) // streams through the GPT's provider
 
 // WRONG: Direct storage access
 localStorage.getItem("gpts") // NEVER

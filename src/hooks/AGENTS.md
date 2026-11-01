@@ -13,7 +13,7 @@ Custom React hooks for state access and services.
 | `useAutoSave()`            | Debounced auto-save for editor     |
 | `useMCP()`                 | MCP server state and connections   |
 | `useOllamaStatus()`        | Ollama local server availability   |
-| `useOpenAIService()`       | OpenAI service instance access     |
+| `useChatCompletion()`      | Chat turns via the GPT's provider  |
 | `useReducedMotion()`       | Prefers-reduced-motion media query |
 | `useSession()`             | Session context (auth, timeout)    |
 | `useStorageQuota()`        | IndexedDB storage usage monitoring |

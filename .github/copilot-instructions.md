@@ -66,7 +66,7 @@ pnpm test:e2e               # Full user flows — Playwright (auto-starts dev se
 
 ### Provider Abstraction
 
-- ✅ Access LLM through hooks: `useAIProvider()`, `useOpenAIService()`
+- ✅ Access LLM through hooks: `useAIProvider()`, `useChatCompletion()`
 - ❌ Never import SDKs directly in components (`@anthropic-ai/sdk`, `openai`)
 
 ## Architecture Rules
