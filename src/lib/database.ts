@@ -1,4 +1,5 @@
 import type {MCPOAuthTokensDB, MCPServerConfigDB, MCPTaskDB, MCPToolCallDB} from '@/types/mcp'
+import type {ProviderId, ReplayData} from '@/types/provider'
 import Dexie, {type Table} from 'dexie'
 
 export interface ModelSettings {
@@ -110,6 +111,9 @@ export interface MessageMetadata {
     name: string
   }[]
   model?: string
+  provider?: ProviderId
+  stopped?: boolean
+  replay?: ReplayData
   tokenUsage?: {
     prompt: number
     completion: number

@@ -1,5 +1,5 @@
 import {z} from 'zod'
-import {ProviderIdSchema} from './provider'
+import {ProviderIdSchema, ReplayDataSchema} from './provider'
 
 /**
  * Core types for GPT configurations and related entities
@@ -145,6 +145,9 @@ export const ConversationMessageMetadataSchema = z.object({
     )
     .optional(),
   model: z.string().optional(),
+  provider: ProviderIdSchema.optional(),
+  stopped: z.boolean().optional(),
+  replay: ReplayDataSchema.optional(),
   tokenUsage: z
     .object({
       prompt: z.number(),

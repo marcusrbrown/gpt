@@ -94,7 +94,7 @@ function conversationToExportData(conv: Conversation, gptName: string): Conversa
       role: msg.role,
       content: msg.content,
       timestamp: toISOString(msg.timestamp),
-      metadata: undefined,
+      metadata: msg.metadata,
     })),
     tags: conv.tags,
     isPinned: conv.isPinned,
@@ -401,6 +401,8 @@ export async function createFullBackup(onProgress?: ExportProgressCallback): Pro
           role: msg.role,
           content: msg.content,
           timestamp: msg.timestampISO,
+          // Spread: the Dexie `MessageMetadata` interface has no index signature for `Record<string, unknown>`.
+          metadata: msg.metadata && {...msg.metadata},
         })),
       tags: conv.tags,
       isPinned: conv.isPinned,
