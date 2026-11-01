@@ -1,5 +1,5 @@
 import type {FC} from 'react'
-import {cn, theme} from '@/lib/design-system'
+import {theme} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
 import {Button} from '@heroui-v3/react'
 import {Moon, Sun} from 'lucide-react'
@@ -13,10 +13,7 @@ export const ThemeSwitch: FC = () => {
       onPress={() => setTheme(currentTheme === 'dark' ? 'light' : 'dark')}
       isIconOnly
       variant="tertiary"
-      className={cn(
-        'min-w-[40px] h-[40px] flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-1',
-        'active:scale-[0.98] active:shadow-sm transition-transform duration-100',
-      )}
+      className="min-w-[40px] h-[40px] flex items-center justify-center"
       aria-label={`Switch to ${currentTheme === 'dark' ? 'light' : 'dark'} mode`}
     >
       {currentTheme === 'dark' ? (

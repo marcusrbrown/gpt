@@ -11,6 +11,20 @@
       allowedVersions: '<3',
     },
     {
+      description: [
+        'Update the aliased HeroUI v3 packages and the peers they declare together, so the JS, the stylesheet and react-aria stay on matching versions.',
+      ],
+      matchDepNames: [
+        '@heroui-v3/react',
+        '@heroui-v3/styles',
+        '@internationalized/date',
+        '@react-aria/utils',
+        'react-aria',
+        'react-aria-components',
+      ],
+      groupName: 'heroui v3',
+    },
+    {
       description: ['Automerge unstable minor updates of `lucide-react` once a month.'],
       matchCurrentVersion: '/^v?0/',
       matchPackageNames: ['lucide-react'],
