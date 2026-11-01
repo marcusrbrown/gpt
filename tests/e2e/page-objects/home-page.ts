@@ -87,6 +87,20 @@ export class HomePage extends BasePage {
   }
 
   /**
+   * Go home through the navbar logo link (client-side navigation, so in-memory app state survives)
+   */
+  async goHomeFromNavbar(): Promise<void> {
+    await this.clickElement(this.page.locator('a[href="/"]').first())
+  }
+
+  /**
+   * Open a GPT's showcase page through its library card (client-side navigation)
+   */
+  async selectGPT(name: string): Promise<void> {
+    await this.clickElement(this.page.getByRole('button', {name: `Select ${name}`}))
+  }
+
+  /**
    * Check if empty state is shown
    */
   async hasEmptyState(): Promise<boolean> {

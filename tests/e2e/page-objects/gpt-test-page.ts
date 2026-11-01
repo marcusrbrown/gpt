@@ -45,6 +45,9 @@ export class GPTTestPage extends BasePage {
   // Error display
   readonly errorMessage: Locator
 
+  // Stopped reply tag
+  readonly stoppedTag: Locator
+
   // Processing indicator
   readonly processingIndicator: Locator
 
@@ -104,6 +107,9 @@ export class GPTTestPage extends BasePage {
     // Error message display
     this.errorMessage = page.locator(String.raw`.bg-danger-50\/50`)
 
+    // Tag shown under a reply the user stopped mid-stream
+    this.stoppedTag = page.getByText('Stopped', {exact: true})
+
     // Processing indicator with "Thinking..." text
     this.processingIndicator = page.locator('.text-xs.font-medium.text-content-secondary')
   }
@@ -149,6 +155,14 @@ export class GPTTestPage extends BasePage {
   async sendMessage(message: string): Promise<void> {
     await this.fillInput(this.messageInput, message)
     await this.clickElement(this.sendButton)
+  }
+
+  /**
+   * Click regenerate on the last assistant reply (the action only shows on hover)
+   */
+  async regenerateLastReply(): Promise<void> {
+    await this.assistantMessages.last().hover()
+    await this.clickElement(this.regenerateButton)
   }
 
   /**

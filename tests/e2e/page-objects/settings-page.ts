@@ -23,6 +23,9 @@ export class SettingsPage extends BasePage {
   readonly apiKeyStatus: Locator
   readonly apiKeyVisibilityToggle: Locator
   readonly providerAccordion: Locator
+  readonly openAIKeyInput: Locator
+  readonly openAISaveKeyButton: Locator
+  readonly openAIKeyConfiguredStatus: Locator
 
   // OpenAI key form and session unlock (Providers tab)
   readonly openAISettings: Locator
@@ -74,6 +77,10 @@ export class SettingsPage extends BasePage {
     this.apiKeyStatus = page.locator('[data-testid="api-key-status"]')
     this.apiKeyVisibilityToggle = page.locator('button[aria-label="Toggle API key visibility"]')
     this.providerAccordion = page.locator('[data-testid="provider-accordion"]')
+    // The OpenAI section is the only one expanded by default on the Providers tab
+    this.openAIKeyInput = page.getByLabel('Enter your OpenAI API key')
+    this.openAISaveKeyButton = page.getByRole('button', {name: 'Save API key to local storage'})
+    this.openAIKeyConfiguredStatus = page.getByText('API key is configured and validated')
 
     // OpenAI key form and session unlock
     this.openAISettings = page.getByTestId('openai-api-settings')
@@ -155,6 +162,29 @@ export class SettingsPage extends BasePage {
   async setApiKey(apiKey: string): Promise<void> {
     await this.fillInput(this.apiKeyInput, apiKey)
     await this.clickElement(this.saveApiKeyButton)
+  }
+
+  /**
+   * Sets the encryption passphrase and unlocks the session, which API keys need before they can be saved.
+   *
+   * The app has no passphrase screen yet, so this calls the same encryption service the session context uses
+   * (`setInitialPassphrase` -> `initializePassphrase`). It loads the module from the Vite dev server, which is what
+   * Playwright's `webServer` runs; the page must already be loaded so the module is the app's own instance.
+   */
+  async unlockSession(passphrase: string): Promise<void> {
+    await this.page.evaluate(`(async () => {
+      const {getEncryptionService} = await import('/src/services/encryption.ts')
+      await getEncryptionService().initializePassphrase(${JSON.stringify(passphrase)})
+    })()`)
+  }
+
+  /**
+   * Saves an OpenAI API key through the Providers tab and waits for it to validate. The session must be unlocked.
+   */
+  async saveOpenAIKey(apiKey: string): Promise<void> {
+    await this.fillInput(this.openAIKeyInput, apiKey)
+    await this.clickElement(this.openAISaveKeyButton)
+    await this.openAIKeyConfiguredStatus.waitFor({state: 'visible'})
   }
 
   async getApiKeyValue(): Promise<string> {
