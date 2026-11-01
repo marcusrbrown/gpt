@@ -163,6 +163,58 @@ describe('Provider Types', () => {
       }
       expect(CompletionRequestSchema.parse(request)).toBeDefined()
     })
+
+    it('validates request with instructions, a signal and a message carrying replay data', () => {
+      const controller = new AbortController()
+      const request = {
+        model: 'gpt-4o',
+        instructions: 'Answer in French.',
+        signal: controller.signal,
+        messages: [
+          {role: 'user', content: 'Hello!'},
+          {role: 'assistant', content: 'Bonjour!', replay: {openai: [{type: 'reasoning', encrypted_content: 'abc'}]}},
+        ],
+      }
+      const parsed = CompletionRequestSchema.parse(request)
+      expect(parsed.instructions).toBe('Answer in French.')
+      expect(parsed.signal).toBe(controller.signal)
+      expect(parsed.messages[1]?.replay).toEqual({openai: [{type: 'reasoning', encrypted_content: 'abc'}]})
+    })
+
+    it('still validates a request without instructions, signal or replay data', () => {
+      const parsed = CompletionRequestSchema.parse({
+        model: 'gpt-4o',
+        messages: [{role: 'user', content: 'Hello!'}],
+      })
+      expect(parsed.instructions).toBeUndefined()
+      expect(parsed.signal).toBeUndefined()
+      expect(parsed.messages[0]?.replay).toBeUndefined()
+    })
+
+    it('rejects a signal that is not an AbortSignal', () => {
+      const request = {
+        model: 'gpt-4o',
+        messages: [{role: 'user', content: 'Hello!'}],
+        signal: {aborted: false},
+      }
+      expect(() => CompletionRequestSchema.parse(request)).toThrow()
+    })
+
+    it('rejects replay data keyed by an unknown provider', () => {
+      const request = {
+        model: 'gpt-4o',
+        messages: [{role: 'assistant', content: 'Hi', replay: {unknown: {a: 1}}}],
+      }
+      expect(() => CompletionRequestSchema.parse(request)).toThrow()
+    })
+
+    it('rejects replay data that is not JSON-serializable', () => {
+      const request = {
+        model: 'gpt-4o',
+        messages: [{role: 'assistant', content: 'Hi', replay: {openai: () => 1}}],
+      }
+      expect(() => CompletionRequestSchema.parse(request)).toThrow()
+    })
   })
 
   describe('CompletionChunkSchema', () => {
@@ -188,6 +240,15 @@ describe('Provider Types', () => {
         content: '',
         finishReason: 'stop',
         usage: {promptTokens: 10, completionTokens: 5},
+      }
+      expect(CompletionChunkSchema.parse(chunk)).toEqual(chunk)
+    })
+
+    it('validates final chunk carrying replay data', () => {
+      const chunk = {
+        id: 'chunk_4',
+        finishReason: 'stop',
+        replay: {openai: [{type: 'reasoning', id: 'rs_1', encrypted_content: 'abc'}]},
       }
       expect(CompletionChunkSchema.parse(chunk)).toEqual(chunk)
     })

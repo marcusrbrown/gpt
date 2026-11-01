@@ -34,6 +34,39 @@ export abstract class BaseLLMProvider {
     }
   }
 
+  /**
+   * Returns an `AbortError` when the caller's signal aborted or `err` already is one, otherwise `null`.
+   * Providers rethrow it as-is so callers can tell a deliberate stop from a failure; a fetch that rejects
+   * after an abort (any message) is treated as that abort rather than a provider error.
+   */
+  protected toAbortError(err: unknown, signal?: AbortSignal): Error | null {
+    if (signal?.aborted) {
+      const {reason} = signal
+      return reason instanceof Error && reason.name === 'AbortError'
+        ? reason
+        : new DOMException('The operation was aborted.', 'AbortError')
+    }
+    return err instanceof Error && err.name === 'AbortError' ? err : null
+  }
+
+  /**
+   * Cancels `reader` as soon as `signal` aborts so a pending `read()` settles instead of hanging.
+   * Callers check `signal.aborted` after the read loop. Returns a cleanup function.
+   */
+  protected cancelReaderOnAbort(reader: ReadableStreamDefaultReader<Uint8Array>, signal?: AbortSignal): () => void {
+    if (!signal) return () => {}
+
+    const handleAbort = () => {
+      reader.cancel().catch(() => {})
+    }
+    if (signal.aborted) {
+      handleAbort()
+      return () => {}
+    }
+    signal.addEventListener('abort', handleAbort, {once: true})
+    return () => signal.removeEventListener('abort', handleAbort)
+  }
+
   protected async withRetry<T>(
     fn: () => Promise<T>,
     options: {maxRetries?: number; baseDelayMs?: number; maxDelayMs?: number} = {},

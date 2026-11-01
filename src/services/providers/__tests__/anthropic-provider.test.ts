@@ -35,6 +35,39 @@ const createMockStreamResponse = (events: string[]) => {
   })
 }
 
+/** SSE response that emits the given events and then stays open until the reader is cancelled. */
+const createStalledStreamResponse = (events: string[]) => {
+  const encoder = new TextEncoder()
+  const stream = new ReadableStream({
+    start(controller) {
+      for (const event of events) {
+        controller.enqueue(encoder.encode(event))
+      }
+    },
+  })
+
+  return new Response(stream, {
+    status: 200,
+    headers: {'Content-Type': 'text/event-stream'},
+  })
+}
+
+const MESSAGE_START_EVENT =
+  'event: message_start\ndata: {"type":"message_start","message":{"id":"msg_abort","type":"message","role":"assistant","content":[],"model":"claude-sonnet-4-5-20250514","usage":{"input_tokens":10,"output_tokens":0}}}\n\n'
+const TEXT_DELTA_EVENT =
+  'event: content_block_delta\ndata: {"type":"content_block_delta","index":0,"delta":{"type":"text_delta","text":"Hello"}}\n\n'
+
+const NON_STREAMING_BODY = {
+  id: 'msg_test',
+  type: 'message',
+  role: 'assistant',
+  content: [{type: 'text', text: 'Response'}],
+  model: 'claude-sonnet-4-5-20250514',
+  stop_reason: 'end_turn',
+  stop_sequence: null,
+  usage: {input_tokens: 10, output_tokens: 5},
+}
+
 async function collectChunks(generator: AsyncIterable<CompletionChunk>): Promise<CompletionChunk[]> {
   const chunks: CompletionChunk[] = []
   for await (const chunk of generator) {
@@ -430,6 +463,252 @@ describe('AnthropicProvider', () => {
         const thrownError = await expectGeneratorThrows(generator, ProviderError)
         expect(thrownError.type).toBe('authentication')
       })
+    })
+  })
+
+  describe('instructions', () => {
+    const requestBody = (fetchSpy: ReturnType<typeof vi.spyOn>) =>
+      JSON.parse((fetchSpy.mock.calls[0] as [string, RequestInit])[1].body as string) as {
+        system?: string
+        messages: unknown[]
+      }
+
+    it('sends instructions as the system prompt', async () => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(createMockResponse(NON_STREAMING_BODY))
+      const provider = new AnthropicProvider()
+      provider.setApiKey('test-key')
+
+      await collectChunks(
+        provider.createCompletion({
+          model: 'claude-sonnet-4-5-20250514',
+          instructions: 'Answer in French.',
+          messages: [{role: 'user', content: 'Hello'}],
+          stream: false,
+        }),
+      )
+
+      const body = requestBody(fetchSpy)
+      expect(body.system).toBe('Answer in French.')
+      expect(body.messages).toEqual([{role: 'user', content: 'Hello'}])
+    })
+
+    it('puts instructions before an existing system message without dropping it', async () => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(createMockResponse(NON_STREAMING_BODY))
+      const provider = new AnthropicProvider()
+      provider.setApiKey('test-key')
+
+      await collectChunks(
+        provider.createCompletion({
+          model: 'claude-sonnet-4-5-20250514',
+          instructions: 'Answer in French.',
+          messages: [
+            {role: 'system', content: 'You are helpful'},
+            {role: 'user', content: 'Hello'},
+          ],
+          stream: false,
+        }),
+      )
+
+      const body = requestBody(fetchSpy)
+      expect(body.system).toBe('Answer in French.\n\nYou are helpful')
+      expect(body.messages).toEqual([{role: 'user', content: 'Hello'}])
+    })
+
+    it('keeps the existing system message when instructions are absent or empty', async () => {
+      const fetchSpy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockImplementation(async () => createMockResponse(NON_STREAMING_BODY))
+      const provider = new AnthropicProvider()
+      provider.setApiKey('test-key')
+
+      for (const instructions of [undefined, '']) {
+        await collectChunks(
+          provider.createCompletion({
+            model: 'claude-sonnet-4-5-20250514',
+            instructions,
+            messages: [
+              {role: 'system', content: 'You are helpful'},
+              {role: 'user', content: 'Hello'},
+            ],
+            stream: false,
+          }),
+        )
+      }
+
+      for (const call of fetchSpy.mock.calls) {
+        expect(JSON.parse((call[1] as RequestInit).body as string).system).toBe('You are helpful')
+      }
+    })
+
+    it('omits system when there are neither instructions nor a system message', async () => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(createMockResponse(NON_STREAMING_BODY))
+      const provider = new AnthropicProvider()
+      provider.setApiKey('test-key')
+
+      await collectChunks(
+        provider.createCompletion({
+          model: 'claude-sonnet-4-5-20250514',
+          messages: [{role: 'user', content: 'Hello'}],
+          stream: false,
+        }),
+      )
+
+      expect(requestBody(fetchSpy).system).toBeUndefined()
+    })
+
+    it('ignores replay data on messages', async () => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(createMockResponse(NON_STREAMING_BODY))
+      const provider = new AnthropicProvider()
+      provider.setApiKey('test-key')
+
+      await collectChunks(
+        provider.createCompletion({
+          model: 'claude-sonnet-4-5-20250514',
+          messages: [
+            {role: 'user', content: 'Hello'},
+            {role: 'assistant', content: 'Hi', replay: {openai: [{type: 'reasoning', encrypted_content: 'abc'}]}},
+            {role: 'user', content: 'Again'},
+          ],
+          stream: false,
+        }),
+      )
+
+      expect(requestBody(fetchSpy).messages).toEqual([
+        {role: 'user', content: 'Hello'},
+        {role: 'assistant', content: 'Hi'},
+        {role: 'user', content: 'Again'},
+      ])
+    })
+  })
+
+  describe('abort signal', () => {
+    const abortError = async (generator: AsyncIterable<CompletionChunk>): Promise<unknown> => {
+      try {
+        for await (const chunk of generator) {
+          expect(chunk).toBeDefined()
+        }
+      } catch (error_) {
+        return error_
+      }
+      throw new Error('Expected generator to throw')
+    }
+
+    it('passes the signal to fetch for streaming and non-streaming requests', async () => {
+      const fetchSpy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockResolvedValueOnce(createMockStreamResponse([MESSAGE_START_EVENT, TEXT_DELTA_EVENT]))
+        .mockResolvedValueOnce(createMockResponse(NON_STREAMING_BODY))
+      const provider = new AnthropicProvider()
+      provider.setApiKey('test-key')
+      const controller = new AbortController()
+
+      for (const stream of [true, false]) {
+        await collectChunks(
+          provider.createCompletion({
+            model: 'claude-sonnet-4-5-20250514',
+            messages: [{role: 'user', content: 'Hello'}],
+            signal: controller.signal,
+            stream,
+          }),
+        )
+      }
+
+      for (const call of fetchSpy.mock.calls) {
+        expect((call[1] as RequestInit).signal).toBe(controller.signal)
+      }
+    })
+
+    it('ends a stream with an abort error when aborted mid-stream, without a final chunk', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+        createStalledStreamResponse([MESSAGE_START_EVENT, TEXT_DELTA_EVENT]),
+      )
+      const provider = new AnthropicProvider()
+      provider.setApiKey('test-key')
+      const controller = new AbortController()
+      const received: CompletionChunk[] = []
+
+      const thrown = await abortError(
+        (async function* () {
+          for await (const chunk of provider.createCompletion({
+            model: 'claude-sonnet-4-5-20250514',
+            messages: [{role: 'user', content: 'Hello'}],
+            signal: controller.signal,
+            stream: true,
+          })) {
+            received.push(chunk)
+            if (chunk.content) controller.abort()
+            yield chunk
+          }
+        })(),
+      )
+
+      expect(thrown).toBeInstanceOf(Error)
+      expect((thrown as Error).name).toBe('AbortError')
+      expect(thrown).not.toBeInstanceOf(ProviderError)
+      expect(received.map(c => c.content).join('')).toBe('Hello')
+      expect(received.some(c => c.finishReason === 'stop')).toBe(false)
+    })
+
+    it('throws an abort error without calling fetch when the signal is already aborted', async () => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch')
+      const provider = new AnthropicProvider()
+      provider.setApiKey('test-key')
+      const controller = new AbortController()
+      controller.abort()
+
+      const thrown = await abortError(
+        provider.createCompletion({
+          model: 'claude-sonnet-4-5-20250514',
+          messages: [{role: 'user', content: 'Hello'}],
+          signal: controller.signal,
+          stream: true,
+        }),
+      )
+
+      expect((thrown as Error).name).toBe('AbortError')
+      expect(fetchSpy).not.toHaveBeenCalled()
+    })
+
+    it('surfaces a rejected fetch as an abort error, not a ProviderError, once the signal aborted', async () => {
+      const controller = new AbortController()
+      vi.spyOn(globalThis, 'fetch').mockImplementationOnce(async () => {
+        controller.abort('user stopped')
+        throw new Error('fetch failed after abort')
+      })
+      const provider = new AnthropicProvider()
+      provider.setApiKey('test-key')
+
+      const thrown = await abortError(
+        provider.createCompletion({
+          model: 'claude-sonnet-4-5-20250514',
+          messages: [{role: 'user', content: 'Hello'}],
+          signal: controller.signal,
+          stream: false,
+        }),
+      )
+
+      expect((thrown as Error).name).toBe('AbortError')
+      expect(thrown).not.toBeInstanceOf(ProviderError)
+    })
+
+    it('still wraps non-abort failures in a ProviderError when a signal is supplied', async () => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(
+        createMockResponse({type: 'error', error: {type: 'authentication_error', message: 'Invalid key'}}, 401),
+      )
+      const provider = new AnthropicProvider()
+      provider.setApiKey('test-key')
+
+      const thrown = await expectGeneratorThrows(
+        provider.createCompletion({
+          model: 'claude-sonnet-4-5-20250514',
+          messages: [{role: 'user', content: 'Hello'}],
+          signal: new AbortController().signal,
+          stream: false,
+        }),
+        ProviderError,
+      )
+
+      expect(thrown.type).toBe('authentication')
     })
   })
 

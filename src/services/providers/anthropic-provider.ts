@@ -189,6 +189,10 @@ export class AnthropicProvider extends BaseLLMProvider {
       throw new ProviderError('API key not set', 'authentication', 'anthropic')
     }
 
+    const {signal} = request
+    const aborted = this.toAbortError(undefined, signal)
+    if (aborted) throw aborted
+
     const resolvedModel = this.resolveModel(request.model)
 
     if (!rateLimiter.canMakeRequest(resolvedModel)) {
@@ -207,18 +211,18 @@ export class AnthropicProvider extends BaseLLMProvider {
 
     try {
       if (request.stream) {
-        yield* this.createStreamingCompletion(anthropicRequest, {use1MContext})
+        yield* this.createStreamingCompletion(anthropicRequest, {use1MContext, signal})
       } else {
-        yield* this.createNonStreamingCompletion(anthropicRequest, {use1MContext})
+        yield* this.createNonStreamingCompletion(anthropicRequest, {use1MContext, signal})
       }
     } catch (error_) {
-      throw this.mapError(error_)
+      throw this.toAbortError(error_, signal) ?? this.mapError(error_)
     }
   }
 
   private async *createStreamingCompletion(
     anthropicRequest: AnthropicRequest,
-    options?: {use1MContext?: boolean},
+    options?: {use1MContext?: boolean; signal?: AbortSignal},
   ): AsyncIterable<CompletionChunk> {
     const apiKey = this.apiKey
     if (!apiKey) {
@@ -230,6 +234,7 @@ export class AnthropicProvider extends BaseLLMProvider {
         method: 'POST',
         headers: this.buildHeaders(apiKey, options),
         body: JSON.stringify({...anthropicRequest, stream: true}),
+        signal: options?.signal,
       }),
     )
 
@@ -247,6 +252,7 @@ export class AnthropicProvider extends BaseLLMProvider {
     let messageId = ''
     let totalInputTokens = 0
     let totalOutputTokens = 0
+    const stopWatchingAbort = this.cancelReaderOnAbort(reader, options?.signal)
 
     try {
       while (true) {
@@ -285,19 +291,23 @@ export class AnthropicProvider extends BaseLLMProvider {
         }
       }
 
+      // A cancelled reader reports `done`, so a stopped stream must not look like a finished one.
+      options?.signal?.throwIfAborted()
+
       yield {
         id: messageId,
         finishReason: 'stop',
         usage: {promptTokens: totalInputTokens, completionTokens: totalOutputTokens},
       }
     } finally {
+      stopWatchingAbort()
       reader.releaseLock()
     }
   }
 
   private async *createNonStreamingCompletion(
     anthropicRequest: AnthropicRequest,
-    options?: {use1MContext?: boolean},
+    options?: {use1MContext?: boolean; signal?: AbortSignal},
   ): AsyncIterable<CompletionChunk> {
     const apiKey = this.apiKey
     if (!apiKey) {
@@ -309,6 +319,7 @@ export class AnthropicProvider extends BaseLLMProvider {
         method: 'POST',
         headers: this.buildHeaders(apiKey, options),
         body: JSON.stringify(anthropicRequest),
+        signal: options?.signal,
       }),
     )
 
@@ -425,8 +436,10 @@ export class AnthropicProvider extends BaseLLMProvider {
       max_tokens: maxTokens,
     }
 
-    if (systemMessage) {
-      anthropicRequest.system = systemMessage.content
+    // Instructions come first; the existing system message is kept after them.
+    const system = [request.instructions, systemMessage?.content].filter(Boolean).join('\n\n')
+    if (system) {
+      anthropicRequest.system = system
     }
 
     if (anthropicOptions?.extendedThinking?.enabled) {

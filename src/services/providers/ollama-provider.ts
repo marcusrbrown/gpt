@@ -126,26 +126,39 @@ export class OllamaProvider extends BaseLLMProvider {
   }
 
   async *createCompletion(request: CompletionRequest): AsyncIterable<CompletionChunk> {
+    const {signal} = request
+    const aborted = this.toAbortError(undefined, signal)
+    if (aborted) throw aborted
+
     const ollamaRequest = this.mapToOllamaRequest(request)
 
     try {
       if (request.stream) {
-        yield* this.createStreamingCompletion(ollamaRequest)
+        yield* this.createStreamingCompletion(ollamaRequest, signal)
       } else {
-        yield* this.createNonStreamingCompletion(ollamaRequest)
+        yield* this.createNonStreamingCompletion(ollamaRequest, signal)
       }
     } catch (error_) {
-      throw this.mapError(error_)
+      throw this.toAbortError(error_, signal) ?? this.mapError(error_)
     }
   }
 
-  private async *createStreamingCompletion(ollamaRequest: OllamaChatRequest): AsyncIterable<CompletionChunk> {
+  /** The configured request timeout, combined with the caller's abort signal when there is one. */
+  private buildRequestSignal(signal?: AbortSignal): AbortSignal {
+    const timeoutSignal = AbortSignal.timeout(this.config.timeout)
+    return signal ? AbortSignal.any([timeoutSignal, signal]) : timeoutSignal
+  }
+
+  private async *createStreamingCompletion(
+    ollamaRequest: OllamaChatRequest,
+    abortSignal?: AbortSignal,
+  ): AsyncIterable<CompletionChunk> {
     const response = await this.withRetry(async () =>
       fetch(`${this.config.baseUrl}/api/chat`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({...ollamaRequest, stream: true}),
-        signal: AbortSignal.timeout(this.config.timeout),
+        signal: this.buildRequestSignal(abortSignal),
       }),
     )
 
@@ -164,6 +177,7 @@ export class OllamaProvider extends BaseLLMProvider {
     let totalContent = ''
     let promptTokens = 0
     let completionTokens = 0
+    const stopWatchingAbort = this.cancelReaderOnAbort(reader, abortSignal)
 
     try {
       while (true) {
@@ -196,6 +210,9 @@ export class OllamaProvider extends BaseLLMProvider {
         }
       }
 
+      // A cancelled reader reports `done`, so a stopped stream must not look like a finished one.
+      abortSignal?.throwIfAborted()
+
       // Handle thinking content for reasoning models
       const thinkingResult = parseThinkingContent(totalContent)
       if (thinkingResult.hasThinking) {
@@ -211,17 +228,21 @@ export class OllamaProvider extends BaseLLMProvider {
         usage: {promptTokens, completionTokens},
       }
     } finally {
+      stopWatchingAbort()
       reader.releaseLock()
     }
   }
 
-  private async *createNonStreamingCompletion(ollamaRequest: OllamaChatRequest): AsyncIterable<CompletionChunk> {
+  private async *createNonStreamingCompletion(
+    ollamaRequest: OllamaChatRequest,
+    abortSignal?: AbortSignal,
+  ): AsyncIterable<CompletionChunk> {
     const response = await this.withRetry(async () =>
       fetch(`${this.config.baseUrl}/api/chat`, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({...ollamaRequest, stream: false}),
-        signal: AbortSignal.timeout(this.config.timeout),
+        signal: this.buildRequestSignal(abortSignal),
       }),
     )
 
@@ -330,6 +351,11 @@ export class OllamaProvider extends BaseLLMProvider {
       role: m.role as 'system' | 'user' | 'assistant',
       content: m.content,
     }))
+
+    // Instructions go first, ahead of any system message already in the history.
+    if (request.instructions) {
+      messages.unshift({role: 'system', content: request.instructions})
+    }
 
     // Check if model supports thinking and modify system prompt for qwen3
     const modelName = request.model.toLowerCase()
