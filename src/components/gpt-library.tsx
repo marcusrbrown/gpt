@@ -208,7 +208,7 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
             {searchQuery ? 'No GPTs match your search' : viewMode === 'active' ? 'No GPTs yet' : 'No archived GPTs'}
           </p>
           {viewMode === 'active' && !searchQuery && (
-            <Button className="mt-4" variant="primary" onPress={onCreateGPT} data-testid="create-first-gpt-button">
+            <Button className="mt-4 h-10" variant="primary" onPress={onCreateGPT} data-testid="create-first-gpt-button">
               <Plus className="h-4 w-4" />
               Create your first GPT
             </Button>

@@ -60,7 +60,7 @@ export function NoProvidersPrompt() {
         Anthropic, or Ollama credentials in Settings.
       </p>
 
-      <Button variant="primary" size="lg" onPress={handleNavigateToSettings}>
+      <Button variant="primary" size="lg" className="h-12" onPress={handleNavigateToSettings}>
         <Settings size={18} />
         Configure Providers
       </Button>
