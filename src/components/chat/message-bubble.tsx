@@ -11,6 +11,8 @@ interface MessageBubbleProps {
   onCopy?: (content: string) => void
   onRegenerate?: () => void
   assistantName?: string
+  stopped?: boolean
+  regenerateDisabled?: boolean
 }
 
 export function MessageBubble({
@@ -22,6 +24,8 @@ export function MessageBubble({
   onCopy,
   onRegenerate,
   assistantName = 'Assistant',
+  stopped,
+  regenerateDisabled,
 }: MessageBubbleProps) {
   const [copied, setCopied] = useState(false)
   const isUser = role === 'user'
@@ -88,10 +92,12 @@ export function MessageBubble({
           )}
         </div>
 
+        {stopped && <span className="mt-1 ml-1 text-xs text-content-secondary">Stopped</span>}
+
         {/* Footer: Timestamp & Actions */}
         <div
           className={cn(
-            'flex items-center gap-2 mt-1 px-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200',
+            'flex items-center gap-2 mt-1 px-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200',
             isUser ? 'flex-row-reverse' : 'flex-row',
           )}
         >
@@ -115,6 +121,7 @@ export function MessageBubble({
                 <button
                   type="button"
                   onClick={onRegenerate}
+                  disabled={regenerateDisabled}
                   className="p-1 rounded hover:bg-surface-tertiary text-content-tertiary hover:text-content-primary transition-colors"
                   title="Regenerate response"
                   aria-label="Regenerate response"

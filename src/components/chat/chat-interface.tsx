@@ -1,7 +1,12 @@
 import type {Conversation, ConversationMessage, GPTConfiguration} from '@/types/gpt'
-import {Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, Tooltip, useDisclosure} from '@heroui/react'
+import type {ChatProviderStatus, ChatTurnError} from '@/hooks/use-chat-completion'
+import {GPTProviderPrompt} from '@/components/empty-states/gpt-provider-prompt'
+import '@/styles/heroui-v3.css'
+import {Button} from '@heroui-v3/react'
+import {Drawer, DrawerBody, DrawerContent, DrawerHeader, Tooltip, useDisclosure} from '@heroui/react'
 import {Menu, MessageSquare, MoreVertical, Trash2} from 'lucide-react'
 import React, {useEffect, useRef, useState} from 'react'
+import {Link} from 'react-router-dom'
 
 import {ChatInput} from './chat-input'
 import {MessageBubble} from './message-bubble'
@@ -20,6 +25,14 @@ interface ChatInterfaceProps {
   conversationName?: string
   error?: string | null
   processingMessage?: string
+  providerName: string
+  model: string
+  status: ChatProviderStatus
+  isStreaming: boolean
+  streamingMessageId: string | null
+  turnErrors: Record<string, ChatTurnError>
+  onStop: () => void
+  onRetry: (id: string) => void
 }
 
 export function ChatInterface({
@@ -35,15 +48,24 @@ export function ChatInterface({
   conversationName = 'New Chat',
   error,
   processingMessage,
+  providerName,
+  model,
+  status,
+  isStreaming,
+  streamingMessageId,
+  turnErrors,
+  onStop,
+  onRetry,
 }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const nearBottomRef = useRef(true)
   const {isOpen, onOpen, onOpenChange} = useDisclosure()
   const [isMobile, setIsMobile] = useState(false)
 
   // Auto-scroll to bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
-  }, [messages, isLoading])
+    if (!isStreaming || nearBottomRef.current) messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
+  }, [messages, isLoading, isStreaming])
 
   // Responsive check
   useEffect(() => {
@@ -122,15 +144,24 @@ export function ChatInterface({
         <header className="h-14 flex items-center justify-between px-4 border-b border-border-subtle bg-surface-primary/80 backdrop-blur-md z-10 transition-colors">
           <div className="flex items-center gap-2 min-w-0">
             {isMobile && (
-              <Button isIconOnly variant="light" size="sm" onPress={onOpen} className="-ml-2">
+              <Button
+                isIconOnly
+                variant="tertiary"
+                size="sm"
+                onPress={onOpen}
+                className="-ml-2 flex items-center gap-2"
+                aria-label="Open menu"
+              >
                 <Menu size={20} className="text-content-secondary" />
               </Button>
             )}
             <div className="flex flex-col min-w-0">
               <h1 className="text-sm font-semibold text-content-primary truncate">{conversationName}</h1>
               <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-success-500 animate-pulse" />
-                <span className="text-[10px] text-content-tertiary font-medium">GPT-4o</span>
+                <span className={`w-1.5 h-1.5 rounded-full bg-success-500 ${isStreaming ? 'animate-pulse' : ''}`} />
+                <span className="text-[10px] text-content-tertiary font-medium">
+                  {model ? `${providerName} · ${model}` : 'No model set'}
+                </span>
               </div>
             </div>
           </div>
@@ -138,22 +169,35 @@ export function ChatInterface({
             <Tooltip content="Clear conversation">
               <Button
                 isIconOnly
-                variant="light"
+                variant="tertiary"
                 size="sm"
-                className="text-content-tertiary hover:text-danger hover:bg-danger-50"
+                className="flex items-center gap-2 text-content-tertiary hover:text-danger hover:bg-danger-50"
                 onPress={onClearConversation}
+                aria-label="Clear conversation"
               >
                 <Trash2 size={18} />
               </Button>
             </Tooltip>
-            <Button isIconOnly variant="light" size="sm" className="text-content-tertiary hover:text-content-primary">
+            <Button
+              isIconOnly
+              variant="tertiary"
+              size="sm"
+              className="flex items-center gap-2 text-content-tertiary hover:text-content-primary"
+              aria-label="More options"
+            >
               <MoreVertical size={18} />
             </Button>
           </div>
         </header>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 scroll-smooth custom-scrollbar">
+        <div
+          className="flex-1 overflow-y-auto px-4 py-6 scroll-smooth custom-scrollbar"
+          onScroll={event => {
+            const element = event.currentTarget
+            nearBottomRef.current = element.scrollHeight - element.scrollTop - element.clientHeight < 100
+          }}
+        >
           <div className="max-w-3xl mx-auto space-y-8">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-[60vh] text-center px-4 animate-in fade-in zoom-in-95 duration-500">
@@ -180,14 +224,29 @@ export function ChatInterface({
                   </div>
                   <div className="space-y-6">
                     {msgs.map(msg => (
-                      <MessageBubble
-                        key={msg.id}
-                        role={msg.role === 'tool' ? 'system' : msg.role}
-                        content={msg.content}
-                        timestamp={new Date(msg.timestamp)}
-                        assistantName={gptConfig.name}
-                        onRegenerate={msg.role === 'assistant' ? onRegenerate : undefined}
-                      />
+                      <React.Fragment key={msg.id}>
+                        <MessageBubble
+                          key={msg.id}
+                          role={msg.role === 'tool' ? 'system' : msg.role}
+                          content={msg.content}
+                          timestamp={new Date(msg.timestamp)}
+                          assistantName={gptConfig.name}
+                          onRegenerate={
+                            msg.role === 'assistant' && msg.id === messages.at(-1)?.id ? onRegenerate : undefined
+                          }
+                          regenerateDisabled={isStreaming}
+                          isLoading={msg.id === streamingMessageId && !msg.content}
+                          stopped={msg.metadata?.stopped}
+                        />
+                        {turnErrors[msg.id] && (
+                          <div role="alert" className="text-danger-700 text-sm text-right">
+                            {turnErrors[msg.id]?.message}{' '}
+                            <Button variant="tertiary" size="sm" onPress={() => onRetry(msg.id)}>
+                              Retry
+                            </Button>
+                          </div>
+                        )}
+                      </React.Fragment>
                     ))}
                   </div>
                 </div>
@@ -227,7 +286,23 @@ export function ChatInterface({
         </div>
 
         {/* Input Area */}
-        <ChatInput onSendMessage={onSendMessage} isDisabled={isLoading} />
+        {status === 'not-configured' ? (
+          <GPTProviderPrompt providerName={providerName} />
+        ) : status === 'unsupported' ? (
+          <div className="border-t border-border-default p-4 text-center text-sm text-content-secondary">
+            Azure isn’t supported yet.{' '}
+            <Link className="text-primary-600 underline" to={`/gpt/edit/${gptConfig.id}`}>
+              Edit GPT
+            </Link>
+          </div>
+        ) : (
+          <ChatInput
+            onSendMessage={onSendMessage}
+            isDisabled={isLoading || status === 'loading'}
+            isStreaming={isStreaming}
+            onStop={onStop}
+          />
+        )}
       </div>
     </div>
   )

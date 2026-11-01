@@ -1,15 +1,24 @@
 import {cn, ds} from '@/lib/design-system'
-import {Button} from '@heroui/react'
-import {Paperclip, Send} from 'lucide-react'
+import '@/styles/heroui-v3.css'
+import {Button} from '@heroui-v3/react'
+import {Paperclip, Send, Square} from 'lucide-react'
 import React, {useRef, useState} from 'react'
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void
   isDisabled?: boolean
+  isStreaming?: boolean
+  onStop?: () => void
   placeholder?: string
 }
 
-export function ChatInput({onSendMessage, isDisabled, placeholder = 'Type a message...'}: ChatInputProps) {
+export function ChatInput({
+  onSendMessage,
+  isDisabled,
+  isStreaming,
+  onStop,
+  placeholder = 'Type a message...',
+}: ChatInputProps) {
   const [message, setMessage] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -27,7 +36,7 @@ export function ChatInput({onSendMessage, isDisabled, placeholder = 'Type a mess
   }
 
   const handleSend = () => {
-    if (message.trim() && !isDisabled) {
+    if (message.trim() && !isDisabled && !isStreaming) {
       onSendMessage(message)
       setMessage('')
       if (textareaRef.current) {
@@ -52,10 +61,10 @@ export function ChatInput({onSendMessage, isDisabled, placeholder = 'Type a mess
         {/* Attachment Button (Future Feature) */}
         <Button
           isIconOnly
-          variant="light"
+          variant="tertiary"
           size="sm"
-          className="text-content-tertiary hover:text-content-primary transition-colors data-[hover=true]:bg-surface-tertiary rounded-full h-9 w-9 shrink-0 mb-0.5"
-          isDisabled={isDisabled}
+          className="flex items-center gap-2 text-content-tertiary hover:text-content-primary transition-colors data-[hover=true]:bg-surface-tertiary rounded-full h-9 w-9 shrink-0 mb-0.5"
+          isDisabled={isDisabled || isStreaming}
           aria-label="Attach file"
         >
           <Paperclip size={18} />
@@ -68,7 +77,7 @@ export function ChatInput({onSendMessage, isDisabled, placeholder = 'Type a mess
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           rows={1}
-          disabled={isDisabled}
+          disabled={isDisabled || isStreaming}
           aria-label="Enter your message to send to the GPT"
           className="flex-1 max-h-[200px] min-h-[40px] py-2 px-1 bg-transparent border-none outline-none resize-none text-content-primary placeholder:text-content-tertiary disabled:opacity-50 text-sm leading-6"
           style={{scrollbarWidth: 'thin'}}
@@ -77,19 +86,18 @@ export function ChatInput({onSendMessage, isDisabled, placeholder = 'Type a mess
         <Button
           isIconOnly
           size="sm"
-          color={message.trim() ? 'primary' : 'default'}
-          variant={message.trim() ? 'solid' : 'flat'}
-          isDisabled={!message.trim() || isDisabled}
-          onPress={handleSend}
+          variant={isStreaming || message.trim() ? 'primary' : 'secondary'}
+          isDisabled={!isStreaming && (!message.trim() || isDisabled)}
+          onPress={isStreaming ? onStop : handleSend}
           className={cn(
-            'transition-all duration-200 rounded-full h-9 w-9 shrink-0 mb-0.5 shadow-sm',
-            message.trim()
+            'flex items-center gap-2 transition-all duration-200 rounded-full h-9 w-9 shrink-0 mb-0.5 shadow-sm',
+            isStreaming || message.trim()
               ? 'opacity-100 hover:scale-105 active:scale-95'
               : 'opacity-40 hover:opacity-100 bg-surface-tertiary text-content-secondary',
           )}
-          aria-label="Send message to GPT assistant"
+          aria-label={isStreaming ? 'Stop generating' : 'Send message to GPT assistant'}
         >
-          <Send size={16} className={cn(message.trim() && 'ml-0.5')} />
+          {isStreaming ? <Square size={16} /> : <Send size={16} className={cn(message.trim() && 'ml-0.5')} />}
         </Button>
       </div>
       <div className="text-center mt-3">

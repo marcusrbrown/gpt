@@ -3,37 +3,45 @@ import type {ConversationMessage, GPTConfiguration} from '@/types/gpt'
 import {StorageContext} from '@/contexts/storage-context'
 import {render, screen, waitFor} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import {useState} from 'react'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {GPTTestPage} from '../gpt-test-page'
 
-const routeState = vi.hoisted(() => ({conversationId: undefined as string | undefined}))
-
-const openAIService = vi.hoisted(() => ({
-  setApiKey: vi.fn(),
-  // Never resolves: the assistant stays "initializing" so the sent message is the only chat state.
-  createAssistant: vi.fn(async () => new Promise<never>(() => {})),
-  createThread: vi.fn(),
-  addMessage: vi.fn(),
-  streamRun: vi.fn(),
+const routeState = vi.hoisted(() => ({
+  conversationId: undefined as string | undefined,
+  initialPrompt: undefined as string | undefined,
+  options: vi.fn(),
 }))
 
 vi.mock('react-router-dom', () => ({
   useParams: () => ({gptId: 'gpt-1', conversationId: routeState.conversationId}),
-  useLocation: () => ({state: null}),
+  useLocation: () => ({state: routeState.initialPrompt ? {initialPrompt: routeState.initialPrompt} : null}),
   useNavigate: () => vi.fn(),
 }))
 
-vi.mock('@/hooks/use-session', () => ({
-  useSession: () => ({getSecret: vi.fn().mockResolvedValue('sk-test')}),
-}))
-
-vi.mock('@/hooks/use-openai-service', () => ({
-  useOpenAIService: () => openAIService,
-}))
-
-vi.mock('@/hooks/use-mcp', () => ({
-  useMCP: () => ({callTool: vi.fn()}),
-  useAllConnectedTools: () => [],
+vi.mock('@/hooks/use-chat-completion', () => ({
+  useChatCompletion: (options: unknown) => {
+    routeState.options(options)
+    const [messages, setMessages] = useState<ConversationMessage[]>([])
+    return {
+      messages,
+      conversationTitle: 'New Chat',
+      status: 'ready',
+      providerName: 'OpenAI',
+      model: 'gpt-4',
+      isStreaming: false,
+      streamingMessageId: null,
+      isLoadingConversation: false,
+      turnErrors: {},
+      send: async (content: string) => {
+        setMessages([{id: 'user', role: 'user', content, timestamp: new Date()}])
+      },
+      stop: vi.fn(),
+      regenerate: vi.fn(),
+      retry: vi.fn(),
+      reset: vi.fn(),
+    }
+  },
 }))
 
 vi.mock('@/components/chat', () => ({
@@ -89,6 +97,7 @@ function renderPage(storage: StorageContextType) {
 describe('GPTTestPage new-chat reset', () => {
   beforeEach(() => {
     routeState.conversationId = undefined
+    routeState.initialPrompt = undefined
     vi.clearAllMocks()
   })
 
@@ -96,11 +105,8 @@ describe('GPTTestPage new-chat reset', () => {
     const user = userEvent.setup()
     const {rerender} = render(renderPage(createStorage()))
 
-    // Wait for the GPT config and API key to load before sending.
+    // Wait for the GPT config before sending.
     await screen.findByRole('button', {name: 'send'})
-    await waitFor(() => {
-      expect(openAIService.setApiKey).toHaveBeenCalledWith('sk-test')
-    })
 
     await user.click(screen.getByRole('button', {name: 'send'}))
     expect(await screen.findByText('hello')).toBeInTheDocument()
@@ -111,5 +117,17 @@ describe('GPTTestPage new-chat reset', () => {
     await waitFor(() => {
       expect(screen.getByText('hello')).toBeInTheDocument()
     })
+  })
+
+  it('passes the navigation prompt to the completion hook', async () => {
+    routeState.initialPrompt = 'from showcase'
+    render(renderPage(createStorage()))
+    await screen.findByRole('button', {name: 'send'})
+    expect(routeState.options).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        initialPrompt: 'from showcase',
+        onInitialPromptSent: expect.any(Function),
+      }),
+    )
   })
 })

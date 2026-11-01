@@ -8,7 +8,7 @@ Business logic layer. Boundary between UI and external systems.
 | -------------------------------- | ----------------------------------------------- |
 | `storage.ts`                     | Dexie wrapper, LRU cache, BroadcastChannel sync |
 | `encryption.ts`                  | Web Crypto AES-GCM + PBKDF2 for secrets         |
-| `openai-service.ts`              | OpenAI API calls, streaming, tool execution     |
+| `providers/openai-provider.ts`   | OpenAI Responses API streaming                  |
 | `mcp-client-service.ts`          | MCP server connection, tool discovery           |
 | `mcp-oauth-provider.ts`          | OAuth flow for MCP server auth                  |
 | `knowledge-service.ts`           | Knowledge base file/URL processing              |

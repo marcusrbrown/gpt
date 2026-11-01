@@ -85,6 +85,14 @@ function App() {
                 </main>
               }
             />
+            <Route
+              path="/gpt/test/:gptId/c/:conversationId"
+              element={
+                <main id="main-content" tabIndex={-1} className={ds.animation.slideIn}>
+                  <GPTTestPage />
+                </main>
+              }
+            />
 
             <Route path="/backup" element={<BackupRestorePage />} />
 
