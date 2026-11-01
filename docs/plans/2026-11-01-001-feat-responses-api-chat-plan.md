@@ -1,7 +1,7 @@
 ---
 title: "feat: Move chat off the retired Assistants API onto the provider layer"
 type: feat
-status: active
+status: completed
 date: 2026-11-01
 ---
 
@@ -176,7 +176,7 @@ The current chat also carries broken behavior that should not be ported:
 
 ## Implementation Units
 
-- [ ] **Unit 1: Extend the provider contract with instructions, abort and replay data**
+- [x] **Unit 1: Extend the provider contract with instructions, abort and replay data**
 
 **Goal:** `createCompletion` accepts top-level instructions and an abort signal, and messages can carry opaque per-provider replay data.
 
@@ -206,7 +206,7 @@ The current chat also carries broken behavior that should not be ported:
 
 **Verification:** Existing provider tests pass; the new cases pass.
 
-- [ ] **Unit 2: Reimplement OpenAI completions on the Responses API**
+- [x] **Unit 2: Reimplement OpenAI completions on the Responses API**
 
 **Goal:** OpenAI streaming uses `responses.stream` with `store: false`, full history, instructions, abort and optional encrypted reasoning.
 
@@ -240,7 +240,7 @@ The current chat also carries broken behavior that should not be ported:
 
 **Verification:** The new provider tests pass. No Chat Completions call remains in the file.
 
-- [ ] **Unit 3: Persist message metadata**
+- [x] **Unit 3: Persist message metadata**
 
 **Goal:** Saved assistant messages keep `{provider, model, stopped?, replay data?}` across save, load, export and import.
 
@@ -270,7 +270,7 @@ The current chat also carries broken behavior that should not be ported:
 
 **Verification:** Storage and database tests pass; old fixture data still loads.
 
-- [ ] **Unit 4: Chat orchestration hook**
+- [x] **Unit 4: Chat orchestration hook**
 
 **Goal:** One hook runs chat turns through the provider layer: provider resolution, send, stream, stop, regenerate, retry and autosave.
 
@@ -310,7 +310,7 @@ The current chat also carries broken behavior that should not be ported:
 
 **Verification:** The hook tests pass, with a fake provider standing in for the real ones.
 
-- [ ] **Unit 5: Rewrite the chat page and UI; remove the Assistants service**
+- [x] **Unit 5: Rewrite the chat page and UI; remove the Assistants service**
 
 **Goal:** The chat page uses the hook and shows the provider status, stop control, stopped and failed turns, and the real model. The Assistants code is gone.
 
@@ -351,7 +351,7 @@ The current chat also carries broken behavior that should not be ported:
 
 **Verification:** Unit tests and lint pass. A search for `beta.assistants`, `beta.threads`, `openai-service` and `use-openai-service` under `src/` finds nothing.
 
-- [ ] **Unit 6: Mocked end-to-end chat and docs**
+- [x] **Unit 6: Mocked end-to-end chat and docs**
 
 **Goal:** One e2e test proves a full chat round-trip, and docs no longer describe the Assistants path.
 
