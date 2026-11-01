@@ -108,6 +108,12 @@ interface ChatView {
   loadedGptId: string | undefined
   saveError: string | null
   /**
+   * True while no stored record is known to exist for this view: a new chat, or a route id that held nothing when it was
+   * opened. Only then may a save create the record. For a conversation that was loaded (or already saved), a missing
+   * record means it was deleted since, and a save must not bring it back.
+   */
+  mayCreate: boolean
+  /**
    * Counts the views shown by this hook: it steps when the screen moves to another conversation or a new chat, never
    * when a new chat is assigned its id. Async work remembers the generation it started in; once the hook is on another
    * one (or unmounted) that work must not report to the page.
@@ -123,6 +129,8 @@ interface SaveJob {
   title: string
   messages: ConversationMessage[]
   generation: number
+  /** See `ChatView.mayCreate`. */
+  mayCreate: boolean
 }
 
 interface ChatRun {
@@ -143,6 +151,8 @@ interface ChatRun {
   detached: boolean
   /** The view generation the run started in. */
   generation: number
+  /** See `ChatView.mayCreate`, as of when the run started. */
+  mayCreate: boolean
 }
 
 function createView(conversationId: string | undefined, isLoading: boolean, generation: number): ChatView {
@@ -155,6 +165,7 @@ function createView(conversationId: string | undefined, isLoading: boolean, gene
     loadError: null,
     loadedGptId: undefined,
     saveError: null,
+    mayCreate: conversationId === undefined,
     generation,
     errors: {},
   }
@@ -315,6 +326,8 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
         // Merge into the stored record so pins, tags and creation date set elsewhere survive the autosave. A read
         // that fails rejects instead of looking like a new conversation, so unreadable history is never overwritten.
         const existing = await currentStorage.getConversation(job.conversationId)
+        // Deleted since this chat was opened (or last saved): leave it deleted.
+        if (existing === undefined && !job.mayCreate) return
         isNew = existing === undefined
         const now = new Date()
         conversation = {
@@ -347,7 +360,9 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
       if (generationRef.current !== job.generation) return
       if (failedSaveRef.current?.conversationId === job.conversationId) failedSaveRef.current = null
       setView(prev =>
-        prev.conversationId === job.conversationId && prev.saveError !== null ? {...prev, saveError: null} : prev,
+        prev.conversationId === job.conversationId && (prev.saveError !== null || prev.mayCreate)
+          ? {...prev, saveError: null, mayCreate: false}
+          : prev,
       )
       notify?.(conversation, {isNew})
     })
@@ -361,6 +376,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
         title: run.title,
         messages,
         generation: run.generation,
+        mayCreate: run.mayCreate,
       }),
     [saveJob],
   )
@@ -487,6 +503,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
         settled: false,
         detached: false,
         generation: base.generation,
+        mayCreate: base.mayCreate,
       }
 
       runRef.current = run
@@ -499,6 +516,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
         loadError: null,
         loadedGptId: undefined,
         saveError: base.saveError,
+        mayCreate: base.mayCreate,
         generation: base.generation,
         errors: {},
       })
@@ -597,6 +615,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
               isLoading: false,
               loadError,
               loadedGptId: loaded?.gptId,
+              mayCreate: loaded === undefined,
               messages: loaded?.messages ?? [],
               title: loaded?.title,
             }
@@ -622,8 +641,10 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
     const failed = failedSaveRef.current
     if (!failed || failed.generation !== generationRef.current) return
     if (view.conversationId !== failed.conversationId || view.streamingId !== null) return
-    saveJob({...failed, title: view.title ?? failed.title, messages: view.messages}).catch(console.error)
-  }, [saveJob, view.conversationId, view.messages, view.streamingId, view.title])
+    saveJob({...failed, title: view.title ?? failed.title, messages: view.messages, mayCreate: view.mayCreate}).catch(
+      console.error,
+    )
+  }, [saveJob, view.conversationId, view.mayCreate, view.messages, view.streamingId, view.title])
 
   // Send the navigation prompt exactly once per GPT, after key validation finishes.
   const gptId = gpt?.id

@@ -164,6 +164,8 @@ interface Env {
   saveConversation: ReturnType<typeof vi.fn<(conversation: Conversation) => Promise<void>>>
   /** Runs inside every save before it is stored. A returned promise holds the save; a rejection fails it. */
   onSave: ((conversation: Conversation) => Promise<void> | undefined) | undefined
+  /** Runs at the start of every read, before the stored record is looked up. A returned promise holds the read. */
+  onRead: ((id: string) => Promise<void> | undefined) | undefined
 }
 
 function createEnv(): Env {
@@ -184,6 +186,7 @@ function createEnv(): Env {
       stored.set(conversation.id, conversation)
     }),
     onSave: undefined,
+    onRead: undefined,
   }
   return created
 }
@@ -228,6 +231,7 @@ function RealStorageWrapper({children}: {children: ReactNode}) {
 function Wrapper({children}: {children: ReactNode}) {
   const storage = {
     getConversation: vi.fn(async (id: string) => {
+      await env.onRead?.(id)
       if (env.loadError) throw env.loadError
       return env.stored.get(id)
     }),
@@ -990,6 +994,40 @@ describe('useChatCompletion', () => {
       })
 
       expect(onConversationSaved).not.toHaveBeenCalled()
+    })
+
+    it('does not recreate a conversation that was deleted while its save was queued', async () => {
+      const onConversationSaved = await openConversationA()
+      const gate = deferred()
+      env.onRead = async () => gate.promise
+      const pending = startSend(hook, 'q')
+      await completeWithoutWaiting(streamAt('openai', 0))
+
+      env.stored.delete('conv-a')
+      await act(async () => {
+        gate.resolve()
+        await pending
+      })
+
+      expect(env.saveConversation).not.toHaveBeenCalled()
+      expect(env.stored.has('conv-a')).toBe(false)
+      expect(onConversationSaved).not.toHaveBeenCalled()
+      expect(hook.result.current.saveError).toBeNull()
+      expect(hook.result.current.messages.map(message => message.content)).toEqual(['earlier q', 'earlier a', 'q', ''])
+    })
+
+    it('still creates a conversation for a route id that was never saved', async () => {
+      const onConversationSaved = vi.fn()
+      hook = setup({conversationId: 'never-saved', onConversationSaved})
+      await waitFor(() => {
+        expect(hook.result.current.isLoadingConversation).toBe(false)
+      })
+
+      const pending = startSend(hook, 'hello')
+      await finish(streamAt('openai', 0), pending)
+
+      expect(contents(storedConversation('never-saved'))).toEqual(['hello', ''])
+      expect(onConversationSaved).toHaveBeenCalledTimes(1)
     })
 
     it('shows the stop-saved text when the user leaves a conversation mid-stream and returns before the save lands', async () => {
