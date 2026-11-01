@@ -1544,7 +1544,7 @@ describe('useChatCompletion', () => {
     it('exposes the error and blocks send, regenerate and retry so the stored history is never overwritten', async () => {
       await openFailingConversation()
 
-      expect(hook.result.current.loadError).toEqual({kind: 'read-failed', message: 'IndexedDB unavailable'})
+      expect(hook.result.current.loadError).toEqual({kind: 'read-failed', message: "Couldn't load this conversation."})
       expect(hook.result.current.messages).toEqual([])
 
       await startSend(hook, 'new turn')
@@ -1606,7 +1606,7 @@ describe('useChatCompletion', () => {
       await waitFor(() => {
         expect(hook.result.current.isLoadingConversation).toBe(false)
       })
-      expect(hook.result.current.loadError).toEqual({kind: 'read-failed', message: 'IndexedDB unavailable'})
+      expect(hook.result.current.loadError).toEqual({kind: 'read-failed', message: "Couldn't load this conversation."})
     })
 
     it('is cleared by switching to another conversation', async () => {
@@ -1754,7 +1754,7 @@ describe('useChatCompletion', () => {
 
         expect(hook.result.current.loadError).toEqual({
           kind: 'read-failed',
-          message: 'Failed to get conversation conv-a',
+          message: "Couldn't load this conversation.",
         })
         expect(hook.result.current.messages).toEqual([])
 

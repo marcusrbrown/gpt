@@ -634,7 +634,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
         loaded = await latestRef.current.storage.getConversation(loadingId)
       } catch (error_) {
         console.error('Failed to load conversation', error_)
-        loadError = error_ instanceof Error && error_.message ? error_.message : 'Could not load this conversation'
+        loadError = "Couldn't load this conversation."
       }
       if (cancelled) return
       setView(prev =>
