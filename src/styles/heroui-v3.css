@@ -14,3 +14,16 @@
 @import '@heroui-v3/styles/themes/default' layer(theme);
 
 @import '@heroui-v3/styles/components/button.css' layer(components);
+@import '@heroui-v3/styles/components/spinner.css' layer(components);
+
+/*
+ * Keep v3 buttons on the app's v2 brand colours. White text on the v3 default accent and danger is
+ * 3.6:1 and 3.5:1 (WCAG AA needs 4.5:1 for normal text); the v2 values are 4.5:1 and 4.0:1, so this
+ * is parity with v2, not a new failure. Drop it at cutover together with the v2 plugin.
+ */
+@layer base {
+  :root {
+    --accent: hsl(var(--heroui-primary));
+    --danger: hsl(var(--heroui-danger));
+  }
+}

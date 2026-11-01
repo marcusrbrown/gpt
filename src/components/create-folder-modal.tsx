@@ -1,6 +1,8 @@
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from '@heroui/react'
+import {Button, Spinner} from '@heroui-v3/react'
 import {Folder} from 'lucide-react'
 import {useCallback, useState} from 'react'
 
@@ -89,18 +91,23 @@ export function CreateFolderModal({isOpen, onClose, onFolderCreated, parentFolde
           )}
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" onPress={handleClose} isDisabled={isLoading}>
+          <Button variant="tertiary" onPress={handleClose} isDisabled={isLoading}>
             Cancel
           </Button>
           <Button
-            color="primary"
+            variant="primary"
             onPress={() => {
               handleSubmit().catch(() => {})
             }}
-            isLoading={isLoading}
+            isPending={isLoading}
             isDisabled={!folderName.trim()}
           >
-            Create Folder
+            {({isPending}) => (
+              <>
+                {isPending && <Spinner size="sm" color="current" />}
+                Create Folder
+              </>
+            )}
           </Button>
         </ModalFooter>
       </ModalContent>

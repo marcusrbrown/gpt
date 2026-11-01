@@ -33,7 +33,7 @@ test.describe('Feature Discoverability - 2 Click Access', () => {
       await page.locator('[role="tab"]', {hasText: 'Data'}).click()
 
       // Click 2: Manage Backups button in the Data tab panel
-      await page.getByRole('button', {name: 'Manage Backups'}).click()
+      await page.getByRole('link', {name: 'Manage Backups'}).click()
 
       // Verify navigation (2 clicks)
       await expect(page).toHaveURL('/backup')

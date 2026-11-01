@@ -1,4 +1,5 @@
-import {Button} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Button} from '@heroui-v3/react'
 import Editor from '@monaco-editor/react'
 import {useCallback, useState} from 'react'
 import {cn, ds, theme} from '@/lib/design-system'
@@ -65,7 +66,7 @@ export function InteractiveNotebook({initialCells = DEFAULT_CELLS, onExecute}: I
                 onPress={() => {
                   handleExecute(cell.id).catch(console.error)
                 }}
-                color="primary"
+                variant="primary"
                 size="sm"
               >
                 Run
@@ -96,10 +97,14 @@ export function InteractiveNotebook({initialCells = DEFAULT_CELLS, onExecute}: I
       ))}
 
       <div className="flex gap-2">
-        <Button onPress={() => addCell('code')} color="success">
+        <Button
+          onPress={() => addCell('code')}
+          variant="primary"
+          className="bg-success text-success-foreground hover:bg-success/90"
+        >
           Add Code Cell
         </Button>
-        <Button onPress={() => addCell('markdown')} color="secondary">
+        <Button onPress={() => addCell('markdown')} variant="secondary">
           Add Markdown Cell
         </Button>
       </div>

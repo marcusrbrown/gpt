@@ -4,7 +4,9 @@ import {MCPServerForm} from '@/components/mcp/mcp-server-form'
 import {MCPToolExplorer} from '@/components/mcp/mcp-tool-explorer'
 import {useMCP} from '@/hooks/use-mcp'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
-import {addToast, Button, Modal, ModalBody, ModalContent, ModalHeader, Spinner, useDisclosure} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {addToast, Modal, ModalBody, ModalContent, ModalHeader, Spinner, useDisclosure} from '@heroui/react'
+import {Button} from '@heroui-v3/react'
 import {XCircle} from 'lucide-react'
 import {useState} from 'react'
 
@@ -110,7 +112,8 @@ export function MCPSettings() {
             Manage Model Context Protocol servers to extend AI capabilities with tools and resources.
           </p>
         </div>
-        <Button color="primary" onPress={handleAddServer} startContent={<span>+</span>}>
+        <Button variant="primary" onPress={handleAddServer}>
+          <span>+</span>
           Add Server
         </Button>
       </div>
@@ -128,7 +131,7 @@ export function MCPSettings() {
           <p className={cn(ds.text.body.small, 'text-default-500 mt-2 mb-4')}>
             Add an MCP server to connect tools, resources, and prompts.
           </p>
-          <Button variant="flat" color="primary" onPress={handleAddServer}>
+          <Button variant="tertiary" onPress={handleAddServer}>
             Add Your First Server
           </Button>
         </div>

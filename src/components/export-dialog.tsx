@@ -1,17 +1,9 @@
 import type {ExportFormat} from '@/services/conversation-export-service'
 import type {Conversation} from '@/types/gpt'
 import {cn} from '@/lib/design-system'
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Radio,
-  RadioGroup,
-  Switch,
-} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Radio, RadioGroup, Switch} from '@heroui/react'
+import {Button, Spinner} from '@heroui-v3/react'
 import {Download, FileJson, FileText} from 'lucide-react'
 import {useCallback, useState} from 'react'
 
@@ -141,16 +133,16 @@ export function ExportDialog({isOpen, onClose, conversation, onExport}: ExportDi
         </ModalBody>
 
         <ModalFooter>
-          <Button variant="flat" onPress={onClose}>
+          <Button variant="tertiary" onPress={onClose}>
             Cancel
           </Button>
-          <Button
-            color="primary"
-            onPress={handleExport}
-            isLoading={isExporting}
-            startContent={!isExporting && <Download className="w-4 h-4" />}
-          >
-            Export
+          <Button variant="primary" onPress={handleExport} isPending={isExporting}>
+            {({isPending}) => (
+              <>
+                {isPending ? <Spinner size="sm" color="current" /> : <Download className="w-4 h-4" />}
+                Export
+              </>
+            )}
           </Button>
         </ModalFooter>
       </ModalContent>

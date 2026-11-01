@@ -7,7 +7,7 @@ Reusable React UI components. HeroUI + TailwindCSS design tokens.
 - Use HeroUI primitives (`@heroui/react`)
 - Use `cn`, `ds` from `@/lib/design-system` — never hardcode colors
 - Async handlers: `.catch(console.error)` to avoid floating promises
-- Buttons with icons: add `className="flex items-center gap-2"`
+- Buttons: `Button` comes from `@heroui-v3/react` (see `docs/design-system.md`, "Button (v3)"); icons go in as children, no `startContent`
 - Inputs with icons: add `classNames={{ inputWrapper: 'flex items-center' }}`
 - Modals: always `placement="center" backdrop="opaque"`
 

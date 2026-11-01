@@ -1,6 +1,8 @@
 import type {LocalFile, VectorStore} from '@/types/gpt'
 import {cn, ds, responsive} from '@/lib/design-system'
-import {Button, Input, Spinner} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Input} from '@heroui/react'
+import {Button, Spinner} from '@heroui-v3/react'
 import {useState} from 'react'
 
 interface VectorKnowledgeProps {
@@ -108,12 +110,17 @@ export function VectorKnowledge({files, vectorStores, onCreateVectorStore, onDel
         </div>
 
         <Button
-          color="primary"
+          variant="primary"
           onPress={handleCreateStore}
-          isDisabled={isCreating || selectedFiles.length === 0 || !newStoreName.trim()}
-          className={cn(ds.animation.buttonPress)}
+          isPending={isCreating}
+          isDisabled={selectedFiles.length === 0 || !newStoreName.trim()}
         >
-          {isCreating ? <Spinner size="sm" /> : 'Create Vector Store'}
+          {({isPending}) => (
+            <>
+              {isPending && <Spinner size="sm" color="current" />}
+              Create Vector Store
+            </>
+          )}
         </Button>
       </div>
 
@@ -132,13 +139,7 @@ export function VectorKnowledge({files, vectorStores, onCreateVectorStore, onDel
                     {store.fileIds.length} files indexed
                   </p>
                 </div>
-                <Button
-                  color="danger"
-                  size="sm"
-                  variant="ghost"
-                  onPress={() => onDeleteVectorStore(store.id)}
-                  className={cn(ds.animation.buttonPress)}
-                >
+                <Button size="sm" variant="danger-soft" onPress={() => onDeleteVectorStore(store.id)}>
                   Remove
                 </Button>
               </div>

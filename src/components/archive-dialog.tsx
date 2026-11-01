@@ -1,6 +1,8 @@
 import type {GPTConfiguration} from '@/types/gpt'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from '@heroui/react'
+import {Button, Spinner} from '@heroui-v3/react'
 import {AlertTriangle, Archive, Trash2} from 'lucide-react'
 
 interface ArchiveDialogProps {
@@ -19,7 +21,9 @@ export function ArchiveDialog({gpt, mode, isOpen, onConfirm, onCancel, isLoading
   const Icon = isDelete ? Trash2 : Archive
   const title = isDelete ? 'Delete GPT Permanently' : 'Archive GPT'
   const confirmText = isDelete ? 'Delete Permanently' : 'Archive'
-  const confirmColor = isDelete ? 'danger' : 'warning'
+  // v3 has no warning variant: archive keeps the warning colour through token classes on the primary variant.
+  const confirmVariant = isDelete ? 'danger' : 'primary'
+  const confirmClassName = isDelete ? undefined : 'bg-warning text-warning-foreground hover:bg-warning/90'
 
   return (
     <Modal
@@ -73,17 +77,22 @@ export function ArchiveDialog({gpt, mode, isOpen, onConfirm, onCancel, isLoading
           </div>
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" onPress={onCancel} isDisabled={isLoading}>
+          <Button variant="tertiary" onPress={onCancel} isDisabled={isLoading}>
             Cancel
           </Button>
           <Button
-            color={confirmColor}
+            variant={confirmVariant}
+            className={confirmClassName}
             onPress={onConfirm}
-            isLoading={isLoading}
-            startContent={!isLoading && <Icon className="h-4 w-4" />}
+            isPending={isLoading}
             data-testid={isDelete ? 'confirm-delete' : 'confirm-archive'}
           >
-            {confirmText}
+            {({isPending}) => (
+              <>
+                {isPending ? <Spinner size="sm" color="current" /> : <Icon className="h-4 w-4" />}
+                {confirmText}
+              </>
+            )}
           </Button>
         </ModalFooter>
       </ModalContent>

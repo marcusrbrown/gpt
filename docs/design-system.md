@@ -163,6 +163,8 @@ Based on 4px base unit with consistent increments:
 
 ### Buttons
 
+> `Button` is on HeroUI v3 (`@heroui-v3/react`). The v2 examples below (`color`, `startContent`, `isLoading`) are kept for the components still on v2; see "Button (v3)" under v2/v3 Coexistence for the current API.
+
 ```tsx
 // Primary action
 <Button color="primary" variant="solid" size="md">
@@ -436,6 +438,50 @@ Rules:
 - Dark mode works through the `.dark` class set by `next-themes`; v3's variables follow it.
 
 Remaining overlaps are plain CSS variables and do not affect v2 utilities: the app's `:root`/`.dark` also defines `--surface-secondary`, `--surface-tertiary`, `--background-secondary`, `--background-tertiary` and `--accent-hover`, and wins over v3's values of the same names.
+
+### Button (v3)
+
+```tsx
+import '@/styles/heroui-v3.css'
+import {Button, Spinner} from '@heroui-v3/react'
+import {buttonVariants} from '@heroui-v3/styles'
+
+<Button variant="primary" onPress={save}>
+  <Save size={16} />
+  Save
+</Button>
+
+// Pending: not pressable, stays focusable, keeps its label
+<Button variant="primary" isPending={isSaving}>
+  {({isPending}) => (
+    <>
+      {isPending && <Spinner size="sm" color="current" />}
+      Save
+    </>
+  )}
+</Button>
+
+// Link: v3 Button renders a <button> only, so style the router link
+<RouterLink to="/backup" className={buttonVariants({variant: 'outline'})}>Manage Backups</RouterLink>
+```
+
+| v2 | v3 |
+| --- | --- |
+| `color="primary"`, `variant="solid"` | `variant="primary"` |
+| `variant="light"`, `variant="flat"` | `variant="tertiary"` |
+| `variant="bordered"` | `variant="outline"` |
+| `variant="ghost"` | `variant="ghost"` |
+| `color="danger"` (solid) | `variant="danger"` |
+| `color="danger"` with `light`, `flat`, `ghost` | `variant="danger-soft"` |
+| `color="success"` / `color="warning"` | `variant="primary"` plus `bg-success text-success-foreground hover:bg-success/90` (or `warning`) |
+| `isLoading` | `isPending` and a `Spinner` in the children render prop |
+| `startContent` / `endContent` | icons as children |
+| `as={Link}` / `as="a"` | `buttonVariants()` on the `<Link>` / `<a>` |
+| `title` | not accepted by the v3 types; wrap in a `Tooltip` |
+
+v3 sizing differs from v2: no minimum width (add `min-w-*` where layout needs it), pill radius, and `svg` children are sized by the button (`size-4` from `sm`, `size-5` below), so a `size` prop on the icon is overridden. v3 draws its own focus ring and press scale; do not add `ds.focus.ring`, `ds.animation.buttonPress` or `ds.animation.transition` to a v3 Button.
+
+`src/styles/heroui-v3.css` re-points v3's `--accent` and `--danger` at the v2 `--heroui-primary` and `--heroui-danger`. v3's own values give white button text 3.6:1 and 3.5:1, which fails the axe contrast rule (4.5:1) on `primary`; the v2 values are 4.5:1 and 4.0:1. Remove the override at cutover and re-check contrast.
 
 ### Cutover
 

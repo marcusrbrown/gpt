@@ -1,6 +1,6 @@
 import {cn, ds, heroui} from '@/lib/design-system'
+import '@/styles/heroui-v3.css'
 import {
-  Button,
   Card,
   CardBody,
   CardHeader,
@@ -13,6 +13,7 @@ import {
   Progress,
   Switch,
 } from '@heroui/react'
+import {Button, Spinner} from '@heroui-v3/react'
 import {AlertTriangle, Calendar, CheckCircle2, Database, Download, FileArchive, HardDrive, Upload} from 'lucide-react'
 import {useCallback, useRef, useState} from 'react'
 
@@ -236,15 +237,20 @@ export function BackupRestorePanel({
             )}
 
             <Button
-              color="success"
-              className="w-full"
+              variant="primary"
+              fullWidth
+              className="bg-success text-success-foreground hover:bg-success/90"
               onPress={() => {
                 handleCreateBackup().catch(console.error)
               }}
-              isLoading={isCreatingBackup}
-              startContent={!isCreatingBackup && <FileArchive className="w-4 h-4" />}
+              isPending={isCreatingBackup}
             >
-              {isCreatingBackup ? 'Creating Backup...' : 'Create Backup'}
+              {({isPending}) => (
+                <>
+                  {isPending ? <Spinner size="sm" color="current" /> : <FileArchive className="w-4 h-4" />}
+                  {isPending ? 'Creating Backup...' : 'Create Backup'}
+                </>
+              )}
             </Button>
           </CardBody>
         </Card>
@@ -269,11 +275,11 @@ export function BackupRestorePanel({
                 onChange={handleFileSelect}
               />
               <Button
-                color="warning"
-                variant="flat"
+                variant="tertiary"
+                className="bg-warning/20 text-warning-600 hover:bg-warning/30"
                 onPress={() => fileInputRef.current?.click()}
-                startContent={<Upload className="w-4 h-4" />}
               >
+                <Upload className="w-4 h-4" />
                 Select Backup File
               </Button>
               <p className="text-sm text-content-tertiary">Select a .zip backup file to restore your data</p>
@@ -349,23 +355,28 @@ export function BackupRestorePanel({
 
           <ModalFooter>
             {restoreResult ? (
-              <Button color="primary" onPress={handleCloseRestoreModal}>
+              <Button variant="primary" onPress={handleCloseRestoreModal}>
                 Done
               </Button>
             ) : (
               <>
-                <Button variant="flat" onPress={handleCloseRestoreModal} isDisabled={isRestoring}>
+                <Button variant="tertiary" onPress={handleCloseRestoreModal} isDisabled={isRestoring}>
                   Cancel
                 </Button>
                 <Button
-                  color="warning"
+                  variant="primary"
+                  className="bg-warning text-warning-foreground hover:bg-warning/90"
                   onPress={() => {
                     handleRestore().catch(console.error)
                   }}
-                  isLoading={isRestoring}
-                  isDisabled={isRestoring}
+                  isPending={isRestoring}
                 >
-                  {wipeExisting ? 'Wipe & Restore' : 'Restore'}
+                  {({isPending}) => (
+                    <>
+                      {isPending && <Spinner size="sm" color="current" />}
+                      {wipeExisting ? 'Wipe & Restore' : 'Restore'}
+                    </>
+                  )}
                 </Button>
               </>
             )}

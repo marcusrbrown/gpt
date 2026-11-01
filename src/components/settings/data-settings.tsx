@@ -1,9 +1,9 @@
 import {useStorage} from '@/hooks/use-storage'
 import {useStorageQuota} from '@/hooks/use-storage-quota'
 import {cn, ds} from '@/lib/design-system'
+import '@/styles/heroui-v3.css'
 import {
   addToast,
-  Button,
   Modal,
   ModalBody,
   ModalContent,
@@ -12,6 +12,8 @@ import {
   Progress,
   useDisclosure,
 } from '@heroui/react'
+import {Button, Spinner} from '@heroui-v3/react'
+import {buttonVariants} from '@heroui-v3/styles'
 import {Archive, RefreshCw, Trash2} from 'lucide-react'
 import {useState} from 'react'
 import {Link as RouterLink} from 'react-router-dom'
@@ -85,7 +87,7 @@ export function DataSettings() {
               <Button
                 isIconOnly
                 size="sm"
-                variant="light"
+                variant="tertiary"
                 onPress={() => {
                   refresh().catch(console.error)
                 }}
@@ -116,15 +118,10 @@ export function DataSettings() {
             <p className={cn(ds.text.body.base, 'font-medium')}>Backup & Restore</p>
             <p className={cn(ds.text.body.small)}>Export your GPTs and settings or restore from a backup file.</p>
           </div>
-          <Button
-            as={RouterLink}
-            to="/backup"
-            variant="bordered"
-            startContent={<Archive size={16} />}
-            className="flex items-center gap-2"
-          >
+          <RouterLink to="/backup" className={buttonVariants({variant: 'outline'})}>
+            <Archive size={16} />
             Manage Backups
-          </Button>
+          </RouterLink>
         </div>
 
         {/* Clear Data */}
@@ -135,13 +132,8 @@ export function DataSettings() {
               Permanently delete all GPTs, conversations, and settings. This cannot be undone.
             </p>
           </div>
-          <Button
-            color="danger"
-            variant="light"
-            startContent={<Trash2 size={16} />}
-            onPress={onOpen}
-            className="flex items-center gap-2"
-          >
+          <Button variant="danger-soft" onPress={onOpen}>
+            <Trash2 size={16} />
             Clear Data
           </Button>
         </div>
@@ -162,17 +154,22 @@ export function DataSettings() {
             <p className="mt-4 font-medium text-danger">This action cannot be undone.</p>
           </ModalBody>
           <ModalFooter>
-            <Button variant="light" onPress={onClose}>
+            <Button variant="tertiary" onPress={onClose}>
               Cancel
             </Button>
             <Button
-              color="danger"
+              variant="danger"
               onPress={() => {
                 handleClearData().catch(console.error)
               }}
-              isLoading={isClearing}
+              isPending={isClearing}
             >
-              Delete Everything
+              {({isPending}) => (
+                <>
+                  {isPending && <Spinner size="sm" color="current" />}
+                  Delete Everything
+                </>
+              )}
             </Button>
           </ModalFooter>
         </ModalContent>

@@ -1,7 +1,9 @@
 import type {GPTConfiguration} from '@/types/gpt'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Card, CardBody, Chip, Skeleton, Tooltip} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Card, CardBody, Chip, Skeleton, Tooltip} from '@heroui/react'
+import {Button} from '@heroui-v3/react'
 import {
   BookOpen,
   Bot,
@@ -127,7 +129,8 @@ export function GPTShowcasePage() {
             <p data-testid="error-message" className="text-content-secondary mb-6">
               {error || 'GPT not found'}
             </p>
-            <Button color="primary" variant="flat" onPress={handleBack} startContent={<ChevronLeft size={18} />}>
+            <Button variant="tertiary" onPress={handleBack}>
+              <ChevronLeft size={18} />
               Return to Library
             </Button>
           </CardBody>
@@ -148,7 +151,7 @@ export function GPTShowcasePage() {
             <Button
               data-testid="showcase-back-button"
               isIconOnly
-              variant="light"
+              variant="tertiary"
               onPress={handleBack}
               aria-label="Back"
             >
@@ -160,7 +163,7 @@ export function GPTShowcasePage() {
               <Button
                 data-testid="showcase-edit-icon-button"
                 isIconOnly
-                variant="light"
+                variant="tertiary"
                 onPress={handleEdit}
                 aria-label="Edit"
               >
@@ -223,22 +226,16 @@ export function GPTShowcasePage() {
                 <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                   <Button
                     data-testid="showcase-start-chatting-button"
-                    color="primary"
+                    variant="primary"
                     size="lg"
                     className="font-medium shadow-lg shadow-primary-500/20"
-                    startContent={<MessageSquare size={20} />}
                     onPress={handleStartConversation}
                   >
+                    <MessageSquare size={20} />
                     Start Chatting
                   </Button>
-                  <Button
-                    data-testid="showcase-edit-button"
-                    variant="bordered"
-                    size="lg"
-                    startContent={<Edit2 size={18} />}
-                    onPress={handleEdit}
-                    className="border-border-default hover:bg-surface-secondary"
-                  >
+                  <Button data-testid="showcase-edit-button" variant="outline" size="lg" onPress={handleEdit}>
+                    <Edit2 size={18} />
                     Edit
                   </Button>
                 </div>
