@@ -136,9 +136,16 @@ test.describe('MCP Settings Accessibility', () => {
         // Modal should have role="dialog"
         await expect(modal).toHaveAttribute('role', 'dialog')
 
-        // Should have aria-modal="true"
-        const ariaModal = await modal.getAttribute('aria-modal')
-        expect(ariaModal).toBe('true')
+        // The v3 modal (React Aria) does not set aria-modal; it makes the page behind it inert
+        // (hidden from assistive technology and unfocusable) and traps focus. Assert both effects.
+        const pageHeading = page.locator('h2', {hasText: /MCP.*Settings/i})
+        expect(await pageHeading.evaluate(el => el.closest('[inert], [aria-hidden="true"]') !== null)).toBe(true)
+
+        for (let i = 0; i < 8; i++) {
+          await page.keyboard.press('Tab')
+          const focusInside = await modal.evaluate(el => el.contains(document.activeElement))
+          expect(focusInside).toBe(true)
+        }
 
         // Close modal
         await page.keyboard.press('Escape')
