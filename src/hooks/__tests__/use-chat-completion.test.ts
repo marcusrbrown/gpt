@@ -1030,6 +1030,29 @@ describe('useChatCompletion', () => {
       expect(onConversationSaved).toHaveBeenCalledTimes(1)
     })
 
+    it('keeps saving when the page callback throws: that is not a persistence failure', async () => {
+      const onConversationSaved = vi.fn(() => {
+        throw new Error('list refresh failed')
+      })
+      hook = setup({onConversationSaved})
+      const gate = holdFirstSave()
+
+      // The second save is queued behind the first when the first one's callback throws.
+      const first = startSend(hook, 'one')
+      await completeWithoutWaiting(streamAt('openai', 0))
+      const {conversationId} = hook.result.current
+      const second = startSend(hook, 'two')
+      await completeWithoutWaiting(streamAt('openai', 1))
+      await act(async () => {
+        gate.resolve()
+        await Promise.all([first, second])
+      })
+
+      expect(onConversationSaved).toHaveBeenCalledTimes(2)
+      expect(contents(storedConversation(conversationId))).toEqual(['one', '', 'two', ''])
+      expect(hook.result.current.saveError).toBeNull()
+    })
+
     it('shows the stop-saved text when the user leaves a conversation mid-stream and returns before the save lands', async () => {
       await openConversationA()
       const gate = holdFirstSave()

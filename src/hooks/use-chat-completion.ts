@@ -178,9 +178,10 @@ function createView(conversationId: string | undefined, isLoading: boolean, gene
  */
 const pendingSaves = new Map<string, Promise<void>>()
 
-/** Runs `write` after every earlier save of the same conversation has finished. `write` must not reject. */
+/** Runs `write` after every earlier save of the same conversation has finished, whether or not they succeeded. */
 async function enqueueSave(conversationId: string, write: () => Promise<void>): Promise<void> {
-  const next = (pendingSaves.get(conversationId) ?? Promise.resolve()).then(write)
+  const previous = (pendingSaves.get(conversationId) ?? Promise.resolve()).catch(() => undefined)
+  const next = previous.then(write)
   pendingSaves.set(conversationId, next)
   const forget = () => {
     if (pendingSaves.get(conversationId) === next) pendingSaves.delete(conversationId)
@@ -364,7 +365,12 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
           ? {...prev, saveError: null, mayCreate: false}
           : prev,
       )
-      notify?.(conversation, {isNew})
+      // The page's callback is not part of persisting: if it throws, the conversation is still saved.
+      try {
+        notify?.(conversation, {isNew})
+      } catch (error_) {
+        console.error('onConversationSaved failed', error_)
+      }
     })
   }, [])
 
