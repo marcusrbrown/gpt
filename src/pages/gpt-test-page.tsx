@@ -1,6 +1,6 @@
 import type {Conversation, GPTConfiguration} from '@/types/gpt'
 import {ChatInterface} from '@/components/chat'
-import {useChatCompletion} from '@/hooks/use-chat-completion'
+import {useChatCompletion, type ConversationSavedInfo} from '@/hooks/use-chat-completion'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds} from '@/lib/design-system'
 import {useCallback, useEffect, useState} from 'react'
@@ -42,9 +42,12 @@ export function GPTTestPage() {
     window.history.replaceState({...window.history.state, usr: null}, '')
   }, [])
   const handleConversationSaved = useCallback(
-    (conversation: Conversation, {isNew}: {isNew: boolean}) => {
+    (conversation: Conversation, {isNew, isCurrent}: ConversationSavedInfo) => {
+      // A save can land after the route moved to another GPT, whose list this is not.
+      if (conversation.gptId !== gptId) return
       setConversations(previous => [conversation, ...previous.filter(item => item.id !== conversation.id)])
-      if (isNew && gptId) {
+      // Only the chat still on screen moves to its own URL; a save for one the user left must not pull them back.
+      if (isNew && isCurrent) {
         const result = navigate(`/gpt/test/${gptId}/c/${conversation.id}`, {replace: true})
         if (result instanceof Promise) result.catch(console.error)
       }

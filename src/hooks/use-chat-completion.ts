@@ -14,6 +14,11 @@ export interface ChatTurnError {
   type: ProviderErrorType
 }
 
+export interface ConversationSavedInfo {
+  isNew: boolean
+  isCurrent: boolean
+}
+
 export interface UseChatCompletionOptions {
   /** The GPT being chatted with. While `undefined` the hook reports `loading` and sends nothing. */
   gpt: GPTConfiguration | undefined
@@ -24,11 +29,12 @@ export interface UseChatCompletionOptions {
   /** Called after the initial prompt's send starts, so the page can clear it from navigation state. */
   onInitialPromptSent?: () => void
   /**
-   * Called after the conversation on screen is saved, with `isNew` true on its first save, so the page can update the
-   * URL and its conversation list. Not called for a save that finishes after the user left that view (new chat, another
-   * conversation, or the page): by then a navigation would pull them back.
+   * Called after every successful save, so the page can keep its conversation list current. `isNew` is true on a
+   * conversation's first save. `isCurrent` is false when the user has left the view the save belonged to (new chat,
+   * another conversation, or the page): the list still wants the conversation, but navigating to it would pull the user
+   * back, so only the first save of a current view should navigate.
    */
-  onConversationSaved?: (conversation: Conversation, info: {isNew: boolean}) => void
+  onConversationSaved?: (conversation: Conversation, info: ConversationSavedInfo) => void
 }
 
 export interface UseChatCompletionResult {
@@ -358,16 +364,19 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
         return
       }
 
-      if (generationRef.current !== job.generation) return
-      if (failedSaveRef.current?.conversationId === job.conversationId) failedSaveRef.current = null
-      setView(prev =>
-        prev.conversationId === job.conversationId && (prev.saveError !== null || prev.mayCreate)
-          ? {...prev, saveError: null, mayCreate: false}
-          : prev,
-      )
+      // The write succeeded, so the page's list wants it either way. Only a view still on screen has state to update.
+      const isCurrent = generationRef.current === job.generation
+      if (isCurrent) {
+        if (failedSaveRef.current?.conversationId === job.conversationId) failedSaveRef.current = null
+        setView(prev =>
+          prev.conversationId === job.conversationId && (prev.saveError !== null || prev.mayCreate)
+            ? {...prev, saveError: null, mayCreate: false}
+            : prev,
+        )
+      }
       // The page's callback is not part of persisting: if it throws, the conversation is still saved.
       try {
-        notify?.(conversation, {isNew})
+        notify?.(conversation, {isNew, isCurrent})
       } catch (error_) {
         console.error('onConversationSaved failed', error_)
       }

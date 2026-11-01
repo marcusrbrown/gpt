@@ -775,7 +775,10 @@ describe('useChatCompletion', () => {
       const first = startSend(hook, 'a long first message that becomes the conversation title')
       await finish(streamAt('openai', 0), first)
       const {conversationId} = hook.result.current
-      expect(onConversationSaved).toHaveBeenLastCalledWith(expect.objectContaining({id: conversationId}), {isNew: true})
+      expect(onConversationSaved).toHaveBeenLastCalledWith(expect.objectContaining({id: conversationId}), {
+        isNew: true,
+        isCurrent: true,
+      })
       expect(hook.result.current.conversationTitle).toBe('a long first message that becomes the conversation…')
 
       // Another screen pins the conversation between turns; the next autosave must not undo it.
@@ -785,6 +788,7 @@ describe('useChatCompletion', () => {
       await finish(streamAt('openai', 1), second)
       expect(onConversationSaved).toHaveBeenLastCalledWith(expect.objectContaining({id: conversationId}), {
         isNew: false,
+        isCurrent: true,
       })
       expect(storedConversation(conversationId)).toMatchObject({isPinned: true, tags: ['x'], messageCount: 4})
     })
@@ -933,7 +937,7 @@ describe('useChatCompletion', () => {
       expect(env.saveConversation.mock.calls.map(([saved]) => saved.messageCount)).toEqual([2, 4])
     })
 
-    it('does not report a finished new chat, or navigate to it, after the user started another', async () => {
+    it('still reports a finished new chat to the list after the user started another, but not as the current view', async () => {
       const onConversationSaved = vi.fn()
       hook = setup({onConversationSaved})
       const gate = holdFirstSave()
@@ -952,16 +956,24 @@ describe('useChatCompletion', () => {
         gate.resolve()
         await first
       })
-      expect(onConversationSaved).not.toHaveBeenCalled()
+      // The list refresh runs, but `isCurrent: false` tells the page not to navigate back to the chat the user left.
+      expect(onConversationSaved).toHaveBeenCalledTimes(1)
+      expect(onConversationSaved).toHaveBeenLastCalledWith(expect.objectContaining({id: firstId}), {
+        isNew: true,
+        isCurrent: false,
+      })
       expect(hook.result.current.conversationId).toBe(secondId)
       expect(contents(storedConversation(firstId))).toEqual(['one', ''])
 
       await finish(streamAt('openai', 1), second)
-      expect(onConversationSaved).toHaveBeenCalledTimes(1)
-      expect(onConversationSaved).toHaveBeenCalledWith(expect.objectContaining({id: secondId}), {isNew: true})
+      expect(onConversationSaved).toHaveBeenCalledTimes(2)
+      expect(onConversationSaved).toHaveBeenLastCalledWith(expect.objectContaining({id: secondId}), {
+        isNew: true,
+        isCurrent: true,
+      })
     })
 
-    it('does not report a save that finishes after the user moved to another conversation', async () => {
+    it('reports a save that finishes after the user moved to another conversation as not current', async () => {
       const onConversationSaved = await openConversationA()
       const gate = holdFirstSave()
       const pending = startSend(hook, 'q')
@@ -976,11 +988,15 @@ describe('useChatCompletion', () => {
         await pending
       })
 
-      expect(onConversationSaved).not.toHaveBeenCalled()
+      expect(onConversationSaved).toHaveBeenCalledTimes(1)
+      expect(onConversationSaved).toHaveBeenCalledWith(expect.objectContaining({id: 'conv-a'}), {
+        isNew: false,
+        isCurrent: false,
+      })
       expect(contents(storedConversation('conv-a'))).toEqual(['earlier q', 'earlier a', 'q', ''])
     })
 
-    it('does not report a save that finishes after the page was left', async () => {
+    it('reports a save that finishes after the page was left as not current', async () => {
       const onConversationSaved = vi.fn()
       hook = setup({onConversationSaved})
       const gate = holdFirstSave()
@@ -993,7 +1009,7 @@ describe('useChatCompletion', () => {
         await pending
       })
 
-      expect(onConversationSaved).not.toHaveBeenCalled()
+      expect(onConversationSaved).toHaveBeenCalledWith(expect.anything(), {isNew: true, isCurrent: false})
     })
 
     it('does not recreate a conversation that was deleted while its save was queued', async () => {
@@ -1143,7 +1159,10 @@ describe('useChatCompletion', () => {
 
         expect(contents(storedConversation(conversationId))).toEqual(['one', 'reply'])
         expect(onConversationSaved).toHaveBeenCalledTimes(1)
-        expect(onConversationSaved).toHaveBeenCalledWith(expect.objectContaining({id: conversationId}), {isNew: true})
+        expect(onConversationSaved).toHaveBeenCalledWith(expect.objectContaining({id: conversationId}), {
+          isNew: true,
+          isCurrent: true,
+        })
         expect(hook.result.current.messages.map(message => message.content)).toEqual(['one', 'reply'])
       })
 
@@ -1414,8 +1433,12 @@ describe('useChatCompletion', () => {
       expect(hook.result.current.conversationId).toBe('conv-b')
       expect(hook.result.current.isStreaming).toBe(false)
       expect(env.stored.get('conv-b')?.messages).toHaveLength(1)
-      // The page only hears about saves of the conversation still on screen.
-      expect(onConversationSaved).not.toHaveBeenCalled()
+      // The list hears about it, flagged as not the view on screen, so the page does not navigate back.
+      expect(onConversationSaved).toHaveBeenCalledTimes(1)
+      expect(onConversationSaved).toHaveBeenCalledWith(expect.objectContaining({id: 'conv-a'}), {
+        isNew: false,
+        isCurrent: false,
+      })
     })
 
     it('saves into the original conversation when the route returns to a new chat', async () => {
