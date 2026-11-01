@@ -1130,6 +1130,55 @@ describe('useChatCompletion', () => {
         expect(contents(storedConversation(conversationId))).toEqual(['one', '', 'two', ''])
       })
 
+      it('does not write the failed snapshot over a newer turn that is already queued when Try again is clicked', async () => {
+        hook = setup()
+        const gate = deferred()
+        let calls = 0
+        env.onSave = async () => {
+          calls++
+          if (calls === 1) throw new Error('QuotaExceededError')
+          if (calls === 2) await gate.promise
+        }
+        const first = startSend(hook, 'one')
+        await finish(streamAt('openai', 0), first)
+        expect(hook.result.current.saveError).toBe('QuotaExceededError')
+        const {conversationId} = hook.result.current
+
+        // The second turn's save is queued (held mid-write); the failed first snapshot is now stale.
+        const second = startSend(hook, 'two')
+        await completeWithoutWaiting(streamAt('openai', 1))
+        await act(async () => {
+          hook.result.current.retrySave()
+        })
+        await act(async () => {
+          gate.resolve()
+          await second
+        })
+
+        expect(contents(storedConversation(conversationId))).toEqual(['one', '', 'two', ''])
+        expect(contents(savedConversation(env.saveConversation.mock.calls.length - 1))).toEqual(['one', '', 'two', ''])
+        expect(hook.result.current.saveError).toBeNull()
+      })
+
+      it('ignores Try again while a reply is streaming, so a partial reply is never saved as a snapshot', async () => {
+        hook = setup()
+        failFirstSave(new Error('QuotaExceededError'))
+        const first = startSend(hook, 'one')
+        await finish(streamAt('openai', 0), first)
+        expect(hook.result.current.saveError).not.toBeNull()
+
+        const second = startSend(hook, 'two')
+        await emit(streamAt('openai', 1), 'partial', 'partial')
+        await act(async () => {
+          hook.result.current.retrySave()
+        })
+        expect(env.saveConversation).toHaveBeenCalledTimes(1)
+
+        await finish(streamAt('openai', 1), second)
+        expect(hook.result.current.saveError).toBeNull()
+        expect(contents(storedConversation(hook.result.current.conversationId))).toEqual(['one', '', 'two', 'partial'])
+      })
+
       it('does not overwrite stored history it could not read, and saves on retry once it can', async () => {
         await openConversationA()
         const stored = storedConversation('conv-a').messages

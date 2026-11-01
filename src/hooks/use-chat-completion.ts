@@ -116,7 +116,7 @@ interface ChatView {
   errors: Record<string, ChatTurnError>
 }
 
-/** What one write of a conversation needs. A failed write keeps its job so `retrySave` can run it again. */
+/** What one write of a conversation needs. A failed write keeps its job so `retrySave` knows what failed. */
 interface SaveJob {
   conversationId: string
   gptId: string
@@ -304,55 +304,54 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
     if (failedSaveRef.current?.generation !== view.generation) failedSaveRef.current = null
   }, [view.generation])
 
-  const saveJob = useCallback(
-    async (job: SaveJob): Promise<void> =>
-      enqueueSave(job.conversationId, async () => {
-        const {storage: currentStorage, onConversationSaved: notify} = latestRef.current
-        let conversation: Conversation
-        let isNew: boolean
-        try {
-          // Merge into the stored record so pins, tags and creation date set elsewhere survive the autosave. A read
-          // that fails rejects instead of looking like a new conversation, so unreadable history is never overwritten.
-          const existing = await currentStorage.getConversation(job.conversationId)
-          isNew = existing === undefined
-          const now = new Date()
-          conversation = {
-            id: job.conversationId,
-            gptId: job.gptId,
-            createdAt: now,
-            tags: [],
-            isPinned: false,
-            isArchived: false,
-            pinnedAt: null,
-            archivedAt: null,
-            ...existing,
-            title: existing?.title || job.title,
-            messages: job.messages,
-            updatedAt: now,
-            messageCount: job.messages.length,
-            lastMessagePreview: lastMessagePreview(job.messages),
-          }
-          await currentStorage.saveConversation(conversation)
-        } catch (error_) {
-          console.error('Failed to save conversation', error_)
-          // The view is gone, so there is nowhere to show it. The messages were already on screen when it was left.
-          if (generationRef.current !== job.generation) return
-          failedSaveRef.current = job
-          const message =
-            error_ instanceof Error && error_.message ? error_.message : 'Could not save this conversation'
-          setView(prev => (prev.conversationId === job.conversationId ? {...prev, saveError: message} : prev))
-          return
+  const saveJob = useCallback(async (job: SaveJob): Promise<void> => {
+    // A newer snapshot is queued, so the failed one is stale: retrying it would write over this one.
+    if (failedSaveRef.current?.conversationId === job.conversationId) failedSaveRef.current = null
+    return enqueueSave(job.conversationId, async () => {
+      const {storage: currentStorage, onConversationSaved: notify} = latestRef.current
+      let conversation: Conversation
+      let isNew: boolean
+      try {
+        // Merge into the stored record so pins, tags and creation date set elsewhere survive the autosave. A read
+        // that fails rejects instead of looking like a new conversation, so unreadable history is never overwritten.
+        const existing = await currentStorage.getConversation(job.conversationId)
+        isNew = existing === undefined
+        const now = new Date()
+        conversation = {
+          id: job.conversationId,
+          gptId: job.gptId,
+          createdAt: now,
+          tags: [],
+          isPinned: false,
+          isArchived: false,
+          pinnedAt: null,
+          archivedAt: null,
+          ...existing,
+          title: existing?.title || job.title,
+          messages: job.messages,
+          updatedAt: now,
+          messageCount: job.messages.length,
+          lastMessagePreview: lastMessagePreview(job.messages),
         }
-
+        await currentStorage.saveConversation(conversation)
+      } catch (error_) {
+        console.error('Failed to save conversation', error_)
+        // The view is gone, so there is nowhere to show it. The messages were already on screen when it was left.
         if (generationRef.current !== job.generation) return
-        if (failedSaveRef.current?.conversationId === job.conversationId) failedSaveRef.current = null
-        setView(prev =>
-          prev.conversationId === job.conversationId && prev.saveError !== null ? {...prev, saveError: null} : prev,
-        )
-        notify?.(conversation, {isNew})
-      }),
-    [],
-  )
+        failedSaveRef.current = job
+        const message = error_ instanceof Error && error_.message ? error_.message : 'Could not save this conversation'
+        setView(prev => (prev.conversationId === job.conversationId ? {...prev, saveError: message} : prev))
+        return
+      }
+
+      if (generationRef.current !== job.generation) return
+      if (failedSaveRef.current?.conversationId === job.conversationId) failedSaveRef.current = null
+      setView(prev =>
+        prev.conversationId === job.conversationId && prev.saveError !== null ? {...prev, saveError: null} : prev,
+      )
+      notify?.(conversation, {isNew})
+    })
+  }, [])
 
   const persistRun = useCallback(
     async (run: ChatRun, messages: ConversationMessage[]): Promise<void> =>
@@ -617,12 +616,14 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
     setView(prev => ({...prev, isLoading: true, loadError: null, loadedGptId: undefined}))
   }, [loadError])
 
+  // Saves what is on screen now, not the failed snapshot: anything newer would otherwise be written over by it. A reply
+  // still streaming is skipped; its own save follows and carries every message.
   const retrySave = useCallback(() => {
-    const job = failedSaveRef.current
-    if (!job || job.generation !== generationRef.current) return
-    failedSaveRef.current = null
-    saveJob(job).catch(console.error)
-  }, [saveJob])
+    const failed = failedSaveRef.current
+    if (!failed || failed.generation !== generationRef.current) return
+    if (view.conversationId !== failed.conversationId || view.streamingId !== null) return
+    saveJob({...failed, title: view.title ?? failed.title, messages: view.messages}).catch(console.error)
+  }, [saveJob, view.conversationId, view.messages, view.streamingId, view.title])
 
   // Send the navigation prompt exactly once per GPT, after key validation finishes.
   const gptId = gpt?.id
