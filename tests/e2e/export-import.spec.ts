@@ -108,7 +108,8 @@ test.describe('Export/Import System', () => {
       await expect(exportOption).toBeVisible({timeout: 10000})
       await exportOption.click({force: true})
 
-      const exportDialog = page.getByRole('dialog')
+      // Named: the v2 actions menu is still animating out when the v3 dialog mounts, and is no longer aria-hidden by it
+      const exportDialog = page.getByRole('dialog', {name: /export/i})
       await expect(exportDialog).toBeVisible({timeout: 5000})
 
       const exportHeading = exportDialog.locator('h2', {hasText: /export/i})

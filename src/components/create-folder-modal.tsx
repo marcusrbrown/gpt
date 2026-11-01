@@ -1,8 +1,8 @@
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from '@heroui/react'
-import {Button, Spinner} from '@heroui-v3/react'
+import {Input} from '@heroui/react'
+import {Button, Modal, Spinner} from '@heroui-v3/react'
 import {Folder} from 'lucide-react'
 import {useCallback, useState} from 'react'
 
@@ -62,55 +62,64 @@ export function CreateFolderModal({isOpen, onClose, onFolderCreated, parentFolde
   )
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} placement="center">
-      <ModalContent>
-        <ModalHeader className="flex items-center gap-2">
-          <Folder className="h-5 w-5" />
-          <span>Create New Folder</span>
-        </ModalHeader>
-        <ModalBody>
-          <Input
-            autoFocus
-            label="Folder Name"
-            placeholder="Enter folder name"
-            value={folderName}
-            onValueChange={value => {
-              setFolderName(value)
-              setError(null)
-            }}
-            onKeyDown={handleKeyDown}
-            isInvalid={!!error}
-            errorMessage={error}
-            maxLength={50}
-            description={parentFolderId ? 'This folder will be created inside the selected folder' : undefined}
-          />
-          {parentFolderId && (
-            <p className={cn(ds.text.caption, 'text-content-tertiary mt-2')}>
-              Note: Folders can be nested up to 3 levels deep.
-            </p>
-          )}
-        </ModalBody>
-        <ModalFooter>
-          <Button variant="tertiary" onPress={handleClose} isDisabled={isLoading}>
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onPress={() => {
-              handleSubmit().catch(() => {})
-            }}
-            isPending={isLoading}
-            isDisabled={!folderName.trim()}
-          >
-            {({isPending}) => (
-              <>
-                {isPending && <Spinner size="sm" color="current" />}
-                Create Folder
-              </>
+    <Modal.Backdrop
+      isOpen={isOpen}
+      onOpenChange={open => {
+        if (!open) handleClose()
+      }}
+      variant="opaque"
+    >
+      <Modal.Container placement="center">
+        <Modal.Dialog>
+          <Modal.CloseTrigger />
+          <Modal.Header className="flex-row items-center gap-2 pr-8">
+            <Folder className="h-5 w-5" />
+            <Modal.Heading className="text-lg font-semibold">Create New Folder</Modal.Heading>
+          </Modal.Header>
+          <Modal.Body>
+            <Input
+              autoFocus
+              label="Folder Name"
+              placeholder="Enter folder name"
+              value={folderName}
+              onValueChange={value => {
+                setFolderName(value)
+                setError(null)
+              }}
+              onKeyDown={handleKeyDown}
+              isInvalid={!!error}
+              errorMessage={error}
+              maxLength={50}
+              description={parentFolderId ? 'This folder will be created inside the selected folder' : undefined}
+            />
+            {parentFolderId && (
+              <p className={cn(ds.text.caption, 'text-content-tertiary mt-2')}>
+                Note: Folders can be nested up to 3 levels deep.
+              </p>
             )}
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="tertiary" onPress={handleClose} isDisabled={isLoading}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onPress={() => {
+                handleSubmit().catch(() => {})
+              }}
+              isPending={isLoading}
+              isDisabled={!folderName.trim()}
+            >
+              {({isPending}) => (
+                <>
+                  {isPending && <Spinner size="sm" color="current" />}
+                  Create Folder
+                </>
+              )}
+            </Button>
+          </Modal.Footer>
+        </Modal.Dialog>
+      </Modal.Container>
+    </Modal.Backdrop>
   )
 }

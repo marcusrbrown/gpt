@@ -1,19 +1,7 @@
 import {cn, ds, heroui} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {
-  Card,
-  CardBody,
-  CardHeader,
-  Checkbox,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Progress,
-  Switch,
-} from '@heroui/react'
-import {Button, Spinner} from '@heroui-v3/react'
+import {Card, CardBody, CardHeader, Checkbox, Progress, Switch} from '@heroui/react'
+import {Button, Modal, Spinner} from '@heroui-v3/react'
 import {AlertTriangle, Calendar, CheckCircle2, Database, Download, FileArchive, HardDrive, Upload} from 'lucide-react'
 import {useCallback, useRef, useState} from 'react'
 
@@ -298,91 +286,100 @@ export function BackupRestorePanel({
         </Card>
       </div>
 
-      <Modal isOpen={isRestoreModalOpen} onClose={handleCloseRestoreModal} size="md">
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">
-            <h2 className="text-lg font-semibold">Restore Backup</h2>
-            {selectedFile && <p className="text-sm text-content-tertiary font-normal">{selectedFile.name}</p>}
-          </ModalHeader>
+      <Modal.Backdrop
+        isOpen={isRestoreModalOpen}
+        onOpenChange={open => {
+          if (!open) handleCloseRestoreModal()
+        }}
+        variant="opaque"
+      >
+        <Modal.Container size="md" placement="center" scroll="outside">
+          <Modal.Dialog>
+            <Modal.CloseTrigger />
+            <Modal.Header className="gap-1 pr-8">
+              <Modal.Heading className="text-lg font-semibold">Restore Backup</Modal.Heading>
+              {selectedFile && <p className="text-sm text-content-tertiary font-normal">{selectedFile.name}</p>}
+            </Modal.Header>
 
-          <ModalBody className="gap-4">
-            {restoreResult ? (
-              <div className="text-center py-4">
-                {restoreResult.success ? (
-                  <>
-                    <CheckCircle2 className="w-12 h-12 mx-auto mb-4 text-success" />
-                    <h3 className="text-lg font-semibold mb-2">Restore Complete</h3>
-                    <p className="text-content-secondary">Successfully imported {restoreResult.imported} items.</p>
-                  </>
-                ) : (
-                  <>
-                    <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-danger" />
-                    <h3 className="text-lg font-semibold mb-2">Restore Failed</h3>
-                    <div className="text-left bg-danger/10 rounded-lg p-3 mt-4">
-                      <ul className="text-sm text-danger space-y-1">
-                        {restoreResult.errors.map(err => (
-                          <li key={err}>{err}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </>
-                )}
-              </div>
-            ) : (
-              <>
-                <div className="p-4 bg-surface-secondary rounded-lg">
-                  <p className="text-sm text-content-secondary">
-                    You are about to restore data from a backup file. This will import GPT configurations,
-                    conversations, and settings.
-                  </p>
-                </div>
-
-                <div className="p-4 bg-danger/10 rounded-lg">
-                  <Checkbox isSelected={wipeExisting} onValueChange={setWipeExisting} color="danger" size="sm">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-danger">Delete all existing data before restore</span>
-                      <span className="text-xs text-content-tertiary">
-                        This will permanently remove all current data
-                      </span>
-                    </div>
-                  </Checkbox>
-                </div>
-
-                {isRestoring && <Progress isIndeterminate color="warning" size="sm" aria-label="Restore progress" />}
-              </>
-            )}
-          </ModalBody>
-
-          <ModalFooter>
-            {restoreResult ? (
-              <Button variant="primary" onPress={handleCloseRestoreModal}>
-                Done
-              </Button>
-            ) : (
-              <>
-                <Button variant="tertiary" onPress={handleCloseRestoreModal} isDisabled={isRestoring}>
-                  Cancel
-                </Button>
-                <Button
-                  variant="primary"
-                  className="bg-warning text-warning-foreground hover:bg-warning/90"
-                  onPress={() => {
-                    handleRestore().catch(console.error)
-                  }}
-                  isPending={isRestoring}
-                >
-                  {({isPending}) => (
+            <Modal.Body className="flex flex-col gap-4 text-base text-foreground">
+              {restoreResult ? (
+                <div className="text-center py-4">
+                  {restoreResult.success ? (
                     <>
-                      {isPending && <Spinner size="sm" color="current" />}
-                      {wipeExisting ? 'Wipe & Restore' : 'Restore'}
+                      <CheckCircle2 className="w-12 h-12 mx-auto mb-4 text-success" />
+                      <h3 className="text-lg font-semibold mb-2">Restore Complete</h3>
+                      <p className="text-content-secondary">Successfully imported {restoreResult.imported} items.</p>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="w-12 h-12 mx-auto mb-4 text-danger" />
+                      <h3 className="text-lg font-semibold mb-2">Restore Failed</h3>
+                      <div className="text-left bg-danger/10 rounded-lg p-3 mt-4">
+                        <ul className="text-sm text-danger space-y-1">
+                          {restoreResult.errors.map(err => (
+                            <li key={err}>{err}</li>
+                          ))}
+                        </ul>
+                      </div>
                     </>
                   )}
+                </div>
+              ) : (
+                <>
+                  <div className="p-4 bg-surface-secondary rounded-lg">
+                    <p className="text-sm text-content-secondary">
+                      You are about to restore data from a backup file. This will import GPT configurations,
+                      conversations, and settings.
+                    </p>
+                  </div>
+
+                  <div className="p-4 bg-danger/10 rounded-lg">
+                    <Checkbox isSelected={wipeExisting} onValueChange={setWipeExisting} color="danger" size="sm">
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium text-danger">Delete all existing data before restore</span>
+                        <span className="text-xs text-content-tertiary">
+                          This will permanently remove all current data
+                        </span>
+                      </div>
+                    </Checkbox>
+                  </div>
+
+                  {isRestoring && <Progress isIndeterminate color="warning" size="sm" aria-label="Restore progress" />}
+                </>
+              )}
+            </Modal.Body>
+
+            <Modal.Footer>
+              {restoreResult ? (
+                <Button variant="primary" onPress={handleCloseRestoreModal}>
+                  Done
                 </Button>
-              </>
-            )}
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+              ) : (
+                <>
+                  <Button variant="tertiary" onPress={handleCloseRestoreModal} isDisabled={isRestoring}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant="primary"
+                    className="bg-warning text-warning-foreground hover:bg-warning/90"
+                    onPress={() => {
+                      handleRestore().catch(console.error)
+                    }}
+                    isPending={isRestoring}
+                  >
+                    {({isPending}) => (
+                      <>
+                        {isPending && <Spinner size="sm" color="current" />}
+                        {wipeExisting ? 'Wipe & Restore' : 'Restore'}
+                      </>
+                    )}
+                  </Button>
+                </>
+              )}
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </div>
   )
 }

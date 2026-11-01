@@ -3,17 +3,8 @@ import {useStorage} from '@/hooks/use-storage'
 import {useStorageQuota} from '@/hooks/use-storage-quota'
 import {cn, ds} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {
-  addToast,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Progress,
-  useDisclosure,
-} from '@heroui/react'
-import {Button, Spinner} from '@heroui-v3/react'
+import {addToast, Progress} from '@heroui/react'
+import {Button, Modal, Spinner, useOverlayState} from '@heroui-v3/react'
 import {buttonVariants} from '@heroui-v3/styles'
 import {Archive, RefreshCw, Trash2} from 'lucide-react'
 import {useState} from 'react'
@@ -35,7 +26,7 @@ export function DataSettings() {
   const {used, total, percentage, isLoading, refresh} = useStorageQuota()
   const storage = useStorage()
   const {resetAllData, webCryptoAvailable} = useSession()
-  const {isOpen, onOpen, onClose} = useDisclosure()
+  const confirmState = useOverlayState()
   const [isClearing, setIsClearing] = useState(false)
 
   const handleClearData = async () => {
@@ -51,7 +42,7 @@ export function DataSettings() {
         color: 'success',
         timeout: 2000,
       })
-      onClose()
+      confirmState.close()
       // Refresh storage stats after clearing data instead of reloading the page
       await refresh()
     } catch (error_) {
@@ -137,7 +128,7 @@ export function DataSettings() {
               Permanently delete all GPTs, conversations, and settings. This cannot be undone.
             </p>
           </div>
-          <Button variant="danger-soft" onPress={onOpen}>
+          <Button variant="danger-soft" onPress={() => confirmState.open()}>
             <Trash2 size={16} />
             Clear Data
           </Button>
@@ -145,40 +136,45 @@ export function DataSettings() {
       </div>
 
       {/* Confirmation Modal */}
-      <Modal isOpen={isOpen} onClose={onClose} placement="center">
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1">Clear All Data</ModalHeader>
-          <ModalBody>
-            <p>Are you sure you want to delete all local data? This will remove:</p>
-            <ul className="list-disc list-inside mt-2 space-y-1 text-content-secondary">
-              <li>All your custom GPT configurations</li>
-              <li>All conversation history</li>
-              <li>All saved API keys and settings</li>
-              <li>All folders and organization</li>
-            </ul>
-            <p className="mt-4 font-medium text-danger">This action cannot be undone.</p>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="tertiary" onPress={onClose}>
-              Cancel
-            </Button>
-            <Button
-              variant="danger"
-              onPress={() => {
-                handleClearData().catch(console.error)
-              }}
-              isPending={isClearing}
-            >
-              {({isPending}) => (
-                <>
-                  {isPending && <Spinner size="sm" color="current" />}
-                  Delete Everything
-                </>
-              )}
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <Modal.Backdrop isOpen={confirmState.isOpen} onOpenChange={open => confirmState.setOpen(open)} variant="opaque">
+        <Modal.Container placement="center">
+          <Modal.Dialog>
+            <Modal.CloseTrigger />
+            <Modal.Header className="pr-8">
+              <Modal.Heading className="text-lg font-semibold">Clear All Data</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body className="flex flex-col gap-3 text-base text-foreground">
+              <p>Are you sure you want to delete all local data? This will remove:</p>
+              <ul className="list-disc list-inside mt-2 space-y-1 text-content-secondary">
+                <li>All your custom GPT configurations</li>
+                <li>All conversation history</li>
+                <li>All saved API keys and settings</li>
+                <li>All folders and organization</li>
+              </ul>
+              <p className="mt-4 font-medium text-danger">This action cannot be undone.</p>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="tertiary" onPress={() => confirmState.close()}>
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                onPress={() => {
+                  handleClearData().catch(console.error)
+                }}
+                isPending={isClearing}
+              >
+                {({isPending}) => (
+                  <>
+                    {isPending && <Spinner size="sm" color="current" />}
+                    Delete Everything
+                  </>
+                )}
+              </Button>
+            </Modal.Footer>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </div>
   )
 }
