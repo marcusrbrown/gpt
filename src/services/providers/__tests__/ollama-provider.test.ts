@@ -428,6 +428,41 @@ describe('OllamaProvider', () => {
         expect(finalChunk?.finishReason).toBe('stop')
       })
 
+      it('ends a stream that stops before a done chunk with a length finish so the text is flagged cut off', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(createMockStreamResponse([helloChunk])))
+
+        const provider = new OllamaProvider()
+
+        const chunks = await collectChunks(
+          provider.createCompletion({
+            model: 'llama3.3:latest',
+            messages: [{role: 'user', content: 'Hello'}],
+            stream: true,
+          }),
+        )
+
+        expect(chunks.map(c => c.content ?? '').join('')).toBe('Hello')
+        expect(chunks.at(-1)?.finishReason).toBe('length')
+        expect(chunks.some(c => c.finishReason === 'stop')).toBe(false)
+      })
+
+      it('throws a ProviderError when the stream ends before a done chunk with no text', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(createMockStreamResponse([])))
+
+        const provider = new OllamaProvider()
+
+        const thrown = await expectGeneratorThrows(
+          provider.createCompletion({
+            model: 'llama3.3:latest',
+            messages: [{role: 'user', content: 'Hello'}],
+            stream: true,
+          }),
+          ProviderError,
+        )
+
+        expect(thrown.provider).toBe('ollama')
+      })
+
       it('handles reasoning/thinking content in stream', async () => {
         const streamChunks = [
           {

@@ -177,6 +177,7 @@ export class OllamaProvider extends BaseLLMProvider {
     let totalContent = ''
     let promptTokens = 0
     let completionTokens = 0
+    let sawDone = false
     const stopWatchingAbort = this.cancelReaderOnAbort(reader, abortSignal)
 
     try {
@@ -204,6 +205,7 @@ export class OllamaProvider extends BaseLLMProvider {
           }
 
           if (chunk.done) {
+            sawDone = true
             promptTokens = chunk.prompt_eval_count || 0
             completionTokens = chunk.eval_count || 0
           }
@@ -212,6 +214,11 @@ export class OllamaProvider extends BaseLLMProvider {
 
       // A cancelled reader reports `done`, so a stopped stream must not look like a finished one.
       abortSignal?.throwIfAborted()
+
+      // EOF without a `done` chunk is a dropped connection, not a finished reply. Keep any text, flagged as cut off.
+      if (!sawDone && totalContent === '') {
+        throw new ProviderError('The response ended before any text arrived', 'connection', 'ollama')
+      }
 
       // Handle thinking content for reasoning models
       const thinkingResult = parseThinkingContent(totalContent)
@@ -224,7 +231,7 @@ export class OllamaProvider extends BaseLLMProvider {
 
       yield {
         id: messageId,
-        finishReason: 'stop',
+        finishReason: sawDone ? 'stop' : 'length',
         usage: {promptTokens, completionTokens},
       }
     } finally {

@@ -251,6 +251,8 @@ export class AnthropicProvider extends BaseLLMProvider {
     let messageId = ''
     let totalInputTokens = 0
     let totalOutputTokens = 0
+    let receivedText = false
+    let sawMessageStop = false
     const stopWatchingAbort = this.cancelReaderOnAbort(reader, options?.signal)
 
     try {
@@ -275,8 +277,11 @@ export class AnthropicProvider extends BaseLLMProvider {
             continue
           }
 
+          if (event.type === 'message_stop') sawMessageStop = true
+
           const chunk = this.processStreamEvent(event, messageId)
           if (chunk) {
+            if (chunk.content) receivedText = true
             if (chunk.id) messageId = chunk.id
             if (event.type === 'message_start') {
               const usage = (event.message as {usage?: {input_tokens?: number}})?.usage
@@ -293,9 +298,14 @@ export class AnthropicProvider extends BaseLLMProvider {
       // A cancelled reader reports `done`, so a stopped stream must not look like a finished one.
       options?.signal?.throwIfAborted()
 
+      // EOF without `message_stop` is a dropped connection, not a finished reply. Keep any text, flagged as cut off.
+      if (!sawMessageStop && !receivedText) {
+        throw new ProviderError('The response ended before any text arrived', 'connection', 'anthropic')
+      }
+
       yield {
         id: messageId,
-        finishReason: 'stop',
+        finishReason: sawMessageStop ? 'stop' : 'length',
         usage: {promptTokens: totalInputTokens, completionTokens: totalOutputTokens},
       }
     } finally {

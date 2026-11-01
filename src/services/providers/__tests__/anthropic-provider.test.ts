@@ -433,6 +433,44 @@ describe('AnthropicProvider', () => {
         const thinkingChunks = chunks.filter(c => c.content?.startsWith('[thinking]'))
         expect(thinkingChunks.length).toBeGreaterThan(0)
       })
+
+      it('ends a stream that stops before message_stop with a length finish so the text is flagged cut off', async () => {
+        const events = [MESSAGE_START_EVENT, TEXT_DELTA_EVENT]
+        vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(createMockStreamResponse(events))
+
+        const provider = new AnthropicProvider()
+        provider.setApiKey('test-key')
+
+        const chunks = await collectChunks(
+          provider.createCompletion({
+            model: 'claude-sonnet-4-5-20250514',
+            messages: [{role: 'user', content: 'Hello'}],
+            stream: true,
+          }),
+        )
+
+        expect(chunks.map(c => c.content ?? '').join('')).toBe('Hello')
+        expect(chunks.at(-1)?.finishReason).toBe('length')
+        expect(chunks.some(c => c.finishReason === 'stop')).toBe(false)
+      })
+
+      it('throws a ProviderError when the stream ends before message_stop with no text', async () => {
+        vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(createMockStreamResponse([MESSAGE_START_EVENT]))
+
+        const provider = new AnthropicProvider()
+        provider.setApiKey('test-key')
+
+        const thrown = await expectGeneratorThrows(
+          provider.createCompletion({
+            model: 'claude-sonnet-4-5-20250514',
+            messages: [{role: 'user', content: 'Hello'}],
+            stream: true,
+          }),
+          ProviderError,
+        )
+
+        expect(thrown.provider).toBe('anthropic')
+      })
     })
 
     describe('error handling', () => {
