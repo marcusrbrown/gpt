@@ -1,7 +1,7 @@
 import {cleanup} from '@testing-library/react'
-import {afterAll, afterEach, beforeAll, beforeEach, vi} from 'vitest'
+import {afterAll, afterEach, beforeEach, vi} from 'vitest'
 import 'fake-indexeddb/auto'
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom/vitest'
 
 class ResizeObserverMock {
   observe() {}
@@ -12,37 +12,6 @@ class ResizeObserverMock {
 globalThis.ResizeObserver = ResizeObserverMock
 
 const originalConsole = {...console}
-
-// Create a storage object to persist data between tests
-const storage = new Map<string, string>()
-
-// Create a simple localStorage mock
-const localStorageMock = {
-  getItem: vi.fn((key: string) => {
-    const value = storage.get(key)
-    return value === undefined ? null : value
-  }),
-  setItem: vi.fn((key: string, value: string) => {
-    storage.set(key, value)
-  }),
-  clear: vi.fn(() => {
-    storage.clear()
-  }),
-  removeItem: vi.fn((key: string) => {
-    storage.delete(key)
-  }),
-  length: 0,
-  key: vi.fn((index: number) => {
-    const keys = Array.from(storage.keys())
-    return index < keys.length ? keys[index] : null
-  }),
-}
-
-// Configure global test environment
-beforeAll(() => {
-  // Setup localStorage mock
-  globalThis.localStorage = localStorageMock as unknown as Storage
-})
 
 beforeEach(() => {
   console.log = vi.fn()
