@@ -3,7 +3,7 @@ import type {CompletionMessage, CompletionRequest, ProviderErrorType, ProviderId
 import {useAIProvider} from '@/hooks/use-ai-provider'
 import {useStorage} from '@/hooks/use-storage'
 import {ProviderError, ReplayDataSchema} from '@/types/provider'
-import {useCallback, useEffect, useRef, useState} from 'react'
+import {useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react'
 
 /** What the GPT's provider needs before a turn can be sent. `unsupported` is Azure, which has no implementation. */
 export type ChatProviderStatus = 'loading' | 'unsupported' | 'not-configured' | 'ready'
@@ -25,7 +25,8 @@ export interface UseChatCompletionOptions {
   onInitialPromptSent?: () => void
   /**
    * Called after the conversation on screen is saved, with `isNew` true on its first save, so the page can update the
-   * URL and its conversation list. Not called for saves of a conversation the user already left.
+   * URL and its conversation list. Not called for a save that finishes after the user left that view (new chat, another
+   * conversation, or the page): by then a navigation would pull them back.
    */
   onConversationSaved?: (conversation: Conversation, info: {isNew: boolean}) => void
 }
@@ -53,6 +54,11 @@ export interface UseChatCompletionResult {
    * failed, so send, regenerate and retry are blocked: saving a new turn would overwrite the stored history.
    */
   loadError: string | null
+  /**
+   * Why the conversation on screen could not be saved, or `null`. The messages stay in memory; `retrySave` writes them
+   * again. Cleared by any later save that succeeds.
+   */
+  saveError: string | null
   /** Errors by user message id. Held in memory only; failed turns are not saved. */
   turnErrors: Record<string, ChatTurnError>
   /** Sends a user message. Resolves when the turn settles; it never rejects (failures land in `turnErrors`). */
@@ -63,6 +69,8 @@ export interface UseChatCompletionResult {
   regenerate: () => Promise<void>
   /** Tries loading the saved conversation again after a load failure. No-op when there is no `loadError`. */
   reloadConversation: () => void
+  /** Saves the conversation again after a save failure. No-op when there is no `saveError`. */
+  retrySave: () => void
   /** Resends a failed turn. Only the last turn can be retried. Success clears its error. */
   retry: (turnId: string) => Promise<void>
   /** Starts a new chat. Stops and saves any reply in flight into the conversation it started in. */
@@ -98,7 +106,23 @@ interface ChatView {
   loadError: string | null
   /** The GPT that owns the loaded conversation. Compared with the current GPT on every render, so order of arrival doesn't matter. */
   loadedGptId: string | undefined
+  saveError: string | null
+  /**
+   * Counts the views shown by this hook: it steps when the screen moves to another conversation or a new chat, never
+   * when a new chat is assigned its id. Async work remembers the generation it started in; once the hook is on another
+   * one (or unmounted) that work must not report to the page.
+   */
+  generation: number
   errors: Record<string, ChatTurnError>
+}
+
+/** What one write of a conversation needs. A failed write keeps its job so `retrySave` can run it again. */
+interface SaveJob {
+  conversationId: string
+  gptId: string
+  title: string
+  messages: ConversationMessage[]
+  generation: number
 }
 
 interface ChatRun {
@@ -117,9 +141,11 @@ interface ChatRun {
   settled: boolean
   /** The user left this conversation, so the run must not touch what is on screen. */
   detached: boolean
+  /** The view generation the run started in. */
+  generation: number
 }
 
-function createView(conversationId: string | undefined, isLoading: boolean): ChatView {
+function createView(conversationId: string | undefined, isLoading: boolean, generation: number): ChatView {
   return {
     conversationId,
     title: undefined,
@@ -128,8 +154,28 @@ function createView(conversationId: string | undefined, isLoading: boolean): Cha
     isLoading,
     loadError: null,
     loadedGptId: undefined,
+    saveError: null,
+    generation,
     errors: {},
   }
+}
+
+/**
+ * Saves still being written, by conversation id. Module-level on purpose: a save outlives the hook that started it
+ * (leave the page, come back), and the next hook must still wait for it. Each save reads the stored record and writes
+ * a snapshot over it, so two at once would let an older snapshot overwrite a newer one.
+ */
+const pendingSaves = new Map<string, Promise<void>>()
+
+/** Runs `write` after every earlier save of the same conversation has finished. `write` must not reject. */
+async function enqueueSave(conversationId: string, write: () => Promise<void>): Promise<void> {
+  const next = (pendingSaves.get(conversationId) ?? Promise.resolve()).then(write)
+  pendingSaves.set(conversationId, next)
+  const forget = () => {
+    if (pendingSaves.get(conversationId) === next) pendingSaves.delete(conversationId)
+  }
+  next.then(forget, forget)
+  return next
 }
 
 /**
@@ -228,10 +274,13 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
     status = 'not-configured'
   }
 
-  const [view, setView] = useState<ChatView>(() => createView(conversationId, conversationId !== undefined))
+  const [view, setView] = useState<ChatView>(() => createView(conversationId, conversationId !== undefined, 0))
   const [seenRouteId, setSeenRouteId] = useState(conversationId)
   const runRef = useRef<ChatRun | null>(null)
   const initialPromptSentForRef = useRef<string | null>(null)
+  // The generation on screen, readable from async work. -1 once the hook has unmounted.
+  const generationRef = useRef(view.generation)
+  const failedSaveRef = useRef<SaveJob | null>(null)
 
   // The newest values, for async work that outlives the render that started it.
   const latestRef = useRef({storage, getProvider, gpt, onConversationSaved})
@@ -245,38 +294,77 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
   if (seenRouteId !== conversationId) {
     setSeenRouteId(conversationId)
     if (conversationId !== view.conversationId) {
-      setView(createView(conversationId, conversationId !== undefined))
+      setView(createView(conversationId, conversationId !== undefined, view.generation + 1))
     }
   }
 
-  const persistRun = useCallback(async (run: ChatRun, messages: ConversationMessage[]) => {
-    try {
-      const {storage: currentStorage, onConversationSaved: notify} = latestRef.current
-      // Merge into the stored record so pins, tags and creation date set elsewhere survive the autosave.
-      const existing = await currentStorage.getConversation(run.conversationId)
-      const now = new Date()
-      const conversation: Conversation = {
-        id: run.conversationId,
+  // Layout effect, so the ref is current before any async work can run after this commit.
+  useLayoutEffect(() => {
+    generationRef.current = view.generation
+    if (failedSaveRef.current?.generation !== view.generation) failedSaveRef.current = null
+  }, [view.generation])
+
+  const saveJob = useCallback(
+    async (job: SaveJob): Promise<void> =>
+      enqueueSave(job.conversationId, async () => {
+        const {storage: currentStorage, onConversationSaved: notify} = latestRef.current
+        let conversation: Conversation
+        let isNew: boolean
+        try {
+          // Merge into the stored record so pins, tags and creation date set elsewhere survive the autosave. A read
+          // that fails rejects instead of looking like a new conversation, so unreadable history is never overwritten.
+          const existing = await currentStorage.getConversation(job.conversationId)
+          isNew = existing === undefined
+          const now = new Date()
+          conversation = {
+            id: job.conversationId,
+            gptId: job.gptId,
+            createdAt: now,
+            tags: [],
+            isPinned: false,
+            isArchived: false,
+            pinnedAt: null,
+            archivedAt: null,
+            ...existing,
+            title: existing?.title || job.title,
+            messages: job.messages,
+            updatedAt: now,
+            messageCount: job.messages.length,
+            lastMessagePreview: lastMessagePreview(job.messages),
+          }
+          await currentStorage.saveConversation(conversation)
+        } catch (error_) {
+          console.error('Failed to save conversation', error_)
+          // The view is gone, so there is nowhere to show it. The messages were already on screen when it was left.
+          if (generationRef.current !== job.generation) return
+          failedSaveRef.current = job
+          const message =
+            error_ instanceof Error && error_.message ? error_.message : 'Could not save this conversation'
+          setView(prev => (prev.conversationId === job.conversationId ? {...prev, saveError: message} : prev))
+          return
+        }
+
+        if (generationRef.current !== job.generation) return
+        if (failedSaveRef.current?.conversationId === job.conversationId) failedSaveRef.current = null
+        setView(prev =>
+          prev.conversationId === job.conversationId && prev.saveError !== null ? {...prev, saveError: null} : prev,
+        )
+        notify?.(conversation, {isNew})
+      }),
+    [],
+  )
+
+  const persistRun = useCallback(
+    async (run: ChatRun, messages: ConversationMessage[]): Promise<void> =>
+      saveJob({
+        conversationId: run.conversationId,
         gptId: run.gptId,
-        createdAt: now,
-        tags: [],
-        isPinned: false,
-        isArchived: false,
-        pinnedAt: null,
-        archivedAt: null,
-        ...existing,
-        title: existing?.title || run.title,
+        title: run.title,
         messages,
-        updatedAt: now,
-        messageCount: messages.length,
-        lastMessagePreview: lastMessagePreview(messages),
-      }
-      await currentStorage.saveConversation(conversation)
-      if (!run.detached) notify?.(conversation, {isNew: existing === undefined})
-    } catch (error_) {
-      console.error('Failed to save conversation', error_)
-    }
-  }, [])
+        generation: run.generation,
+      }),
+    [saveJob],
+  )
 
   const commitRun = useCallback((run: ChatRun, update: Partial<ChatView>) => {
     if (run.detached) return
@@ -399,6 +487,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
         reply: '',
         settled: false,
         detached: false,
+        generation: base.generation,
       }
 
       runRef.current = run
@@ -410,6 +499,8 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
         isLoading: false,
         loadError: null,
         loadedGptId: undefined,
+        saveError: base.saveError,
+        generation: base.generation,
         errors: {},
       })
       await executeRun(run)
@@ -463,7 +554,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
 
   const reset = useCallback(() => {
     stopActiveRun(true)
-    setView(createView(undefined, false))
+    setView(prev => createView(undefined, false, prev.generation + 1))
   }, [stopActiveRun])
 
   // Leaving the conversation (route change) stops the reply and saves it where it started.
@@ -476,6 +567,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
   useEffect(
     () => () => {
       stopActiveRun(true)
+      generationRef.current = -1
     },
     [stopActiveRun],
   )
@@ -490,6 +582,9 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
       let loaded: Conversation | undefined
       let loadError: string | null = null
       try {
+        // A save of this conversation may still be writing (the user left mid-stream and came back); reading first
+        // would show the history from before it.
+        await pendingSaves.get(loadingId)
         loaded = await latestRef.current.storage.getConversation(loadingId)
       } catch (error_) {
         console.error('Failed to load conversation', error_)
@@ -522,6 +617,13 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
     setView(prev => ({...prev, isLoading: true, loadError: null, loadedGptId: undefined}))
   }, [loadError])
 
+  const retrySave = useCallback(() => {
+    const job = failedSaveRef.current
+    if (!job || job.generation !== generationRef.current) return
+    failedSaveRef.current = null
+    saveJob(job).catch(console.error)
+  }, [saveJob])
+
   // Send the navigation prompt exactly once per GPT, after key validation finishes.
   const gptId = gpt?.id
   useEffect(() => {
@@ -549,11 +651,13 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
     streamingMessageId: view.streamingId,
     isLoadingConversation: view.isLoading,
     loadError,
+    saveError: view.saveError,
     turnErrors: view.errors,
     send,
     stop,
     regenerate,
     reloadConversation,
+    retrySave,
     retry,
     reset,
   }

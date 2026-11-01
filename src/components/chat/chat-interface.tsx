@@ -70,6 +70,9 @@ interface ChatInterfaceProps {
   /** Set when the saved conversation could not be loaded. Replaces the input so nothing can overwrite its history. */
   loadError?: string | null
   onReload?: () => void
+  /** Set when the conversation could not be saved. The messages are still on screen; the input stays available. */
+  saveError?: string | null
+  onRetrySave?: () => void
 }
 
 export function ChatInterface({
@@ -94,6 +97,8 @@ export function ChatInterface({
   onRetry,
   loadError,
   onReload,
+  saveError,
+  onRetrySave,
 }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const nearBottomRef = useRef(true)
@@ -310,6 +315,25 @@ export function ChatInterface({
             <div ref={messagesEndRef} className="h-4" />
           </div>
         </div>
+
+        {/* Unsaved warning */}
+        {saveError && !loadError && (
+          <div
+            role="alert"
+            className="flex items-center justify-center gap-2 border-t border-border-default p-3 text-sm text-danger-700"
+          >
+            <span>Couldn't save this conversation.</span>
+            <Button
+              variant="tertiary"
+              size="sm"
+              onPress={() => {
+                onRetrySave?.()
+              }}
+            >
+              Try again
+            </Button>
+          </div>
+        )}
 
         {/* Input Area */}
         {loadError ? (

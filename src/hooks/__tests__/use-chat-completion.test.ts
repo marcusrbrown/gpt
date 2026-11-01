@@ -162,11 +162,13 @@ interface Env {
   /** While set, `getConversation` rejects with it. */
   loadError: Error | undefined
   saveConversation: ReturnType<typeof vi.fn<(conversation: Conversation) => Promise<void>>>
+  /** Runs inside every save before it is stored. A returned promise holds the save; a rejection fails it. */
+  onSave: ((conversation: Conversation) => Promise<void> | undefined) | undefined
 }
 
 function createEnv(): Env {
   const stored = new Map<string, Conversation>()
-  return {
+  const created: Env = {
     providersLoading: false,
     configured: new Set<ProviderId>(['openai', 'anthropic']),
     providers: {
@@ -178,9 +180,12 @@ function createEnv(): Env {
     stored,
     loadError: undefined,
     saveConversation: vi.fn(async (conversation: Conversation) => {
+      await created.onSave?.(conversation)
       stored.set(conversation.id, conversation)
     }),
+    onSave: undefined,
   }
+  return created
 }
 
 let env: Env
@@ -246,6 +251,66 @@ function setup(
 type Hook = ReturnType<typeof setup>
 
 let hook: Hook
+
+interface Deferred {
+  promise: Promise<void>
+  resolve: () => void
+  reject: (error: Error) => void
+}
+
+/** Every gate a test opened, so `afterEach` can release the ones it left held. Saves queue per conversation id. */
+const openGates: Deferred[] = []
+
+function deferred(): Deferred {
+  let resolve!: () => void
+  let reject!: (error: Error) => void
+  const promise = new Promise<void>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise
+    reject = rejectPromise
+  })
+  const gate = {promise, resolve, reject}
+  openGates.push(gate)
+  return gate
+}
+
+/**
+ * Holds the first save mid-write (after its read, before its store) until the gate opens; later saves are not held.
+ * Without serialization a later save would then finish first and the held, older snapshot would overwrite it.
+ */
+function holdFirstSave(): Deferred {
+  const gate = deferred()
+  let held = false
+  env.onSave = async () => {
+    if (held) return undefined
+    held = true
+    return gate.promise
+  }
+  return gate
+}
+
+/** Fails the first save with `error`; later saves go through. */
+function failFirstSave(error: Error): void {
+  let failed = false
+  env.onSave = async () => {
+    if (failed) return
+    failed = true
+    throw error
+  }
+}
+
+function contents(conversation: Conversation | undefined): string[] | undefined {
+  return conversation?.messages.map(message => message.content)
+}
+
+/** Completes a stream without waiting for the turn (and so its save) to settle. */
+async function completeWithoutWaiting(stream: ScriptedStream): Promise<void> {
+  await act(async () => {
+    stream.complete()
+  })
+  await waitFor(() => {
+    expect(hook.result.current.isStreaming).toBe(false)
+  })
+}
 
 /** Starts a send inside `act` and returns its promise; stream control happens through `env.providers`. */
 async function startSend(hook: Hook, content: string): Promise<void> {
@@ -356,6 +421,7 @@ describe('useChatCompletion', () => {
   })
 
   afterEach(() => {
+    for (const gate of openGates.splice(0)) gate.resolve()
     vi.restoreAllMocks()
   })
 
@@ -795,6 +861,338 @@ describe('useChatCompletion', () => {
 
       expect(hook.result.current.messages).toHaveLength(2)
       expectStrictlyIncreasing(timestamps(hook.result.current.messages))
+    })
+  })
+
+  describe('saving', () => {
+    beforeEach(() => {
+      vi.spyOn(console, 'error').mockImplementation(() => {})
+    })
+
+    it('keeps the newer turn when a stop-save is still pending as the next turn is saved', async () => {
+      hook = setup()
+      const gate = holdFirstSave()
+      const first = startSend(hook, 'one')
+      await emit(streamAt('openai', 0), 'part', 'part')
+      act(() => {
+        hook.result.current.stop()
+      })
+      await first
+      const {conversationId} = hook.result.current
+
+      const second = startSend(hook, 'two')
+      await completeWithoutWaiting(streamAt('openai', 1))
+      await act(async () => {
+        gate.resolve()
+        await second
+      })
+
+      expect(contents(storedConversation(conversationId))).toEqual(['one', 'part', 'two', ''])
+    })
+
+    it('keeps the regenerated reply when the save of the reply it replaces is still pending', async () => {
+      hook = setup()
+      const gate = holdFirstSave()
+      const first = startSend(hook, 'one')
+      await emit(streamAt('openai', 0), 'first reply', 'first reply')
+      await completeWithoutWaiting(streamAt('openai', 0))
+      const {conversationId} = hook.result.current
+
+      let regenerated!: Promise<void>
+      act(() => {
+        regenerated = hook.result.current.regenerate()
+      })
+      await emit(streamAt('openai', 1), 'second reply', 'second reply')
+      await completeWithoutWaiting(streamAt('openai', 1))
+      await act(async () => {
+        gate.resolve()
+        await Promise.all([first, regenerated])
+      })
+
+      expect(contents(storedConversation(conversationId))).toEqual(['one', 'second reply'])
+    })
+
+    it('writes a conversation\u2019s saves in turn order', async () => {
+      hook = setup()
+      const gate = holdFirstSave()
+      const first = startSend(hook, 'one')
+      await completeWithoutWaiting(streamAt('openai', 0))
+      const second = startSend(hook, 'two')
+      await completeWithoutWaiting(streamAt('openai', 1))
+
+      // The newer save waits behind the held one instead of racing it.
+      expect(env.saveConversation).toHaveBeenCalledTimes(1)
+      await act(async () => {
+        gate.resolve()
+        await Promise.all([first, second])
+      })
+      expect(env.saveConversation.mock.calls.map(([saved]) => saved.messageCount)).toEqual([2, 4])
+    })
+
+    it('does not report a finished new chat, or navigate to it, after the user started another', async () => {
+      const onConversationSaved = vi.fn()
+      hook = setup({onConversationSaved})
+      const gate = holdFirstSave()
+      const first = startSend(hook, 'one')
+      await completeWithoutWaiting(streamAt('openai', 0))
+      const firstId = hook.result.current.conversationId
+
+      act(() => {
+        hook.result.current.reset()
+      })
+      const second = startSend(hook, 'fresh')
+      const secondId = hook.result.current.conversationId
+      expect(secondId).not.toBe(firstId)
+
+      await act(async () => {
+        gate.resolve()
+        await first
+      })
+      expect(onConversationSaved).not.toHaveBeenCalled()
+      expect(hook.result.current.conversationId).toBe(secondId)
+      expect(contents(storedConversation(firstId))).toEqual(['one', ''])
+
+      await finish(streamAt('openai', 1), second)
+      expect(onConversationSaved).toHaveBeenCalledTimes(1)
+      expect(onConversationSaved).toHaveBeenCalledWith(expect.objectContaining({id: secondId}), {isNew: true})
+    })
+
+    it('does not report a save that finishes after the user moved to another conversation', async () => {
+      const onConversationSaved = await openConversationA()
+      const gate = holdFirstSave()
+      const pending = startSend(hook, 'q')
+      await completeWithoutWaiting(streamAt('openai', 0))
+
+      hook.rerender({gpt: makeGpt(), conversationId: 'conv-b', onConversationSaved})
+      await waitFor(() => {
+        expect(hook.result.current.isLoadingConversation).toBe(false)
+      })
+      await act(async () => {
+        gate.resolve()
+        await pending
+      })
+
+      expect(onConversationSaved).not.toHaveBeenCalled()
+      expect(contents(storedConversation('conv-a'))).toEqual(['earlier q', 'earlier a', 'q', ''])
+    })
+
+    it('does not report a save that finishes after the page was left', async () => {
+      const onConversationSaved = vi.fn()
+      hook = setup({onConversationSaved})
+      const gate = holdFirstSave()
+      const pending = startSend(hook, 'one')
+      await completeWithoutWaiting(streamAt('openai', 0))
+
+      hook.unmount()
+      await act(async () => {
+        gate.resolve()
+        await pending
+      })
+
+      expect(onConversationSaved).not.toHaveBeenCalled()
+    })
+
+    it('shows the stop-saved text when the user leaves a conversation mid-stream and returns before the save lands', async () => {
+      await openConversationA()
+      const gate = holdFirstSave()
+      const pending = startSend(hook, 'q')
+      await emit(streamAt('openai', 0), 'partial', 'partial')
+
+      hook.rerender({gpt: makeGpt(), conversationId: 'conv-b'})
+      await waitFor(() => {
+        expect(hook.result.current.messages).toHaveLength(1)
+      })
+      hook.rerender({gpt: makeGpt(), conversationId: 'conv-a'})
+      await act(async () => {
+        await Promise.resolve()
+      })
+
+      // Reading now would show the history from before the stop.
+      expect(hook.result.current.isLoadingConversation).toBe(true)
+      await act(async () => {
+        gate.resolve()
+        await pending
+      })
+      await waitFor(() => {
+        expect(hook.result.current.isLoadingConversation).toBe(false)
+      })
+      expect(hook.result.current.messages.map(message => message.content)).toEqual([
+        'earlier q',
+        'earlier a',
+        'q',
+        'partial',
+      ])
+    })
+
+    it('waits for a pending save when the page is left and a fresh hook loads the conversation', async () => {
+      const first = setup()
+      hook = first
+      const gate = holdFirstSave()
+      const pending = startSend(hook, 'one')
+      await emit(streamAt('openai', 0), 'partial', 'partial')
+      const {conversationId} = hook.result.current
+      first.unmount()
+
+      hook = setup({conversationId})
+      await act(async () => {
+        await Promise.resolve()
+      })
+      expect(hook.result.current.isLoadingConversation).toBe(true)
+      await act(async () => {
+        gate.resolve()
+        await pending
+      })
+      await waitFor(() => {
+        expect(hook.result.current.isLoadingConversation).toBe(false)
+      })
+      expect(hook.result.current.messages.map(message => message.content)).toEqual(['one', 'partial'])
+    })
+
+    describe('when a save fails', () => {
+      it('surfaces the failure, keeps the messages in memory and does not report the conversation', async () => {
+        const onConversationSaved = vi.fn()
+        hook = setup({onConversationSaved})
+        failFirstSave(new Error('QuotaExceededError'))
+
+        const pending = startSend(hook, 'one')
+        await emit(streamAt('openai', 0), 'reply', 'reply')
+        await finish(streamAt('openai', 0), pending)
+
+        expect(hook.result.current.saveError).toBe('QuotaExceededError')
+        expect(hook.result.current.messages.map(message => message.content)).toEqual(['one', 'reply'])
+        expect(env.stored.size).toBe(0)
+        expect(onConversationSaved).not.toHaveBeenCalled()
+      })
+
+      it('saves on retry, clears the error and reports the conversation as new', async () => {
+        const onConversationSaved = vi.fn()
+        hook = setup({onConversationSaved})
+        failFirstSave(new Error('QuotaExceededError'))
+        const pending = startSend(hook, 'one')
+        await emit(streamAt('openai', 0), 'reply', 'reply')
+        await finish(streamAt('openai', 0), pending)
+        const {conversationId} = hook.result.current
+
+        await act(async () => {
+          hook.result.current.retrySave()
+        })
+        await waitFor(() => {
+          expect(hook.result.current.saveError).toBeNull()
+        })
+
+        expect(contents(storedConversation(conversationId))).toEqual(['one', 'reply'])
+        expect(onConversationSaved).toHaveBeenCalledTimes(1)
+        expect(onConversationSaved).toHaveBeenCalledWith(expect.objectContaining({id: conversationId}), {isNew: true})
+        expect(hook.result.current.messages.map(message => message.content)).toEqual(['one', 'reply'])
+      })
+
+      it('keeps the error when the retry fails too, and a later retry can still succeed', async () => {
+        hook = setup()
+        let failures = 2
+        env.onSave = async () => {
+          if (failures-- > 0) throw new Error('still failing')
+        }
+        const pending = startSend(hook, 'one')
+        await finish(streamAt('openai', 0), pending)
+        expect(hook.result.current.saveError).toBe('still failing')
+
+        await act(async () => {
+          hook.result.current.retrySave()
+        })
+        await waitFor(() => {
+          expect(env.saveConversation).toHaveBeenCalledTimes(2)
+        })
+        await waitFor(() => {
+          expect(hook.result.current.saveError).toBe('still failing')
+        })
+
+        await act(async () => {
+          hook.result.current.retrySave()
+        })
+        await waitFor(() => {
+          expect(hook.result.current.saveError).toBeNull()
+        })
+        expect(env.stored.size).toBe(1)
+      })
+
+      it('is cleared when the next turn saves, which carries the earlier messages with it', async () => {
+        hook = setup()
+        failFirstSave(new Error('QuotaExceededError'))
+        const first = startSend(hook, 'one')
+        await finish(streamAt('openai', 0), first)
+        expect(hook.result.current.saveError).not.toBeNull()
+        const {conversationId} = hook.result.current
+
+        const second = startSend(hook, 'two')
+        await finish(streamAt('openai', 1), second)
+
+        expect(hook.result.current.saveError).toBeNull()
+        expect(contents(storedConversation(conversationId))).toEqual(['one', '', 'two', ''])
+      })
+
+      it('does not overwrite stored history it could not read, and saves on retry once it can', async () => {
+        await openConversationA()
+        const stored = storedConversation('conv-a').messages
+        const pending = startSend(hook, 'q')
+        env.loadError = new Error('IndexedDB unavailable')
+        await finish(streamAt('openai', 0), pending)
+
+        expect(hook.result.current.saveError).toBe('IndexedDB unavailable')
+        expect(storedConversation('conv-a').messages).toEqual(stored)
+
+        env.loadError = undefined
+        await act(async () => {
+          hook.result.current.retrySave()
+        })
+        await waitFor(() => {
+          expect(hook.result.current.saveError).toBeNull()
+        })
+        expect(contents(storedConversation('conv-a'))).toEqual(['earlier q', 'earlier a', 'q', ''])
+      })
+
+      it('does not mark the conversation now on screen when a save for one the user left fails', async () => {
+        await openConversationA()
+        const gate = holdFirstSave()
+        const pending = startSend(hook, 'q')
+        await completeWithoutWaiting(streamAt('openai', 0))
+
+        hook.rerender({gpt: makeGpt(), conversationId: 'conv-b'})
+        await waitFor(() => {
+          expect(hook.result.current.isLoadingConversation).toBe(false)
+        })
+        await act(async () => {
+          gate.reject(new Error('QuotaExceededError'))
+          await pending
+        })
+
+        expect(hook.result.current.saveError).toBeNull()
+      })
+
+      it('goes through the real StorageProvider: surfaces the rejection, then a retry reaches the database', async () => {
+        const realSave = vi.spyOn(IndexedDBStorageService.prototype, 'saveConversation')
+        realSave.mockRejectedValueOnce(new StorageError('Failed to save conversation', new Error('disk full')))
+        hook = setup({}, RealStorageWrapper)
+        await waitFor(() => {
+          expect(hook.result.current.status).toBe('ready')
+        })
+
+        const pending = startSend(hook, 'one')
+        await emit(streamAt('openai', 0), 'reply', 'reply')
+        await finish(streamAt('openai', 0), pending)
+        const {conversationId} = hook.result.current
+
+        expect(hook.result.current.saveError).toBe('Failed to save conversation')
+        expect(await new IndexedDBStorageService().getConversation(conversationId ?? '')).toBeUndefined()
+
+        await act(async () => {
+          hook.result.current.retrySave()
+        })
+        await waitFor(() => {
+          expect(hook.result.current.saveError).toBeNull()
+        })
+        const saved = await new IndexedDBStorageService().getConversation(conversationId ?? '')
+        expect(contents(saved)).toEqual(['one', 'reply'])
+      })
     })
   })
 

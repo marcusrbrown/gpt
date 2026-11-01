@@ -113,6 +113,22 @@ describe('ChatInterface', () => {
     expect(onReload).toHaveBeenCalledTimes(1)
   })
 
+  it('warns that the conversation is unsaved, keeps the input, and offers Try again', async () => {
+    const onRetrySave = vi.fn()
+    show({saveError: 'QuotaExceededError', onRetrySave})
+
+    expect(screen.getByRole('alert')).toHaveTextContent("Couldn't save this conversation.")
+    expect(screen.getByText('First answer')).toBeInTheDocument()
+    expect(screen.getByRole('textbox')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', {name: 'Try again'}))
+    expect(onRetrySave).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows no save warning when the conversation is saved', () => {
+    show({saveError: null})
+    expect(screen.queryByText("Couldn't save this conversation.")).not.toBeInTheDocument()
+  })
+
   it('shows the input and no load message when there is no load error', () => {
     show({loadError: null})
     expect(screen.queryByText("Couldn't load this conversation.")).not.toBeInTheDocument()

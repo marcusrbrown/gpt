@@ -101,6 +101,8 @@ export function GPTTestPage() {
         turnErrors={chat.turnErrors}
         loadError={chat.loadError}
         onReload={chat.reloadConversation}
+        saveError={chat.saveError}
+        onRetrySave={chat.retrySave}
         onSendMessage={content => {
           chat.send(content).catch(console.error)
         }}
