@@ -50,3 +50,25 @@
     background-color: transparent;
   }
 }
+
+/*
+ * Select parity with the v2 bordered field: v3's trigger is borderless by default
+ * (--border-width-field is 0). Same width and radius as the v2 Input. The resting border is
+ * default-500, not v2's default-200: default-200 is 1.2:1 against white and 1.7:1 against the dark
+ * dialog, below the 3:1 WCAG 1.4.11 needs for a control boundary. Hover darkens one step and
+ * focus / open use the v2 focus colour. Drop it with the v2 plugin.
+ */
+@layer components {
+  .select__trigger {
+    --border-width-field: var(--heroui-border-width-medium);
+    --field-border: hsl(var(--heroui-default-500));
+    --field-border-hover: hsl(var(--heroui-default-600));
+    --field-border-focus: hsl(var(--heroui-default-foreground));
+    border-radius: var(--heroui-radius-medium);
+
+    &[aria-expanded='true'],
+    &[data-focused='true'] {
+      border-color: var(--field-border-focus);
+    }
+  }
+}

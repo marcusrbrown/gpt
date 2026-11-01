@@ -571,6 +571,7 @@ Differences to expect:
 
 - `Select.Value` shows the selected item's full children, not its `textValue` (the MCP form's Transport now reads `SSE / HTTP (Remote)` in the trigger). An icon beside the text needs `className="flex items-center gap-2"` on `Select.Value`.
 - The selected item gets a checkmark (`ListBox.ItemIndicator`) instead of a filled row.
+- v3's trigger has no border (`--border-width-field` is 0), so on a plain dialog it reads as a row, not a control. `src/styles/heroui-v3.css` gives `.select__trigger` the v2 bordered field: 2px (`--heroui-border-width-medium`), `--heroui-radius-medium`, and `default-600` on hover and `default-foreground` on focus or open, as the v2 `Input` has. The resting border is `default-500`, not the v2 `default-200`: `default-200` is 1.2:1 against a white page and 1.7:1 against the dark dialog, under the 3:1 WCAG 1.4.11 needs, while `default-500` is 4.6:1 to 4.8:1 (light) and 6.8:1 to 8.2:1 (dark). Drop the override at cutover and re-check contrast.
 - The trigger is a plain `button` with the `aria-haspopup="listbox"` attribute and a `data-slot="select-trigger"` (v2 used `data-slot="trigger"`). Its accessible name is the selected value plus the label (`Light Theme selection`), so match names with a substring or regex.
 - The popover is a v3 overlay: put it in a v3 `Modal`, never in a v2 one. Escape closes the popover first, then the modal.
 - Pass `aria-label` when there is no `<Label>`; v3 does not name the select from `placeholder`.
