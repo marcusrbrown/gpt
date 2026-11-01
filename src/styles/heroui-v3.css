@@ -19,6 +19,11 @@
 @import '@heroui-v3/styles/components/button.css' layer(components);
 @import '@heroui-v3/styles/components/spinner.css' layer(components);
 @import '@heroui-v3/styles/components/modal.css' layer(components);
+@import '@heroui-v3/styles/components/label.css' layer(components);
+@import '@heroui-v3/styles/components/field-error.css' layer(components);
+@import '@heroui-v3/styles/components/list-box-item.css' layer(components);
+@import '@heroui-v3/styles/components/list-box.css' layer(components);
+@import '@heroui-v3/styles/components/select.css' layer(components);
 
 /*
  * Keep v3 buttons on the app's v2 brand colours. White text on the v3 default accent and danger is

@@ -1,7 +1,9 @@
 import type {Key} from 'react'
 import {useReducedMotion} from '@/hooks/use-reduced-motion'
 import {cn, ds} from '@/lib/design-system'
-import {addToast, Select, SelectItem, Switch} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {addToast, Switch} from '@heroui/react'
+import {ListBox, Select} from '@heroui-v3/react'
 import {Monitor, Moon, Sun} from 'lucide-react'
 import {useTheme} from 'next-themes'
 
@@ -19,9 +21,7 @@ export function AppearanceSettings() {
   const {theme: currentTheme, setTheme} = useTheme()
   const prefersReducedMotion = useReducedMotion()
 
-  const handleThemeChange = (keys: 'all' | Set<Key>) => {
-    if (keys === 'all') return
-    const selected = Array.from(keys)[0]
+  const handleThemeChange = (selected: Key | null) => {
     if (typeof selected === 'string') {
       setTheme(selected)
       const themeLabel = selected.charAt(0).toUpperCase() + selected.slice(1)
@@ -50,21 +50,25 @@ export function AppearanceSettings() {
           </div>
           <Select
             aria-label="Theme selection"
-            selectedKeys={currentTheme ? [currentTheme] : ['system']}
-            onSelectionChange={handleThemeChange}
+            value={currentTheme ?? 'system'}
+            onChange={handleThemeChange}
             className="w-full sm:w-48"
-            size="sm"
-            popoverProps={{
-              classNames: {
-                content: '!bg-surface-secondary border border-border-default',
-              },
-            }}
           >
-            {themeOptions.map(option => (
-              <SelectItem key={option.key} startContent={<option.icon size={16} />}>
-                {option.label}
-              </SelectItem>
-            ))}
+            <Select.Trigger>
+              <Select.Value className="flex items-center gap-2" />
+              <Select.Indicator />
+            </Select.Trigger>
+            <Select.Popover className="border border-border-default bg-surface-secondary">
+              <ListBox>
+                {themeOptions.map(option => (
+                  <ListBox.Item key={option.key} id={option.key} textValue={option.label}>
+                    <option.icon size={16} />
+                    {option.label}
+                    <ListBox.ItemIndicator />
+                  </ListBox.Item>
+                ))}
+              </ListBox>
+            </Select.Popover>
           </Select>
         </div>
 

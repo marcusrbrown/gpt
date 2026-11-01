@@ -206,7 +206,7 @@ test.describe('Keyboard Navigation Accessibility', () => {
         }
 
         // Test HeroUI Select components (migrated from native select)
-        const heroSelects = page.locator('[data-slot="trigger"]')
+        const heroSelects = page.locator('[data-slot="trigger"], [data-slot="select-trigger"]')
         const selectCount = await heroSelects.count()
 
         if (selectCount > 0) {
