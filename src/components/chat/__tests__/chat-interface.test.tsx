@@ -7,6 +7,15 @@ import {describe, expect, it, vi} from 'vitest'
 import {MemoryRouter} from 'react-router-dom'
 import {ChatInterface} from '../chat-interface'
 
+vi.mock('@/hooks/use-session', () => ({
+  useSession: () => ({
+    isInitialized: true,
+    isPassphraseSet: false,
+    isUnlocked: false,
+    webCryptoAvailable: true,
+  }),
+}))
+
 const gpt = {id: 'gpt-1', name: 'Test', description: 'testing'} as GPTConfiguration
 Element.prototype.scrollIntoView = vi.fn()
 const messages: ConversationMessage[] = [
