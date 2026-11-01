@@ -561,6 +561,63 @@ describe('OpenAIProvider', () => {
       ])
     })
 
+    it.each([
+      ['an id', {type: 'reasoning', summary: [], encrypted_content: 'blob'}],
+      ['a summary', {type: 'reasoning', id: 'rs_bad', encrypted_content: 'blob'}],
+      ['a summary list', {type: 'reasoning', id: 'rs_bad', summary: 'none', encrypted_content: 'blob'}],
+      [
+        'well-formed summary entries',
+        {type: 'reasoning', id: 'rs_bad', summary: [{text: 1}], encrypted_content: 'blob'},
+      ],
+      ['encrypted content', {type: 'reasoning', id: 'rs_bad', summary: []}],
+      ['string encrypted content', {type: 'reasoning', id: 'rs_bad', summary: [], encrypted_content: 42}],
+      ['a reasoning type', {type: 'message', id: 'rs_bad', summary: [], encrypted_content: 'blob'}],
+    ])('never sends a replay item that lacks %s, but still sends the valid ones', async (_missing, malformed) => {
+      const {requests} = mockFetch(() => streamResponse(textStreamEvents(['ok'], {model: 'gpt-5'})))
+
+      await collectChunks(
+        createProvider().createCompletion(
+          gpt5Request({
+            messages: [
+              {role: 'user', content: 'Q1'},
+              {role: 'assistant', content: 'A1', replay: {openai: [malformed, REASONING_ITEM]}},
+              {role: 'user', content: 'Q2'},
+            ],
+          }),
+        ),
+      )
+
+      expect(requests[0]?.body.input).toEqual([
+        {role: 'user', content: 'Q1'},
+        REASONING_ITEM,
+        {role: 'assistant', content: 'A1'},
+        {role: 'user', content: 'Q2'},
+      ])
+    })
+
+    it('keeps fields beyond the required ones when it replays an item', async () => {
+      const withExtras = {
+        ...REASONING_ITEM,
+        summary: [{type: 'summary_text', text: 'thought'}],
+        status: 'completed',
+      }
+      const {requests} = mockFetch(() => streamResponse(textStreamEvents(['ok'], {model: 'gpt-5'})))
+
+      await collectChunks(
+        createProvider().createCompletion(
+          gpt5Request({
+            messages: [
+              {role: 'user', content: 'Q1'},
+              {role: 'assistant', content: 'A1', replay: {openai: [withExtras]}},
+              {role: 'user', content: 'Q2'},
+            ],
+          }),
+        ),
+      )
+
+      expect(requests[0]?.body.input).toContainEqual(withExtras)
+    })
+
     it('ignores replay data that belongs to another provider', async () => {
       const {requests} = mockFetch(() => streamResponse(textStreamEvents(['ok'], {model: 'gpt-5'})))
 

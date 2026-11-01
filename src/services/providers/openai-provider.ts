@@ -1,6 +1,7 @@
 import type {CompletionChunk, CompletionRequest, Model, ProviderErrorType, ValidationResult} from '@/types/provider'
 import {ProviderError, ReplayDataSchema} from '@/types/provider'
 import OpenAI, {type ClientOptions} from 'openai'
+import {z} from 'zod'
 import {BaseLLMProvider} from './base-provider'
 
 type ResponseParams = Omit<OpenAI.Responses.ResponseCreateParamsNonStreaming, 'stream'>
@@ -16,16 +17,24 @@ export function isReasoningModel(model: string): boolean {
   return /^(?:o\d|gpt-5)/.test(id) && !id.startsWith('gpt-5-chat')
 }
 
-/** Replay data is opaque JSON from storage, so check the shape before sending it back to the API. */
-function isReasoningReplayItem(item: unknown): item is OpenAI.Responses.ResponseReasoningItem {
-  return (
-    typeof item === 'object' &&
-    item !== null &&
-    'type' in item &&
-    item.type === 'reasoning' &&
-    'encrypted_content' in item &&
-    typeof item.encrypted_content === 'string'
-  )
+/**
+ * Replay data is opaque JSON from storage (and from imports), so parse each item before sending it back to the API.
+ * This covers what the SDK's `ResponseReasoningItem` requires (`type`, `id`, `summary`) plus `encrypted_content`,
+ * which stateless replay needs. Other fields (`content`, `status`, anything newer) pass through untouched.
+ */
+const ReasoningReplayItemSchema = z.looseObject({
+  type: z.literal('reasoning'),
+  id: z.string(),
+  summary: z.array(z.looseObject({type: z.literal('summary_text'), text: z.string()})),
+  encrypted_content: z.string(),
+})
+
+/** Keeps the items that parse and drops the rest. */
+function toReasoningReplayItems(items: unknown[]): OpenAI.Responses.ResponseReasoningItem[] {
+  return items.flatMap(item => {
+    const parsed = ReasoningReplayItemSchema.safeParse(item)
+    return parsed.success ? [parsed.data] : []
+  })
 }
 
 const OPENAI_MODELS: Model[] = [
@@ -262,7 +271,7 @@ export class OpenAIProvider extends BaseLLMProvider {
 
       if (message.role === 'assistant' && replayReasoning) {
         const stored: unknown = message.replay?.openai
-        if (Array.isArray(stored)) input.push(...stored.filter(isReasoningReplayItem))
+        if (Array.isArray(stored)) input.push(...toReasoningReplayItems(stored))
       }
 
       input.push({role: message.role, content: message.content})
@@ -280,7 +289,7 @@ export class OpenAIProvider extends BaseLLMProvider {
 
     // Reasoning items from an incomplete response aren't followed by their message, so they can't be replayed.
     if (response.status === 'completed') {
-      const reasoningItems = response.output.filter(isReasoningReplayItem)
+      const reasoningItems = toReasoningReplayItems(response.output)
       if (reasoningItems.length > 0) {
         chunk.replay = ReplayDataSchema.parse({openai: reasoningItems})
       }
