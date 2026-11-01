@@ -37,7 +37,7 @@ For detailed design decisions, see [docs/overview.md](docs/overview.md) and the 
 
 ## Privacy
 
-Chats live only in your browser (IndexedDB); there is no backend. Each turn sends the conversation, plus the GPT's instructions, straight from your browser to the GPT's provider, using your own API key. For OpenAI, the app asks it not to store responses (`store: false`); OpenAI's own [data controls and abuse-monitoring retention](https://developers.openai.com/api/docs/guides/your-data) still apply. Anthropic and hosted providers follow their own policies; Ollama keeps everything on your machine.
+Chats live only in your browser (IndexedDB); there is no backend. Each turn sends the conversation, plus the GPT's instructions, straight from your browser to the GPT's provider, using your own API key. For OpenAI, the app asks it not to store responses (`store: false`); OpenAI's own [data controls and abuse-monitoring retention](https://developers.openai.com/api/docs/guides/your-data) still apply. Anthropic and hosted providers follow their own policies. Ollama stays on your machine only when its server runs on your machine; a remote Ollama server receives the conversation.
 
 ## Tech Stack
 
