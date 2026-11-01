@@ -116,7 +116,7 @@ tests/
 
 ### Dependencies (from package.json)
 
-@heroui/react, @langchain/anthropic, @langchain/core, @langchain/langgraph, @langchain/openai, dexie, zod, react-router-dom, react, @monaco-editor/react, openai, vitest, @playwright/test, tailwindcss
+@heroui/react, dexie, zod, react-router-dom, react, @monaco-editor/react, openai, vitest, @playwright/test, tailwindcss
 
 ### Context7 IDs
 
@@ -124,8 +124,6 @@ tests/
 | ---------------- | -------------------------------------------- | -------- |
 | HeroUI           | /heroui-inc/heroui                           | 892      |
 | HeroUI (v3 docs) | /llmstxt/v3_heroui_llms-full_txt             | 3308     |
-| LangChain JS     | /websites/langchain_oss_javascript           | 3205     |
-| LangGraph JS     | /websites/langchain_oss_javascript_langgraph | 416      |
 | Dexie.js         | /websites/dexie                              | 2708     |
 | Zod              | /colinhacks/zod                              | 641      |
 | Zod (v4 docs)    | /websites/zod_dev_v4                         | 3586     |
@@ -134,7 +132,6 @@ tests/
 ### GitHub Repos
 
 - heroui-inc/heroui
-- langchain-ai/langchainjs
 - dexie/dexie.js
 - colinhacks/zod
 - remix-run/react-router
@@ -142,7 +139,6 @@ tests/
 ### Documentation
 
 - https://heroui.com
-- https://js.langchain.com
 - https://dexie.org
 - https://zod.dev
 - https://reactrouter.com

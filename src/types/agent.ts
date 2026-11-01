@@ -1,9 +1,30 @@
-import type {Callbacks} from '@langchain/core/callbacks/manager'
-import type {BaseChatModel} from '@langchain/core/language_models/chat_models'
-import type {BaseMessage} from '@langchain/core/messages'
-import type {Tool} from '@langchain/core/tools'
-import type {StateGraph} from '@langchain/langgraph'
 import {z} from 'zod'
+
+/** A single message exchanged with an agent. */
+export const AgentMessageSchema = z.object({
+  role: z.enum(['system', 'user', 'assistant', 'tool']),
+  content: z.string(),
+})
+
+export type AgentMessage = z.infer<typeof AgentMessageSchema>
+
+/** A tool an agent can call. Extra fields are preserved. */
+export const AgentToolSchema = z.looseObject({
+  name: z.string(),
+  description: z.string(),
+})
+
+export type AgentTool = z.infer<typeof AgentToolSchema>
+
+/** Named lifecycle callbacks for monitoring and logging. */
+export const AgentCallbacksSchema = z.record(z.string(), z.unknown())
+
+export type AgentCallbacks = z.infer<typeof AgentCallbacksSchema>
+
+/** The language model an agent talks to. */
+export interface AgentModel {
+  invoke: (messages: AgentMessage[]) => Promise<AgentMessage>
+}
 
 /**
  * Configuration schema for all agents.
@@ -28,10 +49,10 @@ export const AgentConfigSchema = z.object({
   /** Optional agent capabilities */
   capabilities: z
     .object({
-      tools: z.array(z.custom<Tool>()),
+      tools: z.array(AgentToolSchema),
       streaming: z.boolean().optional().default(false),
       humanInTheLoop: z.boolean().optional().default(false),
-      callbacks: z.custom<Callbacks>().optional(),
+      callbacks: AgentCallbacksSchema.optional(),
     })
     .optional(),
 })
@@ -39,16 +60,16 @@ export const AgentConfigSchema = z.object({
 export type AgentConfig = z.infer<typeof AgentConfigSchema>
 
 /**
- * Agent state interface for LangGraph workflows.
+ * Agent state interface for agent workflows.
  * Defines the structure of state maintained during agent execution.
  */
 export interface AgentState {
   /** Message history for the agent */
-  messages: BaseMessage[]
+  messages: AgentMessage[]
   /** Current input being processed */
   input: string
   /** Available tools for the agent */
-  tools: Tool[]
+  tools: AgentTool[]
   /** Additional context and metadata */
   context?: Record<string, unknown>
 }
@@ -59,7 +80,7 @@ export interface AgentState {
  */
 export interface AgentResponse {
   /** The operation result */
-  output: BaseMessage
+  output: AgentMessage
   /** Intermediate steps taken by the agent */
   intermediateSteps?: {
     action: string
@@ -75,13 +96,13 @@ export interface AgentResponse {
  */
 export interface AgentCapabilities {
   /** List of tools available to the agent */
-  tools: Tool[]
+  tools: AgentTool[]
   /** Whether to enable streaming responses */
   streaming?: boolean
   /** Whether to enable human-in-the-loop workflows */
   humanInTheLoop?: boolean
   /** Optional callbacks for monitoring and logging */
-  callbacks?: Callbacks
+  callbacks?: AgentCallbacks
 }
 
 /**
@@ -90,11 +111,9 @@ export interface AgentCapabilities {
  */
 export interface Agent {
   /** The underlying language model */
-  model: BaseChatModel
+  model: AgentModel
   /** The agent's capabilities */
   capabilities: AgentCapabilities
-  /** The agent's workflow graph */
-  graph?: StateGraph<AgentState, AgentState>
 
   /**
    * Process an input and return a response
@@ -105,7 +124,7 @@ export interface Agent {
     input: string,
     options?: {
       stream?: boolean
-      callbacks?: Callbacks
+      callbacks?: AgentCallbacks
     },
   ) => Promise<AgentResponse>
 
