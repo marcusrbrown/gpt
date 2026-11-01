@@ -198,17 +198,9 @@ Based on 4px base unit with consistent increments:
   size="md"
   className="max-w-xs"
 />
-
-// Select dropdown
-<Select
-  label="Choose option"
-  variant="bordered"
-  size="md"
-  className="max-w-xs"
->
-  <SelectItem key="option1">Option 1</SelectItem>
-</Select>
 ```
+
+`Select` is on HeroUI v3: see "Select (v3)" under v2/v3 Coexistence.
 
 ## Layout Patterns
 
@@ -535,9 +527,55 @@ Differences to expect, and what the app does about them:
 - v3 rounds the dialog to 32px and fills the close button. `src/styles/heroui-v3.css` keeps the v2 radius (`--heroui-radius-large`) and a transparent close button. Drop both at cutover.
 - The v2 menu that opens a dialog (the GPT actions `Dropdown`) is still animating out when the dialog mounts, and v3 does not set `aria-hidden` on it, so it briefly counts as a second `role="dialog"`. Locate the dialog by name in tests: `getByRole('dialog', {name: /export/i})`.
 
-**Do not put a v2 overlay (`Select`, `Dropdown`, `Popover`) inside a v3 `Modal`.** The two majors resolve different `@react-aria/focus` and `@react-aria/overlays` versions, so their focus scopes do not nest: the v3 modal pulls focus back from the v2 popover and the popover closes on open. (Checked on `Select` in `mcp/mcp-server-form.tsx`: `aria-expanded` flips back to `false`, and a `portalContainer` inside the dialog does not fix it.) `mcp-server-form.tsx` therefore stays on the v2 `Modal` until `Select` moves to v3. v2 `Tooltip` and non-overlay v2 components (`Input`, `Checkbox`, `Switch`, `Radio`, `Progress`, `Accordion`) work inside a v3 modal.
+**Do not put a v2 overlay (`Select`, `Dropdown`, `Popover`) inside a v3 `Modal`.** The two majors resolve different `@react-aria/focus` and `@react-aria/overlays` versions, so their focus scopes do not nest: the v3 modal pulls focus back from the v2 popover and the popover closes on open. (Seen on a v2 `Select` in `mcp/mcp-server-form.tsx`: `aria-expanded` flipped back to `false`, and a `portalContainer` inside the dialog did not fix it.) Use the v3 `Select` (below), which nests in the v3 modal; `mcp-server-form.tsx` is the reference. v2 `Tooltip` and non-overlay v2 components (`Input`, `Checkbox`, `Switch`, `Radio`, `Progress`, `Accordion`) work inside a v3 modal.
 
 The v3 import list in `src/styles/heroui-v3.css` gains `base/overlay-motion.css` (`layer(base)`), `close-button.css` (shared, before `modal.css`) and `modal.css`.
+
+### Select (v3)
+
+```tsx
+import '@/styles/heroui-v3.css'
+import {FieldError, Label, ListBox, Select} from '@heroui-v3/react'
+
+<Select value={transport} onChange={key => { if (key === 'stdio' || key === 'streamable-http') setTransport(key) }} fullWidth>
+  <Label>Transport</Label>
+  <Select.Trigger>
+    <Select.Value />
+    <Select.Indicator />
+  </Select.Trigger>
+  <Select.Popover>
+    <ListBox>
+      <ListBox.Item id="streamable-http" textValue="SSE / HTTP">
+        SSE / HTTP (Remote)
+        <ListBox.ItemIndicator />
+      </ListBox.Item>
+    </ListBox>
+  </Select.Popover>
+</Select>
+```
+
+| v2 | v3 |
+| --- | --- |
+| `Select` + `SelectItem` | `Select` > `Select.Trigger` (`Select.Value`, `Select.Indicator`) + `Select.Popover` > `ListBox` > `ListBox.Item` |
+| `label` + `labelPlacement="outside"` | `<Label>` as a child of `Select`; with no visible label, `aria-label` on `Select` |
+| `selectedKeys={[k]}` + `onSelectionChange` / `onChange(e)` | `value={k}` (`null` for none) + `onChange(key)`; `key` is `Key \| null`, so narrow it. There is no `disallowEmptySelection`: guard against `null` in `onChange` |
+| `SelectItem key` / `textValue` | `ListBox.Item id` / `textValue` (set `textValue` when the children are not plain text) |
+| `startContent` | children of `ListBox.Item` (the selected item is rendered into `Select.Value` as is) |
+| `placeholder` | `placeholder` on `Select` |
+| `isInvalid` + `errorMessage` | `isInvalid` on `Select` + `<FieldError>` as a child |
+| `popoverProps.classNames.content` | `className` on `Select.Popover` |
+| `variant="bordered"`, `size` | none; v3 has `variant="primary" \| "secondary"` and one size |
+| full width by default | `fullWidth` |
+
+Differences to expect:
+
+- `Select.Value` shows the selected item's full children, not its `textValue` (the MCP form's Transport now reads `SSE / HTTP (Remote)` in the trigger). An icon beside the text needs `className="flex items-center gap-2"` on `Select.Value`.
+- The selected item gets a checkmark (`ListBox.ItemIndicator`) instead of a filled row.
+- The trigger is a plain `button` with the `aria-haspopup="listbox"` attribute and a `data-slot="select-trigger"` (v2 used `data-slot="trigger"`). Its accessible name is the selected value plus the label (`Light Theme selection`), so match names with a substring or regex.
+- The popover is a v3 overlay: put it in a v3 `Modal`, never in a v2 one. Escape closes the popover first, then the modal.
+- Pass `aria-label` when there is no `<Label>`; v3 does not name the select from `placeholder`.
+
+`src/styles/heroui-v3.css` gains `label.css` and `field-error.css` (shared, first), then `list-box-item.css`, `list-box.css` and `select.css`.
 
 ### Cutover
 
