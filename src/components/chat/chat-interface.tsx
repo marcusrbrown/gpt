@@ -59,7 +59,6 @@ interface ChatInterfaceProps {
   onRegenerate?: () => void
   conversationName?: string
   error?: string | null
-  processingMessage?: string
   providerName: string
   model: string
   status: ChatProviderStatus
@@ -82,7 +81,6 @@ export function ChatInterface({
   onRegenerate,
   conversationName = 'New Chat',
   error,
-  processingMessage,
   providerName,
   model,
   status,
@@ -300,22 +298,6 @@ export function ChatInterface({
               >
                 <div className="w-1.5 h-1.5 rounded-full bg-danger-500 mt-2 shrink-0" />
                 <div className="flex-1">{error}</div>
-              </div>
-            )}
-
-            {/* Loading Indicator (if no partial message is streaming) */}
-            {isLoading && messages.at(-1)?.role === 'user' && (
-              <div className="flex justify-start px-1 animate-in fade-in duration-300">
-                <div className="flex items-center gap-2 p-3 rounded-2xl bg-surface-secondary/50 border border-border-subtle/50">
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-bounce [animation-delay:-0.32s]" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-bounce [animation-delay:-0.16s]" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-bounce" />
-                  </div>
-                  <span className="text-xs font-medium text-content-secondary">
-                    {processingMessage || 'Thinking...'}
-                  </span>
-                </div>
               </div>
             )}
 
