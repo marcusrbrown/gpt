@@ -526,7 +526,7 @@ jobs:
           ref: ${{ steps.prehead.outputs.sha || github.event.pull_request.head.sha || '' }}
           token: ${{ secrets.FRO_BOT_PAT }}
           persist-credentials: >-
-            ${{ !contains(fromJSON('["pull_request", "issue_comment", "issues"]'), github.event_name) }}
+            ${{ !contains(fromJSON('["pull_request", "pull_request_review_comment", "issue_comment", "issues"]'), github.event_name) }}
 
       - name: Setup pnpm
         uses: ./.github/actions/setup-pnpm
