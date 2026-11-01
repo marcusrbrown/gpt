@@ -11,10 +11,13 @@ import type {ReactNode} from 'react'
 import type {UseChatCompletionOptions} from '../use-chat-completion'
 import {AIProviderContext} from '@/contexts/ai-provider-context'
 import {StorageContext, type StorageContextType} from '@/contexts/storage-context'
+import {StorageProvider} from '@/contexts/storage-provider'
+import {useStorage} from '@/hooks/use-storage'
 import {BaseLLMProvider} from '@/services/providers/base-provider'
+import {IndexedDBStorageService, StorageError} from '@/services/storage'
 import {ProviderError} from '@/types/provider'
 import {act, renderHook, waitFor} from '@testing-library/react'
-import {createElement} from 'react'
+import {createElement, Fragment} from 'react'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DEFAULT_MODEL_NAME, resolveChatTarget, useChatCompletion} from '../use-chat-completion'
 
@@ -182,7 +185,7 @@ function createEnv(): Env {
 
 let env: Env
 
-function Wrapper({children}: {children: ReactNode}) {
+function AIWrapper({children}: {children: ReactNode}) {
   const providers: ProviderConfig[] = Object.values(env.providers).map(provider => ({
     id: provider.id,
     name: provider.name,
@@ -199,6 +202,25 @@ function Wrapper({children}: {children: ReactNode}) {
     listModels: vi.fn(),
     isLoading: env.providersLoading,
   }
+  return createElement(AIProviderContext, {value: ai}, children)
+}
+
+/** Renders its children once the real StorageProvider has created its service, as the app does by the time a page mounts. */
+function StorageReady({children}: {children: ReactNode}) {
+  const {isLoading} = useStorage()
+  return isLoading ? null : createElement(Fragment, null, children)
+}
+
+/** The real StorageProvider over fake-indexeddb; spy on `IndexedDBStorageService.prototype` to make it fail. */
+function RealStorageWrapper({children}: {children: ReactNode}) {
+  return createElement(
+    StorageProvider,
+    null,
+    createElement(StorageReady, null, createElement(AIWrapper, null, children)),
+  )
+}
+
+function Wrapper({children}: {children: ReactNode}) {
   const storage = {
     getConversation: vi.fn(async (id: string) => {
       if (env.loadError) throw env.loadError
@@ -207,14 +229,14 @@ function Wrapper({children}: {children: ReactNode}) {
     saveConversation: env.saveConversation,
   } as unknown as StorageContextType
 
-  return createElement(StorageContext, {value: storage}, createElement(AIProviderContext, {value: ai}, children))
+  return createElement(StorageContext, {value: storage}, createElement(AIWrapper, null, children))
 }
 
-function setup(initial: Partial<UseChatCompletionOptions> = {}) {
+function setup(initial: Partial<UseChatCompletionOptions> = {}, wrapper: typeof Wrapper = Wrapper) {
   const props: UseChatCompletionOptions = {gpt: makeGpt(), conversationId: undefined, ...initial}
   return renderHook((hookProps: UseChatCompletionOptions) => useChatCompletion(hookProps), {
     initialProps: props,
-    wrapper: Wrapper,
+    wrapper,
   })
 }
 
@@ -998,6 +1020,38 @@ describe('useChatCompletion', () => {
         expect(hook.result.current.messages).toHaveLength(1)
       })
       expect(hook.result.current.loadError).toBeNull()
+    })
+
+    describe('through the real StorageProvider', () => {
+      it('surfaces a failed read as a load error and blocks sends, instead of showing an empty conversation', async () => {
+        vi.spyOn(console, 'error').mockImplementation(() => {})
+        vi.spyOn(IndexedDBStorageService.prototype, 'getConversation').mockRejectedValue(
+          new StorageError('Failed to get conversation conv-a', new Error('IndexedDB unavailable')),
+        )
+        const save = vi.spyOn(IndexedDBStorageService.prototype, 'saveConversation')
+
+        hook = setup({conversationId: 'conv-a'}, RealStorageWrapper)
+        await waitFor(() => {
+          expect(hook.result.current.isLoadingConversation).toBe(false)
+        })
+
+        expect(hook.result.current.loadError).toBe('Failed to get conversation conv-a')
+        expect(hook.result.current.messages).toEqual([])
+
+        await startSend(hook, 'new turn')
+        expect(env.providers.openai.streams).toHaveLength(0)
+        expect(save).not.toHaveBeenCalled()
+      })
+
+      it('still opens a conversation that does not exist as an empty chat with no error', async () => {
+        hook = setup({conversationId: 'never-saved'}, RealStorageWrapper)
+        await waitFor(() => {
+          expect(hook.result.current.isLoadingConversation).toBe(false)
+        })
+
+        expect(hook.result.current.loadError).toBeNull()
+        expect(hook.result.current.messages).toEqual([])
+      })
     })
   })
 
