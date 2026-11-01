@@ -42,13 +42,9 @@ This is a **local-first GPT creation platform** enabling technical users to crea
 
 ### AI/LLM Stack
 
-| Package              | Version | Purpose            |
-| -------------------- | ------- | ------------------ |
-| @langchain/core      | 1.1+    | LLM abstraction    |
-| @langchain/openai    | 1.2+    | OpenAI provider    |
-| @langchain/anthropic | 1.3+    | Anthropic provider |
-| @langchain/langgraph | 1.0+    | Agent workflows    |
-| openai               | 6.x     | OpenAI SDK         |
+| Package | Version | Purpose    |
+| ------- | ------- | ---------- |
+| openai  | 6.x     | OpenAI SDK |
 
 ### Storage Architecture (CRITICAL)
 

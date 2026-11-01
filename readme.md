@@ -41,7 +41,7 @@ For detailed design decisions, see [docs/overview.md](docs/overview.md) and the 
 - **Styling**: TailwindCSS 4, HeroUI
 - **Storage**: IndexedDB (Dexie.js), LRU Cache
 - **Security**: Web Crypto API (AES-GCM, PBKDF2)
-- **AI Integration**: LangChain abstraction, Multi-Call Protocol (MCP)
+- **AI Integration**: Provider abstraction (OpenAI, Anthropic, Ollama), Multi-Call Protocol (MCP)
 - **Development**: Deno (Jupyter Notebooks), pnpm monorepo
 
 ## Development
