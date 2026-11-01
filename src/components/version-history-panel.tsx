@@ -1,7 +1,9 @@
 import type {GPTVersion} from '@/types/gpt-extensions'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Spinner} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Spinner} from '@heroui/react'
+import {Button, Spinner as SpinnerV3} from '@heroui-v3/react'
 import {History, RotateCcw} from 'lucide-react'
 import {useCallback, useEffect, useState} from 'react'
 
@@ -89,15 +91,19 @@ export function VersionHistoryPanel({gptId, isOpen, onClose, onRestore}: Version
                   </div>
                   <Button
                     size="sm"
-                    variant="bordered"
-                    startContent={<RotateCcw className="h-4 w-4" />}
-                    isLoading={restoringId === version.id}
+                    variant="outline"
+                    isPending={restoringId === version.id}
                     onPress={() => {
                       handleRestore(version).catch(() => {})
                     }}
                     aria-label={`Restore version ${version.version}`}
                   >
-                    Restore
+                    {({isPending}) => (
+                      <>
+                        {isPending ? <SpinnerV3 size="sm" color="current" /> : <RotateCcw className="h-4 w-4" />}
+                        Restore
+                      </>
+                    )}
                   </Button>
                 </div>
               ))}
@@ -105,7 +111,7 @@ export function VersionHistoryPanel({gptId, isOpen, onClose, onRestore}: Version
           )}
         </ModalBody>
         <ModalFooter>
-          <Button variant="light" onPress={onClose}>
+          <Button variant="tertiary" onPress={onClose}>
             Close
           </Button>
         </ModalFooter>

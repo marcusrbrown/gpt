@@ -1,7 +1,9 @@
 import {isHttpsToLocalhostScenario, useOllamaStatus} from '@/hooks/use-ollama-status'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
 import {getOllamaProvider} from '@/services/providers/ollama-provider'
-import {addToast, Button, Chip, Input, Spinner} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {addToast, Chip, Input, Spinner} from '@heroui/react'
+import {Button, Spinner as SpinnerV3} from '@heroui-v3/react'
 import {AlertTriangle, XCircle} from 'lucide-react'
 import {useMemo, useState} from 'react'
 
@@ -172,12 +174,17 @@ export function OllamaSettings() {
             onPress={() => {
               checkNow().catch(console.error)
             }}
-            isLoading={isChecking}
-            variant="bordered"
-            className={cn('min-w-24 px-3', ds.focus.ring, ds.animation.transition)}
+            isPending={isChecking}
+            variant="outline"
+            className="min-w-24 px-3"
             aria-label="Test connection to Ollama"
           >
-            Test
+            {({isPending}) => (
+              <>
+                {isPending && <SpinnerV3 size="sm" color="current" />}
+                Test
+              </>
+            )}
           </Button>
         </div>
 
@@ -186,10 +193,9 @@ export function OllamaSettings() {
             onPress={() => {
               handleSaveUrl().catch(console.error)
             }}
-            color="primary"
-            variant="bordered"
+            variant="outline"
             isDisabled={!baseUrl.trim()}
-            className={cn('text-primary-700', ds.focus.ring, ds.animation.transition)}
+            className="text-primary-700"
             aria-label="Save Ollama settings"
           >
             Save Settings

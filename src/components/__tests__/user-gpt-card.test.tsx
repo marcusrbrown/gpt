@@ -45,23 +45,6 @@ vi.mock('@heroui/react', () => ({
   CardBody: ({children}: any) => <div>{children}</div>,
   CardFooter: ({children, className}: any) => <div className={className}>{children}</div>,
   Divider: () => <hr />,
-
-  Button: ({children, as: Component = 'button', to, startContent, ...props}: any) => {
-    if (typeof Component !== 'string') {
-      return (
-        <Component to={to} {...props}>
-          {startContent}
-          {children}
-        </Component>
-      )
-    }
-    return (
-      <button type="button" {...props}>
-        {startContent}
-        {children}
-      </button>
-    )
-  },
   Skeleton: ({className}: any) => <div className={`skeleton ${className}`} />,
 }))
 

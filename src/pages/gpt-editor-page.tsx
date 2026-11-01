@@ -19,7 +19,9 @@ import {useStorage} from '@/hooks/use-storage'
 import {cn, ds, theme} from '@/lib/design-system'
 import {KnowledgeService} from '@/services/knowledge-service'
 import {GPTConfigurationSchema} from '@/types/gpt'
-import {Button, Spinner, Tab, Tabs} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Spinner, Tab, Tabs, Tooltip} from '@heroui/react'
+import {Button, Spinner as SpinnerV3} from '@heroui-v3/react'
 import {Download, History, Play, Upload} from 'lucide-react'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
@@ -493,48 +495,53 @@ export function GPTEditorPage() {
             />
 
             {gptId && (
-              <Button
-                variant="flat"
-                isIconOnly
-                onPress={() => setIsVersionHistoryOpen(true)}
-                className={cn(ds.animation.buttonPress)}
-                title="Version History"
-              >
-                <History size={18} />
-              </Button>
+              <Tooltip content="Version History">
+                <Button
+                  variant="tertiary"
+                  isIconOnly
+                  onPress={() => setIsVersionHistoryOpen(true)}
+                  aria-label="Version History"
+                >
+                  <History size={18} />
+                </Button>
+              </Tooltip>
             )}
 
-            <Button
-              variant="flat"
-              isIconOnly
-              onPress={() => importGptRef.current?.click()}
-              className={cn(ds.animation.buttonPress)}
-              title="Import GPT Config"
-            >
-              <Upload size={18} />
-            </Button>
+            <Tooltip content="Import GPT Config">
+              <Button
+                variant="tertiary"
+                isIconOnly
+                onPress={() => importGptRef.current?.click()}
+                aria-label="Import GPT Config"
+              >
+                <Upload size={18} />
+              </Button>
+            </Tooltip>
 
-            <Button
-              variant="flat"
-              isIconOnly
-              onPress={handleExportGPT}
-              isDisabled={isExporting}
-              className={cn(ds.animation.buttonPress)}
-              title="Export GPT Config"
-            >
-              {isExporting ? <Spinner size="sm" /> : <Download size={18} />}
-            </Button>
+            <Tooltip content="Export GPT Config">
+              <Button
+                variant="tertiary"
+                isIconOnly
+                onPress={handleExportGPT}
+                isPending={isExporting}
+                aria-label="Export GPT Config"
+              >
+                {({isPending}) => (isPending ? <SpinnerV3 size="sm" color="current" /> : <Download size={18} />)}
+              </Button>
+            </Tooltip>
 
-            <Button
-              color="primary"
-              isIconOnly
-              onPress={handleTestGpt}
-              className="flex items-center shadow-sm"
-              isDisabled={!gpt.id}
-              title="Test GPT"
-            >
-              <Play size={18} />
-            </Button>
+            <Tooltip content="Test GPT">
+              <Button
+                variant="primary"
+                isIconOnly
+                onPress={handleTestGpt}
+                className="shadow-sm"
+                isDisabled={!gpt.id}
+                aria-label="Test GPT"
+              >
+                <Play size={18} />
+              </Button>
+            </Tooltip>
           </div>
         </div>
 
@@ -545,7 +552,7 @@ export function GPTEditorPage() {
             className={cn(ds.state.error, 'mt-4 p-3 rounded-lg flex items-center justify-between')}
           >
             <span>{importError}</span>
-            <Button size="sm" variant="light" onPress={() => setImportError(null)}>
+            <Button size="sm" variant="tertiary" onPress={() => setImportError(null)}>
               Dismiss
             </Button>
           </div>

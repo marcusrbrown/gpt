@@ -1,8 +1,8 @@
 import type {GPTConfiguration} from '@/types/gpt'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds, responsive} from '@/lib/design-system'
+import '@/styles/heroui-v3.css'
 import {
-  Button,
   Card,
   CardBody,
   CardFooter,
@@ -16,6 +16,7 @@ import {
   Tab,
   Tabs,
 } from '@heroui/react'
+import {Button} from '@heroui-v3/react'
 import {Archive, Copy, Download, Edit, MoreVertical, Plus, RotateCcw, Search, Trash2} from 'lucide-react'
 import {useCallback, useEffect, useMemo, useState} from 'react'
 import {ArchiveDialog} from './archive-dialog'
@@ -172,13 +173,8 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
           <Tab key="archived" title="Archived" data-testid="archived-tab" />
         </Tabs>
 
-        <Button
-          color="primary"
-          className="flex items-center gap-2"
-          startContent={<Plus className="h-4 w-4" />}
-          onPress={onCreateGPT}
-          data-testid="new-gpt-button"
-        >
+        <Button variant="primary" onPress={onCreateGPT} data-testid="new-gpt-button">
+          <Plus className="h-4 w-4" />
           New GPT
         </Button>
       </div>
@@ -212,13 +208,8 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
             {searchQuery ? 'No GPTs match your search' : viewMode === 'active' ? 'No GPTs yet' : 'No archived GPTs'}
           </p>
           {viewMode === 'active' && !searchQuery && (
-            <Button
-              className="mt-4 flex items-center gap-2"
-              color="primary"
-              onPress={onCreateGPT}
-              startContent={<Plus className="h-4 w-4" />}
-              data-testid="create-first-gpt-button"
-            >
+            <Button className="mt-4 h-10" variant="primary" onPress={onCreateGPT} data-testid="create-first-gpt-button">
+              <Plus className="h-4 w-4" />
               Create your first GPT
             </Button>
           )}
@@ -258,7 +249,7 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
                   <DropdownTrigger>
                     <Button
                       size="sm"
-                      variant="light"
+                      variant="tertiary"
                       isIconOnly
                       aria-label="GPT actions"
                       onPress={e => e.continuePropagation()}

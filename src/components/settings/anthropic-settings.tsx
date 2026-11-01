@@ -1,7 +1,9 @@
 import {useAIProvider} from '@/hooks/use-ai-provider'
 import {useSession} from '@/hooks/use-session'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
-import {addToast, Button, Input} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {addToast, Input} from '@heroui/react'
+import {Button} from '@heroui-v3/react'
 import {XCircle} from 'lucide-react'
 import {useState} from 'react'
 
@@ -114,8 +116,8 @@ export function AnthropicSettings() {
           />
           <Button
             onPress={toggleShowApiKey}
-            variant="bordered"
-            className={cn('min-w-20 px-3', ds.focus.ring, ds.animation.transition)}
+            variant="outline"
+            className="min-w-20 px-3"
             aria-label={showApiKey ? 'Hide API key' : 'Show API key'}
           >
             {showApiKey ? 'Hide' : 'Show'}
@@ -127,9 +129,8 @@ export function AnthropicSettings() {
             onPress={() => {
               handleSaveKey().catch(console.error)
             }}
-            color="primary"
+            variant="primary"
             isDisabled={!inputKey.trim()}
-            className={cn(ds.focus.ring, ds.animation.transition)}
             aria-label="Save API key to local storage"
           >
             Save API Key
@@ -139,10 +140,8 @@ export function AnthropicSettings() {
             onPress={() => {
               handleClearKey().catch(console.error)
             }}
-            variant="bordered"
-            color="danger"
+            variant="danger-soft"
             isDisabled={!isConfigured}
-            className={cn(ds.focus.ring, ds.animation.transition)}
             aria-label="Clear API key from local storage"
           >
             Clear API Key

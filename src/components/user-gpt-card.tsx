@@ -1,8 +1,9 @@
 import type {FC} from 'react'
 import type {GPTConfiguration} from '@/types/gpt'
 import {cn, compose, ds} from '@/lib/design-system'
-import {Button, Card, CardBody, CardFooter, CardHeader, Divider, Skeleton} from '@heroui/react'
-
+import '@/styles/heroui-v3.css'
+import {Card, CardBody, CardFooter, CardHeader, Divider, Skeleton} from '@heroui/react'
+import {buttonVariants} from '@heroui-v3/styles'
 import {Edit, Play} from 'lucide-react'
 import {Link} from 'react-router-dom'
 
@@ -71,28 +72,14 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
           </>
         ) : (
           <>
-            <Button
-              as={Link}
-              to={`/gpt/edit/${gpt.id}`}
-              variant="flat"
-              color="primary"
-              startContent={<Edit size={16} />}
-              className={cn('flex items-center', ds.animation.buttonPress)}
-              size="sm"
-            >
+            <Link to={`/gpt/edit/${gpt.id}`} className={buttonVariants({variant: 'tertiary', size: 'sm'})}>
+              <Edit size={16} />
               Edit
-            </Button>
-            <Button
-              as={Link}
-              to={`/gpt/test/${gpt.id}`}
-              variant="solid"
-              color="primary"
-              startContent={<Play size={16} />}
-              className={cn('flex items-center', ds.animation.buttonPress)}
-              size="sm"
-            >
+            </Link>
+            <Link to={`/gpt/test/${gpt.id}`} className={buttonVariants({variant: 'primary', size: 'sm'})}>
+              <Play size={16} />
               Test
-            </Button>
+            </Link>
           </>
         )}
       </CardFooter>

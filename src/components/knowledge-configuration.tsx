@@ -9,7 +9,9 @@ import type {
   UpdateSnippetInput,
 } from '@/types/knowledge'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Card, CardBody, Chip, Input, Radio, RadioGroup, Tab, Tabs, Textarea, Tooltip} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Card, CardBody, Chip, Input, Radio, RadioGroup, Tab, Tabs, Textarea, Tooltip} from '@heroui/react'
+import {Button} from '@heroui-v3/react'
 import {AlertCircle, CheckCircle, FileText, Loader2, RefreshCw, Search, Trash2, Upload} from 'lucide-react'
 import {useRef, useState} from 'react'
 
@@ -230,9 +232,9 @@ export function KnowledgeConfiguration({
                   onPress={() => {
                     onExtractAllPending().catch(console.error)
                   }}
-                  color="primary"
-                  startContent={<RefreshCw className="w-4 h-4" />}
+                  variant="primary"
                 >
+                  <RefreshCw className="w-4 h-4" />
                   Extract All Pending ({pendingCount})
                 </Button>
               )}
@@ -294,7 +296,7 @@ export function KnowledgeConfiguration({
                                 <Button
                                   isIconOnly
                                   size="sm"
-                                  variant="light"
+                                  variant="tertiary"
                                   onPress={() => {
                                     if (f.id) onExtractFile(f.id).catch(console.error)
                                   }}
@@ -306,8 +308,7 @@ export function KnowledgeConfiguration({
                               <Button
                                 isIconOnly
                                 size="sm"
-                                color="danger"
-                                variant="light"
+                                variant="danger-soft"
                                 onPress={() => onRemoveFile(index)}
                                 aria-label="Remove file"
                               >
@@ -338,7 +339,7 @@ export function KnowledgeConfiguration({
                       onChange={e => setNewUrlCache(e.target.value)}
                       className="flex-1"
                     />
-                    <Button onPress={handleCacheUrl} color="primary" className="h-full">
+                    <Button onPress={handleCacheUrl} variant="primary" className="h-full">
                       Cache URL
                     </Button>
                   </div>
@@ -360,8 +361,7 @@ export function KnowledgeConfiguration({
                       />
                       <Button
                         isIconOnly
-                        color="danger"
-                        variant="light"
+                        variant="danger-soft"
                         onPress={() => onRemoveUrl(index)}
                         aria-label="Remove URL"
                       >
@@ -425,7 +425,7 @@ export function KnowledgeConfiguration({
                                 <Button
                                   isIconOnly
                                   size="sm"
-                                  variant="light"
+                                  variant="tertiary"
                                   onPress={() => {
                                     onRefreshCachedUrl(url.id).catch(console.error)
                                   }}
@@ -436,8 +436,7 @@ export function KnowledgeConfiguration({
                                 <Button
                                   isIconOnly
                                   size="sm"
-                                  color="danger"
-                                  variant="light"
+                                  variant="danger-soft"
                                   onPress={() => {
                                     onRemoveCachedUrl(url.id).catch(console.error)
                                   }}
@@ -495,7 +494,7 @@ export function KnowledgeConfiguration({
                 <div className="flex gap-2">
                   <Button
                     onPress={handleSaveSnippet}
-                    color="primary"
+                    variant="primary"
                     isDisabled={!snippetForm.title || !snippetForm.content}
                   >
                     {isEditingSnippet ? 'Update Snippet' : 'Save Snippet'}
@@ -506,7 +505,7 @@ export function KnowledgeConfiguration({
                         setIsEditingSnippet(null)
                         setSnippetForm({})
                       }}
-                      variant="light"
+                      variant="tertiary"
                     >
                       Cancel
                     </Button>
@@ -534,13 +533,12 @@ export function KnowledgeConfiguration({
                         )}
                       </div>
                       <div className="flex gap-2 justify-end border-t border-border-default pt-3 mt-auto">
-                        <Button size="sm" variant="light" onPress={() => handleEditSnippet(snippet)}>
+                        <Button size="sm" variant="tertiary" onPress={() => handleEditSnippet(snippet)}>
                           Edit
                         </Button>
                         <Button
                           size="sm"
-                          variant="light"
-                          color="danger"
+                          variant="danger-soft"
                           onPress={() => {
                             onDeleteSnippet(snippet.id).catch(console.error)
                           }}

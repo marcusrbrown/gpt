@@ -1,7 +1,9 @@
 import type {FolderTreeNode} from '@/types/gpt-extensions'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Spinner} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Spinner} from '@heroui/react'
+import {Button} from '@heroui-v3/react'
 import {ChevronDown, ChevronRight, Folder, FolderPlus, Home} from 'lucide-react'
 import {useCallback, useEffect, useState} from 'react'
 
@@ -91,7 +93,14 @@ export function FolderSidebar({selectedFolderId, onFolderSelect, onCreateFolder}
     <aside className={cn('w-64 border-r border-border-default p-4 flex flex-col h-full')}>
       <div className="flex items-center justify-between mb-4">
         <h2 className={cn(ds.text.heading.h4)}>Folders</h2>
-        <Button size="sm" variant="light" isIconOnly onPress={onCreateFolder} aria-label="Create new folder">
+        <Button
+          size="sm"
+          variant="tertiary"
+          className="h-8 w-8 min-w-8"
+          isIconOnly
+          onPress={onCreateFolder}
+          aria-label="Create new folder"
+        >
           <FolderPlus className="h-4 w-4" />
         </Button>
       </div>

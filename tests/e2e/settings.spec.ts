@@ -185,7 +185,7 @@ test.describe('Settings Page - Data Management', () => {
     await settingsPage.switchToDataTab()
 
     // Click manage backups button within the data tab panel
-    await page.getByRole('button', {name: 'Manage Backups'}).click()
+    await page.getByRole('link', {name: 'Manage Backups'}).click()
 
     // Verify navigation to backup page
     await expect(page).toHaveURL('/backup')

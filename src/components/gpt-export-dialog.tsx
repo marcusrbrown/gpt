@@ -1,7 +1,9 @@
 import type {GPTExportOptions} from '@/types/export-import'
 import type {GPTConfiguration} from '@/types/gpt'
 import {cn} from '@/lib/design-system'
-import {Button, Checkbox, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Checkbox, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from '@heroui/react'
+import {Button, Spinner} from '@heroui-v3/react'
 import {Download, FileJson, Package} from 'lucide-react'
 import {useCallback, useState} from 'react'
 
@@ -161,18 +163,22 @@ export function GPTExportDialog({isOpen, onClose, gpt, gpts, onExport, isBulkExp
         </ModalBody>
 
         <ModalFooter>
-          <Button variant="flat" onPress={onClose} isDisabled={isExporting}>
+          <Button variant="tertiary" onPress={onClose} isDisabled={isExporting}>
             Cancel
           </Button>
           <Button
-            color="primary"
+            variant="primary"
             onPress={() => {
               handleExport().catch(console.error)
             }}
-            isLoading={isExporting}
-            startContent={!isExporting && <Download className="w-4 h-4" />}
+            isPending={isExporting}
           >
-            {isBulkExport ? 'Export ZIP' : 'Export JSON'}
+            {({isPending}) => (
+              <>
+                {isPending ? <Spinner size="sm" color="current" /> : <Download className="w-4 h-4" />}
+                {isBulkExport ? 'Export ZIP' : 'Export JSON'}
+              </>
+            )}
           </Button>
         </ModalFooter>
       </ModalContent>

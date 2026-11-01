@@ -1,7 +1,7 @@
 import type {MCPAuthentication, MCPServerConfig} from '@/types/mcp'
 import {cn, ds, theme} from '@/lib/design-system'
+import '@/styles/heroui-v3.css'
 import {
-  Button,
   Checkbox,
   Input,
   Modal,
@@ -12,6 +12,7 @@ import {
   Select,
   SelectItem,
 } from '@heroui/react'
+import {Button, Spinner} from '@heroui-v3/react'
 import {useState} from 'react'
 import {z} from 'zod'
 
@@ -386,17 +387,22 @@ export function MCPServerForm({isOpen, onClose, onSave, initialConfig}: MCPServe
           {error && <div className={cn(ds.form.errorText, 'text-center')}>{error}</div>}
         </ModalBody>
         <ModalFooter>
-          <Button variant="flat" onPress={onClose} isDisabled={isSaving}>
+          <Button variant="tertiary" onPress={onClose} isDisabled={isSaving}>
             Cancel
           </Button>
           <Button
-            color="primary"
+            variant="primary"
             onPress={() => {
               handleSave().catch(console.error)
             }}
-            isLoading={isSaving}
+            isPending={isSaving}
           >
-            Save Server
+            {({isPending}) => (
+              <>
+                {isPending && <Spinner size="sm" color="current" />}
+                Save Server
+              </>
+            )}
           </Button>
         </ModalFooter>
       </ModalContent>

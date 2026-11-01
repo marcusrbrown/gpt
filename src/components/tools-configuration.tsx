@@ -1,6 +1,8 @@
 import type {MCPTool} from '@/types/gpt'
 import {cn, ds} from '@/lib/design-system'
-import {Button, Input, Select, SelectItem} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Input, Select, SelectItem} from '@heroui/react'
+import {Button} from '@heroui-v3/react'
 
 interface FormErrors {
   tools: {
@@ -31,7 +33,7 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
     <div>
       <div className="flex items-center justify-between">
         <label className={cn(ds.form.label)}>Tools</label>
-        <Button onPress={onAddTool} size="sm" color="primary">
+        <Button onPress={onAddTool} size="sm" variant="primary">
           Add Tool
         </Button>
       </div>
@@ -40,7 +42,7 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
           <div key={index} className="p-4 border rounded-lg space-y-4">
             <div className="flex justify-between items-start">
               <h4 className={cn(ds.text.heading.h4, 'text-content-primary')}>Tool {index + 1}</h4>
-              <Button onPress={() => onRemoveTool(index)} size="sm" color="danger" variant="light">
+              <Button onPress={() => onRemoveTool(index)} size="sm" variant="danger-soft">
                 Remove
               </Button>
             </div>

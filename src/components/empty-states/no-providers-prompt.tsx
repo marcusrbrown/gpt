@@ -1,7 +1,8 @@
 import {useAIProvider} from '@/hooks/use-ai-provider'
 import {cn, ds, theme} from '@/lib/design-system'
+import '@/styles/heroui-v3.css'
 
-import {Button} from '@heroui/react'
+import {Button} from '@heroui-v3/react'
 import {AlertCircle, Settings} from 'lucide-react'
 
 import {useCallback} from 'react'
@@ -59,13 +60,8 @@ export function NoProvidersPrompt() {
         Anthropic, or Ollama credentials in Settings.
       </p>
 
-      <Button
-        color="primary"
-        size="lg"
-        startContent={<Settings size={18} />}
-        onPress={handleNavigateToSettings}
-        className={cn('flex items-center gap-2', ds.animation.transition)}
-      >
+      <Button variant="primary" size="lg" className="h-12" onPress={handleNavigateToSettings}>
+        <Settings size={18} />
         Configure Providers
       </Button>
     </div>

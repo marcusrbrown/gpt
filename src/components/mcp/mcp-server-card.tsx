@@ -2,7 +2,9 @@ import type {ConnectionStatus} from '@/services/mcp-client-service'
 import type {MCPServerConfig} from '@/types/mcp'
 import {useMCP} from '@/hooks/use-mcp'
 import {cn, compose, ds, theme} from '@/lib/design-system'
-import {Button, Chip, Spinner, Tooltip} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Chip, Spinner, Tooltip} from '@heroui/react'
+import {Button, Spinner as SpinnerV3} from '@heroui-v3/react'
 import {useState} from 'react'
 
 interface MCPServerCardProps {
@@ -91,25 +93,31 @@ export function MCPServerCard({server, onEdit, onDelete, onViewTools}: MCPServer
             <Button
               isIconOnly
               size="sm"
-              variant={status === 'connected' ? 'flat' : 'solid'}
-              color={status === 'connected' ? 'danger' : 'primary'}
+              variant={status === 'connected' ? 'danger-soft' : 'primary'}
               onPress={() => {
                 handleToggleConnection().catch(console.error)
               }}
-              isLoading={isToggling}
+              isPending={isToggling}
               isDisabled={!server.enabled}
               className="min-w-8 w-8 h-8"
+              aria-label={status === 'connected' ? 'Disconnect' : 'Connect'}
             >
-              <div
-                className={cn(
-                  'w-3 h-3 rounded-full',
-                  status === 'connected' ? 'bg-current' : 'border-2 border-current',
-                )}
-              />
+              {({isPending}) =>
+                isPending ? (
+                  <SpinnerV3 size="sm" color="current" />
+                ) : (
+                  <div
+                    className={cn(
+                      'w-3 h-3 rounded-full',
+                      status === 'connected' ? 'bg-current' : 'border-2 border-current',
+                    )}
+                  />
+                )
+              }
             </Button>
           </Tooltip>
 
-          <Button size="sm" variant="bordered" onPress={() => onEdit(server)} className="h-8">
+          <Button size="sm" variant="outline" onPress={() => onEdit(server)} className="h-8">
             Edit
           </Button>
         </div>
@@ -133,11 +141,11 @@ export function MCPServerCard({server, onEdit, onDelete, onViewTools}: MCPServer
 
         <div className="flex gap-2">
           {status === 'connected' && (
-            <Button size="sm" variant="light" color="primary" onPress={() => onViewTools(server.id)} className="h-8">
+            <Button size="sm" variant="tertiary" onPress={() => onViewTools(server.id)} className="h-8">
               View Tools
             </Button>
           )}
-          <Button size="sm" variant="light" color="danger" onPress={() => onDelete(server.id)} className="h-8">
+          <Button size="sm" variant="danger-soft" onPress={() => onDelete(server.id)} className="h-8">
             Delete
           </Button>
         </div>

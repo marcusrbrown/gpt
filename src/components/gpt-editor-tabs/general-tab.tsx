@@ -1,7 +1,9 @@
 import type {GPTCapabilities, GPTConfiguration} from '@/types/gpt'
 import {CapabilitiesConfiguration} from '@/components/capabilities-configuration'
 import {cn, ds, responsive} from '@/lib/design-system'
-import {Button, Input, Textarea} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Input, Textarea} from '@heroui/react'
+import {Button} from '@heroui-v3/react'
 
 interface GeneralTabProps {
   gpt: GPTConfiguration
@@ -142,16 +144,15 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
                 />
                 <Button
                   isIconOnly
-                  color="danger"
-                  variant="light"
+                  variant="danger-soft"
                   onPress={() => handleRemoveStarter(index)}
-                  className={ds.animation.buttonPress}
+                  aria-label="Remove conversation starter"
                 >
                   ✕
                 </Button>
               </div>
             ))}
-            <Button size="sm" variant="flat" onPress={handleAddStarter} className={cn(ds.animation.buttonPress)}>
+            <Button size="sm" variant="tertiary" onPress={handleAddStarter}>
               + Add Starter
             </Button>
           </div>

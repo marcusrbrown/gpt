@@ -254,7 +254,8 @@ test.describe('Screen Reader Compatibility', () => {
         await page.waitForLoadState('networkidle')
 
         // Wait for any content to load (more flexible)
-        await page.waitForSelector('input, textarea, [data-slot]', {state: 'visible', timeout: 10000})
+        // v3 buttons carry data-slot too; the first match can be a hidden responsive control, so wait on a visible one
+        await page.locator('input, textarea, [data-slot]').locator('visible=true').first().waitFor({timeout: 10000})
 
         // Test inputs with more resilient approach
         const inputs = page.locator('input:not([type="hidden"]):not([type="file"])')
