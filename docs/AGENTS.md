@@ -11,7 +11,6 @@ Project documentation and guidelines for the GPT platform.
 | `prd.md`               | Product requirements, MoSCoW priorities          |
 | `features.md`          | Feature breakdown and status                     |
 | `overview.md`          | Project overview                                 |
-| `agent-development.md` | Agent/LLM development patterns                   |
 | `plan/`                | RFC drafts and planning docs                     |
 
 ## Where to Look
