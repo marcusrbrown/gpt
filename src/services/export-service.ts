@@ -82,6 +82,16 @@ function gptToExportData(gpt: GPTConfiguration): GPTDataExport {
   }
 }
 
+/**
+ * Replay data (encrypted reasoning) only works with the key that created it, so it never travels in export files.
+ * Everything else in the metadata, including which provider and model made the reply, is kept.
+ */
+function withoutReplay<T extends {replay?: unknown}>(metadata: T | undefined): Omit<T, 'replay'> | undefined {
+  if (!metadata) return undefined
+  const {replay: discarded, ...rest} = metadata
+  return rest
+}
+
 function conversationToExportData(conv: Conversation, gptName: string): ConversationDataExport {
   return {
     id: conv.id,
@@ -94,7 +104,7 @@ function conversationToExportData(conv: Conversation, gptName: string): Conversa
       role: msg.role,
       content: msg.content,
       timestamp: toISOString(msg.timestamp),
-      metadata: msg.metadata,
+      metadata: withoutReplay(msg.metadata),
     })),
     tags: conv.tags,
     isPinned: conv.isPinned,
@@ -401,8 +411,8 @@ export async function createFullBackup(onProgress?: ExportProgressCallback): Pro
           role: msg.role,
           content: msg.content,
           timestamp: msg.timestampISO,
-          // Spread: the Dexie `MessageMetadata` interface has no index signature for `Record<string, unknown>`.
-          metadata: msg.metadata && {...msg.metadata},
+          // The rest-spread inside also copies, which the Dexie `MessageMetadata` interface (no index signature) needs.
+          metadata: withoutReplay(msg.metadata),
         })),
       tags: conv.tags,
       isPinned: conv.isPinned,

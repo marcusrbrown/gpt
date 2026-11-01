@@ -231,10 +231,14 @@ describe('IndexedDBStorageService', () => {
         expect(saved).toBeDefined()
         const exported = await exportConversation(saved as Conversation, gpt.name)
 
+        // Replay only works with the key that created it, so exports leave it out and keep the rest.
+        const {replay: discarded, ...exportedMetadata} = fullMetadata
+        expect(discarded).toBeDefined()
+
         // JSON round-trip, as a downloaded file would be.
         const parsed = ConversationExportSchema.parse(JSON.parse(JSON.stringify(exported)))
         expect(parsed.conversation.messages[0]?.metadata).toBeUndefined()
-        expect(parsed.conversation.messages[1]?.metadata).toEqual(fullMetadata)
+        expect(parsed.conversation.messages[1]?.metadata).toEqual(exportedMetadata)
 
         await storage.deleteConversation(conversation.id)
         const result = await importConversation(parsed, 'overwrite')
@@ -244,8 +248,8 @@ describe('IndexedDBStorageService', () => {
         try {
           const reloaded = await fresh.getConversation(conversation.id)
           const assistant = reloaded?.messages.find(m => m.role === 'assistant')
-          expect(assistant?.metadata).toEqual(fullMetadata)
-          expect(ConversationMessageSchema.shape.metadata.parse(assistant?.metadata)).toEqual(fullMetadata)
+          expect(assistant?.metadata).toEqual(exportedMetadata)
+          expect(ConversationMessageSchema.shape.metadata.parse(assistant?.metadata)).toEqual(exportedMetadata)
           expect(reloaded?.messages.find(m => m.role === 'user')).not.toHaveProperty('metadata')
         } finally {
           fresh.destroy()
