@@ -3,10 +3,16 @@ import type {CompletionMessage, CompletionRequest, ProviderErrorType, ProviderId
 import {useAIProvider} from '@/hooks/use-ai-provider'
 import {useStorage} from '@/hooks/use-storage'
 import {ProviderError, ReplayDataSchema} from '@/types/provider'
-import {useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react'
+import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react'
 
 /** What the GPT's provider needs before a turn can be sent. `unsupported` is Azure, which has no implementation. */
 export type ChatProviderStatus = 'loading' | 'unsupported' | 'not-configured' | 'ready'
+
+/**
+ * Why the conversation named by the route can't be used. `read-failed` may pass on a retry; `foreign-gpt` never will,
+ * because the conversation belongs to another GPT.
+ */
+export type ChatLoadError = {kind: 'read-failed'; message: string} | {kind: 'foreign-gpt'; message: string}
 
 /** A provider failure recorded against the user message of the turn that failed. */
 export interface ChatTurnError {
@@ -59,7 +65,7 @@ export interface UseChatCompletionResult {
    * Why the saved conversation could not be loaded, or `null`. While set, `messages` is empty only because the load
    * failed, so send, regenerate and retry are blocked: saving a new turn would overwrite the stored history.
    */
-  loadError: string | null
+  loadError: ChatLoadError | null
   /**
    * Why the conversation on screen could not be saved, or `null`. The messages stay in memory; `retrySave` writes them
    * again. Cleared by any later save that succeeds.
@@ -88,7 +94,7 @@ export const DEFAULT_MODEL_NAME = 'gpt-4'
 const DEFAULT_PROVIDER_ID: ProviderId = 'openai'
 const NO_MESSAGES: ConversationMessage[] = []
 const NEW_CHAT_TITLE = 'New Chat'
-const GPT_MISMATCH_ERROR = 'This conversation belongs to a different GPT.'
+const FOREIGN_GPT_ERROR: ChatLoadError = {kind: 'foreign-gpt', message: 'This conversation belongs to a different GPT.'}
 const MAX_TITLE_LENGTH = 50
 
 /** A missing provider means OpenAI. A missing model gets the default only on OpenAI; other providers have none. */
@@ -547,7 +553,11 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
   // The route can name any conversation. One that belongs to another GPT must never reach this GPT's provider, so it
   // is a load error: its history is hidden, and sends (and with them saves) are blocked.
   const gptMismatch = view.ownerGptId !== undefined && gpt !== undefined && view.ownerGptId !== gpt.id
-  const loadError = gptMismatch ? GPT_MISMATCH_ERROR : view.loadError
+  const readError = view.loadError
+  const loadError = useMemo<ChatLoadError | null>(() => {
+    if (gptMismatch) return FOREIGN_GPT_ERROR
+    return readError === null ? null : {kind: 'read-failed', message: readError}
+  }, [gptMismatch, readError])
   const messages = gptMismatch ? NO_MESSAGES : view.messages
 
   const canStartTurn = status === 'ready' && !view.isLoading && loadError === null && view.streamingId === null
@@ -650,9 +660,9 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
 
   // Settling the failed load as not loading is what lets this flip `loadingId` back to the id and rerun the effect.
   const reloadConversation = useCallback(() => {
-    if (loadError === null) return
+    if (loadError?.kind !== 'read-failed') return
     setView(prev => ({...prev, isLoading: true, loadError: null, ownerGptId: undefined}))
-  }, [loadError])
+  }, [loadError?.kind])
 
   // Saves what is on screen now, not the failed snapshot: anything newer would otherwise be written over by it. A reply
   // still streaming is skipped; its own save follows and carries every message.

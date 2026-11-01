@@ -1544,7 +1544,7 @@ describe('useChatCompletion', () => {
     it('exposes the error and blocks send, regenerate and retry so the stored history is never overwritten', async () => {
       await openFailingConversation()
 
-      expect(hook.result.current.loadError).toBe('IndexedDB unavailable')
+      expect(hook.result.current.loadError).toEqual({kind: 'read-failed', message: 'IndexedDB unavailable'})
       expect(hook.result.current.messages).toEqual([])
 
       await startSend(hook, 'new turn')
@@ -1606,7 +1606,7 @@ describe('useChatCompletion', () => {
       await waitFor(() => {
         expect(hook.result.current.isLoadingConversation).toBe(false)
       })
-      expect(hook.result.current.loadError).toBe('IndexedDB unavailable')
+      expect(hook.result.current.loadError).toEqual({kind: 'read-failed', message: 'IndexedDB unavailable'})
     })
 
     it('is cleared by switching to another conversation', async () => {
@@ -1623,7 +1623,7 @@ describe('useChatCompletion', () => {
 
     describe('when the conversation belongs to a different GPT', () => {
       const OTHER_GPT_ID = '22222222-2222-4222-8222-222222222222'
-      const MISMATCH_MESSAGE = 'This conversation belongs to a different GPT.'
+      const FOREIGN_GPT_ERROR = {kind: 'foreign-gpt', message: 'This conversation belongs to a different GPT.'}
       const foreignHistory = [makeMessage('user', 'private q'), makeMessage('assistant', 'private a')]
 
       function storeForeignConversation() {
@@ -1637,7 +1637,7 @@ describe('useChatCompletion', () => {
           expect(hook.result.current.isLoadingConversation).toBe(false)
         })
 
-        expect(hook.result.current.loadError).toBe(MISMATCH_MESSAGE)
+        expect(hook.result.current.loadError).toEqual(FOREIGN_GPT_ERROR)
         expect(hook.result.current.messages).toEqual([])
 
         await startSend(hook, 'new turn')
@@ -1655,7 +1655,7 @@ describe('useChatCompletion', () => {
         const onInitialPromptSent = vi.fn()
         hook = setup({conversationId: 'conv-x', initialPrompt: 'from navigation', onInitialPromptSent})
         await waitFor(() => {
-          expect(hook.result.current.loadError).toBe(MISMATCH_MESSAGE)
+          expect(hook.result.current.loadError).toEqual(FOREIGN_GPT_ERROR)
         })
         await act(async () => {
           await Promise.resolve()
@@ -1675,7 +1675,7 @@ describe('useChatCompletion', () => {
 
         hook.rerender({gpt: makeGpt(), conversationId: 'conv-x'})
 
-        expect(hook.result.current.loadError).toBe(MISMATCH_MESSAGE)
+        expect(hook.result.current.loadError).toEqual(FOREIGN_GPT_ERROR)
         expect(hook.result.current.messages).toEqual([])
         await startSend(hook, 'new turn')
         expect(env.providers.openai.streams).toHaveLength(0)
@@ -1688,7 +1688,7 @@ describe('useChatCompletion', () => {
 
         hook.rerender({gpt: makeGpt({id: OTHER_GPT_ID}), conversationId: 'conv-a'})
 
-        expect(hook.result.current.loadError).toBe(MISMATCH_MESSAGE)
+        expect(hook.result.current.loadError).toEqual(FOREIGN_GPT_ERROR)
         expect(hook.result.current.messages).toEqual([])
         await startSend(hook, 'leak?')
         // Only the turn before the switch ever reached a provider.
@@ -1702,10 +1702,25 @@ describe('useChatCompletion', () => {
 
         hook.rerender({gpt: makeGpt({id: OTHER_GPT_ID}), conversationId: undefined})
 
-        expect(hook.result.current.loadError).toBe(MISMATCH_MESSAGE)
+        expect(hook.result.current.loadError).toEqual(FOREIGN_GPT_ERROR)
         await startSend(hook, 'leak?')
         // Only the turn before the switch ever reached a provider.
         expect(Object.values(env.providers).flatMap(provider => provider.streams)).toHaveLength(1)
+      })
+
+      it('has nothing to reload: reloading changes neither the error nor the loading state', async () => {
+        storeForeignConversation()
+        hook = setup({conversationId: 'conv-x'})
+        await waitFor(() => {
+          expect(hook.result.current.loadError).toEqual(FOREIGN_GPT_ERROR)
+        })
+
+        act(() => {
+          hook.result.current.reloadConversation()
+        })
+
+        expect(hook.result.current.isLoadingConversation).toBe(false)
+        expect(hook.result.current.loadError).toEqual(FOREIGN_GPT_ERROR)
       })
 
       it('is cleared by switching to a conversation of this GPT', async () => {
@@ -1713,7 +1728,7 @@ describe('useChatCompletion', () => {
         env.stored.set('conv-b', makeConversation('conv-b', [makeMessage('user', 'b question')]))
         hook = setup({conversationId: 'conv-x'})
         await waitFor(() => {
-          expect(hook.result.current.loadError).toBe(MISMATCH_MESSAGE)
+          expect(hook.result.current.loadError).toEqual(FOREIGN_GPT_ERROR)
         })
 
         hook.rerender({gpt: makeGpt(), conversationId: 'conv-b'})
@@ -1737,7 +1752,10 @@ describe('useChatCompletion', () => {
           expect(hook.result.current.isLoadingConversation).toBe(false)
         })
 
-        expect(hook.result.current.loadError).toBe('Failed to get conversation conv-a')
+        expect(hook.result.current.loadError).toEqual({
+          kind: 'read-failed',
+          message: 'Failed to get conversation conv-a',
+        })
         expect(hook.result.current.messages).toEqual([])
 
         await startSend(hook, 'new turn')

@@ -103,14 +103,33 @@ describe('ChatInterface', () => {
     expect(screen.getByText(/OpenAI isn't set up for this GPT/)).toBeInTheDocument()
   })
 
-  it('replaces the input with a message and a Try again action when the conversation failed to load', async () => {
+  it('replaces the input with the load error text and a Try again action when the read failed', async () => {
     const onReload = vi.fn()
-    show({messages: [], loadError: 'IndexedDB unavailable', onReload})
+    show({messages: [], loadError: {kind: 'read-failed', message: 'IndexedDB unavailable'}, onReload})
 
-    expect(screen.getByRole('alert')).toHaveTextContent("Couldn't load this conversation.")
+    expect(screen.getByRole('alert')).toHaveTextContent('IndexedDB unavailable')
+    expect(screen.queryByText("Couldn't load this conversation.")).not.toBeInTheDocument()
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', {name: 'Try again'}))
     expect(onReload).toHaveBeenCalledTimes(1)
+  })
+
+  it('explains a conversation of another GPT without offering a retry that cannot help', () => {
+    show({
+      messages: [],
+      loadError: {kind: 'foreign-gpt', message: 'This conversation belongs to a different GPT.'},
+      onReload: vi.fn(),
+    })
+
+    expect(screen.getByRole('alert')).toHaveTextContent('This conversation belongs to a different GPT.')
+    expect(screen.queryByRole('button', {name: 'Try again'})).not.toBeInTheDocument()
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
+  })
+
+  it('shows the input and no load message when there is no load error', () => {
+    show({loadError: null})
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(screen.getByRole('textbox')).toBeInTheDocument()
   })
 
   it('warns that the conversation is unsaved, keeps the input, and offers Try again', async () => {
@@ -127,12 +146,6 @@ describe('ChatInterface', () => {
   it('shows no save warning when the conversation is saved', () => {
     show({saveError: null})
     expect(screen.queryByText("Couldn't save this conversation.")).not.toBeInTheDocument()
-  })
-
-  it('shows the input and no load message when there is no load error', () => {
-    show({loadError: null})
-    expect(screen.queryByText("Couldn't load this conversation.")).not.toBeInTheDocument()
-    expect(screen.getByRole('textbox')).toBeInTheDocument()
   })
 
   it('keeps history visible when Azure is unsupported', () => {

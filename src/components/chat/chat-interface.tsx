@@ -1,5 +1,5 @@
 import type {Conversation, ConversationMessage, GPTConfiguration} from '@/types/gpt'
-import type {ChatProviderStatus, ChatTurnError} from '@/hooks/use-chat-completion'
+import type {ChatLoadError, ChatProviderStatus, ChatTurnError} from '@/hooks/use-chat-completion'
 import {GPTProviderPrompt} from '@/components/empty-states/gpt-provider-prompt'
 import '@/styles/heroui-v3.css'
 import {Button} from '@heroui-v3/react'
@@ -67,8 +67,8 @@ interface ChatInterfaceProps {
   turnErrors: Record<string, ChatTurnError>
   onStop: () => void
   onRetry: (id: string) => void
-  /** Set when the saved conversation could not be loaded. Replaces the input so nothing can overwrite its history. */
-  loadError?: string | null
+  /** Set when the saved conversation can't be used. Replaces the input so nothing can overwrite its history. */
+  loadError?: ChatLoadError | null
   onReload?: () => void
   /** Set when the conversation could not be saved. The messages are still on screen; the input stays available. */
   saveError?: string | null
@@ -341,16 +341,18 @@ export function ChatInterface({
             role="alert"
             className="flex items-center justify-center gap-2 border-t border-border-default p-4 text-sm text-danger-700"
           >
-            <span>Couldn't load this conversation.</span>
-            <Button
-              variant="tertiary"
-              size="sm"
-              onPress={() => {
-                onReload?.()
-              }}
-            >
-              Try again
-            </Button>
+            <span>{loadError.message}</span>
+            {loadError.kind === 'read-failed' && (
+              <Button
+                variant="tertiary"
+                size="sm"
+                onPress={() => {
+                  onReload?.()
+                }}
+              >
+                Try again
+              </Button>
+            )}
           </div>
         ) : status === 'not-configured' ? (
           <GPTProviderPrompt providerName={providerName} />
