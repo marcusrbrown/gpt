@@ -479,50 +479,43 @@ Dropdown menus need explicit styling to ensure proper appearance:
 
 ### HeroUI Modal Configuration (CRITICAL)
 
-Modals require explicit configuration to ensure proper overlay behavior:
+`Modal` is on HeroUI v3 (`@heroui-v3/react`). It is compound, and placement and backdrop are set explicitly. See "Modal (v3)" in `docs/design-system.md` for the full v2 → v3 mapping.
 
 ```tsx
-// CORRECT: Modal with explicit backdrop and placement
-<Modal
-  isOpen={isOpen}
-  onClose={onClose}
-  placement="center"
-  backdrop="opaque"
-  hideCloseButton
->
-  <ModalContent>
-    <ModalHeader className="flex items-center justify-between gap-2">
-      <div className="flex items-center gap-2">
-        <Icon className="h-5 w-5" />
-        <span>{title}</span>
-      </div>
-      <Button isIconOnly variant="light" size="sm" onPress={onClose}>
-        <XIcon className="h-4 w-4" />
-      </Button>
-    </ModalHeader>
-    <ModalBody>{content}</ModalBody>
-    <ModalFooter>
-      <Button variant="light" onPress={onClose}>Cancel</Button>
-      <Button color="primary" onPress={onConfirm}>Confirm</Button>
-    </ModalFooter>
-  </ModalContent>
-</Modal>
+import '@/styles/heroui-v3.css'
+import {Button, Modal} from '@heroui-v3/react'
 
-// WRONG: Modal without explicit configuration
-<Modal isOpen={isOpen} onClose={onClose}>  // May have positioning/backdrop issues
-  <ModalContent>
-    <ModalHeader>{title}</ModalHeader>  // Close button may overlap content
-    <ModalBody>{content}</ModalBody>
-  </ModalContent>
+// CORRECT: controlled modal with explicit backdrop, placement and close control
+<Modal.Backdrop isOpen={isOpen} onOpenChange={open => { if (!open) onClose() }} variant="opaque">
+  <Modal.Container size="md" placement="center">
+    <Modal.Dialog>
+      <Modal.CloseTrigger />
+      <Modal.Header className="flex-row items-center gap-2 pr-8">
+        <Icon className="h-5 w-5" />
+        <Modal.Heading>{title}</Modal.Heading>
+      </Modal.Header>
+      <Modal.Body>{content}</Modal.Body>
+      <Modal.Footer>
+        <Button variant="tertiary" onPress={onClose}>Cancel</Button>
+        <Button variant="primary" onPress={onConfirm}>Confirm</Button>
+      </Modal.Footer>
+    </Modal.Dialog>
+  </Modal.Container>
+</Modal.Backdrop>
+
+// WRONG: v2 compound parts (ModalContent, ModalHeader, ...) and `onClose`
+<Modal isOpen={isOpen} onClose={onClose}>
+  <ModalContent>...</ModalContent>
 </Modal>
 ```
 
 **Key Rules:**
 
-- **Always set `placement="center"`**: Ensures modal is centered, not anchored to bottom
-- **Always set `backdrop="opaque"` or `backdrop="blur"`**: Ensures content behind modal is properly dimmed
-- **Use `hideCloseButton` + custom close button**: Prevents built-in close button from overlapping header content
-- **Header layout**: Use `flex items-center justify-between` to properly position title and close button
+- **Always set `placement="center"`** on `Modal.Container`: v3 defaults to `auto`, which anchors to the bottom on small screens
+- **Always set `variant="opaque"` (or `blur`)** on `Modal.Backdrop`
+- **Include `Modal.CloseTrigger`** (v3 draws no close button unless you add it) and put `pr-8` on the header so the title clears it
+- **Put the title in `Modal.Heading`**: it names the dialog (`role="dialog"` gets its accessible name from it)
+- **Use `onOpenChange`, not `onClose`**: translate `onOpenChange(false)` into the parent's close handler, or use `useOverlayState()` for local state
 
 ### Color Tokens
 

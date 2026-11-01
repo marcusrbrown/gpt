@@ -77,8 +77,17 @@ tests/
 // Buttons with icons need explicit flex
 <Button className="flex items-center gap-2" startContent={<Icon />}>
 
-// Modals need explicit config
-<Modal placement="center" backdrop="opaque" hideCloseButton>
+// Modals (v3, `@heroui-v3/react`): compound parts, explicit placement and backdrop
+<Modal.Backdrop isOpen={isOpen} onOpenChange={setOpen} variant="opaque">
+  <Modal.Container placement="center">
+    <Modal.Dialog>
+      <Modal.CloseTrigger />
+      <Modal.Header><Modal.Heading>Title</Modal.Heading></Modal.Header>
+      <Modal.Body>{content}</Modal.Body>
+      <Modal.Footer>{actions}</Modal.Footer>
+    </Modal.Dialog>
+  </Modal.Container>
+</Modal.Backdrop>
 
 // Inputs with icons need classNames
 <Input classNames={{ inputWrapper: 'flex items-center' }} startContent={<Icon />} />

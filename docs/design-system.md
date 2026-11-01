@@ -483,6 +483,62 @@ v3 sizing differs from v2: no minimum width (add `min-w-*` where layout needs it
 
 `src/styles/heroui-v3.css` re-points v3's `--accent` and `--danger` at the v2 `--heroui-primary` and `--heroui-danger`. v3's own values give white button text 3.6:1 and 3.5:1, which fails the axe contrast rule (4.5:1) on `primary`; the v2 values are 4.5:1 and 4.0:1. Remove the override at cutover and re-check contrast.
 
+### Modal (v3)
+
+```tsx
+import '@/styles/heroui-v3.css'
+import {Button, Modal, useOverlayState} from '@heroui-v3/react'
+
+const state = useOverlayState()
+
+<Button onPress={() => state.open()}>Open</Button>
+
+<Modal.Backdrop isOpen={state.isOpen} onOpenChange={open => state.setOpen(open)} variant="opaque">
+  <Modal.Container size="md" placement="center">
+    <Modal.Dialog>
+      <Modal.CloseTrigger />
+      <Modal.Header className="pr-8">
+        <Modal.Heading>Clear all data</Modal.Heading>
+      </Modal.Header>
+      <Modal.Body>...</Modal.Body>
+      <Modal.Footer>
+        <Button variant="tertiary" onPress={() => state.close()}>Cancel</Button>
+      </Modal.Footer>
+    </Modal.Dialog>
+  </Modal.Container>
+</Modal.Backdrop>
+```
+
+Wrapper components keep their `isOpen` / `onClose` props and pass `onOpenChange={open => { if (!open) onClose() }}`. Escape, backdrop click and `Modal.CloseTrigger` all go through `onOpenChange(false)`, so the parent's handler runs once. `isDismissable` is `true` by default, same as v2. Do not use the `<Modal state={state}>` root without a trigger: it renders a `PressResponder` with no pressable child and React Aria warns.
+
+| v2 | v3 |
+| --- | --- |
+| `<Modal isOpen onClose>` | `<Modal.Backdrop isOpen onOpenChange>` |
+| `useDisclosure()` | `useOverlayState()`: `onOpen` → `open()`, `onClose` → `close()`, `onOpenChange` → `setOpen(isOpen)` / `toggle()`. The methods are not `this`-bound (`@typescript-eslint/unbound-method`), so wrap them: `onPress={() => state.open()}` |
+| `ModalContent` | `Modal.Container` > `Modal.Dialog` |
+| `ModalHeader` / `ModalBody` / `ModalFooter` | `Modal.Header` + `Modal.Heading` / `Modal.Body` / `Modal.Footer` |
+| built-in close button, `hideCloseButton` | `Modal.CloseTrigger` (accessible name `Close`); leave it out where v2 had `hideCloseButton` |
+| `size="md"` / `"lg"` / `"2xl"` | `size` on `Modal.Container`: `md`, `lg`; no `2xl`, use `lg` plus `max-w-2xl` on `Modal.Dialog` |
+| `placement` | `placement` on `Modal.Container` (default `auto`; the app always sets `center`) |
+| `backdrop="opaque"` | `variant="opaque"` on `Modal.Backdrop` (its colour, `black/50`, matches the v2 `bg-black/50` override, so drop the override) |
+| `scrollBehavior="inside"` | `scroll="inside"` (v3 default) |
+| default scroll (`normal`) | `scroll="outside"` (the backdrop scrolls) |
+| `classNames.base` | `className` on `Modal.Dialog` |
+| `classNames.header` / `footer` | `className` on `Modal.Header` / `Modal.Footer` |
+| `data-testid` on `Modal` | `data-testid` on `Modal.Dialog` |
+
+Differences to expect, and what the app does about them:
+
+- `Modal.Body` is not a flex column and sets `text-sm text-muted`. Where v2 relied on `gap-*` or on inherited text, add `flex flex-col gap-*` and `text-base text-foreground` to `Modal.Body`.
+- The dialog has uniform 24px padding instead of v2's per-section padding, so dialogs are a few px taller. Header, body and footer are spaced by v3 (8px / 20px).
+- `Modal.Heading` is `text-base font-medium`; the app uses `text-lg font-semibold` (v2's `text-large`).
+- v3 rounds the dialog to 32px and fills the close button. `src/styles/heroui-v3.css` keeps the v2 radius (`--heroui-radius-large`) and a transparent close button. Drop both at cutover.
+- The v2 menu that opens a dialog (the GPT actions `Dropdown`) is still animating out when the dialog mounts, and v3 does not set `aria-hidden` on it, so it briefly counts as a second `role="dialog"`. Locate the dialog by name in tests: `getByRole('dialog', {name: /export/i})`.
+
+**Do not put a v2 overlay (`Select`, `Dropdown`, `Popover`) inside a v3 `Modal`.** The two majors resolve different `@react-aria/focus` and `@react-aria/overlays` versions, so their focus scopes do not nest: the v3 modal pulls focus back from the v2 popover and the popover closes on open. (Checked on `Select` in `mcp/mcp-server-form.tsx`: `aria-expanded` flips back to `false`, and a `portalContainer` inside the dialog does not fix it.) `mcp-server-form.tsx` therefore stays on the v2 `Modal` until `Select` moves to v3. v2 `Tooltip` and non-overlay v2 components (`Input`, `Checkbox`, `Switch`, `Radio`, `Progress`, `Accordion`) work inside a v3 modal.
+
+The v3 import list in `src/styles/heroui-v3.css` gains `base/overlay-motion.css` (`layer(base)`), `close-button.css` (shared, before `modal.css`) and `modal.css`.
+
 ### Cutover
 
 After the last component migrates and the v2 plugin is removed: replace the per-component imports with `@import '@heroui/styles';` in `src/index.css` (the full package, as upstream documents), delete `src/styles/heroui-v3.css` and the side-effect imports, rename the aliases back to `@heroui/*`, and drop the Renovate hold. The colour-key collision no longer exists once v2 utilities are gone.
