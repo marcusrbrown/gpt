@@ -9,10 +9,11 @@ type SessionState = Pick<SessionContextValue, 'isPassphraseSet' | 'isUnlocked' |
 
 const unlock = vi.fn<(passphrase: string) => Promise<boolean>>()
 const setInitialPassphrase = vi.fn<(passphrase: string) => Promise<void>>()
+const resetAllData = vi.fn<() => Promise<void>>()
 let session: SessionState
 
 vi.mock('@/hooks/use-session', () => ({
-  useSession: () => ({...session, unlock, setInitialPassphrase}),
+  useSession: () => ({...session, unlock, setInitialPassphrase, resetAllData}),
 }))
 
 function Harness() {
@@ -41,6 +42,7 @@ describe('useUnlockGate', () => {
   beforeEach(() => {
     unlock.mockReset().mockResolvedValue(true)
     setInitialPassphrase.mockReset().mockResolvedValue()
+    resetAllData.mockReset().mockResolvedValue()
     session = {isPassphraseSet: false, isUnlocked: false, webCryptoAvailable: true}
   })
 
@@ -87,6 +89,27 @@ describe('useUnlockGate', () => {
       expect(screen.getByTestId('result')).toHaveTextContent('unlocked')
     })
     expect(unlock).toHaveBeenCalledWith('correct-passphrase')
+  })
+
+  it('offers a new passphrase after a forgotten one is reset, then resolves unlocked', async () => {
+    session = {...session, isPassphraseSet: true}
+    const user = userEvent.setup()
+    render(<Harness />)
+
+    await user.click(screen.getByRole('button', {name: 'Save'}))
+    await user.click(await screen.findByRole('button', {name: 'Forgot passphrase?'}))
+    await user.click(await screen.findByRole('button', {name: 'Delete Keys and Reset'}))
+
+    expect(await screen.findByRole('dialog', {name: 'Create a Passphrase'})).toBeInTheDocument()
+    expect(resetAllData).toHaveBeenCalledTimes(1)
+
+    await user.type(screen.getByLabelText('Passphrase', {exact: true}), 'long-enough-1')
+    await user.type(screen.getByLabelText('Confirm Passphrase'), 'long-enough-1{Enter}')
+
+    await waitFor(() => {
+      expect(screen.getByTestId('result')).toHaveTextContent('unlocked')
+    })
+    expect(setInitialPassphrase).toHaveBeenCalledWith('long-enough-1')
   })
 
   it('resolves dismissed when the user cancels', async () => {

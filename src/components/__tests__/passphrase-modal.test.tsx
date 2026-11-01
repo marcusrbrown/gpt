@@ -5,22 +5,25 @@ import {PassphraseModal} from '../passphrase-modal'
 
 const setInitialPassphrase = vi.fn<(passphrase: string) => Promise<void>>()
 const unlock = vi.fn<(passphrase: string) => Promise<boolean>>()
+const resetAllData = vi.fn<() => Promise<void>>()
 
 vi.mock('@/hooks/use-session', () => ({
-  useSession: () => ({setInitialPassphrase, unlock}),
+  useSession: () => ({setInitialPassphrase, unlock, resetAllData}),
 }))
 
 function renderModal(mode: 'setup' | 'unlock') {
   const onClose = vi.fn()
   const onSuccess = vi.fn()
-  render(<PassphraseModal mode={mode} isOpen onClose={onClose} onSuccess={onSuccess} />)
-  return {onClose, onSuccess}
+  const onReset = vi.fn()
+  render(<PassphraseModal mode={mode} isOpen onClose={onClose} onSuccess={onSuccess} onReset={onReset} />)
+  return {onClose, onSuccess, onReset}
 }
 
 describe('PassphraseModal', () => {
   beforeEach(() => {
     setInitialPassphrase.mockReset().mockResolvedValue()
     unlock.mockReset().mockResolvedValue(true)
+    resetAllData.mockReset().mockResolvedValue()
   })
 
   describe('setup mode', () => {
@@ -141,6 +144,72 @@ describe('PassphraseModal', () => {
       renderModal('unlock')
 
       expect(await screen.findByRole('button', {name: 'Unlock'})).toBeDisabled()
+    })
+  })
+
+  describe('forgot passphrase', () => {
+    const CONFIRMATION = "This deletes your saved API keys. You'll set a new passphrase."
+
+    it('offers a reset in unlock mode only', async () => {
+      const {unmount} = render(<PassphraseModal mode="unlock" isOpen />)
+      expect(await screen.findByRole('button', {name: 'Forgot passphrase?'})).toBeInTheDocument()
+      unmount()
+
+      renderModal('setup')
+      await screen.findByRole('dialog', {name: 'Create a Passphrase'})
+      expect(screen.queryByRole('button', {name: 'Forgot passphrase?'})).not.toBeInTheDocument()
+    })
+
+    it('asks for confirmation before deleting anything', async () => {
+      const user = userEvent.setup()
+      renderModal('unlock')
+
+      await user.click(await screen.findByRole('button', {name: 'Forgot passphrase?'}))
+
+      expect(await screen.findByRole('dialog', {name: 'Reset Passphrase'})).toBeInTheDocument()
+      expect(screen.getByText(CONFIRMATION)).toBeInTheDocument()
+      expect(screen.queryByLabelText('Passphrase', {exact: true})).not.toBeInTheDocument()
+      expect(resetAllData).not.toHaveBeenCalled()
+    })
+
+    it('goes back to the unlock form without resetting', async () => {
+      const user = userEvent.setup()
+      renderModal('unlock')
+
+      await user.click(await screen.findByRole('button', {name: 'Forgot passphrase?'}))
+      await user.click(await screen.findByRole('button', {name: 'Back'}))
+
+      expect(await screen.findByRole('dialog', {name: 'Unlock Session'})).toBeInTheDocument()
+      expect(screen.queryByText(CONFIRMATION)).not.toBeInTheDocument()
+      expect(resetAllData).not.toHaveBeenCalled()
+    })
+
+    it('resets the session and reports it so a new passphrase can be set', async () => {
+      const user = userEvent.setup()
+      const {onReset, onSuccess} = renderModal('unlock')
+
+      await user.click(await screen.findByRole('button', {name: 'Forgot passphrase?'}))
+      await user.click(await screen.findByRole('button', {name: 'Delete Keys and Reset'}))
+
+      await waitFor(() => {
+        expect(onReset).toHaveBeenCalledTimes(1)
+      })
+      expect(resetAllData).toHaveBeenCalledTimes(1)
+      expect(onSuccess).not.toHaveBeenCalled()
+      expect(unlock).not.toHaveBeenCalled()
+    })
+
+    it('shows a failed reset inline and stays on the confirmation', async () => {
+      resetAllData.mockRejectedValue(new Error('Services not initialized'))
+      const user = userEvent.setup()
+      const {onReset} = renderModal('unlock')
+
+      await user.click(await screen.findByRole('button', {name: 'Forgot passphrase?'}))
+      await user.click(await screen.findByRole('button', {name: 'Delete Keys and Reset'}))
+
+      expect(await screen.findByRole('alert')).toHaveTextContent('Services not initialized')
+      expect(onReset).not.toHaveBeenCalled()
+      expect(screen.getByText(CONFIRMATION)).toBeInTheDocument()
     })
   })
 

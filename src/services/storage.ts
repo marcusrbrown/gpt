@@ -414,11 +414,13 @@ export class IndexedDBStorageService {
 
   async clearAll(): Promise<void> {
     try {
-      await db.transaction('rw', [db.gpts, db.conversations, db.messages, db.settings], async () => {
+      // `secrets` goes with `settings`: the salt that derives their key lives there, so they cannot be read without it.
+      await db.transaction('rw', [db.gpts, db.conversations, db.messages, db.settings, db.secrets], async () => {
         await db.gpts.clear()
         await db.conversations.clear()
         await db.messages.clear()
         await db.settings.clear()
+        await db.secrets.clear()
       })
 
       this.gptsCache.clear()

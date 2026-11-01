@@ -1,3 +1,4 @@
+import {mkdirSync} from 'node:fs'
 import type {Page} from '@playwright/test'
 import {expect, test} from './fixtures'
 
@@ -122,6 +123,73 @@ test.describe('Session unlock', () => {
     await settingsPage.unlockWith(PASSPHRASE)
     await expect(settingsPage.unlockDialog).toBeHidden()
     await expect(settingsPage.unlockPrompt).toBeHidden()
+    await expect(settingsPage.openAIConfiguredStatus).toBeVisible()
+  })
+
+  test('resets a forgotten passphrase, deletes the saved key and accepts a new passphrase', async ({
+    page,
+    settingsPage,
+  }) => {
+    const NEW_PASSPHRASE = 'a brand new passphrase'
+
+    await test.step('save a key under the old passphrase and reload', async () => {
+      await settingsPage.saveOpenAIKey(OPENAI_KEY)
+      await settingsPage.createPassphrase(PASSPHRASE)
+      await expect(settingsPage.openAIConfiguredStatus).toBeVisible()
+      await settingsPage.reload()
+      await expect(settingsPage.unlockPrompt).toBeVisible()
+    })
+
+    await test.step('ask to reset, and see what it deletes before anything is deleted', async () => {
+      await settingsPage.openUnlockDialog()
+      await settingsPage.startPassphraseReset()
+
+      await expect(settingsPage.resetPassphraseDialog).toBeVisible()
+      await expect(
+        settingsPage.resetPassphraseDialog.getByText("This deletes your saved API keys. You'll set a new passphrase."),
+      ).toBeVisible()
+
+      mkdirSync('/tmp/session-followups', {recursive: true})
+      await page.screenshot({path: '/tmp/session-followups/reset.png'})
+    })
+
+    await test.step('confirm and set a new passphrase', async () => {
+      await settingsPage.confirmPassphraseReset()
+      await expect(settingsPage.createPassphraseDialog).toBeVisible()
+
+      await settingsPage.createPassphrase(NEW_PASSPHRASE)
+      await expect(settingsPage.createPassphraseDialog).toBeHidden()
+      await expect(settingsPage.unlockPrompt).toBeHidden()
+    })
+
+    await test.step('find the old key gone after a reload, and the new passphrase working', async () => {
+      await settingsPage.reload()
+      await expect(settingsPage.unlockPrompt).toBeVisible()
+
+      await settingsPage.openUnlockDialog()
+      await settingsPage.unlockWith(PASSPHRASE)
+      await expect(settingsPage.unlockDialog.getByRole('alert')).toHaveText('Incorrect passphrase')
+
+      await settingsPage.unlockWith(NEW_PASSPHRASE)
+      await expect(settingsPage.unlockDialog).toBeHidden()
+      await expect(settingsPage.unlockPrompt).toBeHidden()
+      await expect(settingsPage.openAIConfiguredStatus).toBeHidden()
+    })
+  })
+
+  test('keeps the saved key when the reset is backed out of', async ({settingsPage}) => {
+    await settingsPage.saveOpenAIKey(OPENAI_KEY)
+    await settingsPage.createPassphrase(PASSPHRASE)
+    await expect(settingsPage.openAIConfiguredStatus).toBeVisible()
+    await settingsPage.reload()
+
+    await settingsPage.openUnlockDialog()
+    await settingsPage.startPassphraseReset()
+    await settingsPage.resetPassphraseDialog.getByRole('button', {name: 'Back'}).click()
+
+    await expect(settingsPage.unlockDialog).toBeVisible()
+    await settingsPage.unlockWith(PASSPHRASE)
+    await expect(settingsPage.unlockDialog).toBeHidden()
     await expect(settingsPage.openAIConfiguredStatus).toBeVisible()
   })
 })

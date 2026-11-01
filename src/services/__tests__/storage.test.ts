@@ -1,5 +1,5 @@
 import type {Conversation, GPTConfiguration} from '@/types/gpt'
-import {deleteDatabase} from '@/lib/database'
+import {db, deleteDatabase} from '@/lib/database'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {IndexedDBStorageService} from '../storage'
 import 'fake-indexeddb/auto'
@@ -157,6 +157,22 @@ describe('IndexedDBStorageService', () => {
       await storage.clearAll()
       const allGpts = await storage.getAllGPTs()
       expect(allGpts).toHaveLength(0)
+    })
+
+    it('should clear stored API keys and the passphrase salt', async () => {
+      await db.secrets.put({
+        id: 'openai',
+        provider: 'openai',
+        encryptedKey: new ArrayBuffer(8),
+        iv: new Uint8Array(12),
+        createdAtISO: new Date().toISOString(),
+      })
+      await db.settings.put({key: 'encryption_salt', value: 'c2FsdA=='})
+
+      await storage.clearAll()
+
+      expect(await db.secrets.count()).toBe(0)
+      expect(await db.settings.get('encryption_salt')).toBeUndefined()
     })
   })
 

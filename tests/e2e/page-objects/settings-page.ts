@@ -33,6 +33,7 @@ export class SettingsPage extends BasePage {
   readonly unlockPromptButton: Locator
   readonly createPassphraseDialog: Locator
   readonly unlockDialog: Locator
+  readonly resetPassphraseDialog: Locator
 
   // Theme Settings (Appearance tab)
   readonly themeToggle: Locator
@@ -83,6 +84,7 @@ export class SettingsPage extends BasePage {
     this.unlockPromptButton = this.unlockPrompt.getByRole('button', {name: 'Unlock'})
     this.createPassphraseDialog = page.getByRole('dialog', {name: 'Create a Passphrase'})
     this.unlockDialog = page.getByRole('dialog', {name: 'Unlock Session'})
+    this.resetPassphraseDialog = page.getByRole('dialog', {name: 'Reset Passphrase'})
 
     // Theme Settings
     this.themeToggle = page.locator('[data-testid="theme-toggle"]')
@@ -199,6 +201,14 @@ export class SettingsPage extends BasePage {
   async unlockWith(passphrase: string): Promise<void> {
     await this.unlockDialog.getByLabel('Passphrase', {exact: true}).fill(passphrase)
     await this.unlockDialog.getByRole('button', {name: 'Unlock'}).click()
+  }
+
+  async startPassphraseReset(): Promise<void> {
+    await this.unlockDialog.getByRole('button', {name: 'Forgot passphrase?'}).click()
+  }
+
+  async confirmPassphraseReset(): Promise<void> {
+    await this.resetPassphraseDialog.getByRole('button', {name: 'Delete Keys and Reset'}).click()
   }
 
   // Theme settings methods
