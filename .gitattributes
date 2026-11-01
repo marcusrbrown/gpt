@@ -1,4 +1,10 @@
 * text=auto eol=lf
+*.png -text !eol
+*.jpg -text !eol
+*.jpeg -text !eol
+*.gif -text !eol
+*.webp -text !eol
+*.ico -text !eol
 *.json linguist-language=JSON-with-Comments
 .cursorrules text linguist-language=Markdown
 tests/**/*-linux.png filter=lfs diff=lfs merge=lfs -text
