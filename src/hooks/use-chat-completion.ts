@@ -72,7 +72,9 @@ export interface UseChatCompletionResult {
 /** Mirrors the default `storage.ts` writes for a GPT without a model. It is valid on the Responses API. */
 export const DEFAULT_MODEL_NAME = 'gpt-4'
 const DEFAULT_PROVIDER_ID: ProviderId = 'openai'
+const NO_MESSAGES: ConversationMessage[] = []
 const NEW_CHAT_TITLE = 'New Chat'
+const GPT_MISMATCH_ERROR = 'This conversation belongs to a different GPT.'
 const MAX_TITLE_LENGTH = 50
 
 /** A missing provider means OpenAI. A missing model gets the default only on OpenAI; other providers have none. */
@@ -94,6 +96,8 @@ interface ChatView {
   streamingId: string | null
   isLoading: boolean
   loadError: string | null
+  /** The GPT that owns the loaded conversation. Compared with the current GPT on every render, so order of arrival doesn't matter. */
+  loadedGptId: string | undefined
   errors: Record<string, ChatTurnError>
 }
 
@@ -116,7 +120,16 @@ interface ChatRun {
 }
 
 function createView(conversationId: string | undefined, isLoading: boolean): ChatView {
-  return {conversationId, title: undefined, messages: [], streamingId: null, isLoading, loadError: null, errors: {}}
+  return {
+    conversationId,
+    title: undefined,
+    messages: [],
+    streamingId: null,
+    isLoading,
+    loadError: null,
+    loadedGptId: undefined,
+    errors: {},
+  }
 }
 
 function deriveTitle(content: string): string {
@@ -386,6 +399,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
         streamingId: run.assistantId,
         isLoading: false,
         loadError: null,
+        loadedGptId: undefined,
         errors: {},
       })
       await executeRun(run)
@@ -393,7 +407,13 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
     [executeRun],
   )
 
-  const canStartTurn = status === 'ready' && !view.isLoading && view.loadError === null && view.streamingId === null
+  // The route can name any conversation. One that belongs to another GPT must never reach this GPT's provider, so it
+  // is a load error: its history is hidden, and sends (and with them saves) are blocked.
+  const gptMismatch = view.loadedGptId !== undefined && gpt !== undefined && view.loadedGptId !== gpt.id
+  const loadError = gptMismatch ? GPT_MISMATCH_ERROR : view.loadError
+  const messages = gptMismatch ? NO_MESSAGES : view.messages
+
+  const canStartTurn = status === 'ready' && !view.isLoading && loadError === null && view.streamingId === null
 
   const send = useCallback(
     async (content: string): Promise<void> => {
@@ -468,7 +488,14 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
       if (cancelled) return
       setView(prev =>
         prev.conversationId === loadingId
-          ? {...prev, isLoading: false, loadError, messages: loaded?.messages ?? [], title: loaded?.title}
+          ? {
+              ...prev,
+              isLoading: false,
+              loadError,
+              loadedGptId: loaded?.gptId,
+              messages: loaded?.messages ?? [],
+              title: loaded?.title,
+            }
           : prev,
       )
     }
@@ -481,13 +508,14 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
 
   // Settling the failed load as not loading is what lets this flip `loadingId` back to the id and rerun the effect.
   const reloadConversation = useCallback(() => {
-    setView(prev => (prev.loadError === null ? prev : {...prev, isLoading: true, loadError: null}))
-  }, [])
+    if (loadError === null) return
+    setView(prev => ({...prev, isLoading: true, loadError: null, loadedGptId: undefined}))
+  }, [loadError])
 
   // Send the navigation prompt exactly once per GPT, after key validation finishes.
   const gptId = gpt?.id
   useEffect(() => {
-    if (!initialPrompt || !gptId || status !== 'ready' || view.isLoading || view.loadError !== null) return
+    if (!initialPrompt || !gptId || status !== 'ready' || view.isLoading || loadError !== null) return
     if (view.streamingId !== null) return
     if (initialPromptSentForRef.current === gptId) return
     initialPromptSentForRef.current = gptId
@@ -497,12 +525,12 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
       onInitialPromptSent?.()
       send(initialPrompt).catch(console.error)
     })
-  }, [initialPrompt, gptId, status, view.isLoading, view.loadError, view.streamingId, send, onInitialPromptSent])
+  }, [initialPrompt, gptId, status, view.isLoading, loadError, view.streamingId, send, onInitialPromptSent])
 
   return {
-    messages: view.messages,
+    messages,
     conversationId: view.conversationId,
-    conversationTitle: view.title ?? NEW_CHAT_TITLE,
+    conversationTitle: (gptMismatch ? undefined : view.title) ?? NEW_CHAT_TITLE,
     status,
     provider: target.provider,
     providerName: providerInstance?.name ?? target.provider,
@@ -510,7 +538,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
     isStreaming: view.streamingId !== null,
     streamingMessageId: view.streamingId,
     isLoadingConversation: view.isLoading,
-    loadError: view.loadError,
+    loadError,
     turnErrors: view.errors,
     send,
     stop,

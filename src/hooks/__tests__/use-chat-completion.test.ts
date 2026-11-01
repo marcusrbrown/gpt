@@ -232,7 +232,10 @@ function Wrapper({children}: {children: ReactNode}) {
   return createElement(StorageContext, {value: storage}, createElement(AIWrapper, null, children))
 }
 
-function setup(initial: Partial<UseChatCompletionOptions> = {}, wrapper: typeof Wrapper = Wrapper) {
+function setup(
+  initial: Partial<UseChatCompletionOptions> = {},
+  wrapper: (props: {children: ReactNode}) => ReactNode = Wrapper,
+) {
   const props: UseChatCompletionOptions = {gpt: makeGpt(), conversationId: undefined, ...initial}
   return renderHook((hookProps: UseChatCompletionOptions) => useChatCompletion(hookProps), {
     initialProps: props,
@@ -1020,6 +1023,82 @@ describe('useChatCompletion', () => {
         expect(hook.result.current.messages).toHaveLength(1)
       })
       expect(hook.result.current.loadError).toBeNull()
+    })
+
+    describe('when the conversation belongs to a different GPT', () => {
+      const OTHER_GPT_ID = '22222222-2222-4222-8222-222222222222'
+      const MISMATCH_MESSAGE = 'This conversation belongs to a different GPT.'
+      const foreignHistory = [makeMessage('user', 'private q'), makeMessage('assistant', 'private a')]
+
+      function storeForeignConversation() {
+        env.stored.set('conv-x', {...makeConversation('conv-x', foreignHistory), gptId: OTHER_GPT_ID})
+      }
+
+      it('is a load error that blocks every send, so its history never reaches this GPT’s provider', async () => {
+        storeForeignConversation()
+        hook = setup({conversationId: 'conv-x'})
+        await waitFor(() => {
+          expect(hook.result.current.isLoadingConversation).toBe(false)
+        })
+
+        expect(hook.result.current.loadError).toBe(MISMATCH_MESSAGE)
+        expect(hook.result.current.messages).toEqual([])
+
+        await startSend(hook, 'new turn')
+        await act(async () => {
+          await hook.result.current.regenerate()
+          await hook.result.current.retry('any')
+        })
+        for (const provider of Object.values(env.providers)) expect(provider.streams).toHaveLength(0)
+        expect(env.saveConversation).not.toHaveBeenCalled()
+        expect(env.stored.get('conv-x')?.messages).toEqual(foreignHistory)
+      })
+
+      it('does not send the navigation prompt', async () => {
+        storeForeignConversation()
+        const onInitialPromptSent = vi.fn()
+        hook = setup({conversationId: 'conv-x', initialPrompt: 'from navigation', onInitialPromptSent})
+        await waitFor(() => {
+          expect(hook.result.current.loadError).toBe(MISMATCH_MESSAGE)
+        })
+        await act(async () => {
+          await Promise.resolve()
+        })
+
+        expect(env.providers.openai.streams).toHaveLength(0)
+        expect(onInitialPromptSent).not.toHaveBeenCalled()
+      })
+
+      it('is caught even when the GPT finishes loading after the conversation', async () => {
+        storeForeignConversation()
+        hook = setup({gpt: undefined, conversationId: 'conv-x'})
+        await waitFor(() => {
+          expect(hook.result.current.isLoadingConversation).toBe(false)
+        })
+        expect(hook.result.current.loadError).toBeNull()
+
+        hook.rerender({gpt: makeGpt(), conversationId: 'conv-x'})
+
+        expect(hook.result.current.loadError).toBe(MISMATCH_MESSAGE)
+        expect(hook.result.current.messages).toEqual([])
+        await startSend(hook, 'new turn')
+        expect(env.providers.openai.streams).toHaveLength(0)
+      })
+
+      it('is cleared by switching to a conversation of this GPT', async () => {
+        storeForeignConversation()
+        env.stored.set('conv-b', makeConversation('conv-b', [makeMessage('user', 'b question')]))
+        hook = setup({conversationId: 'conv-x'})
+        await waitFor(() => {
+          expect(hook.result.current.loadError).toBe(MISMATCH_MESSAGE)
+        })
+
+        hook.rerender({gpt: makeGpt(), conversationId: 'conv-b'})
+        await waitFor(() => {
+          expect(hook.result.current.messages).toHaveLength(1)
+        })
+        expect(hook.result.current.loadError).toBeNull()
+      })
     })
 
     describe('through the real StorageProvider', () => {
