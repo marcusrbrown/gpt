@@ -2,8 +2,8 @@ import {useSession} from '@/hooks/use-session'
 import {cn, ds} from '@/lib/design-system'
 import {PassphraseSchema} from '@/services/encryption'
 import '@/styles/heroui-v3.css'
-import {Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader} from '@heroui/react'
-import {Button, Spinner} from '@heroui-v3/react'
+import {Input} from '@heroui/react'
+import {Button, Modal, Spinner} from '@heroui-v3/react'
 import {useCallback, useState, type FormEvent} from 'react'
 
 export type PassphraseModalMode = 'setup' | 'unlock'
@@ -121,121 +121,124 @@ export function PassphraseModal({mode, isOpen, onClose, onSuccess, onReset}: Pas
   const tooShort = passphrase.length > 0 && !isPassphraseValid
 
   return (
-    <Modal
+    <Modal.Backdrop
       isOpen={isOpen}
-      onClose={handleClose}
-      placement="center"
-      backdrop="opaque"
-      hideCloseButton
-      data-testid="passphrase-modal"
+      onOpenChange={open => {
+        if (!open) handleClose()
+      }}
+      variant="opaque"
     >
-      <ModalContent>
-        <ModalHeader>
-          {isConfirmingReset ? 'Reset Passphrase' : isSetup ? 'Create a Passphrase' : 'Unlock Session'}
-        </ModalHeader>
-        {isConfirmingReset ? (
-          <>
-            <ModalBody className="space-y-4">
-              <p className={cn(ds.text.body.small)}>
-                This deletes your saved API keys. You&apos;ll set a new passphrase.
-              </p>
-
-              {error && (
-                <p role="alert" data-testid="passphrase-error" className="text-small text-danger">
-                  {error}
+      <Modal.Container placement="center">
+        <Modal.Dialog data-testid="passphrase-modal">
+          <Modal.Header>
+            <Modal.Heading className="text-lg font-semibold">
+              {isConfirmingReset ? 'Reset Passphrase' : isSetup ? 'Create a Passphrase' : 'Unlock Session'}
+            </Modal.Heading>
+          </Modal.Header>
+          {isConfirmingReset ? (
+            <>
+              <Modal.Body className="space-y-4 text-base text-foreground">
+                <p className={cn(ds.text.body.small)}>
+                  This deletes your saved API keys. You&apos;ll set a new passphrase.
                 </p>
-              )}
-            </ModalBody>
-            <ModalFooter>
-              <Button variant="tertiary" onPress={handleCancelReset} isDisabled={isResetting}>
-                Back
-              </Button>
-              <Button
-                variant="danger"
-                onPress={() => {
-                  handleReset().catch(console.error)
-                }}
-                isPending={isResetting}
-              >
-                {({isPending}) => (
-                  <>
-                    {isPending && <Spinner size="sm" color="current" />}
-                    Delete Keys and Reset
-                  </>
+
+                {error && (
+                  <p role="alert" data-testid="passphrase-error" className="text-small text-danger">
+                    {error}
+                  </p>
                 )}
-              </Button>
-            </ModalFooter>
-          </>
-        ) : (
-          <form
-            className="flex flex-col"
-            onSubmit={event => {
-              handleSubmit(event).catch(console.error)
-            }}
-          >
-            <ModalBody className="space-y-4">
-              <p className={cn(ds.text.body.small)}>
-                {isSetup
-                  ? 'Your passphrase encrypts API keys stored in this browser. It is never stored and cannot be recovered if you forget it.'
-                  : 'Enter your passphrase to unlock your stored API keys.'}
-              </p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="tertiary" onPress={handleCancelReset} isDisabled={isResetting}>
+                  Back
+                </Button>
+                <Button
+                  variant="danger"
+                  onPress={() => {
+                    handleReset().catch(console.error)
+                  }}
+                  isPending={isResetting}
+                >
+                  {({isPending}) => (
+                    <>
+                      {isPending && <Spinner size="sm" color="current" />}
+                      Delete Keys and Reset
+                    </>
+                  )}
+                </Button>
+              </Modal.Footer>
+            </>
+          ) : (
+            <form
+              className="mt-2 flex flex-col"
+              onSubmit={event => {
+                handleSubmit(event).catch(console.error)
+              }}
+            >
+              <Modal.Body className="space-y-4 text-base text-foreground">
+                <p className={cn(ds.text.body.small)}>
+                  {isSetup
+                    ? 'Your passphrase encrypts API keys stored in this browser. It is never stored and cannot be recovered if you forget it.'
+                    : 'Enter your passphrase to unlock your stored API keys.'}
+                </p>
 
-              <Input
-                type="password"
-                validationBehavior="aria"
-                label="Passphrase"
-                placeholder={isSetup ? 'Enter a secure passphrase' : 'Enter your passphrase'}
-                value={passphrase}
-                onValueChange={setPassphrase}
-                autoFocus
-                autoComplete={isSetup ? 'new-password' : 'current-password'}
-                description={isSetup ? 'Minimum 8 characters' : undefined}
-                isInvalid={isSetup ? tooShort : error !== null}
-                errorMessage={isSetup && tooShort ? 'Must be at least 8 characters' : undefined}
-              />
-
-              {isSetup && (
                 <Input
                   type="password"
                   validationBehavior="aria"
-                  label="Confirm Passphrase"
-                  placeholder="Confirm your passphrase"
-                  value={confirmPassphrase}
-                  onValueChange={setConfirmPassphrase}
-                  autoComplete="new-password"
-                  isInvalid={mismatch}
-                  errorMessage={mismatch ? 'Passphrases do not match' : undefined}
+                  label="Passphrase"
+                  placeholder={isSetup ? 'Enter a secure passphrase' : 'Enter your passphrase'}
+                  value={passphrase}
+                  onValueChange={setPassphrase}
+                  autoFocus
+                  autoComplete={isSetup ? 'new-password' : 'current-password'}
+                  description={isSetup ? 'Minimum 8 characters' : undefined}
+                  isInvalid={isSetup ? tooShort : error !== null}
+                  errorMessage={isSetup && tooShort ? 'Must be at least 8 characters' : undefined}
                 />
-              )}
 
-              {error && (
-                <p role="alert" data-testid="passphrase-error" className="text-small text-danger">
-                  {error}
-                </p>
-              )}
-
-              {!isSetup && (
-                <Button type="button" variant="ghost" size="sm" onPress={handleStartReset}>
-                  Forgot passphrase?
-                </Button>
-              )}
-            </ModalBody>
-            <ModalFooter>
-              <Button variant="tertiary" onPress={handleClose}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="primary" isDisabled={!isFormValid} isPending={isSubmitting}>
-                {({isPending}) => (
-                  <>
-                    {isPending && <Spinner size="sm" color="current" />}
-                    {isSetup ? 'Set Passphrase' : 'Unlock'}
-                  </>
+                {isSetup && (
+                  <Input
+                    type="password"
+                    validationBehavior="aria"
+                    label="Confirm Passphrase"
+                    placeholder="Confirm your passphrase"
+                    value={confirmPassphrase}
+                    onValueChange={setConfirmPassphrase}
+                    autoComplete="new-password"
+                    isInvalid={mismatch}
+                    errorMessage={mismatch ? 'Passphrases do not match' : undefined}
+                  />
                 )}
-              </Button>
-            </ModalFooter>
-          </form>
-        )}
-      </ModalContent>
-    </Modal>
+
+                {error && (
+                  <p role="alert" data-testid="passphrase-error" className="text-small text-danger">
+                    {error}
+                  </p>
+                )}
+
+                {!isSetup && (
+                  <Button type="button" variant="ghost" size="sm" onPress={handleStartReset}>
+                    Forgot passphrase?
+                  </Button>
+                )}
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="tertiary" onPress={handleClose}>
+                  Cancel
+                </Button>
+                <Button type="submit" variant="primary" isDisabled={!isFormValid} isPending={isSubmitting}>
+                  {({isPending}) => (
+                    <>
+                      {isPending && <Spinner size="sm" color="current" />}
+                      {isSetup ? 'Set Passphrase' : 'Unlock'}
+                    </>
+                  )}
+                </Button>
+              </Modal.Footer>
+            </form>
+          )}
+        </Modal.Dialog>
+      </Modal.Container>
+    </Modal.Backdrop>
   )
 }

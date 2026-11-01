@@ -13,8 +13,12 @@
 @import '@heroui-v3/styles/variants';
 @import '@heroui-v3/styles/themes/default' layer(theme);
 
+@import '@heroui-v3/styles/base/overlay-motion.css' layer(base);
+
+@import '@heroui-v3/styles/components/close-button.css' layer(components);
 @import '@heroui-v3/styles/components/button.css' layer(components);
 @import '@heroui-v3/styles/components/spinner.css' layer(components);
+@import '@heroui-v3/styles/components/modal.css' layer(components);
 
 /*
  * Keep v3 buttons on the app's v2 brand colours. White text on the v3 default accent and danger is
@@ -25,5 +29,19 @@
   :root {
     --accent: hsl(var(--heroui-primary));
     --danger: hsl(var(--heroui-danger));
+  }
+}
+
+/*
+ * Modal parity with v2 until cutover: v2's dialog radius (v3 rounds to 32px) and a plain close
+ * "x" (v3 fills it). Drop both with the v2 plugin.
+ */
+@layer components {
+  .modal__dialog:not(.modal__dialog--full) {
+    border-radius: var(--heroui-radius-large);
+  }
+
+  .modal__close-trigger {
+    background-color: transparent;
   }
 }

@@ -5,8 +5,8 @@ import {MCPToolExplorer} from '@/components/mcp/mcp-tool-explorer'
 import {useMCP} from '@/hooks/use-mcp'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {addToast, Modal, ModalBody, ModalContent, ModalHeader, Spinner, useDisclosure} from '@heroui/react'
-import {Button} from '@heroui-v3/react'
+import {addToast, Spinner} from '@heroui/react'
+import {Button, Modal, useOverlayState} from '@heroui-v3/react'
 import {XCircle} from 'lucide-react'
 import {useState} from 'react'
 
@@ -14,26 +14,26 @@ export function MCPSettings() {
   const {servers, isLoadingServers, addServer, updateServer, removeServer, error} = useMCP()
 
   // Add/Edit Modal
-  const {isOpen, onOpen, onClose} = useDisclosure()
+  const formState = useOverlayState()
   const [editingServer, setEditingServer] = useState<MCPServerConfig | undefined>(undefined)
 
   // Tool Explorer Modal
-  const {isOpen: isToolOpen, onOpen: onToolOpen, onClose: onToolClose} = useDisclosure()
+  const toolState = useOverlayState()
   const [viewingServerId, setViewingServerId] = useState<string | null>(null)
 
   const handleAddServer = () => {
     setEditingServer(undefined)
-    onOpen()
+    formState.open()
   }
 
   const handleEditServer = (server: MCPServerConfig) => {
     setEditingServer(server)
-    onOpen()
+    formState.open()
   }
 
   const handleViewTools = (serverId: string) => {
     setViewingServerId(serverId)
-    onToolOpen()
+    toolState.open()
   }
 
   const handleSaveServer = async (config: Omit<MCPServerConfig, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -55,7 +55,7 @@ export function MCPSettings() {
           timeout: 4000,
         })
       }
-      onClose()
+      formState.close()
     } catch (error_) {
       addToast({
         title: 'Error',
@@ -149,23 +149,26 @@ export function MCPSettings() {
         </div>
       )}
 
-      <MCPServerForm isOpen={isOpen} onClose={onClose} onSave={handleSaveServer} initialConfig={editingServer} />
+      <MCPServerForm
+        isOpen={formState.isOpen}
+        onClose={() => formState.close()}
+        onSave={handleSaveServer}
+        initialConfig={editingServer}
+      />
 
-      <Modal
-        isOpen={isToolOpen}
-        onClose={onToolClose}
-        size="2xl"
-        scrollBehavior="inside"
-        classNames={{
-          base: cn(theme.surface(1), 'border', theme.border()),
-          header: 'border-b border-default-100',
-        }}
-      >
-        <ModalContent>
-          <ModalHeader>Server Tools</ModalHeader>
-          <ModalBody className="py-6">{viewingServerId && <MCPToolExplorer serverId={viewingServerId} />}</ModalBody>
-        </ModalContent>
-      </Modal>
+      <Modal.Backdrop isOpen={toolState.isOpen} onOpenChange={open => toolState.setOpen(open)} variant="opaque">
+        <Modal.Container size="lg" placement="center" scroll="inside">
+          <Modal.Dialog className={cn(theme.surface(1), 'border', theme.border(), 'max-w-2xl')}>
+            <Modal.CloseTrigger />
+            <Modal.Header className="border-b border-default-100 pb-4 pr-8">
+              <Modal.Heading className="text-lg font-semibold">Server Tools</Modal.Heading>
+            </Modal.Header>
+            <Modal.Body className="py-6 text-base text-foreground">
+              {viewingServerId && <MCPToolExplorer serverId={viewingServerId} />}
+            </Modal.Body>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
     </div>
   )
 }
