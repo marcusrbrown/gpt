@@ -1,4 +1,5 @@
-import type {GPTConfiguration} from '@/types/gpt'
+import type {ConversationMessage, GPTConfiguration} from '@/types/gpt'
+import type {ComponentProps} from 'react'
 import type {ChatProviderStatus, ChatTurnError} from '@/hooks/use-chat-completion'
 import {render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -8,7 +9,7 @@ import {ChatInterface} from '../chat-interface'
 
 const gpt = {id: 'gpt-1', name: 'Test', description: 'testing'} as GPTConfiguration
 Element.prototype.scrollIntoView = vi.fn()
-const messages = [
+const messages: ConversationMessage[] = [
   {id: 'u1', role: 'user' as const, content: 'Question', timestamp: new Date()},
   {id: 'a1', role: 'assistant' as const, content: 'First answer', timestamp: new Date()},
   {id: 'u2', role: 'user' as const, content: 'Next question', timestamp: new Date()},
@@ -32,7 +33,7 @@ const defaults = {
   onRetry: vi.fn(),
   onStop: vi.fn(),
 }
-function show(props: Partial<typeof defaults> = {}) {
+function show(props: Partial<ComponentProps<typeof ChatInterface>> = {}) {
   return render(
     <MemoryRouter>
       <ChatInterface {...defaults} {...props} />
@@ -46,6 +47,23 @@ describe('ChatInterface', () => {
     expect(screen.getByText('OpenAI · gpt-4')).toBeInTheDocument()
     expect(screen.getByText('Stopped')).toBeInTheDocument()
     expect(screen.getAllByRole('button', {name: 'Regenerate response'})).toHaveLength(1)
+  })
+
+  it('passes the truncated flag through as a Cut off tag', () => {
+    show({
+      messages: [
+        ...messages.slice(0, 3),
+        {
+          id: 'a2',
+          role: 'assistant' as const,
+          content: 'Cut answer',
+          timestamp: new Date(),
+          metadata: {truncated: true},
+        },
+      ],
+    })
+    expect(screen.getByText('Cut off')).toBeInTheDocument()
+    expect(screen.queryByText('Stopped')).not.toBeInTheDocument()
   })
 
   it('renders streamed text and disables regeneration during streaming', () => {

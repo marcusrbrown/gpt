@@ -42,6 +42,11 @@ class ScriptedStream implements AsyncIterable<CompletionChunk> {
     this.push({end: true})
   }
 
+  finishWith(finishReason: NonNullable<CompletionChunk['finishReason']>): void {
+    this.push({chunk: {id: 'resp', finishReason}})
+    this.push({end: true})
+  }
+
   fail(error: unknown): void {
     this.push({error})
   }
@@ -604,6 +609,34 @@ describe('useChatCompletion', () => {
         })
         expect(env.providers.openai.streams).toHaveLength(1)
       })
+    })
+
+    it.each(['length', 'error'] as const)(
+      'keeps the text and marks the reply truncated when it finishes with %s',
+      async finishReason => {
+        hook = setup()
+        const pending = startSend(hook, 'one')
+        await emit(streamAt('openai', 0), 'cut', 'cut')
+        await act(async () => {
+          streamAt('openai', 0).finishWith(finishReason)
+          await pending
+        })
+
+        expect(lastMessage(hook)).toMatchObject({
+          content: 'cut',
+          metadata: {provider: 'openai', model: 'gpt-4o', truncated: true},
+        })
+        expect(hook.result.current.turnErrors).toEqual({})
+        expect(savedMessages().at(-1)).toMatchObject({content: 'cut', metadata: {truncated: true}})
+      },
+    )
+
+    it('does not mark a reply that finished normally as truncated', async () => {
+      hook = setup()
+      const pending = startSend(hook, 'one')
+      await emit(streamAt('openai', 0), 'whole', 'whole')
+      await finish(streamAt('openai', 0), pending)
+      expect(lastMessage(hook).metadata?.truncated).toBeUndefined()
     })
 
     it('routes an Anthropic GPT to the Anthropic provider with the instructions and full history', async () => {

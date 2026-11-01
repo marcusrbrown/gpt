@@ -285,6 +285,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
   const executeRun = useCallback(
     async (run: ChatRun) => {
       let replay: ReplayData | undefined
+      let truncated = false
       try {
         const {getProvider: lookup, gpt: currentGpt} = latestRef.current
         const provider = lookup(run.provider)
@@ -304,6 +305,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
           for await (const chunk of provider.createCompletion(request)) {
             if (run.settled) return
             if (chunk.replay) replay = chunk.replay
+            if (chunk.finishReason === 'length' || chunk.finishReason === 'error') truncated = true
             if (chunk.content) {
               run.reply += chunk.content
               commitRun(run, {messages: snapshotRun(run)})
@@ -326,7 +328,12 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
 
         run.settled = true
         if (runRef.current === run) runRef.current = null
-        const messages = snapshotRun(run, {provider: run.provider, model: run.model, ...(replay ? {replay} : {})})
+        const messages = snapshotRun(run, {
+          provider: run.provider,
+          model: run.model,
+          ...(replay ? {replay} : {}),
+          ...(truncated ? {truncated} : {}),
+        })
         commitRun(run, {messages, streamingId: null})
         await persistRun(run, messages)
       } catch (error_) {

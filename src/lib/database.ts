@@ -113,6 +113,7 @@ export interface MessageMetadata {
   model?: string
   provider?: ProviderId
   stopped?: boolean
+  truncated?: boolean
   replay?: ReplayData
   tokenUsage?: {
     prompt: number

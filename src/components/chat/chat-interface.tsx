@@ -277,6 +277,7 @@ export function ChatInterface({
                             regenerateDisabled={isStreaming}
                             isLoading={msg.id === streamingMessageId && !msg.content}
                             stopped={msg.metadata?.stopped}
+                            truncated={msg.metadata?.truncated}
                           />
                           {turnError && (
                             <div role="alert" className="text-danger-700 text-sm text-right">

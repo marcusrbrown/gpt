@@ -147,6 +147,8 @@ export const ConversationMessageMetadataSchema = z.object({
   model: z.string().optional(),
   provider: ProviderIdSchema.optional(),
   stopped: z.boolean().optional(),
+  /** The provider ended the reply early (token limit, content filter or error). The text received is kept. */
+  truncated: z.boolean().optional(),
   replay: ReplayDataSchema.optional(),
   tokenUsage: z
     .object({

@@ -12,6 +12,7 @@ interface MessageBubbleProps {
   onRegenerate?: () => void
   assistantName?: string
   stopped?: boolean
+  truncated?: boolean
   regenerateDisabled?: boolean
 }
 
@@ -25,6 +26,7 @@ export function MessageBubble({
   onRegenerate,
   assistantName = 'Assistant',
   stopped,
+  truncated,
   regenerateDisabled,
 }: MessageBubbleProps) {
   const [copied, setCopied] = useState(false)
@@ -93,6 +95,7 @@ export function MessageBubble({
         </div>
 
         {stopped && <span className="mt-1 ml-1 text-xs text-content-secondary">Stopped</span>}
+        {truncated && <span className="mt-1 ml-1 text-xs text-content-secondary">Cut off</span>}
 
         {/* Footer: Timestamp & Actions */}
         <div
