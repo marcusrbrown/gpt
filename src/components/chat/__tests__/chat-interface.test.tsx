@@ -58,9 +58,24 @@ describe('ChatInterface', () => {
   it('shows an inline failed turn and retries it', async () => {
     const onRetry = vi.fn()
     show({messages: messages.slice(0, 3), turnErrors: {u2: {message: 'Rate limited', type: 'rate_limit'}}, onRetry})
-    expect(screen.getByText('Rate limited')).toBeInTheDocument()
+    expect(screen.getByText('Rate limit reached. Try again shortly.')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', {name: 'Retry'}))
     expect(onRetry).toHaveBeenCalledWith('u2')
+  })
+
+  it.each([
+    ['server', '{"error":"Provider unavailable"}', "Couldn't reach Ollama. Check that it's running."],
+    ['connection', 'Failed to fetch', "Couldn't reach Ollama. Check that it's running."],
+    ['authentication', 'invalid key', 'Your API key was rejected.'],
+    ['validation', 'Choose a different model.', 'Choose a different model.'],
+    ['unknown', '{"detail":"secret"}', 'Something went wrong. Try again.'],
+    ['unknown', '<html>Failure</html>', 'Something went wrong. Try again.'],
+    ['unknown', 'null', 'Something went wrong. Try again.'],
+    ['unknown', 'x'.repeat(161), 'Something went wrong. Try again.'],
+  ] as const)('shows readable copy for %s errors', (type, message, expected) => {
+    show({providerName: 'Ollama', messages: messages.slice(0, 3), turnErrors: {u2: {message, type}}})
+    expect(screen.getByText(expected)).toBeInTheDocument()
+    expect(screen.queryByText(message) === null).toBe(message !== expected)
   })
 
   it('keeps history visible when a provider is not configured', () => {

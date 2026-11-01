@@ -430,13 +430,13 @@ export class OllamaProvider extends BaseLLMProvider {
   }
 
   private async handleErrorResponse(response: Response): Promise<ProviderError> {
-    const body = await response.text()
+    const message = await this.readErrorMessage(response)
 
     switch (response.status) {
       case 404:
         return new ProviderError('Model not found. Try: ollama pull <model>', 'not_found', 'ollama', 404)
       case 500:
-        return new ProviderError(body || 'Ollama server error', 'server', 'ollama', 500)
+        return new ProviderError(message, 'server', 'ollama', 500)
       default:
         return new ProviderError(`Ollama error: ${response.status}`, 'unknown', 'ollama', response.status)
     }

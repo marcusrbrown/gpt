@@ -99,6 +99,38 @@ describe('AnthropicProvider', () => {
     vi.restoreAllMocks()
   })
 
+  it.each([
+    [{error: 'Bad request'}, 'Bad request'],
+    [{error: {message: 'Model is invalid'}}, 'Model is invalid'],
+    [{error: {details: 'internal'}}, 'Bad Request'],
+  ])('extracts a human error message or falls back to status text', async (body, expected) => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response(JSON.stringify(body), {status: 400, statusText: 'Bad Request'})),
+    )
+    const provider = new AnthropicProvider()
+    provider.setApiKey('test')
+    const error = await expectGeneratorThrows(
+      provider.createCompletion({model: 'claude-test', messages: [{role: 'user', content: 'hi'}], stream: true}),
+    )
+    expect(error).toMatchObject({type: 'validation', message: expected})
+    vi.unstubAllGlobals()
+  })
+
+  it('falls back to status text for a malformed error response', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response('not JSON', {status: 400, statusText: 'Bad Request'})),
+    )
+    const provider = new AnthropicProvider()
+    provider.setApiKey('test')
+    const error = await expectGeneratorThrows(
+      provider.createCompletion({model: 'claude-test', messages: [{role: 'user', content: 'hi'}], stream: true}),
+    )
+    expect(error.message).toBe('Bad Request')
+    vi.unstubAllGlobals()
+  })
+
   describe('metadata', () => {
     it('has correct provider metadata', () => {
       const provider = new AnthropicProvider()

@@ -12,6 +12,41 @@ import {ChatInput} from './chat-input'
 import {MessageBubble} from './message-bubble'
 import {SidebarContent} from './sidebar-content'
 
+function turnErrorMessage(error: ChatTurnError, providerName: string): string {
+  switch (error.type) {
+    case 'authentication':
+      return 'Your API key was rejected.'
+    case 'permission':
+      return 'Your API key does not have permission for this request.'
+    case 'rate_limit':
+      return 'Rate limit reached. Try again shortly.'
+    case 'connection':
+    case 'server':
+      return providerName === 'Ollama'
+        ? "Couldn't reach Ollama. Check that it's running."
+        : `Couldn't reach ${providerName}. Try again shortly.`
+    case 'timeout':
+      return 'The request timed out. Try again.'
+    case 'not_implemented':
+      return 'This provider is not supported yet.'
+    default: {
+      const message = error.message.trim()
+      const readable =
+        message.length > 0 &&
+        message.length <= 160 &&
+        /[a-z]/i.test(message) &&
+        !/[{}<>[\]\n\r]/.test(message) &&
+        !message.startsWith('"') &&
+        !/^(?:null|true|false)$/.test(message)
+      return readable
+        ? message
+        : error.type === 'not_found'
+          ? 'The requested model was not found.'
+          : 'Something went wrong. Try again.'
+    }
+  }
+}
+
 interface ChatInterfaceProps {
   gptConfig: GPTConfiguration
   messages: ConversationMessage[]
@@ -223,31 +258,34 @@ export function ChatInterface({
                     </span>
                   </div>
                   <div className="space-y-6">
-                    {msgs.map(msg => (
-                      <React.Fragment key={msg.id}>
-                        <MessageBubble
-                          key={msg.id}
-                          role={msg.role === 'tool' ? 'system' : msg.role}
-                          content={msg.content}
-                          timestamp={new Date(msg.timestamp)}
-                          assistantName={gptConfig.name}
-                          onRegenerate={
-                            msg.role === 'assistant' && msg.id === messages.at(-1)?.id ? onRegenerate : undefined
-                          }
-                          regenerateDisabled={isStreaming}
-                          isLoading={msg.id === streamingMessageId && !msg.content}
-                          stopped={msg.metadata?.stopped}
-                        />
-                        {turnErrors[msg.id] && (
-                          <div role="alert" className="text-danger-700 text-sm text-right">
-                            {turnErrors[msg.id]?.message}{' '}
-                            <Button variant="tertiary" size="sm" onPress={() => onRetry(msg.id)}>
-                              Retry
-                            </Button>
-                          </div>
-                        )}
-                      </React.Fragment>
-                    ))}
+                    {msgs.map(msg => {
+                      const turnError = turnErrors[msg.id]
+                      return (
+                        <React.Fragment key={msg.id}>
+                          <MessageBubble
+                            key={msg.id}
+                            role={msg.role === 'tool' ? 'system' : msg.role}
+                            content={msg.content}
+                            timestamp={new Date(msg.timestamp)}
+                            assistantName={gptConfig.name}
+                            onRegenerate={
+                              msg.role === 'assistant' && msg.id === messages.at(-1)?.id ? onRegenerate : undefined
+                            }
+                            regenerateDisabled={isStreaming}
+                            isLoading={msg.id === streamingMessageId && !msg.content}
+                            stopped={msg.metadata?.stopped}
+                          />
+                          {turnError && (
+                            <div role="alert" className="text-danger-700 text-sm text-right">
+                              {turnErrorMessage(turnError, providerName)}{' '}
+                              <Button variant="tertiary" size="sm" onPress={() => onRetry(msg.id)}>
+                                Retry
+                              </Button>
+                            </div>
+                          )}
+                        </React.Fragment>
+                      )
+                    })}
                   </div>
                 </div>
               ))

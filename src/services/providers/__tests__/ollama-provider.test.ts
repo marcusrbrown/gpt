@@ -110,6 +110,30 @@ describe('OllamaProvider', () => {
     vi.unstubAllGlobals()
   })
 
+  it.each([
+    [{error: 'Model is unavailable'}, 'Model is unavailable'],
+    [{error: {message: 'Server is busy'}}, 'Server is busy'],
+    [{error: {details: 'internal'}}, 'Service Unavailable'],
+  ])('extracts a human error message or falls back to status text', async (body, expected) => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response(JSON.stringify(body), {status: 500, statusText: 'Service Unavailable'})),
+    )
+    const provider = new OllamaProvider()
+    const error = await expectGeneratorThrows(
+      provider.createCompletion({model: 'llama', messages: [{role: 'user', content: 'hi'}], stream: true}),
+    )
+    expect(error).toMatchObject({type: 'server', message: expected})
+  })
+
+  it('falls back to HTTP status when the error response is not JSON and has no status text', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('<html>private details</html>', {status: 500})))
+    const error = await expectGeneratorThrows(
+      new OllamaProvider().createCompletion({model: 'llama', messages: [{role: 'user', content: 'hi'}], stream: true}),
+    )
+    expect(error.message).toBe('HTTP 500')
+  })
+
   describe('metadata', () => {
     it('has correct provider metadata', () => {
       const provider = new OllamaProvider()

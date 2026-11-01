@@ -34,6 +34,25 @@ export abstract class BaseLLMProvider {
     }
   }
 
+  /** Read only the provider's human error field, never the raw response body. */
+  protected async readErrorMessage(response: Response): Promise<string> {
+    const body: unknown = await response.json().catch(() => undefined)
+    if (body && typeof body === 'object' && 'error' in body) {
+      const error = body.error
+      if (typeof error === 'string' && error.trim()) return error.trim()
+      if (
+        error &&
+        typeof error === 'object' &&
+        'message' in error &&
+        typeof error.message === 'string' &&
+        error.message.trim()
+      ) {
+        return error.message.trim()
+      }
+    }
+    return response.statusText || `HTTP ${response.status}`
+  }
+
   /**
    * Returns an `AbortError` when the caller's signal aborted or `err` already is one, otherwise `null`.
    * Providers rethrow it as-is so callers can tell a deliberate stop from a failure; a fetch that rejects

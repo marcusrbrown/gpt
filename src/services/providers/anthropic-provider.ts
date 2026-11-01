@@ -165,8 +165,7 @@ export class AnthropicProvider extends BaseLLMProvider {
       }
 
       if (!response.ok && response.status !== 400) {
-        const errorBody = await response.json().catch(() => ({}))
-        const errorMessage = (errorBody as {error?: {message?: string}})?.error?.message || `HTTP ${response.status}`
+        const errorMessage = await this.readErrorMessage(response)
         return {valid: false, error: errorMessage}
       }
 
@@ -504,8 +503,7 @@ export class AnthropicProvider extends BaseLLMProvider {
   }
 
   private async handleErrorResponse(response: Response): Promise<never> {
-    const body = await response.json().catch(() => ({}))
-    const errorMessage = (body as {error?: {message?: string}})?.error?.message || `HTTP ${response.status}`
+    const errorMessage = await this.readErrorMessage(response)
 
     switch (response.status) {
       case 400:
@@ -520,7 +518,7 @@ export class AnthropicProvider extends BaseLLMProvider {
         throw new ProviderError('Rate limit exceeded', 'rate_limit', 'anthropic', 429)
       case 500:
       case 529:
-        throw new ProviderError('Anthropic API error', 'server', 'anthropic', response.status)
+        throw new ProviderError(errorMessage, 'server', 'anthropic', response.status)
       default:
         throw new ProviderError(errorMessage, 'unknown', 'anthropic', response.status)
     }
