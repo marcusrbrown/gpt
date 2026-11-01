@@ -99,6 +99,8 @@ export function GPTTestPage() {
         providerName={chat.providerName}
         model={chat.model}
         turnErrors={chat.turnErrors}
+        loadError={chat.loadError}
+        onReload={chat.reloadConversation}
         onSendMessage={content => {
           chat.send(content).catch(console.error)
         }}

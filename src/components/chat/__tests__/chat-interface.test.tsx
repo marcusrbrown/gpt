@@ -85,6 +85,22 @@ describe('ChatInterface', () => {
     expect(screen.getByText(/OpenAI isn't set up for this GPT/)).toBeInTheDocument()
   })
 
+  it('replaces the input with a message and a Try again action when the conversation failed to load', async () => {
+    const onReload = vi.fn()
+    show({messages: [], loadError: 'IndexedDB unavailable', onReload})
+
+    expect(screen.getByRole('alert')).toHaveTextContent("Couldn't load this conversation.")
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', {name: 'Try again'}))
+    expect(onReload).toHaveBeenCalledTimes(1)
+  })
+
+  it('shows the input and no load message when there is no load error', () => {
+    show({loadError: null})
+    expect(screen.queryByText("Couldn't load this conversation.")).not.toBeInTheDocument()
+    expect(screen.getByRole('textbox')).toBeInTheDocument()
+  })
+
   it('keeps history visible when Azure is unsupported', () => {
     show({status: 'unsupported', providerName: 'Azure'})
     expect(screen.getByText('Azure isn’t supported yet.')).toBeInTheDocument()

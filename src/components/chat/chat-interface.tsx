@@ -67,6 +67,9 @@ interface ChatInterfaceProps {
   turnErrors: Record<string, ChatTurnError>
   onStop: () => void
   onRetry: (id: string) => void
+  /** Set when the saved conversation could not be loaded. Replaces the input so nothing can overwrite its history. */
+  loadError?: string | null
+  onReload?: () => void
 }
 
 export function ChatInterface({
@@ -89,6 +92,8 @@ export function ChatInterface({
   turnErrors,
   onStop,
   onRetry,
+  loadError,
+  onReload,
 }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const nearBottomRef = useRef(true)
@@ -306,7 +311,23 @@ export function ChatInterface({
         </div>
 
         {/* Input Area */}
-        {status === 'not-configured' ? (
+        {loadError ? (
+          <div
+            role="alert"
+            className="flex items-center justify-center gap-2 border-t border-border-default p-4 text-sm text-danger-700"
+          >
+            <span>Couldn't load this conversation.</span>
+            <Button
+              variant="tertiary"
+              size="sm"
+              onPress={() => {
+                onReload?.()
+              }}
+            >
+              Try again
+            </Button>
+          </div>
+        ) : status === 'not-configured' ? (
           <GPTProviderPrompt providerName={providerName} />
         ) : status === 'unsupported' ? (
           <div className="border-t border-border-default p-4 text-center text-sm text-content-secondary">

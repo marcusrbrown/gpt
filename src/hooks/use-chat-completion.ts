@@ -48,6 +48,11 @@ export interface UseChatCompletionResult {
   streamingMessageId: string | null
   /** True while a saved conversation loads. Sends are ignored until it finishes. */
   isLoadingConversation: boolean
+  /**
+   * Why the saved conversation could not be loaded, or `null`. While set, `messages` is empty only because the load
+   * failed, so send, regenerate and retry are blocked: saving a new turn would overwrite the stored history.
+   */
+  loadError: string | null
   /** Errors by user message id. Held in memory only; failed turns are not saved. */
   turnErrors: Record<string, ChatTurnError>
   /** Sends a user message. Resolves when the turn settles; it never rejects (failures land in `turnErrors`). */
@@ -56,6 +61,8 @@ export interface UseChatCompletionResult {
   stop: () => void
   /** Replaces the last assistant reply by resending the history up to the last user message. */
   regenerate: () => Promise<void>
+  /** Tries loading the saved conversation again after a load failure. No-op when there is no `loadError`. */
+  reloadConversation: () => void
   /** Resends a failed turn. Only the last turn can be retried. Success clears its error. */
   retry: (turnId: string) => Promise<void>
   /** Starts a new chat. Stops and saves any reply in flight into the conversation it started in. */
@@ -86,6 +93,7 @@ interface ChatView {
   messages: ConversationMessage[]
   streamingId: string | null
   isLoading: boolean
+  loadError: string | null
   errors: Record<string, ChatTurnError>
 }
 
@@ -108,7 +116,7 @@ interface ChatRun {
 }
 
 function createView(conversationId: string | undefined, isLoading: boolean): ChatView {
-  return {conversationId, title: undefined, messages: [], streamingId: null, isLoading, errors: {}}
+  return {conversationId, title: undefined, messages: [], streamingId: null, isLoading, loadError: null, errors: {}}
 }
 
 function deriveTitle(content: string): string {
@@ -370,6 +378,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
         messages: snapshotRun(run),
         streamingId: run.assistantId,
         isLoading: false,
+        loadError: null,
         errors: {},
       })
       await executeRun(run)
@@ -377,7 +386,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
     [executeRun],
   )
 
-  const canStartTurn = status === 'ready' && !view.isLoading && view.streamingId === null
+  const canStartTurn = status === 'ready' && !view.isLoading && view.loadError === null && view.streamingId === null
 
   const send = useCallback(
     async (content: string): Promise<void> => {
@@ -442,15 +451,17 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
 
     const load = async () => {
       let loaded: Conversation | undefined
+      let loadError: string | null = null
       try {
         loaded = await latestRef.current.storage.getConversation(loadingId)
       } catch (error_) {
         console.error('Failed to load conversation', error_)
+        loadError = error_ instanceof Error && error_.message ? error_.message : 'Could not load this conversation'
       }
       if (cancelled) return
       setView(prev =>
         prev.conversationId === loadingId
-          ? {...prev, isLoading: false, messages: loaded?.messages ?? [], title: loaded?.title}
+          ? {...prev, isLoading: false, loadError, messages: loaded?.messages ?? [], title: loaded?.title}
           : prev,
       )
     }
@@ -461,10 +472,16 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
     }
   }, [loadingId])
 
+  // Settling the failed load as not loading is what lets this flip `loadingId` back to the id and rerun the effect.
+  const reloadConversation = useCallback(() => {
+    setView(prev => (prev.loadError === null ? prev : {...prev, isLoading: true, loadError: null}))
+  }, [])
+
   // Send the navigation prompt exactly once per GPT, after key validation finishes.
   const gptId = gpt?.id
   useEffect(() => {
-    if (!initialPrompt || !gptId || status !== 'ready' || view.isLoading || view.streamingId !== null) return
+    if (!initialPrompt || !gptId || status !== 'ready' || view.isLoading || view.loadError !== null) return
+    if (view.streamingId !== null) return
     if (initialPromptSentForRef.current === gptId) return
     initialPromptSentForRef.current = gptId
 
@@ -473,7 +490,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
       onInitialPromptSent?.()
       send(initialPrompt).catch(console.error)
     })
-  }, [initialPrompt, gptId, status, view.isLoading, view.streamingId, send, onInitialPromptSent])
+  }, [initialPrompt, gptId, status, view.isLoading, view.loadError, view.streamingId, send, onInitialPromptSent])
 
   return {
     messages: view.messages,
@@ -486,10 +503,12 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
     isStreaming: view.streamingId !== null,
     streamingMessageId: view.streamingId,
     isLoadingConversation: view.isLoading,
+    loadError: view.loadError,
     turnErrors: view.errors,
     send,
     stop,
     regenerate,
+    reloadConversation,
     retry,
     reset,
   }

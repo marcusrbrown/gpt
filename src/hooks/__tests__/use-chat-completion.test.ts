@@ -151,6 +151,8 @@ interface Env {
   configured: Set<ProviderId>
   providers: Record<ProviderId, FakeProvider>
   stored: Map<string, Conversation>
+  /** While set, `getConversation` rejects with it. */
+  loadError: Error | undefined
   saveConversation: ReturnType<typeof vi.fn<(conversation: Conversation) => Promise<void>>>
 }
 
@@ -166,6 +168,7 @@ function createEnv(): Env {
       azure: new FakeProvider('azure'),
     },
     stored,
+    loadError: undefined,
     saveConversation: vi.fn(async (conversation: Conversation) => {
       stored.set(conversation.id, conversation)
     }),
@@ -192,7 +195,10 @@ function Wrapper({children}: {children: ReactNode}) {
     isLoading: env.providersLoading,
   }
   const storage = {
-    getConversation: vi.fn(async (id: string) => env.stored.get(id)),
+    getConversation: vi.fn(async (id: string) => {
+      if (env.loadError) throw env.loadError
+      return env.stored.get(id)
+    }),
     saveConversation: env.saveConversation,
   } as unknown as StorageContextType
 
@@ -865,6 +871,100 @@ describe('useChatCompletion', () => {
       ])
       await finish(streamAt('openai', 0), pending)
       expect(savedConversation(0)).toMatchObject({id: 'conv-a', title: 'Saved conv-a'})
+    })
+  })
+
+  describe('when a saved conversation fails to load', () => {
+    const history = [makeMessage('user', 'old q'), makeMessage('assistant', 'old a')]
+
+    async function openFailingConversation() {
+      vi.spyOn(console, 'error').mockImplementation(() => {})
+      env.stored.set('conv-a', makeConversation('conv-a', history))
+      env.loadError = new Error('IndexedDB unavailable')
+      hook = setup({conversationId: 'conv-a'})
+      await waitFor(() => {
+        expect(hook.result.current.isLoadingConversation).toBe(false)
+      })
+    }
+
+    it('exposes the error and blocks send, regenerate and retry so the stored history is never overwritten', async () => {
+      await openFailingConversation()
+
+      expect(hook.result.current.loadError).toBe('IndexedDB unavailable')
+      expect(hook.result.current.messages).toEqual([])
+
+      await startSend(hook, 'new turn')
+      await act(async () => {
+        await hook.result.current.regenerate()
+        await hook.result.current.retry('any')
+      })
+      expect(env.providers.openai.streams).toHaveLength(0)
+      expect(env.saveConversation).not.toHaveBeenCalled()
+      expect(env.stored.get('conv-a')?.messages).toEqual(history)
+    })
+
+    it('does not send the navigation prompt while the load error stands', async () => {
+      const onInitialPromptSent = vi.fn()
+      vi.spyOn(console, 'error').mockImplementation(() => {})
+      env.loadError = new Error('IndexedDB unavailable')
+      hook = setup({conversationId: 'conv-a', initialPrompt: 'from navigation', onInitialPromptSent})
+      await waitFor(() => {
+        expect(hook.result.current.loadError).not.toBeNull()
+      })
+      await act(async () => {
+        await Promise.resolve()
+      })
+      expect(env.providers.openai.streams).toHaveLength(0)
+      expect(onInitialPromptSent).not.toHaveBeenCalled()
+    })
+
+    it('reloading restores the history, clears the error and unblocks send', async () => {
+      await openFailingConversation()
+      env.loadError = undefined
+
+      act(() => {
+        hook.result.current.reloadConversation()
+      })
+      expect(hook.result.current.isLoadingConversation).toBe(true)
+      await waitFor(() => {
+        expect(hook.result.current.isLoadingConversation).toBe(false)
+      })
+
+      expect(hook.result.current.loadError).toBeNull()
+      expect(hook.result.current.messages.map(message => message.content)).toEqual(['old q', 'old a'])
+
+      const pending = startSend(hook, 'next')
+      expect(env.providers.openai.requests[0]?.messages.map(message => message.content)).toEqual([
+        'old q',
+        'old a',
+        'next',
+      ])
+      await finish(streamAt('openai', 0), pending)
+      expect(savedMessages().map(message => message.content)).toEqual(['old q', 'old a', 'next', ''])
+    })
+
+    it('keeps the error when the reload fails too', async () => {
+      await openFailingConversation()
+
+      act(() => {
+        hook.result.current.reloadConversation()
+      })
+      await waitFor(() => {
+        expect(hook.result.current.isLoadingConversation).toBe(false)
+      })
+      expect(hook.result.current.loadError).toBe('IndexedDB unavailable')
+    })
+
+    it('is cleared by switching to another conversation', async () => {
+      await openFailingConversation()
+      env.loadError = undefined
+      env.stored.set('conv-b', makeConversation('conv-b', [makeMessage('user', 'b question')]))
+
+      hook.rerender({gpt: makeGpt(), conversationId: 'conv-b'})
+      await waitFor(() => {
+        expect(hook.result.current.messages).toHaveLength(1)
+      })
+      expect(hook.result.current.loadError).toBeNull()
     })
   })
 
