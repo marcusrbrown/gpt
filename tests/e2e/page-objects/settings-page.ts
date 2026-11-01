@@ -24,6 +24,16 @@ export class SettingsPage extends BasePage {
   readonly apiKeyVisibilityToggle: Locator
   readonly providerAccordion: Locator
 
+  // OpenAI key form and session unlock (Providers tab)
+  readonly openAISettings: Locator
+  readonly openAIKeyInput: Locator
+  readonly openAISaveButton: Locator
+  readonly openAIConfiguredStatus: Locator
+  readonly unlockPrompt: Locator
+  readonly unlockPromptButton: Locator
+  readonly createPassphraseDialog: Locator
+  readonly unlockDialog: Locator
+
   // Theme Settings (Appearance tab)
   readonly themeToggle: Locator
   readonly lightThemeOption: Locator
@@ -63,6 +73,16 @@ export class SettingsPage extends BasePage {
     this.apiKeyStatus = page.locator('[data-testid="api-key-status"]')
     this.apiKeyVisibilityToggle = page.locator('button[aria-label="Toggle API key visibility"]')
     this.providerAccordion = page.locator('[data-testid="provider-accordion"]')
+
+    // OpenAI key form and session unlock
+    this.openAISettings = page.getByTestId('openai-api-settings')
+    this.openAIKeyInput = this.openAISettings.getByLabel('Enter your OpenAI API key')
+    this.openAISaveButton = this.openAISettings.getByRole('button', {name: 'Save API key to local storage'})
+    this.openAIConfiguredStatus = this.openAISettings.getByText('API key is configured and validated')
+    this.unlockPrompt = page.getByTestId('session-unlock-prompt')
+    this.unlockPromptButton = this.unlockPrompt.getByRole('button', {name: 'Unlock'})
+    this.createPassphraseDialog = page.getByRole('dialog', {name: 'Create a Passphrase'})
+    this.unlockDialog = page.getByRole('dialog', {name: 'Unlock Session'})
 
     // Theme Settings
     this.themeToggle = page.locator('[data-testid="theme-toggle"]')
@@ -154,6 +174,31 @@ export class SettingsPage extends BasePage {
   async isApiKeyValid(): Promise<boolean> {
     const status = await this.getApiKeyStatus()
     return status?.includes('Valid') || status?.includes('Connected') || false
+  }
+
+  // OpenAI key and passphrase methods
+  async saveOpenAIKey(apiKey: string): Promise<void> {
+    await this.openAIKeyInput.fill(apiKey)
+    await this.openAISaveButton.click()
+  }
+
+  async fillNewPassphrase(passphrase: string, confirmation = passphrase): Promise<void> {
+    await this.createPassphraseDialog.getByLabel('Passphrase', {exact: true}).fill(passphrase)
+    await this.createPassphraseDialog.getByLabel('Confirm Passphrase').fill(confirmation)
+  }
+
+  async createPassphrase(passphrase: string): Promise<void> {
+    await this.fillNewPassphrase(passphrase)
+    await this.createPassphraseDialog.getByRole('button', {name: 'Set Passphrase'}).click()
+  }
+
+  async openUnlockDialog(): Promise<void> {
+    await this.unlockPromptButton.click()
+  }
+
+  async unlockWith(passphrase: string): Promise<void> {
+    await this.unlockDialog.getByLabel('Passphrase', {exact: true}).fill(passphrase)
+    await this.unlockDialog.getByRole('button', {name: 'Unlock'}).click()
   }
 
   // Theme settings methods

@@ -31,7 +31,7 @@ interface AIProviderProps {
 }
 
 export function AIProvider({children}: AIProviderProps) {
-  const {getSecret} = useSession()
+  const {getSecret, isUnlocked} = useSession()
   const [activeProvider, setActiveProvider] = useState<ProviderId | null>('openai')
   const [providers, setProviders] = useState<ProviderConfig[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -49,7 +49,10 @@ export function AIProvider({children}: AIProviderProps) {
     return reg
   }, [])
 
+  // Stored keys can only be read once the session is unlocked, so load them again whenever `isUnlocked` changes.
   useEffect(() => {
+    let cancelled = false
+
     const initializeProviders = async () => {
       setIsLoading(true)
       try {
@@ -57,13 +60,14 @@ export function AIProvider({children}: AIProviderProps) {
 
         await Promise.all(
           providerList.map(async config => {
-            if (config.apiKeyRequired) {
+            if (config.apiKeyRequired && isUnlocked) {
               const apiKey = await getSecret(config.id)
-              if (apiKey) {
+              if (apiKey && !cancelled) {
                 const provider = registry.get(config.id)
                 if (provider) {
                   try {
                     const result = await provider.validateCredentials(apiKey)
+                    if (cancelled) return
                     if (result.valid) {
                       provider.setApiKey(apiKey)
                       registry.setConfigured(config.id, true)
@@ -72,7 +76,7 @@ export function AIProvider({children}: AIProviderProps) {
                     }
                   } catch {
                     // Provider validation failed (e.g., not yet implemented)
-                    registry.setConfigured(config.id, false)
+                    if (!cancelled) registry.setConfigured(config.id, false)
                   }
                 }
               }
@@ -81,14 +85,18 @@ export function AIProvider({children}: AIProviderProps) {
         )
 
         // Use registry.list() to get the canonical configured state
-        setProviders(registry.list())
+        if (!cancelled) setProviders(registry.list())
       } finally {
-        setIsLoading(false)
+        if (!cancelled) setIsLoading(false)
       }
     }
 
     initializeProviders().catch(console.error)
-  }, [registry, getSecret])
+
+    return () => {
+      cancelled = true
+    }
+  }, [registry, getSecret, isUnlocked])
 
   const getProvider = useCallback(
     (id: ProviderId): BaseLLMProvider | undefined => {

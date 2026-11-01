@@ -1,5 +1,8 @@
 import {expect, test} from './fixtures'
 
+// Saving the first key asks the user to create a passphrase before anything is stored.
+const TEST_PASSPHRASE = 'correct horse battery staple'
+
 test.describe('Anthropic Provider Integration', () => {
   // Helper to navigate to settings page and open Anthropic section
   const openSettingsPanel = async (page: import('@playwright/test').Page) => {
@@ -97,7 +100,7 @@ test.describe('Anthropic Provider Integration', () => {
   })
 
   test.describe('API Key Validation (Mocked)', () => {
-    test('should show error toast for invalid API key format', async ({page}) => {
+    test('should show error toast for invalid API key format', async ({page, settingsPage}) => {
       // Mock the validation to fail
       await page.route('**/api.anthropic.com/**', async route => {
         await route.fulfill({
@@ -117,6 +120,7 @@ test.describe('Anthropic Provider Integration', () => {
 
       await apiKeyInput.fill('invalid-key')
       await saveButton.click()
+      await settingsPage.createPassphrase(TEST_PASSPHRASE)
 
       // Wait for toast notification (RFC-013 changed inline messages to toasts)
       // HeroUI toasts appear in a region with alertdialog role
@@ -126,7 +130,7 @@ test.describe('Anthropic Provider Integration', () => {
       })
     })
 
-    test('should attempt to save API key and show toast feedback', async ({page}) => {
+    test('should attempt to save API key and show toast feedback', async ({page, settingsPage}) => {
       await openSettingsPanel(page)
 
       const anthropicSection = page.locator('div').filter({hasText: 'Anthropic API Settings'}).last()
@@ -135,6 +139,7 @@ test.describe('Anthropic Provider Integration', () => {
 
       await apiKeyInput.fill('sk-ant-api03-test-key')
       await saveButton.click()
+      await settingsPage.createPassphrase(TEST_PASSPHRASE)
 
       // After clicking save, toast notification should appear (RFC-013 uses toasts)
       // Either success or error toast depending on network conditions
@@ -144,7 +149,7 @@ test.describe('Anthropic Provider Integration', () => {
   })
 
   test.describe('Error Handling UI', () => {
-    test('should handle network errors gracefully with toast', async ({page}) => {
+    test('should handle network errors gracefully with toast', async ({page, settingsPage}) => {
       // Mock network failure
       await page.route('**/api.anthropic.com/**', async route => {
         await route.abort('failed')
@@ -158,13 +163,14 @@ test.describe('Anthropic Provider Integration', () => {
 
       await apiKeyInput.fill('sk-ant-test-key')
       await saveButton.click()
+      await settingsPage.createPassphrase(TEST_PASSPHRASE)
 
       // Should show error toast (RFC-013 uses toast notifications)
       const toast = page.locator('[role="alertdialog"], [role="alert"]')
       await expect(toast.locator('text=/Error|Validation Failed/i').first()).toBeVisible({timeout: 10000})
     })
 
-    test('should handle rate limit errors with toast', async ({page}) => {
+    test('should handle rate limit errors with toast', async ({page, settingsPage}) => {
       // Mock rate limit response
       await page.route('**/api.anthropic.com/**', async route => {
         await route.fulfill({
@@ -184,6 +190,7 @@ test.describe('Anthropic Provider Integration', () => {
 
       await apiKeyInput.fill('sk-ant-test-key')
       await saveButton.click()
+      await settingsPage.createPassphrase(TEST_PASSPHRASE)
 
       // Should show error toast for rate limiting (RFC-013 uses toast notifications)
       const toast = page.locator('[role="alertdialog"], [role="alert"]')
@@ -192,7 +199,7 @@ test.describe('Anthropic Provider Integration', () => {
   })
 
   test.describe('Provider Model Selection', () => {
-    test('should show configured status after successful validation', async ({page}) => {
+    test('should show configured status after successful validation', async ({page, settingsPage}) => {
       // Mock successful validation - set up route BEFORE navigation
       await page.route('**/api.anthropic.com/**', async route => {
         await route.fulfill({
@@ -218,6 +225,7 @@ test.describe('Anthropic Provider Integration', () => {
 
       await apiKeyInput.fill('sk-ant-api03-valid-test-key')
       await saveButton.click()
+      await settingsPage.createPassphrase(TEST_PASSPHRASE)
 
       // Wait for either success or error - the validation was attempted
       // In mocked environment, we verify the save button was clicked and process completed
@@ -226,7 +234,7 @@ test.describe('Anthropic Provider Integration', () => {
   })
 
   test.describe('Settings Persistence', () => {
-    test('should clear API key input when clear button is clicked after save attempt', async ({page}) => {
+    test('should clear API key input when clear button is clicked after save attempt', async ({page, settingsPage}) => {
       // Mock validation - will fail but key gets saved to session
       await page.route('**/api.anthropic.com/**', async route => {
         await route.fulfill({
@@ -252,6 +260,7 @@ test.describe('Anthropic Provider Integration', () => {
 
       await apiKeyInput.fill('sk-ant-api03-valid-test-key')
       await saveButton.click()
+      await settingsPage.createPassphrase(TEST_PASSPHRASE)
 
       // Wait for validation attempt to complete
       await expect(saveButton)
