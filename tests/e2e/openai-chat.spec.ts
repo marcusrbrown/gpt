@@ -42,9 +42,9 @@ async function seedOpenAIGPT(page: Page): Promise<void> {
 }
 
 /**
- * Configures OpenAI the way a user would, then opens the GPT's chat. Everything after the first page load is
- * client-side navigation: a reload after unlocking would lock the session and drop the in-memory key, and the app
- * has no unlock screen.
+ * Configures OpenAI the way a user would, then opens the GPT's chat: saves the key in Settings and creates the
+ * passphrase in the modal that appears. Everything after that is client-side navigation, since a reload would lock
+ * the session and drop the in-memory key.
  */
 async function openOpenAIChat(pages: {
   page: Page
@@ -59,13 +59,16 @@ async function openOpenAIChat(pages: {
   await settingsPage.navigate()
   await expect(settingsPage.pageTitle).toBeVisible()
 
-  // Reload so the app's GPT list starts from the seeded record, before the session is unlocked
+  // Reload so the app's GPT list starts from the seeded record, before a key is saved
   await seedOpenAIGPT(page)
   await settingsPage.reload()
   await expect(settingsPage.pageTitle).toBeVisible()
 
-  await settingsPage.unlockSession(PASSPHRASE)
   await settingsPage.saveOpenAIKey(API_KEY)
+  await expect(settingsPage.createPassphraseDialog).toBeVisible()
+  await settingsPage.createPassphrase(PASSPHRASE)
+  await expect(settingsPage.createPassphraseDialog).toBeHidden()
+  await expect(settingsPage.openAIConfiguredStatus).toBeVisible()
 
   await homePage.goHomeFromNavbar()
   await homePage.selectGPT(gpt.name)
