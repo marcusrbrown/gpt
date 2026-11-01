@@ -1,12 +1,21 @@
 import {db} from '@/lib/database'
 
 import {
+  EncryptionError,
+  getEncryptionService,
+  resetEncryptionServiceForTesting,
+  type EncryptionService,
+} from '@/services/encryption'
+import {
+  createSessionManagerForTesting,
   getSessionManager,
   initializeSessionManager,
   resetSessionManagerForTesting,
   type SessionManager,
 } from '@/services/session'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
+
+const PASSPHRASE = 'correct-passphrase'
 
 describe('SessionManager', () => {
   let manager: SessionManager
@@ -142,6 +151,92 @@ describe('SessionManager', () => {
 
       manager.extendSession()
       expect(manager.getState().status).toBe('unlocked')
+    })
+  })
+
+  describe('encryption key lifecycle', () => {
+    let encryption: EncryptionService
+
+    beforeEach(async () => {
+      resetEncryptionServiceForTesting()
+      encryption = getEncryptionService()
+      await encryption.initializePassphrase(PASSPHRASE)
+      await encryption.encryptSecret('openai', 'sk-test-key')
+    })
+
+    afterEach(() => {
+      encryption.lock()
+      resetEncryptionServiceForTesting()
+    })
+
+    it('clears the key when the idle timeout locks the session', async () => {
+      await expect(encryption.decryptSecret('openai')).resolves.toBe('sk-test-key')
+
+      vi.useFakeTimers()
+      manager.unlock()
+      vi.advanceTimersByTime(30 * 60 * 1000 + 10_000)
+
+      expect(manager.getState().status).toBe('locked')
+      expect(encryption.isUnlocked()).toBe(false)
+      await expect(encryption.decryptSecret('openai')).rejects.toMatchObject({
+        name: EncryptionError.name,
+        code: 'LOCKED',
+      })
+    })
+
+    it('clears the key on a manual lock', () => {
+      manager.unlock()
+      manager.lock()
+
+      expect(encryption.isUnlocked()).toBe(false)
+    })
+  })
+
+  describe('cross-tab sync', () => {
+    let tabB: SessionManager
+    let tabBLock: ReturnType<typeof vi.fn<() => void>>
+    let remote: BroadcastChannel
+
+    beforeEach(() => {
+      // Each tab holds its own key, so tab B gets its own stand-in for the encryption service.
+      tabBLock = vi.fn<() => void>()
+      tabB = createSessionManagerForTesting(() => ({lock: tabBLock}))
+      remote = new BroadcastChannel('gpt-session-sync')
+    })
+
+    afterEach(() => {
+      remote.close()
+      tabB.destroy()
+    })
+
+    it('does not mark another tab unlocked when this tab unlocks', async () => {
+      const onChange = vi.fn()
+      tabB.subscribe(onChange)
+
+      manager.unlock()
+      // An UNLOCK from a tab running older code must not unlock this tab either.
+      remote.postMessage({type: 'UNLOCK'})
+      // Messages arrive in order, so once the LOCK sentinel is handled the UNLOCKs have been too.
+      remote.postMessage({type: 'LOCK'})
+      await vi.waitFor(() => {
+        expect(tabBLock).toHaveBeenCalled()
+      })
+
+      expect(onChange).not.toHaveBeenCalledWith(expect.objectContaining({status: 'unlocked'}))
+      expect(tabB.getState().status).toBe('locked')
+    })
+
+    it('locks every tab, and clears its key, when one tab locks', async () => {
+      tabB.unlock()
+      expect(tabB.getState().status).toBe('unlocked')
+      tabBLock.mockClear()
+
+      manager.lock()
+
+      await vi.waitFor(() => {
+        expect(tabB.getState().status).toBe('locked')
+      })
+      expect(tabBLock).toHaveBeenCalledTimes(1)
     })
   })
 

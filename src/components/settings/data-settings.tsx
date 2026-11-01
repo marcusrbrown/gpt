@@ -1,3 +1,4 @@
+import {useSession} from '@/hooks/use-session'
 import {useStorage} from '@/hooks/use-storage'
 import {useStorageQuota} from '@/hooks/use-storage-quota'
 import {cn, ds} from '@/lib/design-system'
@@ -33,6 +34,7 @@ function formatBytes(bytes: number): string {
 export function DataSettings() {
   const {used, total, percentage, isLoading, refresh} = useStorageQuota()
   const storage = useStorage()
+  const {resetAllData, webCryptoAvailable} = useSession()
   const {isOpen, onOpen, onClose} = useDisclosure()
   const [isClearing, setIsClearing] = useState(false)
 
@@ -40,6 +42,9 @@ export function DataSettings() {
     setIsClearing(true)
     try {
       await storage.clearAll()
+      // The open session still holds a key and a stale `isPassphraseSet`; lock it and forget the passphrase.
+      // Without Web Crypto there is no session service to reset, and `clearAll` already emptied the tables.
+      if (webCryptoAvailable) await resetAllData()
       addToast({
         title: 'Data Cleared',
         description: 'All local data has been deleted.',

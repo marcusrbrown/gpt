@@ -52,6 +52,10 @@ export function useUnlockGate(): UnlockGate {
       onSuccess={() => {
         settle(true)
       }}
+      onReset={() => {
+        // The old passphrase and its keys are gone; the same request continues as first-run setup.
+        setMode('setup')
+      }}
     />
   )
 

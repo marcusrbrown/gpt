@@ -1,4 +1,4 @@
-import {PassphraseModal} from '@/components/passphrase-modal'
+import {PassphraseModal, type PassphraseModalMode} from '@/components/passphrase-modal'
 import {useSession} from '@/hooks/use-session'
 import {cn, ds} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
@@ -17,35 +17,45 @@ export interface SessionUnlockPromptProps {
 export function SessionUnlockPrompt({className}: SessionUnlockPromptProps) {
   const {isInitialized, isPassphraseSet, isUnlocked, webCryptoAvailable} = useSession()
   const [isOpen, setIsOpen] = useState(false)
+  const [mode, setMode] = useState<PassphraseModalMode>('unlock')
 
-  if (!webCryptoAvailable || !isInitialized || !isPassphraseSet || isUnlocked) {
+  const showPrompt = isPassphraseSet && !isUnlocked
+
+  // Keep the dialog mounted while it is open: resetting a forgotten passphrase clears `isPassphraseSet`, and the
+  // dialog must outlive that to let the user set the new one.
+  if (!webCryptoAvailable || !isInitialized || (!showPrompt && !isOpen)) {
     return null
   }
 
   return (
-    <div
-      role="status"
-      data-testid="session-unlock-prompt"
-      className={cn(
-        'flex items-center gap-3 rounded-lg border border-border-default bg-surface-secondary p-3',
-        className,
+    <>
+      {showPrompt && (
+        <div
+          role="status"
+          data-testid="session-unlock-prompt"
+          className={cn(
+            'flex items-center gap-3 rounded-lg border border-border-default bg-surface-secondary p-3',
+            className,
+          )}
+        >
+          <Lock size={18} className="shrink-0 text-content-tertiary" aria-hidden="true" />
+          <p className={cn(ds.text.body.small, 'flex-1')}>
+            Your stored API keys are locked. Unlock them to use your providers.
+          </p>
+          <Button
+            size="sm"
+            variant="primary"
+            onPress={() => {
+              setMode('unlock')
+              setIsOpen(true)
+            }}
+          >
+            Unlock
+          </Button>
+        </div>
       )}
-    >
-      <Lock size={18} className="shrink-0 text-content-tertiary" aria-hidden="true" />
-      <p className={cn(ds.text.body.small, 'flex-1')}>
-        Your stored API keys are locked. Unlock them to use your providers.
-      </p>
-      <Button
-        size="sm"
-        variant="primary"
-        onPress={() => {
-          setIsOpen(true)
-        }}
-      >
-        Unlock
-      </Button>
       <PassphraseModal
-        mode="unlock"
+        mode={mode}
         isOpen={isOpen}
         onClose={() => {
           setIsOpen(false)
@@ -53,7 +63,10 @@ export function SessionUnlockPrompt({className}: SessionUnlockPromptProps) {
         onSuccess={() => {
           setIsOpen(false)
         }}
+        onReset={() => {
+          setMode('setup')
+        }}
       />
-    </div>
+    </>
   )
 }

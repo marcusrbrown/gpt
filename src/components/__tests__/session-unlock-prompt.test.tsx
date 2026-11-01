@@ -7,15 +7,22 @@ import {SessionUnlockPrompt} from '../session-unlock-prompt'
 type SessionState = Pick<SessionContextValue, 'isInitialized' | 'isPassphraseSet' | 'isUnlocked' | 'webCryptoAvailable'>
 
 const unlock = vi.fn<(passphrase: string) => Promise<boolean>>()
+const setInitialPassphrase = vi.fn<(passphrase: string) => Promise<void>>()
+const resetAllData = vi.fn<() => Promise<void>>()
 let session: SessionState
 
 vi.mock('@/hooks/use-session', () => ({
-  useSession: () => ({...session, unlock, setInitialPassphrase: vi.fn()}),
+  useSession: () => ({...session, unlock, setInitialPassphrase, resetAllData}),
 }))
 
 describe('SessionUnlockPrompt', () => {
   beforeEach(() => {
     unlock.mockReset().mockResolvedValue(true)
+    setInitialPassphrase.mockReset().mockResolvedValue()
+    resetAllData.mockReset().mockImplementation(async () => {
+      // Like the real reset, forget the passphrase: the prompt's own condition no longer holds.
+      session = {...session, isPassphraseSet: false}
+    })
     session = {isInitialized: true, isPassphraseSet: true, isUnlocked: false, webCryptoAvailable: true}
   })
 
@@ -72,5 +79,26 @@ describe('SessionUnlockPrompt', () => {
 
     expect(await screen.findByRole('alert')).toHaveTextContent('Incorrect passphrase')
     expect(screen.getByRole('dialog', {name: 'Unlock Session'})).toBeInTheDocument()
+  })
+
+  it('moves on to creating a new passphrase after a forgotten one is reset', async () => {
+    const user = userEvent.setup()
+    render(<SessionUnlockPrompt />)
+
+    await user.click(screen.getByRole('button', {name: 'Unlock'}))
+    await user.click(await screen.findByRole('button', {name: 'Forgot passphrase?'}))
+    await user.click(await screen.findByRole('button', {name: 'Delete Keys and Reset'}))
+
+    // The prompt itself is gone (no passphrase to unlock), but the dialog stays to set the new one.
+    expect(await screen.findByRole('dialog', {name: 'Create a Passphrase'})).toBeInTheDocument()
+    expect(screen.queryByTestId('session-unlock-prompt')).not.toBeInTheDocument()
+
+    await user.type(screen.getByLabelText('Passphrase', {exact: true}), 'long-enough-1')
+    await user.type(screen.getByLabelText('Confirm Passphrase'), 'long-enough-1{Enter}')
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    })
+    expect(setInitialPassphrase).toHaveBeenCalledWith('long-enough-1')
   })
 })

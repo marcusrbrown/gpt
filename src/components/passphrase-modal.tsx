@@ -13,19 +13,23 @@ export interface PassphraseModalProps {
   isOpen: boolean
   onClose?: () => void
   onSuccess?: () => void
+  /** Called after a forgotten passphrase is reset. The caller should then render the modal in `setup` mode. */
+  onReset?: () => void
 }
 
 /**
  * Creates the passphrase that encrypts stored API keys (`setup`), or unlocks a session that already has one
  * (`unlock`). Always dismissible: nothing outside the flow that needs a stored key waits on it.
  */
-export function PassphraseModal({mode, isOpen, onClose, onSuccess}: PassphraseModalProps) {
-  const {setInitialPassphrase, unlock} = useSession()
+export function PassphraseModal({mode, isOpen, onClose, onSuccess, onReset}: PassphraseModalProps) {
+  const {setInitialPassphrase, unlock, resetAllData} = useSession()
 
   const [passphrase, setPassphrase] = useState('')
   const [confirmPassphrase, setConfirmPassphrase] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isConfirmingReset, setIsConfirmingReset] = useState(false)
+  const [isResetting, setIsResetting] = useState(false)
 
   const isSetup = mode === 'setup'
   const isPassphraseValid = PassphraseSchema.safeParse(passphrase).success
@@ -39,8 +43,34 @@ export function PassphraseModal({mode, isOpen, onClose, onSuccess}: PassphraseMo
 
   const handleClose = useCallback(() => {
     resetForm()
+    setIsConfirmingReset(false)
     onClose?.()
   }, [resetForm, onClose])
+
+  const handleStartReset = useCallback(() => {
+    setError(null)
+    setIsConfirmingReset(true)
+  }, [])
+
+  const handleCancelReset = useCallback(() => {
+    setError(null)
+    setIsConfirmingReset(false)
+  }, [])
+
+  const handleReset = useCallback(async () => {
+    setIsResetting(true)
+    setError(null)
+    try {
+      await resetAllData()
+      resetForm()
+      setIsConfirmingReset(false)
+      onReset?.()
+    } catch (error_) {
+      setError(error_ instanceof Error ? error_.message : 'Failed to reset')
+    } finally {
+      setIsResetting(false)
+    }
+  }, [resetAllData, resetForm, onReset])
 
   const handleSetup = useCallback(async () => {
     const validation = PassphraseSchema.safeParse(passphrase)
@@ -100,68 +130,111 @@ export function PassphraseModal({mode, isOpen, onClose, onSuccess}: PassphraseMo
       data-testid="passphrase-modal"
     >
       <ModalContent>
-        <ModalHeader>{isSetup ? 'Create a Passphrase' : 'Unlock Session'}</ModalHeader>
-        <form
-          className="flex flex-col"
-          onSubmit={event => {
-            handleSubmit(event).catch(console.error)
-          }}
-        >
-          <ModalBody className="space-y-4">
-            <p className={cn(ds.text.body.small)}>
-              {isSetup
-                ? 'Your passphrase encrypts API keys stored in this browser. It is never stored and cannot be recovered if you forget it.'
-                : 'Enter your passphrase to unlock your stored API keys.'}
-            </p>
+        <ModalHeader>
+          {isConfirmingReset ? 'Reset Passphrase' : isSetup ? 'Create a Passphrase' : 'Unlock Session'}
+        </ModalHeader>
+        {isConfirmingReset ? (
+          <>
+            <ModalBody className="space-y-4">
+              <p className={cn(ds.text.body.small)}>
+                This deletes your saved API keys. You&apos;ll set a new passphrase.
+              </p>
 
-            <Input
-              type="password"
-              validationBehavior="aria"
-              label="Passphrase"
-              placeholder={isSetup ? 'Enter a secure passphrase' : 'Enter your passphrase'}
-              value={passphrase}
-              onValueChange={setPassphrase}
-              autoFocus
-              autoComplete={isSetup ? 'new-password' : 'current-password'}
-              description={isSetup ? 'Minimum 8 characters' : undefined}
-              isInvalid={isSetup ? tooShort : error !== null}
-              errorMessage={isSetup && tooShort ? 'Must be at least 8 characters' : undefined}
-            />
+              {error && (
+                <p role="alert" data-testid="passphrase-error" className="text-small text-danger">
+                  {error}
+                </p>
+              )}
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="tertiary" onPress={handleCancelReset} isDisabled={isResetting}>
+                Back
+              </Button>
+              <Button
+                variant="danger"
+                onPress={() => {
+                  handleReset().catch(console.error)
+                }}
+                isPending={isResetting}
+              >
+                {({isPending}) => (
+                  <>
+                    {isPending && <Spinner size="sm" color="current" />}
+                    Delete Keys and Reset
+                  </>
+                )}
+              </Button>
+            </ModalFooter>
+          </>
+        ) : (
+          <form
+            className="flex flex-col"
+            onSubmit={event => {
+              handleSubmit(event).catch(console.error)
+            }}
+          >
+            <ModalBody className="space-y-4">
+              <p className={cn(ds.text.body.small)}>
+                {isSetup
+                  ? 'Your passphrase encrypts API keys stored in this browser. It is never stored and cannot be recovered if you forget it.'
+                  : 'Enter your passphrase to unlock your stored API keys.'}
+              </p>
 
-            {isSetup && (
               <Input
                 type="password"
                 validationBehavior="aria"
-                label="Confirm Passphrase"
-                placeholder="Confirm your passphrase"
-                value={confirmPassphrase}
-                onValueChange={setConfirmPassphrase}
-                autoComplete="new-password"
-                isInvalid={mismatch}
-                errorMessage={mismatch ? 'Passphrases do not match' : undefined}
+                label="Passphrase"
+                placeholder={isSetup ? 'Enter a secure passphrase' : 'Enter your passphrase'}
+                value={passphrase}
+                onValueChange={setPassphrase}
+                autoFocus
+                autoComplete={isSetup ? 'new-password' : 'current-password'}
+                description={isSetup ? 'Minimum 8 characters' : undefined}
+                isInvalid={isSetup ? tooShort : error !== null}
+                errorMessage={isSetup && tooShort ? 'Must be at least 8 characters' : undefined}
               />
-            )}
 
-            {error && (
-              <p role="alert" data-testid="passphrase-error" className="text-small text-danger">
-                {error}
-              </p>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Button variant="tertiary" onPress={handleClose}>
-              Cancel
-            </Button>
-            <Button type="submit" variant="primary" isDisabled={!isFormValid} isPending={isSubmitting}>
-              {({isPending}) => (
-                <>
-                  {isPending && <Spinner size="sm" color="current" />}
-                  {isSetup ? 'Set Passphrase' : 'Unlock'}
-                </>
+              {isSetup && (
+                <Input
+                  type="password"
+                  validationBehavior="aria"
+                  label="Confirm Passphrase"
+                  placeholder="Confirm your passphrase"
+                  value={confirmPassphrase}
+                  onValueChange={setConfirmPassphrase}
+                  autoComplete="new-password"
+                  isInvalid={mismatch}
+                  errorMessage={mismatch ? 'Passphrases do not match' : undefined}
+                />
               )}
-            </Button>
-          </ModalFooter>
-        </form>
+
+              {error && (
+                <p role="alert" data-testid="passphrase-error" className="text-small text-danger">
+                  {error}
+                </p>
+              )}
+
+              {!isSetup && (
+                <Button type="button" variant="ghost" size="sm" onPress={handleStartReset}>
+                  Forgot passphrase?
+                </Button>
+              )}
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="tertiary" onPress={handleClose}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="primary" isDisabled={!isFormValid} isPending={isSubmitting}>
+                {({isPending}) => (
+                  <>
+                    {isPending && <Spinner size="sm" color="current" />}
+                    {isSetup ? 'Set Passphrase' : 'Unlock'}
+                  </>
+                )}
+              </Button>
+            </ModalFooter>
+          </form>
+        )}
       </ModalContent>
     </Modal>
   )

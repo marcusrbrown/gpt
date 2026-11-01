@@ -1,5 +1,6 @@
 import {db} from '@/lib/database'
 
+import {getEncryptionService, type EncryptionService} from '@/services/encryption'
 import {z} from 'zod'
 
 export type SessionStatus = 'locked' | 'unlocking' | 'unlocked' | 'timing_out'
@@ -30,7 +31,11 @@ const ACTIVITY_THROTTLE_MS = 30_000
 const CHECK_INTERVAL_MS = 10_000
 const CHANNEL_NAME = 'gpt-session-sync'
 
-type SessionMessage = {type: 'UNLOCK'} | {type: 'LOCK'} | {type: 'ACTIVITY'; timestamp: number} | {type: 'EXTEND'}
+/**
+ * There is no UNLOCK message on purpose: every tab derives its own key from the passphrase, so one tab unlocking
+ * says nothing about whether another tab holds a key. A tab only becomes unlocked by unlocking itself.
+ */
+type SessionMessage = {type: 'LOCK'} | {type: 'ACTIVITY'; timestamp: number} | {type: 'EXTEND'}
 
 type Subscriber = (state: SessionState) => void
 
@@ -61,7 +66,7 @@ class SessionManagerImpl implements SessionManager {
   private activityHandler: (() => void) | null = null
   private isDestroyed = false
 
-  constructor() {
+  constructor(private readonly getEncryption: () => Pick<EncryptionService, 'lock'> = getEncryptionService) {
     this.initBroadcastChannel()
   }
 
@@ -74,12 +79,8 @@ class SessionManagerImpl implements SessionManager {
 
       const message = event.data
       switch (message.type) {
-        case 'UNLOCK':
-          if (this.state.status === 'locked') {
-            this.setState({status: 'unlocked', lastActivity: Date.now()})
-          }
-          break
         case 'LOCK':
+          this.getEncryption().lock()
           if (this.state.status !== 'locked') {
             this.setState({status: 'locked', lastActivity: this.state.lastActivity})
           }
@@ -132,11 +133,12 @@ class SessionManagerImpl implements SessionManager {
   unlock(): void {
     const now = Date.now()
     this.setState({status: 'unlocked', lastActivity: now})
-    this.broadcast({type: 'UNLOCK'})
     this.startTimeoutCheck()
   }
 
   lock(): void {
+    // Every lock path (manual, idle timeout) ends here, so the key can never outlive a locked session.
+    this.getEncryption().lock()
     this.setState({status: 'locked', lastActivity: this.state.lastActivity})
     this.broadcast({type: 'LOCK'})
     this.stopTimeoutCheck()
@@ -264,6 +266,11 @@ export function getSessionManager(): SessionManager {
 export function resetSessionManagerForTesting(): void {
   sessionManagerInstance?.destroy()
   sessionManagerInstance = null
+}
+
+/** Builds an extra manager that stands in for another tab; production code uses `getSessionManager()`. */
+export function createSessionManagerForTesting(getEncryption?: () => Pick<EncryptionService, 'lock'>): SessionManager {
+  return new SessionManagerImpl(getEncryption)
 }
 
 export async function initializeSessionManager(): Promise<SessionManager> {

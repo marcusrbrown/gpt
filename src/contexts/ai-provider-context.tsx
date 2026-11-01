@@ -31,7 +31,7 @@ interface AIProviderProps {
 }
 
 export function AIProvider({children}: AIProviderProps) {
-  const {getSecret, isUnlocked} = useSession()
+  const {getSecret, isUnlocked, isPassphraseSet} = useSession()
   const [activeProvider, setActiveProvider] = useState<ProviderId | null>('openai')
   const [providers, setProviders] = useState<ProviderConfig[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -50,6 +50,7 @@ export function AIProvider({children}: AIProviderProps) {
   }, [])
 
   // Stored keys can only be read once the session is unlocked, so load them again whenever `isUnlocked` changes.
+  // `isPassphraseSet` is a dependency too: resetting a forgotten passphrase deletes the stored keys while locked.
   useEffect(() => {
     let cancelled = false
 
@@ -60,6 +61,13 @@ export function AIProvider({children}: AIProviderProps) {
 
         await Promise.all(
           providerList.map(async config => {
+            // Locked: forget any key held from the last unlock so a locked session leaves nothing usable in memory.
+            if (config.apiKeyRequired && !isUnlocked) {
+              registry.get(config.id)?.clearApiKey()
+              registry.setConfigured(config.id, false)
+              return
+            }
+
             if (config.apiKeyRequired && isUnlocked) {
               const apiKey = await getSecret(config.id)
               if (apiKey && !cancelled) {
@@ -96,7 +104,7 @@ export function AIProvider({children}: AIProviderProps) {
     return () => {
       cancelled = true
     }
-  }, [registry, getSecret, isUnlocked])
+  }, [registry, getSecret, isUnlocked, isPassphraseSet])
 
   const getProvider = useCallback(
     (id: ProviderId): BaseLLMProvider | undefined => {

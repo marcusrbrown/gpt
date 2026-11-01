@@ -3,7 +3,7 @@ import {useSession} from '@/hooks/use-session'
 import {db} from '@/lib/database'
 import {getEncryptionService, resetEncryptionServiceForTesting} from '@/services/encryption'
 import {getProviderRegistry, OpenAIProvider} from '@/services/providers'
-import {resetSessionManagerForTesting} from '@/services/session'
+import {getSessionManager, resetSessionManagerForTesting} from '@/services/session'
 import {act, render, screen, waitFor} from '@testing-library/react'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {AIProvider} from '../ai-provider-context'
@@ -91,6 +91,31 @@ describe('AIProvider', () => {
       expect(screen.getByTestId('probe')).toHaveTextContent('openai-configured')
     })
     expect(validateCredentials).toHaveBeenCalledWith(API_KEY)
+  })
+
+  it('treats providers as locked again, and drops the key, when the session auto-locks', async () => {
+    renderProviders()
+    await waitFor(() => {
+      expect(session.isPassphraseSet).toBe(true)
+    })
+    await act(async () => {
+      await session.unlock(PASSPHRASE)
+    })
+    await waitFor(() => {
+      expect(screen.getByTestId('probe')).toHaveTextContent('openai-configured')
+    })
+
+    // The idle timeout calls the session manager's lock() directly, not the context's.
+    act(() => {
+      getSessionManager().lock()
+    })
+
+    await waitFor(() => {
+      expect(screen.getByTestId('probe')).toHaveTextContent('openai-unconfigured')
+    })
+    expect(getEncryptionService().isUnlocked()).toBe(false)
+    expect(getProviderRegistry().get('openai')?.isConfigured).toBe(false)
+    expect(await session.getSecret('openai')).toBeNull()
   })
 
   it('stays unconfigured after a wrong passphrase', async () => {
