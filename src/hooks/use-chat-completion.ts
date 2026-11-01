@@ -110,8 +110,12 @@ interface ChatView {
   streamingId: string | null
   isLoading: boolean
   loadError: string | null
-  /** The GPT that owns the loaded conversation. Compared with the current GPT on every render, so order of arrival doesn't matter. */
-  loadedGptId: string | undefined
+  /**
+   * The GPT that owns the conversation on screen: the stored owner of a loaded one, or the GPT that started a new chat.
+   * Kept for the life of the view and compared with the current GPT on every render, so a turn can't launder it and the
+   * order of arrival doesn't matter.
+   */
+  ownerGptId: string | undefined
   saveError: string | null
   /**
    * True while no stored record is known to exist for this view: a new chat, or a route id that held nothing when it was
@@ -169,7 +173,7 @@ function createView(conversationId: string | undefined, isLoading: boolean, gene
     streamingId: null,
     isLoading,
     loadError: null,
-    loadedGptId: undefined,
+    ownerGptId: undefined,
     saveError: null,
     mayCreate: conversationId === undefined,
     generation,
@@ -529,7 +533,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
         streamingId: run.assistantId,
         isLoading: false,
         loadError: null,
-        loadedGptId: undefined,
+        ownerGptId: base.ownerGptId ?? currentGpt.id,
         saveError: base.saveError,
         mayCreate: base.mayCreate,
         generation: base.generation,
@@ -542,7 +546,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
 
   // The route can name any conversation. One that belongs to another GPT must never reach this GPT's provider, so it
   // is a load error: its history is hidden, and sends (and with them saves) are blocked.
-  const gptMismatch = view.loadedGptId !== undefined && gpt !== undefined && view.loadedGptId !== gpt.id
+  const gptMismatch = view.ownerGptId !== undefined && gpt !== undefined && view.ownerGptId !== gpt.id
   const loadError = gptMismatch ? GPT_MISMATCH_ERROR : view.loadError
   const messages = gptMismatch ? NO_MESSAGES : view.messages
 
@@ -629,7 +633,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
               ...prev,
               isLoading: false,
               loadError,
-              loadedGptId: loaded?.gptId,
+              ownerGptId: loaded?.gptId,
               mayCreate: loaded === undefined,
               messages: loaded?.messages ?? [],
               title: loaded?.title,
@@ -647,7 +651,7 @@ export function useChatCompletion(options: UseChatCompletionOptions): UseChatCom
   // Settling the failed load as not loading is what lets this flip `loadingId` back to the id and rerun the effect.
   const reloadConversation = useCallback(() => {
     if (loadError === null) return
-    setView(prev => ({...prev, isLoading: true, loadError: null, loadedGptId: undefined}))
+    setView(prev => ({...prev, isLoading: true, loadError: null, ownerGptId: undefined}))
   }, [loadError])
 
   // Saves what is on screen now, not the failed snapshot: anything newer would otherwise be written over by it. A reply

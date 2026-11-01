@@ -1681,6 +1681,33 @@ describe('useChatCompletion', () => {
         expect(env.providers.openai.streams).toHaveLength(0)
       })
 
+      it('keeps the owner after a turn, so a loaded conversation cannot be continued under another GPT', async () => {
+        await openConversationA()
+        const pending = startSend(hook, 'q')
+        await finish(streamAt('openai', 0), pending)
+
+        hook.rerender({gpt: makeGpt({id: OTHER_GPT_ID}), conversationId: 'conv-a'})
+
+        expect(hook.result.current.loadError).toBe(MISMATCH_MESSAGE)
+        expect(hook.result.current.messages).toEqual([])
+        await startSend(hook, 'leak?')
+        // Only the turn before the switch ever reached a provider.
+        expect(Object.values(env.providers).flatMap(provider => provider.streams)).toHaveLength(1)
+      })
+
+      it('keeps the owner of a new chat, so its history is never sent to the GPT the page switched to', async () => {
+        hook = setup()
+        const pending = startSend(hook, 'private question')
+        await finish(streamAt('openai', 0), pending)
+
+        hook.rerender({gpt: makeGpt({id: OTHER_GPT_ID}), conversationId: undefined})
+
+        expect(hook.result.current.loadError).toBe(MISMATCH_MESSAGE)
+        await startSend(hook, 'leak?')
+        // Only the turn before the switch ever reached a provider.
+        expect(Object.values(env.providers).flatMap(provider => provider.streams)).toHaveLength(1)
+      })
+
       it('is cleared by switching to a conversation of this GPT', async () => {
         storeForeignConversation()
         env.stored.set('conv-b', makeConversation('conv-b', [makeMessage('user', 'b question')]))
