@@ -3,6 +3,7 @@ import {lazy, Suspense} from 'react'
 import {Route, Routes, useLocation} from 'react-router-dom'
 import {Footer} from './components/footer'
 import {Navbar} from './components/navbar'
+import {SessionWarning} from './components/session-warning'
 import {cn, ds} from './lib/design-system'
 import {BackupRestorePage} from './pages/backup-restore-page'
 import {GPTEditorPage} from './pages/gpt-editor-page'
@@ -31,6 +32,7 @@ function App() {
   return (
     <Providers>
       <div className="relative flex flex-col min-h-screen">
+        <SessionWarning />
         <Navbar />
         <div className="grow">
           {/* Key by pathname to trigger page transition animations on route changes */}

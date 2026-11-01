@@ -75,7 +75,7 @@ export function SessionProvider({children}: SessionProviderProps) {
         const encryption = getEncryptionService()
         const session = getSessionManager()
 
-        const hasSecrets = await encryption.hasSecrets()
+        const passphraseSet = await encryption.isPassphraseSet()
 
         if (cancelled) return
 
@@ -83,7 +83,7 @@ export function SessionProvider({children}: SessionProviderProps) {
 
         queueMicrotask(() => {
           if (cancelled) return
-          setIsPassphraseSet(hasSecrets)
+          setIsPassphraseSet(passphraseSet)
           setSessionConfig(session.getConfig())
           setServicesReady(true)
           setIsInitialized(true)
@@ -220,7 +220,8 @@ export function SessionProvider({children}: SessionProviderProps) {
     () => ({
       status,
       remainingSeconds,
-      isUnlocked: status === 'unlocked',
+      // `timing_out` is the warning window before auto-lock; the session is still unlocked.
+      isUnlocked: status === 'unlocked' || status === 'timing_out',
       isPassphraseSet,
       isInitialized,
       webCryptoAvailable,

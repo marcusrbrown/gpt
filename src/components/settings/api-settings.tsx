@@ -1,5 +1,6 @@
 import {useAIProvider} from '@/hooks/use-ai-provider'
 import {useSession} from '@/hooks/use-session'
+import {useUnlockGate} from '@/hooks/use-unlock-gate'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
 import {addToast, Input} from '@heroui/react'
@@ -10,6 +11,7 @@ import {useState} from 'react'
 export function APISettings() {
   const {setSecret, deleteSecret, getSecret} = useSession()
   const {validateProvider, providers} = useAIProvider()
+  const {ensureUnlocked, passphraseDialog} = useUnlockGate()
   const [inputKey, setInputKey] = useState('')
   const [showApiKey, setShowApiKey] = useState(false)
 
@@ -22,6 +24,7 @@ export function APISettings() {
 
   const handleSaveKey = async () => {
     try {
+      if (!(await ensureUnlocked())) return
       await setSecret('openai', inputKey)
       const result = await validateProvider('openai', inputKey)
       if (result.valid) {
@@ -86,7 +89,7 @@ export function APISettings() {
   }
 
   return (
-    <div className={cn(compose.card(), theme.surface(1))}>
+    <div data-testid="openai-api-settings" className={cn(compose.card(), theme.surface(1))}>
       <h2 className={cn(responsive.heading.large, 'mb-4')}>OpenAI API Settings</h2>
 
       <div className={cn(ds.form.fieldGroup)}>
@@ -159,6 +162,8 @@ export function APISettings() {
           billed to your OpenAI account based on your API usage.
         </p>
       </div>
+
+      {passphraseDialog}
     </div>
   )
 }

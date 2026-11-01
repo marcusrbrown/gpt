@@ -1,3 +1,4 @@
+import {SessionUnlockPrompt} from '@/components/session-unlock-prompt'
 import {cn, ds, theme} from '@/lib/design-system'
 import {Accordion, AccordionItem} from '@heroui/react'
 import {ChevronDown} from 'lucide-react'
@@ -18,6 +19,8 @@ export function ProviderSettings() {
           Configure your AI providers below. Your API keys are encrypted and stored locally.
         </p>
       </div>
+
+      <SessionUnlockPrompt />
 
       <Accordion
         variant="bordered"
