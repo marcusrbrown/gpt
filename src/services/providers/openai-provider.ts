@@ -188,7 +188,8 @@ export class OpenAIProvider extends BaseLLMProvider {
   /**
    * Streams (or, with `stream: false`, fetches) one reply on the Responses API. Stateless: the full history goes in
    * every call and `store: false` keeps nothing at OpenAI. Chat is text-only for now, so `request.tools` is ignored.
-   * Aborts throw an `AbortError` and emit no final chunk.
+   * Aborts throw an `AbortError` and emit no final chunk. A stream that ends early keeps its text and finishes with
+   * `length`; one that ends before any text arrived throws a `connection` error.
    */
   async *createCompletion(request: CompletionRequest): AsyncIterable<CompletionChunk> {
     const client = this.ensureClient()
@@ -206,6 +207,7 @@ export class OpenAIProvider extends BaseLLMProvider {
       }
 
       let responseId = ''
+      let receivedText = false
       for await (const event of client.responses.stream(params, {signal})) {
         // The SDK may still hold events it buffered before the abort; don't deliver them.
         signal?.throwIfAborted()
@@ -213,6 +215,7 @@ export class OpenAIProvider extends BaseLLMProvider {
         switch (event.type) {
           case 'response.output_text.delta':
           case 'response.refusal.delta':
+            if (event.delta) receivedText = true
             yield {id: responseId, content: event.delta}
             break
           case 'response.created':
@@ -231,7 +234,13 @@ export class OpenAIProvider extends BaseLLMProvider {
         }
       }
 
-      throw new ProviderError('Response stream ended before completion', 'connection', 'openai')
+      // The stream closed without a terminal event. A stream that was aborted may close quietly too.
+      signal?.throwIfAborted()
+      if (!receivedText) {
+        throw new ProviderError('The response ended before any text arrived', 'connection', 'openai')
+      }
+      // Keep what arrived and mark it cut off, as the Anthropic and Ollama providers do.
+      yield {id: responseId, finishReason: 'length'}
     } catch (error_) {
       throw this.mapError(error_, signal)
     }

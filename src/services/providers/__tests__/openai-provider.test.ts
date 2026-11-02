@@ -717,6 +717,30 @@ describe('OpenAIProvider', () => {
     })
   })
 
+  describe('a stream that ends without a terminal event', () => {
+    const withoutTerminal = (deltas: string[]) => textStreamEvents(deltas).slice(0, -1)
+
+    it('keeps the text received and ends with a length finish reason, as the other providers do', async () => {
+      mockFetch(() => streamResponse(withoutTerminal(['Partial ', 'reply'])))
+
+      const chunks = await collectChunks(createProvider().createCompletion(request()))
+
+      expect(chunks.map(chunk => chunk.content).filter(Boolean)).toEqual(['Partial ', 'reply'])
+      expect(chunks.at(-1)).toMatchObject({finishReason: 'length'})
+      expect(chunks.at(-1)?.content).toBeUndefined()
+      expect(chunks.filter(chunk => chunk.finishReason !== undefined)).toHaveLength(1)
+    })
+
+    it('throws a connection ProviderError when no text arrived', async () => {
+      mockFetch(() => streamResponse(withoutTerminal([]).slice(0, 3)))
+
+      const error = await thrownBy(createProvider().createCompletion(request()))
+
+      expect(error).toBeInstanceOf(ProviderError)
+      expect(error).toMatchObject({type: 'connection', provider: 'openai'})
+    })
+  })
+
   describe('abort', () => {
     it('ends with an AbortError and no final chunk when aborted mid-stream', async () => {
       const controller = new AbortController()
