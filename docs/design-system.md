@@ -477,6 +477,8 @@ v3 sizing differs from v2: no minimum width (add `min-w-*` where layout needs it
 
 `src/styles/heroui-v3.css` re-points v3's `--accent` and `--danger` at the v2 `--heroui-primary` and `--heroui-danger`. v3's own values give white button text 3.6:1 and 3.5:1, which fails the axe contrast rule (4.5:1) on `primary`; the v2 values are 4.5:1 and 4.0:1. Remove the override at cutover and re-check contrast.
 
+The app's `:root` / `.dark` `--accent-hover` (`#2563eb`, and `#e5e5e5` in dark) beats v3's, so `heroui-v3.css` re-derives `--accent-hover` and `--danger-hover` on `.button` (88% of `--accent` / `--danger`, rest black). Without it a dark `primary` button turned `#e5e5e5` under white text on hover (1.2:1), and `danger` hover, v3's own lighter mix, was 3.4:1. Hover is now 6.0:1 and 5.4:1. Drop the override with the v2 plugin.
+
 ### Modal (v3)
 
 ```tsx
