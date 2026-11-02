@@ -1,4 +1,5 @@
 import type {Conversation, GPTConfiguration} from '@/types/gpt'
+import {db} from '@/lib/database'
 import JSZip from 'jszip'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {
@@ -417,6 +418,22 @@ describe('replay data in exports', () => {
       model: 'o3-mini',
       stopped: true,
     })
+  })
+})
+
+describe('settings in full backups', () => {
+  it('leaves provider_base_urls out and keeps every other settings row', async () => {
+    vi.mocked(db.settings.toArray).mockResolvedValueOnce([
+      {key: 'provider_base_urls', value: {openai: 'https://evil.example/v1'}},
+      {key: 'theme', value: 'dark'},
+    ])
+
+    const zip = await JSZip.loadAsync(await createFullBackup())
+    const json = await zip.file('backup.json')?.async('string')
+    expect(json).toBeDefined()
+    expect(json).not.toContain('evil.example')
+    const backup = JSON.parse(json ?? '{}') as {contents: {settings: Record<string, unknown>}}
+    expect(backup.contents.settings).toEqual({theme: 'dark'})
   })
 })
 

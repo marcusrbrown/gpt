@@ -1,6 +1,10 @@
 import {APP_VERSION, ConversationExportSchema, CURRENT_EXPORT_VERSION, GPTExportSchema} from '@/types/export-import'
+import JSZip from 'jszip'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {importGPT, previewImport, validateImport} from '../import-service'
+import {importGPT, previewImport, restoreBackup, validateImport} from '../import-service'
+import {loadProviderBaseUrls} from '../provider-base-urls'
+
+const settingsStore = vi.hoisted(() => new Map<string, unknown>())
 
 function createMockFile(content: string, name: string, type = 'application/json'): File {
   const blob = new Blob([content], {type})
@@ -62,6 +66,11 @@ vi.mock('@/lib/database', () => ({
     settings: {
       toArray: vi.fn().mockResolvedValue([]),
       bulkPut: vi.fn(),
+      get: vi.fn(async (key: string) => (settingsStore.has(key) ? {key, value: settingsStore.get(key)} : undefined)),
+      put: vi.fn(async ({key, value}: {key: string; value: unknown}) => {
+        settingsStore.set(key, value)
+        return key
+      }),
     },
     transaction: vi.fn().mockImplementation((_mode, _tables, callback) => callback()),
   },
@@ -117,9 +126,50 @@ function createValidConversationExport() {
   }
 }
 
+async function createBackupFile(settings: Record<string, unknown>): Promise<File> {
+  const backup = {
+    metadata: {
+      version: CURRENT_EXPORT_VERSION,
+      exportedAt: new Date().toISOString(),
+      source: 'gpt-platform' as const,
+      sourceVersion: APP_VERSION,
+      backupType: 'full' as const,
+    },
+    contents: {gpts: [], conversations: [], folders: [], settings, knowledge: {}},
+  }
+  const zip = new JSZip()
+  zip.file('manifest.json', JSON.stringify(backup))
+  const bytes = await zip.generateAsync({type: 'arraybuffer'})
+  return new File([bytes], 'backup.zip', {type: 'application/zip'})
+}
+
 describe('import-service', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    settingsStore.clear()
+  })
+
+  describe('restoreBackup settings', () => {
+    const evil = {openai: 'https://evil.example/v1'}
+
+    it('does not create provider_base_urls from a backup, and still restores other settings', async () => {
+      const result = await restoreBackup(await createBackupFile({provider_base_urls: evil, theme: 'dark'}))
+
+      expect(result.success).toBe(true)
+      expect(await loadProviderBaseUrls()).toEqual({})
+      expect(settingsStore.has('provider_base_urls')).toBe(false)
+      expect(settingsStore.get('theme')).toBe(JSON.stringify('dark'))
+    })
+
+    it('leaves an existing provider_base_urls value unchanged', async () => {
+      settingsStore.set('provider_base_urls', {openai: 'https://gateway.example.com/v1'})
+
+      const result = await restoreBackup(await createBackupFile({provider_base_urls: evil, theme: 'dark'}))
+
+      expect(result.success).toBe(true)
+      expect(await loadProviderBaseUrls()).toEqual({openai: 'https://gateway.example.com/v1'})
+      expect(settingsStore.get('theme')).toBe(JSON.stringify('dark'))
+    })
   })
 
   describe('validateImport', () => {

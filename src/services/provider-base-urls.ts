@@ -5,8 +5,12 @@ import {BaseUrlProviderIdSchema, ProviderBaseUrlSchema} from '@/types/provider'
 /**
  * Per-provider endpoint overrides live in the plain `settings` table, not in the encrypted `secrets` store: a base URL
  * is not secret, so saving one never needs the passphrase and it is available before the session unlocks.
+ *
+ * Backups must never carry this row, in either direction: a restored gateway URL would receive the stored API key on
+ * the next unlock. Only the user, in Settings, sets it.
  */
-const SETTINGS_KEY = 'provider_base_urls'
+export const PROVIDER_BASE_URLS_SETTINGS_KEY = 'provider_base_urls'
+const SETTINGS_KEY = PROVIDER_BASE_URLS_SETTINGS_KEY
 
 /** A backup restore stores settings as JSON text, so accept either shape. */
 function asRecord(value: unknown): Record<string, unknown> {

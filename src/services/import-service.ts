@@ -16,6 +16,7 @@ import {
   type ImportResult,
   type ImportValidation,
 } from '@/types/export-import'
+import {PROVIDER_BASE_URLS_SETTINGS_KEY} from '@/services/provider-base-urls'
 import JSZip from 'jszip'
 
 export type ImportFileType = 'gpt' | 'conversation' | 'bulk' | 'backup' | 'unknown'
@@ -732,6 +733,8 @@ export async function restoreBackup(
     if (backup.contents.settings) {
       onProgress?.(95, 'Restoring settings...')
       for (const [key, value] of Object.entries(backup.contents.settings)) {
+        // A backup must never set or change a gateway URL; only the user can, in Settings.
+        if (key === PROVIDER_BASE_URLS_SETTINGS_KEY) continue
         await db.settings.put({key, value: JSON.stringify(value)})
       }
     }

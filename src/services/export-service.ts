@@ -2,6 +2,7 @@ import type {Conversation, GPTConfiguration} from '@/types/gpt'
 import type {GPTFolder} from '@/types/gpt-extensions'
 import {db, toISOString} from '@/lib/database'
 import {withoutReplay} from '@/lib/message-metadata'
+import {PROVIDER_BASE_URLS_SETTINGS_KEY} from '@/services/provider-base-urls'
 import {
   APP_VERSION,
   CURRENT_EXPORT_VERSION,
@@ -454,6 +455,8 @@ export async function createFullBackup(onProgress?: ExportProgressCallback): Pro
 
   const settingsMap: Record<string, unknown> = {}
   for (const setting of allSettings) {
+    // A backup must not carry gateway URLs; see PROVIDER_BASE_URLS_SETTINGS_KEY.
+    if (setting.key === PROVIDER_BASE_URLS_SETTINGS_KEY) continue
     settingsMap[setting.key] = setting.value
   }
 
