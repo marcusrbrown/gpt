@@ -20,8 +20,8 @@ import {cn, ds, theme} from '@/lib/design-system'
 import {KnowledgeService} from '@/services/knowledge-service'
 import {GPTConfigurationSchema} from '@/types/gpt'
 import '@/styles/heroui-v3.css'
-import {Spinner, Tab, Tabs, Tooltip} from '@heroui/react'
-import {Button, Spinner as SpinnerV3} from '@heroui-v3/react'
+import {Spinner, Tab, Tabs} from '@heroui/react'
+import {Button, Spinner as SpinnerV3, Tooltip} from '@heroui-v3/react'
 import {Download, History, Play, Upload} from 'lucide-react'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {useNavigate, useParams} from 'react-router-dom'
@@ -495,7 +495,7 @@ export function GPTEditorPage() {
             />
 
             {gptId && (
-              <Tooltip content="Version History">
+              <Tooltip delay={0}>
                 <Button
                   variant="tertiary"
                   isIconOnly
@@ -504,10 +504,11 @@ export function GPTEditorPage() {
                 >
                   <History size={18} />
                 </Button>
+                <Tooltip.Content>Version History</Tooltip.Content>
               </Tooltip>
             )}
 
-            <Tooltip content="Import GPT Config">
+            <Tooltip delay={0}>
               <Button
                 variant="tertiary"
                 isIconOnly
@@ -516,9 +517,10 @@ export function GPTEditorPage() {
               >
                 <Upload size={18} />
               </Button>
+              <Tooltip.Content>Import GPT Config</Tooltip.Content>
             </Tooltip>
 
-            <Tooltip content="Export GPT Config">
+            <Tooltip delay={0}>
               <Button
                 variant="tertiary"
                 isIconOnly
@@ -528,9 +530,10 @@ export function GPTEditorPage() {
               >
                 {({isPending}) => (isPending ? <SpinnerV3 size="sm" color="current" /> : <Download size={18} />)}
               </Button>
+              <Tooltip.Content>Export GPT Config</Tooltip.Content>
             </Tooltip>
 
-            <Tooltip content="Test GPT">
+            <Tooltip delay={0}>
               <Button
                 variant="primary"
                 isIconOnly
@@ -541,6 +544,7 @@ export function GPTEditorPage() {
               >
                 <Play size={18} />
               </Button>
+              <Tooltip.Content>Test GPT</Tooltip.Content>
             </Tooltip>
           </div>
         </div>

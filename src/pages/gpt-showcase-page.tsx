@@ -2,8 +2,8 @@ import type {GPTConfiguration} from '@/types/gpt'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Card, CardBody, Chip, Skeleton, Tooltip} from '@heroui/react'
-import {Button} from '@heroui-v3/react'
+import {Chip, Skeleton} from '@heroui/react'
+import {Button, Card, Tooltip} from '@heroui-v3/react'
 import {
   BookOpen,
   Bot,
@@ -121,7 +121,7 @@ export function GPTShowcasePage() {
     return (
       <div className={cn(ds.layout.container, 'py-8 min-h-screen flex items-center justify-center')}>
         <Card role="alert" data-testid="error-card" className="max-w-md w-full mx-auto shadow-lg border-danger-100">
-          <CardBody className="text-center py-12">
+          <Card.Content className="text-center py-12">
             <div className="w-16 h-16 bg-danger-50 text-danger-500 rounded-full flex items-center justify-center mx-auto mb-4">
               <Sparkles size={32} />
             </div>
@@ -133,7 +133,7 @@ export function GPTShowcasePage() {
               <ChevronLeft size={18} />
               Return to Library
             </Button>
-          </CardBody>
+          </Card.Content>
         </Card>
       </div>
     )
@@ -147,7 +147,7 @@ export function GPTShowcasePage() {
       {/* Top Navigation */}
       <div className="sticky top-0 z-20 w-full backdrop-blur-md bg-surface-primary/80 border-b border-border-subtle">
         <div className={cn(ds.layout.container, 'h-16 flex items-center justify-between')}>
-          <Tooltip content="Back to Library">
+          <Tooltip delay={0}>
             <Button
               data-testid="showcase-back-button"
               isIconOnly
@@ -157,9 +157,10 @@ export function GPTShowcasePage() {
             >
               <ChevronLeft className="text-content-secondary" size={24} />
             </Button>
+            <Tooltip.Content>Back to Library</Tooltip.Content>
           </Tooltip>
           <div className="flex gap-2">
-            <Tooltip content="Edit Configuration">
+            <Tooltip delay={0}>
               <Button
                 data-testid="showcase-edit-icon-button"
                 isIconOnly
@@ -169,6 +170,7 @@ export function GPTShowcasePage() {
               >
                 <Settings2 className="text-content-secondary" size={20} />
               </Button>
+              <Tooltip.Content>Edit Configuration</Tooltip.Content>
             </Tooltip>
           </div>
         </div>
@@ -250,14 +252,17 @@ export function GPTShowcasePage() {
               <div className="flex flex-wrap gap-2">
                 {capabilities.length > 0 ? (
                   capabilities.map(cap => (
-                    <Tooltip key={cap.key} content={cap.label}>
-                      <div
-                        data-testid="capability-badge"
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-secondary/50 border border-border-subtle text-sm text-content-primary"
-                      >
-                        {cap.icon}
-                        <span>{cap.label}</span>
-                      </div>
+                    <Tooltip key={cap.key} delay={0}>
+                      <Tooltip.Trigger aria-label={cap.label}>
+                        <div
+                          data-testid="capability-badge"
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg bg-surface-secondary/50 border border-border-subtle text-sm text-content-primary"
+                        >
+                          {cap.icon}
+                          <span>{cap.label}</span>
+                        </div>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>{cap.label}</Tooltip.Content>
                     </Tooltip>
                   ))
                 ) : (
@@ -286,27 +291,33 @@ export function GPTShowcasePage() {
                     <Card
                       key={`starter-${index}-${starter.slice(0, 20)}`}
                       data-testid="conversation-starter"
-                      isPressable
                       className={cn(
-                        'bg-surface-elevated hover:bg-surface-tertiary border border-border-subtle transition-all',
+                        'cursor-pointer bg-surface-elevated hover:bg-surface-tertiary border border-border-subtle transition-all',
+                        'has-[button:focus-visible]:ring-2 has-[button:focus-visible]:ring-primary-500 has-[button:focus-visible]:ring-offset-2',
                         ds.animation.cardHover,
                       )}
-                      onPress={() => handleStarterClick(starter)}
                     >
-                      <CardBody className="py-4 px-5 flex flex-row items-start gap-3">
+                      <Card.Content className="py-4 px-5 flex flex-row items-start gap-3">
                         <div className="mt-0.5 min-w-4">
                           <MessageSquare size={16} className="text-primary-500 opacity-70" />
                         </div>
-                        <p className="text-content-primary text-sm font-medium leading-relaxed text-left">{starter}</p>
-                      </CardBody>
+                        {/* The button is the card's only interactive element; its ::after makes the whole card its hit area */}
+                        <button
+                          type="button"
+                          className="text-content-primary text-sm font-medium leading-relaxed text-left outline-none after:absolute after:inset-0 after:content-['']"
+                          onClick={() => handleStarterClick(starter)}
+                        >
+                          {starter}
+                        </button>
+                      </Card.Content>
                     </Card>
                   ))}
                 </div>
               ) : (
                 <Card className="bg-surface-secondary/30 border-dashed border-border-default">
-                  <CardBody data-testid="no-starters-message" className="py-8 text-center text-content-tertiary">
+                  <Card.Content data-testid="no-starters-message" className="py-8 text-center text-content-tertiary">
                     <p>No conversation starters configured.</p>
-                  </CardBody>
+                  </Card.Content>
                 </Card>
               )}
             </section>
@@ -319,7 +330,7 @@ export function GPTShowcasePage() {
                   Knowledge Base
                 </h2>
                 <Card className="bg-surface-secondary/20 border border-border-subtle">
-                  <CardBody>
+                  <Card.Content>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {gpt.knowledge.files.length > 0 && (
                         <div className="flex items-center gap-3 p-3 rounded-lg bg-surface-primary border border-border-subtle">
@@ -354,7 +365,7 @@ export function GPTShowcasePage() {
                         </div>
                       )}
                     </div>
-                  </CardBody>
+                  </Card.Content>
                 </Card>
               </section>
             )}

@@ -3,8 +3,8 @@ import type {MCPServerConfig} from '@/types/mcp'
 import {useMCP} from '@/hooks/use-mcp'
 import {cn, compose, ds, theme} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Chip, Spinner, Tooltip} from '@heroui/react'
-import {Button, Spinner as SpinnerV3} from '@heroui-v3/react'
+import {Chip, Spinner} from '@heroui/react'
+import {Button, Spinner as SpinnerV3, Tooltip} from '@heroui-v3/react'
 import {useState} from 'react'
 
 interface MCPServerCardProps {
@@ -89,7 +89,7 @@ export function MCPServerCard({server, onEdit, onDelete, onViewTools}: MCPServer
         </div>
 
         <div className="flex gap-2">
-          <Tooltip content={status === 'connected' ? 'Disconnect' : 'Connect'}>
+          <Tooltip delay={0}>
             <Button
               isIconOnly
               size="sm"
@@ -115,6 +115,7 @@ export function MCPServerCard({server, onEdit, onDelete, onViewTools}: MCPServer
                 )
               }
             </Button>
+            <Tooltip.Content>{status === 'connected' ? 'Disconnect' : 'Connect'}</Tooltip.Content>
           </Tooltip>
 
           <Button size="sm" variant="outline" onPress={() => onEdit(server)} className="h-8">

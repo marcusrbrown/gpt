@@ -34,16 +34,8 @@ vi.mock('@/lib/design-system', () => ({
   },
 }))
 
-// Mock HeroUI components
+// Divider and Skeleton are still on HeroUI v2; Card is the real v3 component.
 vi.mock('@heroui/react', () => ({
-  Card: ({children, className, isHoverable, 'data-testid': testId, ...props}: any) => (
-    <div className={className} data-testid={testId} data-hoverable={isHoverable} {...props}>
-      {children}
-    </div>
-  ),
-  CardHeader: ({children, className}: any) => <div className={className}>{children}</div>,
-  CardBody: ({children}: any) => <div>{children}</div>,
-  CardFooter: ({children, className}: any) => <div className={className}>{children}</div>,
   Divider: () => <hr />,
   Skeleton: ({className}: any) => <div className={`skeleton ${className}`} />,
 }))
@@ -132,6 +124,12 @@ describe('userGPTCard', () => {
       expect(card).toHaveClass('compose-card')
       expect(card).toHaveClass('focus-ring')
     })
+
+    it('enables hover state when idle', () => {
+      renderCard()
+
+      expect(screen.getByTestId('user-gpt-card')).toHaveClass('hover:bg-content2')
+    })
   })
 
   describe('loading State', () => {
@@ -146,7 +144,7 @@ describe('userGPTCard', () => {
       renderCard({isLoading: true})
 
       const card = screen.getByTestId('user-gpt-card')
-      expect(card).toHaveAttribute('data-hoverable', 'false')
+      expect(card).not.toHaveClass('hover:bg-content2')
     })
 
     it('applies loading state styles', () => {
@@ -170,7 +168,7 @@ describe('userGPTCard', () => {
       renderCard({error: 'Test error'})
 
       const card = screen.getByTestId('user-gpt-card')
-      expect(card).toHaveAttribute('data-hoverable', 'false')
+      expect(card).not.toHaveClass('hover:bg-content2')
     })
 
     it('applies error state styles', () => {
