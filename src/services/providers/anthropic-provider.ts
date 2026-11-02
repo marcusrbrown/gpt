@@ -1,14 +1,22 @@
-import type {CompletionChunk, CompletionRequest, Model, ValidationResult} from '@/types/provider'
+import type {
+  CompletionChunk,
+  CompletionRequest,
+  Model,
+  ProviderEndpointConfig,
+  ValidationResult,
+} from '@/types/provider'
 import {
   ANTHROPIC_MODEL_ALIASES,
   ANTHROPIC_MODEL_CAPABILITIES,
+  AnthropicModelsListSchema,
   AnthropicResponseSchema,
   type AnthropicMessage,
   type AnthropicModelDated,
   type AnthropicRequest,
   type AnthropicStreamEvent,
 } from '@/types/anthropic'
-import {ProviderError} from '@/types/provider'
+import {ProviderBaseUrlSchema, ProviderEndpointConfigSchema, ProviderError} from '@/types/provider'
+import {z} from 'zod'
 import {BaseLLMProvider} from './base-provider'
 
 const ANTHROPIC_MODELS: Model[] = [
@@ -53,6 +61,7 @@ const ANTHROPIC_MODELS: Model[] = [
   },
 ]
 
+/** Includes `/v1`, like a custom base URL does. Requests append `/messages` or `/models`. */
 const BASE_URL = 'https://api.anthropic.com/v1'
 const API_VERSION = '2023-06-01'
 
@@ -119,6 +128,21 @@ export class AnthropicProvider extends BaseLLMProvider {
 
   private apiKey: string | null = null
   private _isEnabled = true
+  private _baseUrl: string | undefined
+
+  /** The compatible-gateway URL (with its `/v1`), or `undefined` for `https://api.anthropic.com/v1`. */
+  get baseUrl(): string | undefined {
+    return this._baseUrl
+  }
+
+  /** Pass `{baseUrl: undefined}` to go back to Anthropic itself. Throws if the URL is not an http(s) URL. */
+  configure(config: ProviderEndpointConfig): void {
+    this._baseUrl = ProviderEndpointConfigSchema.parse(config).baseUrl
+  }
+
+  private get endpoint(): string {
+    return this._baseUrl ?? BASE_URL
+  }
 
   get isConfigured(): boolean {
     return this.apiKey !== null
@@ -140,8 +164,22 @@ export class AnthropicProvider extends BaseLLMProvider {
     this._isEnabled = enabled
   }
 
-  async validateCredentials(apiKey: string): Promise<ValidationResult> {
+  /**
+   * Anthropic itself is probed with a one-token `POST /messages`. A custom base URL is checked with
+   * `GET <base>/models` instead, which also returns the gateway's model list. `baseUrl` overrides the configured one
+   * for this call only.
+   */
+  async validateCredentials(apiKey: string, baseUrl?: string): Promise<ValidationResult> {
     try {
+      const target = baseUrl === undefined ? this._baseUrl : ProviderBaseUrlSchema.parse(baseUrl)
+
+      if (target) {
+        const response = await fetch(`${target}/models`, {headers: this.buildHeaders(apiKey)})
+        const failure = await this.validationFailure(response, false)
+        if (failure) return failure
+        return {valid: true, models: await this.parseGatewayModels(response)}
+      }
+
       const response = await fetch(`${BASE_URL}/messages`, {
         method: 'POST',
         headers: this.buildHeaders(apiKey),
@@ -152,25 +190,16 @@ export class AnthropicProvider extends BaseLLMProvider {
         }),
       })
 
-      if (response.status === 401) {
-        return {valid: false, error: 'Invalid API key'}
-      }
-
-      if (response.status === 403) {
-        return {valid: false, error: 'Access denied. Check your API key permissions.'}
-      }
-
-      if (response.status === 429) {
-        return {valid: false, error: 'Rate limit exceeded. Please try again later.'}
-      }
-
-      if (!response.ok && response.status !== 400) {
-        const errorMessage = await this.readErrorMessage(response)
-        return {valid: false, error: errorMessage}
-      }
+      // A 400 still proves the key is accepted: the probe's model may not exist for this account.
+      const failure = await this.validationFailure(response, true)
+      if (failure) return failure
 
       return {valid: true, models: ANTHROPIC_MODELS}
     } catch (error_) {
+      if (error_ instanceof z.ZodError) {
+        return {valid: false, error: error_.issues[0]?.message ?? 'Invalid base URL'}
+      }
+
       const message = error_ instanceof Error ? error_.message : 'Unknown error'
       if (message.includes('Failed to fetch') || message.includes('NetworkError')) {
         return {valid: false, error: 'Unable to connect to Anthropic API'}
@@ -179,8 +208,59 @@ export class AnthropicProvider extends BaseLLMProvider {
     }
   }
 
+  /** The built-in list for Anthropic itself; the gateway's `GET <base>/models` when a base URL is set. */
   async listModels(): Promise<Model[]> {
-    return ANTHROPIC_MODELS
+    if (!this._baseUrl) return ANTHROPIC_MODELS
+    if (!this.apiKey) {
+      throw new ProviderError('API key not set', 'authentication', 'anthropic')
+    }
+
+    try {
+      const response = await fetch(`${this._baseUrl}/models`, {headers: this.buildHeaders(this.apiKey)})
+      if (!response.ok) await this.handleErrorResponse(response)
+      return await this.parseGatewayModels(response)
+    } catch (error_) {
+      throw this.mapError(error_)
+    }
+  }
+
+  /** Maps a failed validation response to its message, or `null` when the key was accepted. */
+  private async validationFailure(response: Response, tolerateBadRequest: boolean): Promise<ValidationResult | null> {
+    if (response.status === 401) {
+      return {valid: false, error: 'Invalid API key'}
+    }
+
+    if (response.status === 403) {
+      return {valid: false, error: 'Access denied. Check your API key permissions.'}
+    }
+
+    if (response.status === 429) {
+      return {valid: false, error: 'Rate limit exceeded. Please try again later.'}
+    }
+
+    if (!response.ok && !(tolerateBadRequest && response.status === 400)) {
+      return {valid: false, error: await this.readErrorMessage(response)}
+    }
+
+    return null
+  }
+
+  /** A gateway's models, as Anthropic's `/models` shape reports them. Capabilities are unknown unless the id is built in. */
+  private async parseGatewayModels(response: Response): Promise<Model[]> {
+    const parsed = AnthropicModelsListSchema.safeParse(await response.json().catch(() => undefined))
+    if (!parsed.success) {
+      throw new ProviderError('The gateway returned an unexpected model list', 'server', 'anthropic')
+    }
+
+    return parsed.data.data.map(
+      entry =>
+        ANTHROPIC_MODELS.find(model => model.id === entry.id) ?? {
+          id: entry.id,
+          name: entry.display_name ?? entry.id,
+          provider: 'anthropic',
+          capabilities: {supportsVision: false, supportsTools: true, supportsStreaming: true, contextWindow: 128000},
+        },
+    )
   }
 
   async *createCompletion(request: CompletionRequest): AsyncIterable<CompletionChunk> {
@@ -229,7 +309,7 @@ export class AnthropicProvider extends BaseLLMProvider {
     }
 
     const response = await this.withRetry(async () =>
-      fetch(`${BASE_URL}/messages`, {
+      fetch(`${this.endpoint}/messages`, {
         method: 'POST',
         headers: this.buildHeaders(apiKey, options),
         body: JSON.stringify({...anthropicRequest, stream: true}),
@@ -324,7 +404,7 @@ export class AnthropicProvider extends BaseLLMProvider {
     }
 
     const response = await this.withRetry(async () =>
-      fetch(`${BASE_URL}/messages`, {
+      fetch(`${this.endpoint}/messages`, {
         method: 'POST',
         headers: this.buildHeaders(apiKey, options),
         body: JSON.stringify(anthropicRequest),

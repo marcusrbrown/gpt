@@ -29,6 +29,9 @@ export class SettingsPage extends BasePage {
   readonly openAIKeyInput: Locator
   readonly openAISaveButton: Locator
   readonly openAIConfiguredStatus: Locator
+  readonly openAIBaseUrlInput: Locator
+  readonly openAIBaseUrlSaveButton: Locator
+  readonly openAIBaseUrlError: Locator
   readonly unlockPrompt: Locator
   readonly unlockPromptButton: Locator
   readonly createPassphraseDialog: Locator
@@ -80,6 +83,9 @@ export class SettingsPage extends BasePage {
     this.openAIKeyInput = this.openAISettings.getByLabel('Enter your OpenAI API key')
     this.openAISaveButton = this.openAISettings.getByRole('button', {name: 'Save API key to local storage'})
     this.openAIConfiguredStatus = this.openAISettings.getByText('API key is configured and validated')
+    this.openAIBaseUrlInput = this.openAISettings.getByRole('textbox', {name: 'Base URL'})
+    this.openAIBaseUrlSaveButton = this.openAISettings.getByRole('button', {name: 'Save Base URL'})
+    this.openAIBaseUrlError = this.openAISettings.getByText(/Enter an http:\/\/ or https:\/\/ URL/)
     this.unlockPrompt = page.getByTestId('session-unlock-prompt')
     this.unlockPromptButton = this.unlockPrompt.getByRole('button', {name: 'Unlock'})
     this.createPassphraseDialog = page.getByRole('dialog', {name: 'Create a Passphrase'})
@@ -182,6 +188,11 @@ export class SettingsPage extends BasePage {
   async saveOpenAIKey(apiKey: string): Promise<void> {
     await this.openAIKeyInput.fill(apiKey)
     await this.openAISaveButton.click()
+  }
+
+  async saveOpenAIBaseUrl(baseUrl: string): Promise<void> {
+    await this.openAIBaseUrlInput.fill(baseUrl)
+    await this.openAIBaseUrlSaveButton.click()
   }
 
   async fillNewPassphrase(passphrase: string, confirmation = passphrase): Promise<void> {

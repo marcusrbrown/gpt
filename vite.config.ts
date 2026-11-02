@@ -5,26 +5,41 @@ import react from '@vitejs/plugin-react-swc'
 import {defineConfig} from 'vite'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
+import {parseConnectSrcExtra} from './src/lib/csp-connect-src.ts'
+
 // CSP via <meta> tag. Note: frame-ancestors is NOT supported in meta tags—
 // browsers ignore it and log a warning. For GitHub Pages (static hosting),
 // HTTP headers aren't configurable, so we omit frame-ancestors here.
 // If clickjacking protection is needed, consider X-Frame-Options via a CDN/proxy.
-const cspPolicy = [
-  "default-src 'self'",
-  "script-src 'self'",
-  "style-src 'self' 'unsafe-inline'",
-  "connect-src 'self' https://api.openai.com https://api.anthropic.com http://localhost:11434",
-  "img-src 'self' data: blob:",
-  "font-src 'self'",
-  "object-src 'none'",
-  "form-action 'self'",
-  "base-uri 'self'",
-].join('; ')
+
+// connect-src stays pinned to the default providers; deployers add gateway origins at
+// build time with VITE_CONNECT_SRC_EXTRA (parsed and validated in src/lib/csp-connect-src.ts).
+const baseConnectSrc = "'self' https://api.openai.com https://api.anthropic.com http://localhost:11434"
+
+function buildCspPolicy(extraConnectSrc: readonly string[]): string {
+  return [
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    `connect-src ${[baseConnectSrc, ...extraConnectSrc].join(' ')}`,
+    "img-src 'self' data: blob:",
+    "font-src 'self'",
+    "object-src 'none'",
+    "form-action 'self'",
+    "base-uri 'self'",
+  ].join('; ')
+}
 
 function cspPlugin(): Plugin {
+  let cspPolicy = buildCspPolicy([])
   return {
     name: 'html-csp',
     apply: 'build',
+    configResolved(config) {
+      // Throws on any invalid entry, which fails the build. Runs for `vite build` only.
+      const extra: unknown = config.env.VITE_CONNECT_SRC_EXTRA
+      cspPolicy = buildCspPolicy(parseConnectSrcExtra(typeof extra === 'string' ? extra : undefined))
+    },
     transformIndexHtml(html) {
       return html.replace('<head>', `<head>\n    <meta http-equiv="Content-Security-Policy" content="${cspPolicy}" />`)
     },

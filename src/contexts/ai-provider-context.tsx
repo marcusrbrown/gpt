@@ -1,5 +1,6 @@
 import {useSession} from '@/hooks/use-session'
 
+import {loadProviderBaseUrls, saveProviderBaseUrl} from '@/services/provider-base-urls'
 import {
   AnthropicProvider,
   AzureProvider,
@@ -12,14 +13,23 @@ import {
   type ProviderId,
   type ValidationResult,
 } from '@/services/providers'
+import {BaseUrlProviderIdSchema, type BaseUrlProviderId, type ProviderBaseUrls} from '@/types/provider'
 import {createContext, use, useCallback, useEffect, useMemo, useState, type ReactNode} from 'react'
 
 interface AIProviderContextValue {
   providers: ProviderConfig[]
+  /** Saved endpoint overrides for OpenAI and Anthropic. A provider without an entry uses the vendor's own endpoint. */
+  baseUrls: ProviderBaseUrls
   activeProvider: ProviderId | null
   setActiveProvider: (id: ProviderId) => void
   getProvider: (id: ProviderId) => BaseLLMProvider | undefined
   validateProvider: (id: ProviderId, apiKey: string, baseUrl?: string) => Promise<ValidationResult>
+  /**
+   * Saves (or, with `undefined`, clears) a provider's base URL and applies it. Needs no passphrase. When the session is
+   * unlocked and a key is stored, the key is checked against the new URL and that result is returned; otherwise `null`.
+   * Throws if the URL is invalid.
+   */
+  setBaseUrl: (id: BaseUrlProviderId, baseUrl: string | undefined) => Promise<ValidationResult | null>
   listModels: (providerId: ProviderId) => Promise<Model[]>
   isLoading: boolean
 }
@@ -30,10 +40,20 @@ interface AIProviderProps {
   children: ReactNode
 }
 
+function applyBaseUrls(providers: {get: (id: ProviderId) => BaseLLMProvider | undefined}, baseUrls: ProviderBaseUrls) {
+  for (const id of BaseUrlProviderIdSchema.options) {
+    const provider = providers.get(id)
+    if (provider instanceof OpenAIProvider || provider instanceof AnthropicProvider) {
+      provider.configure({baseUrl: baseUrls[id]})
+    }
+  }
+}
+
 export function AIProvider({children}: AIProviderProps) {
   const {getSecret, isUnlocked, isPassphraseSet} = useSession()
   const [activeProvider, setActiveProvider] = useState<ProviderId | null>('openai')
   const [providers, setProviders] = useState<ProviderConfig[]>([])
+  const [baseUrls, setBaseUrls] = useState<ProviderBaseUrls>({})
   const [isLoading, setIsLoading] = useState(true)
 
   const registry = useMemo(() => {
@@ -57,6 +77,13 @@ export function AIProvider({children}: AIProviderProps) {
     const initializeProviders = async () => {
       setIsLoading(true)
       try {
+        // Base URLs are not secret, so they apply whether or not the session is unlocked. Do this before any key is
+        // validated so the check goes to the right endpoint.
+        const storedBaseUrls = await loadProviderBaseUrls()
+        if (cancelled) return
+        applyBaseUrls(registry, storedBaseUrls)
+        setBaseUrls(storedBaseUrls)
+
         const providerList = registry.list()
 
         await Promise.all(
@@ -133,6 +160,22 @@ export function AIProvider({children}: AIProviderProps) {
     [registry],
   )
 
+  const setBaseUrl = useCallback(
+    async (id: BaseUrlProviderId, baseUrl: string | undefined): Promise<ValidationResult | null> => {
+      const saved = await saveProviderBaseUrl(id, baseUrl)
+      applyBaseUrls(registry, saved)
+      setBaseUrls(saved)
+
+      // The stored key can only be read while unlocked; otherwise the next unlock validates it against the new URL.
+      if (!isUnlocked) return null
+      const apiKey = await getSecret(id)
+      if (!apiKey) return null
+
+      return validateProvider(id, apiKey)
+    },
+    [registry, isUnlocked, getSecret, validateProvider],
+  )
+
   const listModels = useCallback(
     async (providerId: ProviderId): Promise<Model[]> => {
       const provider = registry.get(providerId)
@@ -148,14 +191,16 @@ export function AIProvider({children}: AIProviderProps) {
   const value = useMemo<AIProviderContextValue>(
     () => ({
       providers,
+      baseUrls,
       activeProvider,
       setActiveProvider,
       getProvider,
       validateProvider,
+      setBaseUrl,
       listModels,
       isLoading,
     }),
-    [providers, activeProvider, getProvider, validateProvider, listModels, isLoading],
+    [providers, baseUrls, activeProvider, getProvider, validateProvider, setBaseUrl, listModels, isLoading],
   )
 
   return <AIProviderContext value={value}>{children}</AIProviderContext>

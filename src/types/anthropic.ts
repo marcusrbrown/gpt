@@ -133,6 +133,11 @@ export const AnthropicResponseSchema = z.object({
   usage: AnthropicUsageSchema,
 })
 
+/** `GET /v1/models`. Only the fields the app reads; `display_name` is optional for gateways that omit it. */
+export const AnthropicModelsListSchema = z.object({
+  data: z.array(z.object({id: z.string(), display_name: z.string().optional()})),
+})
+
 export const AnthropicMessageStartEventSchema = z.object({
   type: z.literal('message_start'),
   message: AnthropicResponseSchema.partial(),

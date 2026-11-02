@@ -925,3 +925,200 @@ describe('RateLimiter', () => {
     expect(globalThis.fetch).toHaveBeenCalledTimes(3)
   })
 })
+
+function modelsBody(ids: string[]) {
+  return {
+    data: ids.map(id => ({type: 'model', id, display_name: `Name of ${id}`, created_at: '2025-01-01T00:00:00Z'})),
+    has_more: false,
+  }
+}
+
+function lastCall(): {url: string; init: RequestInit} {
+  const call = vi.mocked(globalThis.fetch).mock.calls.at(-1)
+  if (!call) throw new Error('fetch was not called')
+  return {url: String(call[0]), init: call[1] ?? {}}
+}
+
+describe('AnthropicProvider base URL', () => {
+  const GATEWAY = 'http://localhost:8317/v1'
+  const STREAM = [MESSAGE_START_EVENT, TEXT_DELTA_EVENT, 'event: message_stop\ndata: {"type":"message_stop"}\n\n']
+
+  const completionRequest = {
+    model: 'claude-sonnet-4-5-20250514',
+    messages: [{role: 'user' as const, content: 'Hello'}],
+  }
+
+  beforeEach(() => {
+    resetAnthropicProviderForTesting()
+    vi.restoreAllMocks()
+  })
+
+  it('uses the Anthropic endpoints when no base URL is set', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    fetchSpy.mockResolvedValueOnce(createMockResponse(NON_STREAMING_BODY))
+    const provider = new AnthropicProvider()
+    provider.setApiKey('sk-ant-key')
+
+    expect(provider.baseUrl).toBeUndefined()
+    await provider.validateCredentials('sk-ant-key')
+    expect(lastCall().url).toBe('https://api.anthropic.com/v1/messages')
+    expect(lastCall().init.method).toBe('POST')
+
+    fetchSpy.mockResolvedValueOnce(createMockStreamResponse(STREAM))
+    await collectChunks(provider.createCompletion({...completionRequest, stream: true}))
+    expect(lastCall().url).toBe('https://api.anthropic.com/v1/messages')
+  })
+
+  it('validates with GET <baseUrl>/models and the usual headers', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(createMockResponse(modelsBody(['claude-sonnet-4-5', 'gpt-5'])))
+    const provider = new AnthropicProvider()
+    provider.configure({baseUrl: GATEWAY})
+
+    const result = await provider.validateCredentials('sk-gateway-key')
+
+    const {url, init} = lastCall()
+    expect(url).toBe(`${GATEWAY}/models`)
+    expect(init.method ?? 'GET').toBe('GET')
+    expect(init.headers).toMatchObject({'x-api-key': 'sk-gateway-key', 'anthropic-version': '2023-06-01'})
+    expect(result.valid).toBe(true)
+    expect(result.models?.map(m => [m.id, m.name])).toEqual([
+      ['claude-sonnet-4-5', 'Name of claude-sonnet-4-5'],
+      ['gpt-5', 'Name of gpt-5'],
+    ])
+  })
+
+  it.each([
+    [401, 'Invalid API key'],
+    [403, 'Access denied. Check your API key permissions.'],
+    [429, 'Rate limit exceeded. Please try again later.'],
+  ])('reports a %i from the gateway as a failed validation', async (status, error) => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(createMockResponse({error: {message: 'nope'}}, status))
+    const provider = new AnthropicProvider()
+    provider.configure({baseUrl: GATEWAY})
+
+    expect(await provider.validateCredentials('sk-bad')).toEqual({valid: false, error})
+  })
+
+  it('does not treat a 400 from the gateway models endpoint as a valid key', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(createMockResponse({error: {message: 'Bad route'}}, 400))
+    const provider = new AnthropicProvider()
+    provider.configure({baseUrl: GATEWAY})
+
+    expect(await provider.validateCredentials('sk-key')).toEqual({valid: false, error: 'Bad route'})
+  })
+
+  it('streams to <baseUrl>/messages', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(createMockStreamResponse(STREAM))
+    const provider = new AnthropicProvider()
+    provider.setApiKey('sk-gateway-key')
+    provider.configure({baseUrl: GATEWAY})
+
+    const chunks = await collectChunks(provider.createCompletion({...completionRequest, stream: true}))
+
+    const {url, init} = lastCall()
+    expect(url).toBe(`${GATEWAY}/messages`)
+    expect(init.method).toBe('POST')
+    expect(init.headers).toMatchObject({'x-api-key': 'sk-gateway-key'})
+    expect(chunks.map(c => c.content ?? '').join('')).toBe('Hello')
+  })
+
+  it('sends a non-streaming completion to <baseUrl>/messages', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(createMockResponse(NON_STREAMING_BODY))
+    const provider = new AnthropicProvider()
+    provider.setApiKey('sk-gateway-key')
+    provider.configure({baseUrl: GATEWAY})
+
+    await collectChunks(provider.createCompletion({...completionRequest, stream: false}))
+
+    expect(lastCall().url).toBe(`${GATEWAY}/messages`)
+  })
+
+  it.each(['http://localhost:8317/v1/', 'http://localhost:8317/v1///', '  http://localhost:8317/v1/  '])(
+    'drops trailing slashes and whitespace from %j',
+    async value => {
+      vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(createMockResponse(modelsBody([])))
+      const provider = new AnthropicProvider()
+
+      provider.configure({baseUrl: value})
+      await provider.validateCredentials('sk-key')
+
+      expect(provider.baseUrl).toBe(GATEWAY)
+      expect(lastCall().url).toBe(`${GATEWAY}/models`)
+    },
+  )
+
+  it('lets validateCredentials try a URL without saving it', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(createMockResponse(modelsBody([])))
+    const provider = new AnthropicProvider()
+
+    await provider.validateCredentials('sk-key', 'https://gateway.example.com/v1/')
+
+    expect(lastCall().url).toBe('https://gateway.example.com/v1/models')
+    expect(provider.baseUrl).toBeUndefined()
+  })
+
+  it('lists the gateway models when a base URL is set, and the built-in list otherwise', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    const provider = new AnthropicProvider()
+    provider.setApiKey('sk-key')
+
+    expect((await provider.listModels()).length).toBeGreaterThan(0)
+    expect(fetchSpy).not.toHaveBeenCalled()
+
+    fetchSpy.mockResolvedValueOnce(createMockResponse(modelsBody(['claude-opus-4-5-20250514', 'gemini-2.5-pro'])))
+    provider.configure({baseUrl: GATEWAY})
+    const models = await provider.listModels()
+
+    expect(lastCall().url).toBe(`${GATEWAY}/models`)
+    expect(models.map(m => m.id)).toEqual(['claude-opus-4-5-20250514', 'gemini-2.5-pro'])
+    expect(models.every(m => m.provider === 'anthropic')).toBe(true)
+  })
+
+  it('rejects a gateway model list in the wrong shape', async () => {
+    vi.spyOn(globalThis, 'fetch').mockResolvedValueOnce(createMockResponse({models: []}))
+    const provider = new AnthropicProvider()
+    provider.setApiKey('sk-key')
+    provider.configure({baseUrl: GATEWAY})
+
+    await expect(provider.listModels()).rejects.toMatchObject({type: 'server', provider: 'anthropic'})
+  })
+
+  it('goes back to Anthropic when the base URL is cleared', async () => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    fetchSpy
+      .mockResolvedValueOnce(createMockResponse(NON_STREAMING_BODY))
+      .mockResolvedValueOnce(createMockResponse(NON_STREAMING_BODY))
+    const provider = new AnthropicProvider()
+    provider.setApiKey('sk-key')
+
+    provider.configure({baseUrl: GATEWAY})
+    await collectChunks(provider.createCompletion({...completionRequest, stream: false}))
+    expect(lastCall().url).toBe(`${GATEWAY}/messages`)
+
+    provider.configure({baseUrl: undefined})
+    await collectChunks(provider.createCompletion({...completionRequest, stream: false}))
+    expect(lastCall().url).toBe('https://api.anthropic.com/v1/messages')
+  })
+
+  it.each([
+    'localhost:8317/v1',
+    'ftp://example.com/v1',
+    'javascript:alert(1)',
+    'http://user:pass@host/v1',
+    'http://host/v1#frag',
+    '',
+  ])('refuses %j as a base URL', async value => {
+    const fetchSpy = vi.spyOn(globalThis, 'fetch')
+    const provider = new AnthropicProvider()
+
+    expect(() => {
+      provider.configure({baseUrl: value})
+    }).toThrow()
+    expect(provider.baseUrl).toBeUndefined()
+
+    const result = await provider.validateCredentials('sk-key', value)
+    expect(result.valid).toBe(false)
+    expect(result.error).toBeTruthy()
+    expect(fetchSpy).not.toHaveBeenCalled()
+  })
+})

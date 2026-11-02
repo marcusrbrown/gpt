@@ -7,6 +7,7 @@ import {GPTDataFactory} from './utils/test-data-factory'
 const PASSPHRASE = 'e2e-passphrase-123'
 const API_KEY = 'sk-e2e-test-key'
 const MODEL = 'gpt-4o'
+const GATEWAY_URL = 'http://localhost:8317/v1'
 
 const gpt = GPTDataFactory.createBasicGPT({
   name: 'OpenAI Chat GPT',
@@ -44,18 +45,23 @@ async function seedOpenAIGPT(page: Page): Promise<void> {
 /**
  * Configures OpenAI the way a user would, then opens the GPT's chat: saves the key in Settings and creates the
  * passphrase in the modal that appears. Everything after that is client-side navigation, since a reload would lock
- * the session and drop the in-memory key.
+ * the session and drop the in-memory key. With a `baseUrl`, it is saved first (no passphrase involved) and the mocked
+ * `/models` call is the one at that URL.
  */
-async function openOpenAIChat(pages: {
-  page: Page
-  settingsPage: SettingsPage
-  homePage: HomePage
-  gptShowcasePage: GPTShowcasePage
-  gptTestPage: GPTTestPage
-}): Promise<void> {
+async function openOpenAIChat(
+  pages: {
+    page: Page
+    settingsPage: SettingsPage
+    homePage: HomePage
+    gptShowcasePage: GPTShowcasePage
+    gptTestPage: GPTTestPage
+  },
+  options: {baseUrl?: string} = {},
+): Promise<void> {
   const {page, settingsPage, homePage, gptShowcasePage, gptTestPage} = pages
+  const {baseUrl} = options
 
-  await mockOpenAIModels(page)
+  await mockOpenAIModels(page, baseUrl)
   await settingsPage.navigate()
   await expect(settingsPage.pageTitle).toBeVisible()
 
@@ -63,6 +69,12 @@ async function openOpenAIChat(pages: {
   await seedOpenAIGPT(page)
   await settingsPage.reload()
   await expect(settingsPage.pageTitle).toBeVisible()
+
+  if (baseUrl) {
+    await settingsPage.saveOpenAIBaseUrl(baseUrl)
+    await expect(settingsPage.openAIBaseUrlSaveButton).toBeDisabled()
+    await expect(settingsPage.createPassphraseDialog).toBeHidden()
+  }
 
   await settingsPage.saveOpenAIKey(API_KEY)
   await expect(settingsPage.createPassphraseDialog).toBeVisible()
@@ -233,5 +245,77 @@ test.describe('OpenAI chat (mocked Responses API)', () => {
     await expect(gptTestPage.assistantMessages.last()).toContainText('Partial reply')
     await expect(gptTestPage.stopButton).toHaveCount(0)
     await expect(gptTestPage.messageInput).toBeEnabled()
+  })
+})
+
+/** Every request the page makes, with its headers, as the browser sent it. */
+function recordRequests(page: Page) {
+  const requests: {method: string; url: string; authorization: string | undefined}[] = []
+  page.on('request', request => {
+    requests.push({
+      method: request.method(),
+      url: request.url(),
+      authorization: request.headers().authorization,
+    })
+  })
+  return requests
+}
+
+test.describe('OpenAI chat through a custom base URL', () => {
+  test('validates the key and chats at the base URL, with the key as a bearer token, and never calls api.openai.com', async ({
+    page,
+    settingsPage,
+    homePage,
+    gptShowcasePage,
+    gptTestPage,
+  }) => {
+    const requests = recordRequests(page)
+    const bodies = await mockOpenAIResponses(page, [['Hello from ', 'the gateway.']], GATEWAY_URL)
+    await openOpenAIChat({page, settingsPage, homePage, gptShowcasePage, gptTestPage}, {baseUrl: GATEWAY_URL})
+
+    await gptTestPage.sendMessage('Say hello')
+    await expect(gptTestPage.assistantMessages.last()).toContainText('Hello from the gateway.')
+
+    const gatewayCalls = requests.filter(r => r.url.startsWith('http://localhost:8317/') && r.method !== 'OPTIONS')
+    // Saving the key validates it, and unlocking the session validates it again, so `/models` may be hit twice.
+    const calls = new Set(gatewayCalls.map(r => `${r.method} ${r.url}`))
+    expect(calls).toEqual(new Set([`GET ${GATEWAY_URL}/models`, `POST ${GATEWAY_URL}/responses`]))
+    expect(gatewayCalls.filter(r => r.method === 'POST')).toHaveLength(1)
+    expect(gatewayCalls.every(r => r.authorization === `Bearer ${API_KEY}`)).toBe(true)
+    expect(bodies).toHaveLength(1)
+    expect(bodies[0]).toMatchObject({model: MODEL, store: false, stream: true})
+    expect(requests.filter(r => r.url.includes('api.openai.com'))).toEqual([])
+  })
+
+  test('keeps the saved base URL across a reload without asking for a passphrase', async ({page, settingsPage}) => {
+    await settingsPage.navigate()
+    await expect(settingsPage.pageTitle).toBeVisible()
+
+    await settingsPage.saveOpenAIBaseUrl(`${GATEWAY_URL}/`)
+    await expect(settingsPage.openAIBaseUrlSaveButton).toBeDisabled()
+    await expect(settingsPage.openAIBaseUrlInput).toHaveValue(GATEWAY_URL)
+    await expect(settingsPage.createPassphraseDialog).toBeHidden()
+    await expect(settingsPage.unlockDialog).toBeHidden()
+
+    await settingsPage.reload()
+    await expect(settingsPage.pageTitle).toBeVisible()
+
+    await expect(settingsPage.openAIBaseUrlInput).toHaveValue(GATEWAY_URL)
+    await expect(page.getByRole('dialog')).toHaveCount(0)
+  })
+
+  test('shows an inline error for a URL that is not http(s) and does not save it', async ({settingsPage}) => {
+    await settingsPage.navigate()
+    await expect(settingsPage.pageTitle).toBeVisible()
+
+    await settingsPage.openAIBaseUrlInput.fill('localhost:8317/v1')
+
+    await expect(settingsPage.openAIBaseUrlError).toBeVisible()
+    await expect(settingsPage.openAIBaseUrlInput).toHaveAttribute('aria-invalid', 'true')
+    await expect(settingsPage.openAIBaseUrlSaveButton).toBeDisabled()
+
+    await settingsPage.openAIBaseUrlInput.fill(GATEWAY_URL)
+    await expect(settingsPage.openAIBaseUrlError).toBeHidden()
+    await expect(settingsPage.openAIBaseUrlSaveButton).toBeEnabled()
   })
 })

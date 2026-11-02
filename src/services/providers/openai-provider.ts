@@ -1,5 +1,12 @@
-import type {CompletionChunk, CompletionRequest, Model, ProviderErrorType, ValidationResult} from '@/types/provider'
-import {ProviderError, ReplayDataSchema} from '@/types/provider'
+import type {
+  CompletionChunk,
+  CompletionRequest,
+  Model,
+  ProviderEndpointConfig,
+  ProviderErrorType,
+  ValidationResult,
+} from '@/types/provider'
+import {ProviderBaseUrlSchema, ProviderEndpointConfigSchema, ProviderError, ReplayDataSchema} from '@/types/provider'
 import OpenAI, {type ClientOptions} from 'openai'
 import {z} from 'zod'
 import {BaseLLMProvider} from './base-provider'
@@ -105,6 +112,18 @@ const OPENAI_MODELS: Model[] = [
   },
 ]
 
+/** A model from a compatible gateway's `/models` list. Its capabilities are unknown, so use a plain text-model shape. */
+function toGatewayModel(id: string): Model {
+  return (
+    OPENAI_MODELS.find(model => model.id === id) ?? {
+      id,
+      name: id,
+      provider: 'openai',
+      capabilities: {supportsVision: false, supportsTools: true, supportsStreaming: true, contextWindow: 128000},
+    }
+  )
+}
+
 export class OpenAIProvider extends BaseLLMProvider {
   readonly id = 'openai' as const
   readonly name = 'OpenAI'
@@ -113,6 +132,18 @@ export class OpenAIProvider extends BaseLLMProvider {
   private client: OpenAI | null = null
   private apiKey: string | null = null
   private _isEnabled = true
+  private _baseUrl: string | undefined
+
+  /** The compatible-gateway URL (with its `/v1`), or `undefined` for the SDK default, `https://api.openai.com/v1`. */
+  get baseUrl(): string | undefined {
+    return this._baseUrl
+  }
+
+  /** Pass `{baseUrl: undefined}` to go back to OpenAI itself. Throws if the URL is not an http(s) URL. */
+  configure(config: ProviderEndpointConfig): void {
+    this._baseUrl = ProviderEndpointConfigSchema.parse(config).baseUrl
+    this.client = null
+  }
 
   get isConfigured(): boolean {
     return this.apiKey !== null
@@ -141,31 +172,38 @@ export class OpenAIProvider extends BaseLLMProvider {
       throw new ProviderError('API key not set', 'authentication', 'openai')
     }
 
-    if (!this.client) {
-      const options: ClientOptions = {
-        apiKey: this.apiKey,
-        dangerouslyAllowBrowser: true,
-      }
-      this.client = new OpenAI(options)
-    }
+    this.client ??= this.createClient(this.apiKey, this._baseUrl)
 
     return this.client
   }
 
-  async validateCredentials(apiKey: string): Promise<ValidationResult> {
-    try {
-      const tempClient = new OpenAI({
-        apiKey,
-        dangerouslyAllowBrowser: true,
-      })
+  private createClient(apiKey: string, baseUrl: string | undefined): OpenAI {
+    const options: ClientOptions = {
+      apiKey,
+      dangerouslyAllowBrowser: true,
+      ...(baseUrl ? {baseURL: baseUrl} : {}),
+    }
+    return new OpenAI(options)
+  }
 
-      await tempClient.models.list()
+  /**
+   * Checks the key with `GET <base>/models`. `baseUrl` overrides the configured one for this call only. Against a
+   * gateway the reply is its own model list; against OpenAI the built-in list stays.
+   */
+  async validateCredentials(apiKey: string, baseUrl?: string): Promise<ValidationResult> {
+    try {
+      const target = baseUrl === undefined ? this._baseUrl : ProviderBaseUrlSchema.parse(baseUrl)
+      const page = await this.createClient(apiKey, target).models.list()
 
       return {
         valid: true,
-        models: OPENAI_MODELS,
+        models: target ? page.data.map(model => toGatewayModel(model.id)) : OPENAI_MODELS,
       }
     } catch (error_) {
+      if (error_ instanceof z.ZodError) {
+        return {valid: false, error: error_.issues[0]?.message ?? 'Invalid base URL'}
+      }
+
       const message = error_ instanceof Error ? error_.message : 'Unknown error'
 
       if (message.includes('401') || message.toLowerCase().includes('invalid api key')) {
@@ -180,9 +218,17 @@ export class OpenAIProvider extends BaseLLMProvider {
     }
   }
 
+  /** The built-in list for OpenAI itself; the gateway's `GET <base>/models` when a base URL is set. */
   async listModels(): Promise<Model[]> {
-    this.ensureClient()
-    return OPENAI_MODELS
+    const client = this.ensureClient()
+    if (!this._baseUrl) return OPENAI_MODELS
+
+    try {
+      const page = await client.models.list()
+      return page.data.map(model => toGatewayModel(model.id))
+    } catch (error_) {
+      throw this.mapError(error_)
+    }
   }
 
   /**

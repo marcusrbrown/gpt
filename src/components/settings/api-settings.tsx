@@ -7,6 +7,7 @@ import {addToast} from '@heroui/react'
 import {Button, Description, Input, TextField} from '@heroui-v3/react'
 import {XCircle} from 'lucide-react'
 import {useState} from 'react'
+import {ProviderBaseUrlField} from './provider-base-url-field'
 
 export function APISettings() {
   const {setSecret, deleteSecret, getSecret} = useSession()
@@ -150,6 +151,13 @@ export function APISettings() {
             Clear API Key
           </Button>
         </div>
+
+        <ProviderBaseUrlField
+          providerId="openai"
+          providerName="OpenAI"
+          compatibleWith="an OpenAI-compatible"
+          defaultUrl="https://api.openai.com/v1"
+        />
       </div>
 
       <div className={cn('mt-4 pt-4', 'border-t', theme.border())}>

@@ -203,10 +203,12 @@ function AIWrapper({children}: {children: ReactNode}) {
   }))
   const ai = {
     providers,
+    baseUrls: {},
     activeProvider: null,
     setActiveProvider: vi.fn(),
     getProvider: (id: ProviderId) => env.providers[id],
     validateProvider: vi.fn(),
+    setBaseUrl: vi.fn(),
     listModels: vi.fn(),
     isLoading: env.providersLoading,
   }
