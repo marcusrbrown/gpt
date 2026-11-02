@@ -14,6 +14,9 @@ const CORS_HEADERS = {
   'access-control-allow-methods': 'GET, POST, OPTIONS',
 }
 
+/** Route glob for OpenAI's own API. Pass a gateway's base URL (for example `http://localhost:8317/v1`) to mock that instead. */
+export const OPENAI_ENDPOINT = '**/api.openai.com/v1'
+
 const MODEL_ID = 'gpt-4o'
 const MESSAGE_ID = 'msg_e2e'
 
@@ -107,9 +110,9 @@ async function fulfillPreflight(route: Route): Promise<boolean> {
   return true
 }
 
-/** Answers the key-validation call (`GET /v1/models`) so saving an OpenAI key in Settings succeeds. */
-export async function mockOpenAIModels(page: Page): Promise<void> {
-  await page.route('**/api.openai.com/v1/models', async route => {
+/** Answers the key-validation call (`GET <endpoint>/models`) so saving an OpenAI key in Settings succeeds. */
+export async function mockOpenAIModels(page: Page, endpoint = OPENAI_ENDPOINT): Promise<void> {
+  await page.route(`${endpoint}/models`, async route => {
     if (await fulfillPreflight(route)) return
     await route.fulfill({
       status: 200,
@@ -121,13 +124,17 @@ export async function mockOpenAIModels(page: Page): Promise<void> {
 }
 
 /**
- * Answers each `POST /v1/responses` with the next reply in `replies` (the last one repeats), where a reply is the list
- * of text deltas to stream. The returned array fills with every request body the app sends, in order.
+ * Answers each `POST <endpoint>/responses` with the next reply in `replies` (the last one repeats), where a reply is the
+ * list of text deltas to stream. The returned array fills with every request body the app sends, in order.
  */
-export async function mockOpenAIResponses(page: Page, replies: string[][]): Promise<ResponsesRequestBody[]> {
+export async function mockOpenAIResponses(
+  page: Page,
+  replies: string[][],
+  endpoint = OPENAI_ENDPOINT,
+): Promise<ResponsesRequestBody[]> {
   const requests: ResponsesRequestBody[] = []
 
-  await page.route('**/api.openai.com/v1/responses', async route => {
+  await page.route(`${endpoint}/responses`, async route => {
     if (await fulfillPreflight(route)) return
 
     const index = requests.length

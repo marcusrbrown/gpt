@@ -3,6 +3,7 @@ import {
   CompletionRequestSchema,
   ModelCapabilitiesSchema,
   ModelSchema,
+  ProviderBaseUrlSchema,
   ProviderConfigSchema,
   ProviderError,
   ProviderIdSchema,
@@ -297,5 +298,32 @@ describe('Provider Types', () => {
       const error = new ProviderError('Rate limited', 'rate_limit', 'anthropic', 429)
       expect(error.statusCode).toBe(429)
     })
+  })
+})
+
+describe('ProviderBaseUrlSchema', () => {
+  it.each([
+    ['http://localhost:8317/v1', 'http://localhost:8317/v1'],
+    ['https://gateway.example.com/v1', 'https://gateway.example.com/v1'],
+    ['  http://localhost:8317/v1/  ', 'http://localhost:8317/v1'],
+    ['http://localhost:8317/v1///', 'http://localhost:8317/v1'],
+    ['http://localhost:8317/', 'http://localhost:8317'],
+  ])('accepts %j as %j', (input, expected) => {
+    expect(ProviderBaseUrlSchema.parse(input)).toBe(expected)
+  })
+
+  it.each([
+    ['localhost:8317/v1', /http:\/\/ or https:\/\//],
+    ['ftp://example.com/v1', /http:\/\/ or https:\/\//],
+    ['javascript:alert(1)', /http:\/\/ or https:\/\//],
+    ['', /http:\/\/ or https:\/\//],
+    ['http://user:pass@host/v1', /username and password/],
+    ['http://host/v1?key=1', /query string/],
+    ['http://host/v1#frag', /query string/],
+  ])('refuses %j', (input, message) => {
+    const result = ProviderBaseUrlSchema.safeParse(input)
+
+    expect(result.success).toBe(false)
+    expect(result.error?.issues[0]?.message).toMatch(message)
   })
 })
