@@ -2,8 +2,8 @@ import {isHttpsToLocalhostScenario, useOllamaStatus} from '@/hooks/use-ollama-st
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
 import {getOllamaProvider} from '@/services/providers/ollama-provider'
 import '@/styles/heroui-v3.css'
-import {addToast, Chip, Input, Spinner} from '@heroui/react'
-import {Button, Spinner as SpinnerV3} from '@heroui-v3/react'
+import {addToast, Chip, Spinner} from '@heroui/react'
+import {Button, Description, Input, Spinner as SpinnerV3, TextField} from '@heroui-v3/react'
 import {AlertTriangle, XCircle} from 'lucide-react'
 import {useMemo, useState} from 'react'
 
@@ -20,10 +20,6 @@ export function OllamaSettings() {
     autoStart: !hasHttpsLocalhost,
     fetchModels: true,
   })
-
-  const handleBaseUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setBaseUrl(e.target.value)
-  }
 
   const handleSaveUrl = async () => {
     try {
@@ -158,18 +154,17 @@ export function OllamaSettings() {
         )}
 
         <div className="flex items-center mb-2">
-          <Input
+          <TextField
             type="url"
             value={baseUrl}
-            onChange={handleBaseUrlChange}
-            placeholder="http://localhost:11434"
-            className={cn('flex-1 mr-2', ds.focus.ring, ds.animation.transition)}
-            description="Base URL for your Ollama instance"
+            onChange={setBaseUrl}
+            className="flex-1 mr-2"
             aria-label="Ollama Base URL"
-            classNames={{
-              description: 'text-content-secondary',
-            }}
-          />
+            fullWidth
+          >
+            <Input placeholder="http://localhost:11434" />
+            <Description className="text-content-secondary">Base URL for your Ollama instance</Description>
+          </TextField>
           <Button
             onPress={() => {
               checkNow().catch(console.error)

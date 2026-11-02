@@ -1,8 +1,7 @@
 import type {MCPAuthentication, MCPServerConfig} from '@/types/mcp'
 import {cn, ds, theme} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Input} from '@heroui/react'
-import {Button, Checkbox, Label, ListBox, Modal, Select, Spinner} from '@heroui-v3/react'
+import {Button, Checkbox, Input, Label, ListBox, Modal, Select, Spinner, TextField} from '@heroui-v3/react'
 import {useState} from 'react'
 import {z} from 'zod'
 
@@ -190,15 +189,10 @@ export function MCPServerForm({isOpen, onClose, onSave, initialConfig}: MCPServe
           </Modal.Header>
           <Modal.Body className="flex flex-col gap-6 py-6 text-base text-foreground">
             <div className="grid gap-4">
-              <Input
-                label="Server Name"
-                placeholder="e.g. Memory Service"
-                value={formState.name}
-                onChange={e => updateField('name', e.target.value)}
-                variant="bordered"
-                labelPlacement="outside"
-                className={cn(ds.focus.ring)}
-              />
+              <TextField value={formState.name} onChange={value => updateField('name', value)} fullWidth>
+                <Label>Server Name</Label>
+                <Input placeholder="e.g. Memory Service" />
+              </TextField>
 
               <div className="grid grid-cols-2 gap-4">
                 <Select
@@ -240,16 +234,10 @@ export function MCPServerForm({isOpen, onClose, onSave, initialConfig}: MCPServe
               </div>
 
               {formState.transport === 'streamable-http' && (
-                <Input
-                  label="Server URL"
-                  placeholder="http://localhost:3000/sse"
-                  value={formState.url}
-                  onChange={e => updateField('url', e.target.value)}
-                  variant="bordered"
-                  labelPlacement="outside"
-                  className={cn(ds.focus.ring)}
-                  type="url"
-                />
+                <TextField value={formState.url} onChange={value => updateField('url', value)} type="url" fullWidth>
+                  <Label>Server URL</Label>
+                  <Input placeholder="http://localhost:3000/sse" />
+                </TextField>
               )}
 
               {formState.transport === 'stdio' && (
@@ -287,105 +275,109 @@ export function MCPServerForm({isOpen, onClose, onSave, initialConfig}: MCPServe
 
               {formState.authType === 'api-key' && (
                 <div className="grid grid-cols-3 gap-4">
-                  <Input
-                    label="Header Name"
+                  <TextField
                     value={formState.authKeyHeader}
-                    onChange={e => updateField('authKeyHeader', e.target.value)}
-                    placeholder="x-api-key"
-                    variant="bordered"
-                    labelPlacement="outside"
+                    onChange={value => updateField('authKeyHeader', value)}
                     className="col-span-1"
-                  />
-                  <Input
-                    label="Key"
+                    fullWidth
+                  >
+                    <Label>Header Name</Label>
+                    <Input placeholder="x-api-key" />
+                  </TextField>
+                  <TextField
                     value={formState.authKey}
-                    onChange={e => updateField('authKey', e.target.value)}
+                    onChange={value => updateField('authKey', value)}
                     type="password"
-                    placeholder="sk-..."
-                    variant="bordered"
-                    labelPlacement="outside"
                     className="col-span-2"
-                  />
+                    fullWidth
+                  >
+                    <Label>Key</Label>
+                    <Input placeholder="sk-..." />
+                  </TextField>
                 </div>
               )}
 
               {formState.authType === 'bearer' && (
-                <Input
-                  label="Token"
+                <TextField
                   value={formState.authToken}
-                  onChange={e => updateField('authToken', e.target.value)}
+                  onChange={value => updateField('authToken', value)}
                   type="password"
-                  placeholder="eyJ..."
-                  variant="bordered"
-                  labelPlacement="outside"
-                />
+                  fullWidth
+                >
+                  <Label>Token</Label>
+                  <Input placeholder="eyJ..." />
+                </TextField>
               )}
 
               {formState.authType === 'basic' && (
                 <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    label="Username"
+                  <TextField
                     value={formState.authUsername}
-                    onChange={e => updateField('authUsername', e.target.value)}
-                    variant="bordered"
-                    labelPlacement="outside"
-                  />
-                  <Input
-                    label="Password"
+                    onChange={value => updateField('authUsername', value)}
+                    fullWidth
+                  >
+                    <Label>Username</Label>
+                    <Input />
+                  </TextField>
+                  <TextField
                     value={formState.authPassword}
-                    onChange={e => updateField('authPassword', e.target.value)}
+                    onChange={value => updateField('authPassword', value)}
                     type="password"
-                    variant="bordered"
-                    labelPlacement="outside"
-                  />
+                    fullWidth
+                  >
+                    <Label>Password</Label>
+                    <Input />
+                  </TextField>
                 </div>
               )}
 
               {formState.authType === 'oauth2' && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <Input
-                      label="Client ID"
+                    <TextField
                       value={formState.oauthClientId}
-                      onChange={e => updateField('oauthClientId', e.target.value)}
-                      variant="bordered"
-                      labelPlacement="outside"
-                    />
-                    <Input
-                      label="Client Secret"
+                      onChange={value => updateField('oauthClientId', value)}
+                      fullWidth
+                    >
+                      <Label>Client ID</Label>
+                      <Input />
+                    </TextField>
+                    <TextField
                       value={formState.oauthClientSecret}
-                      onChange={e => updateField('oauthClientSecret', e.target.value)}
+                      onChange={value => updateField('oauthClientSecret', value)}
                       type="password"
-                      variant="bordered"
-                      labelPlacement="outside"
-                    />
+                      fullWidth
+                    >
+                      <Label>Client Secret</Label>
+                      <Input />
+                    </TextField>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <Input
-                      label="Auth URL"
+                    <TextField
                       value={formState.oauthAuthUrl}
-                      onChange={e => updateField('oauthAuthUrl', e.target.value)}
-                      placeholder="https://.../authorize"
-                      variant="bordered"
-                      labelPlacement="outside"
-                    />
-                    <Input
-                      label="Token URL"
+                      onChange={value => updateField('oauthAuthUrl', value)}
+                      fullWidth
+                    >
+                      <Label>Auth URL</Label>
+                      <Input placeholder="https://.../authorize" />
+                    </TextField>
+                    <TextField
                       value={formState.oauthTokenUrl}
-                      onChange={e => updateField('oauthTokenUrl', e.target.value)}
-                      placeholder="https://.../token"
-                      variant="bordered"
-                      labelPlacement="outside"
-                    />
+                      onChange={value => updateField('oauthTokenUrl', value)}
+                      fullWidth
+                    >
+                      <Label>Token URL</Label>
+                      <Input placeholder="https://.../token" />
+                    </TextField>
                   </div>
-                  <Input
-                    label="Scopes (comma separated)"
+                  <TextField
                     value={formState.oauthScopes}
-                    onChange={e => updateField('oauthScopes', e.target.value)}
-                    placeholder="read,write"
-                    variant="bordered"
-                    labelPlacement="outside"
-                  />
+                    onChange={value => updateField('oauthScopes', value)}
+                    fullWidth
+                  >
+                    <Label>Scopes (comma separated)</Label>
+                    <Input placeholder="read,write" />
+                  </TextField>
                   <div className="p-2 bg-default-50 rounded text-xs text-default-500">
                     Note: Full OAuth flow configuration is not yet implemented in this UI.
                   </div>

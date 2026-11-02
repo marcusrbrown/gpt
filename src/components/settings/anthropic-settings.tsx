@@ -3,8 +3,8 @@ import {useSession} from '@/hooks/use-session'
 import {useUnlockGate} from '@/hooks/use-unlock-gate'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {addToast, Input} from '@heroui/react'
-import {Button} from '@heroui-v3/react'
+import {addToast} from '@heroui/react'
+import {Button, Description, Input, TextField} from '@heroui-v3/react'
 import {XCircle} from 'lucide-react'
 import {useState} from 'react'
 
@@ -17,10 +17,6 @@ export function AnthropicSettings() {
 
   const anthropicConfig = providers.find(p => p.id === 'anthropic')
   const isConfigured = anthropicConfig?.isConfigured ?? false
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputKey(e.target.value)
-  }
 
   const handleSaveKey = async () => {
     try {
@@ -103,20 +99,22 @@ export function AnthropicSettings() {
         )}
 
         <div className="flex items-center mb-2">
-          <Input
+          <TextField
             type={showApiKey ? 'text' : 'password'}
             value={inputKey}
-            onChange={handleInputChange}
+            onChange={setInputKey}
             onFocus={() => {
               if (!inputKey && isConfigured) {
                 loadCurrentKey().catch(console.error)
               }
             }}
-            placeholder="sk-ant-..."
-            className={cn('flex-1 mr-2', ds.focus.ring, ds.animation.transition)}
-            description="Your Anthropic API key for using Claude models"
+            className="flex-1 mr-2"
             aria-label="Enter your Anthropic API key"
-          />
+            fullWidth
+          >
+            <Input placeholder="sk-ant-..." />
+            <Description>Your Anthropic API key for using Claude models</Description>
+          </TextField>
           <Button
             onPress={toggleShowApiKey}
             variant="outline"

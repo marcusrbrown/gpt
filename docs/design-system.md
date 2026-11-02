@@ -192,17 +192,14 @@ Based on 4px base unit with consistent increments:
 ### Form Elements
 
 ```tsx
-// Text input
-<Input
-  label="Label"
-  placeholder="Placeholder text"
-  variant="bordered"
-  size="md"
-  className="max-w-xs"
-/>
+// Text input (HeroUI v3, see "Input / TextField (v3)" under v2/v3 Coexistence)
+<TextField value={value} onChange={setValue} fullWidth>
+  <Label>Label</Label>
+  <Input placeholder="Placeholder text" />
+</TextField>
 ```
 
-`Select`, `Switch`, `Checkbox` and `Radio` are on HeroUI v3: see "Select (v3)" and "Switch, Checkbox, Radio (v3)" under v2/v3 Coexistence.
+`Select`, `Input` / `Textarea`, `Switch`, `Checkbox` and `Radio` are on HeroUI v3: see "Select (v3)", "Input / TextField (v3)" and "Switch, Checkbox, Radio (v3)" under v2/v3 Coexistence.
 
 ## Layout Patterns
 
@@ -255,10 +252,11 @@ Based on 4px base unit with consistent increments:
 
 ```tsx
 // Form field error
-<Input
-  isInvalid={hasError}
-  errorMessage="This field is required"
-/>
+<TextField isInvalid={hasError} isRequired fullWidth>
+  <Label>Name</Label>
+  <Input />
+  <FieldError>This field is required</FieldError>
+</TextField>
 
 // Error message
 <div className="p-4 bg-danger-50 border border-danger-200 rounded-lg">
@@ -529,7 +527,7 @@ Differences to expect, and what the app does about them:
 - v3 rounds the dialog to 32px and fills the close button. `src/styles/heroui-v3.css` keeps the v2 radius (`--heroui-radius-large`) and a transparent close button. Drop both at cutover.
 - The v2 menu that opens a dialog (the GPT actions `Dropdown`) is still animating out when the dialog mounts, and v3 does not set `aria-hidden` on it, so it briefly counts as a second `role="dialog"`. Locate the dialog by name in tests: `getByRole('dialog', {name: /export/i})`.
 
-**Do not put a v2 overlay (`Select`, `Dropdown`, `Popover`) inside a v3 `Modal`.** The two majors resolve different `@react-aria/focus` and `@react-aria/overlays` versions, so their focus scopes do not nest: the v3 modal pulls focus back from the v2 popover and the popover closes on open. (Seen on a v2 `Select` in `mcp/mcp-server-form.tsx`: `aria-expanded` flipped back to `false`, and a `portalContainer` inside the dialog did not fix it.) Use the v3 `Select` (below), which nests in the v3 modal; `mcp-server-form.tsx` is the reference. A v3 `Tooltip` and non-overlay v2 components (`Input`, `Progress`, `Accordion`) work inside a v3 modal.
+**Do not put a v2 overlay (`Select`, `Dropdown`, `Popover`) inside a v3 `Modal`.** The two majors resolve different `@react-aria/focus` and `@react-aria/overlays` versions, so their focus scopes do not nest: the v3 modal pulls focus back from the v2 popover and the popover closes on open. (Seen on a v2 `Select` in `mcp/mcp-server-form.tsx`: `aria-expanded` flipped back to `false`, and a `portalContainer` inside the dialog did not fix it.) Use the v3 `Select` (below), which nests in the v3 modal; `mcp-server-form.tsx` is the reference. A v3 `Tooltip` and non-overlay components (the v3 `TextField`, v2 `Progress` and `Accordion`) work inside a v3 modal.
 
 The v3 import list in `src/styles/heroui-v3.css` gains `base/overlay-motion.css` (`layer(base)`), `close-button.css` (shared, before `modal.css`) and `modal.css`.
 
@@ -573,7 +571,7 @@ Differences to expect:
 
 - `Select.Value` shows the selected item's full children, not its `textValue` (the MCP form's Transport now reads `SSE / HTTP (Remote)` in the trigger). An icon beside the text needs `className="flex items-center gap-2"` on `Select.Value`.
 - The selected item gets a checkmark (`ListBox.ItemIndicator`) instead of a filled row.
-- v3's trigger has no border (`--border-width-field` is 0), so on a plain dialog it reads as a row, not a control. `src/styles/heroui-v3.css` gives `.select__trigger` the v2 bordered field: 2px (`--heroui-border-width-medium`), `--heroui-radius-medium`, and `default-600` on hover and `default-foreground` on focus or open, as the v2 `Input` has. The resting border is `default-500`, not the v2 `default-200`: `default-200` is 1.2:1 against a white page and 1.7:1 against the dark dialog, under the 3:1 WCAG 1.4.11 needs, while `default-500` is 4.6:1 to 4.8:1 (light) and 6.8:1 to 8.2:1 (dark). Drop the override at cutover and re-check contrast.
+- v3's trigger has no border (`--border-width-field` is 0), so on a plain dialog it reads as a row, not a control. `src/styles/heroui-v3.css` gives it the shared field border (see "Field border" under Input / TextField (v3)): the same rule serves `Input`, `TextArea` and `InputGroup`. Drop it at cutover and re-check contrast.
 - The trigger is a plain `button` with the `aria-haspopup="listbox"` attribute and a `data-slot="select-trigger"` (v2 used `data-slot="trigger"`). Its accessible name is the selected value plus the label (`Light Theme selection`), so match names with a substring or regex.
 - The popover is a v3 overlay: put it in a v3 `Modal`, never in a v2 one. Escape closes the popover first, then the modal.
 - Pass `aria-label` when there is no `<Label>`; v3 does not name the select from `placeholder`.
@@ -750,6 +748,81 @@ Do not wrap a `Button` in `Tooltip.Trigger`: that nests a button in a `role="but
 `src/styles/heroui-v3.css` keeps the v2 look until cutover: 12px radius, `4px 10px` padding at 14px / 20px, the small shadow and the `content1` surface (v3: 24px radius, `p-2` at 12px, `bg-overlay`). Playwright's single `hover()` can miss a React Aria tooltip; move the mouse in two steps.
 
 The v3 import list in `src/styles/heroui-v3.css` gains `card.css`, `link.css`, `avatar.css` and `tooltip.css` (all standalone).
+
+### Input / TextField (v3)
+
+```tsx
+import '@/styles/heroui-v3.css'
+import {Description, FieldError, Input, InputGroup, Label, TextArea, TextField} from '@heroui-v3/react'
+
+// Labelled field with description and error
+<TextField value={name} onChange={setName} isInvalid={!!error} isRequired fullWidth>
+  <Label>Folder Name</Label>
+  <Input placeholder="Enter folder name" maxLength={50} />
+  <Description>Created inside the selected folder</Description>
+  <FieldError>{error}</FieldError>
+</TextField>
+
+// Icon (search): InputGroup inside TextField; no visible label, so aria-label on TextField
+<TextField type="search" value={query} onChange={setQuery} aria-label="Search GPTs" fullWidth>
+  <InputGroup fullWidth>
+    <InputGroup.Prefix>
+      <Search size={16} aria-hidden="true" />
+    </InputGroup.Prefix>
+    <InputGroup.Input placeholder="Search GPTs..." />
+  </InputGroup>
+</TextField>
+
+// Multi-line
+<TextField value={prompt} onChange={setPrompt} fullWidth>
+  <Label>System Prompt</Label>
+  <TextArea rows={5} fullWidth />
+</TextField>
+```
+
+| v2 | v3 |
+| --- | --- |
+| `Input` (a whole field) | `TextField` (state, label, validation) > `Input` (the control) |
+| `Textarea` | `TextField` > `TextArea` |
+| `label`, `labelPlacement="outside"` | `<Label>` child of `TextField`; with no visible label, `aria-label` on `TextField` (RAC puts it on the `<input>`) |
+| `description` / `classNames.description` | `<Description>` child (`className` for colour); hidden while the field is invalid |
+| `errorMessage` | `<FieldError>` child; renders only while `isInvalid` is set |
+| `value`, `onValueChange(value)` | `value`, `onChange(value)` on `TextField` (a string, not an event) |
+| `onChange(event)`, then `event.target.value` | `onChange(value)` on `TextField`. A handler that read `e.target.name` takes the name as an argument |
+| `isInvalid`, `isRequired`, `isDisabled`, `type`, `name`, `autoComplete`, `autoFocus`, `maxLength`, `validationBehavior` | same names, on `TextField` |
+| `required` (native attribute) | `isRequired` on `TextField` (sets `required` under native validation, `aria-required` under `validationBehavior="aria"`, and the Label asterisk) |
+| `placeholder`, `onKeyDown`, `aria-expanded`, `aria-controls`, `role` | on `Input` / `InputGroup.Input` (DOM attributes of the control) |
+| `onFocus`, `onBlur` | `TextField` accepts both; use `Input` for handlers that need the DOM event of the control only |
+| `startContent` / `endContent` | `InputGroup.Prefix` / `InputGroup.Suffix` around `InputGroup.Input` |
+| `variant="bordered"`, `size`, `radius`, `color` | none; `variant="primary" \| "secondary"` and one size. The field border is added in CSS (below) |
+| `classNames.*`, `className` (wrapper) | `className` on `TextField`, `Input`, `InputGroup`, `Label` |
+| `minRows` | `rows` on `TextArea` (no autosize) |
+| full width by default | `fullWidth` on `TextField` (and on `Input` / `TextArea` when the field sits in a flex row) |
+
+**Validation.** `TextField` is a React Aria field with the same `validationBehavior` switch as v2: default `native` (sets `required` and runs the browser's form validation), `aria` (no native attributes; only `aria-invalid`). `passphrase-modal.tsx` keeps `validationBehavior="aria"` on both fields. Controlled `isInvalid` plus a `<FieldError>` child works without `validate`: the input gets `aria-invalid="true"` and `aria-describedby` pointing at the error text.
+
+**Field border.** v3 fields have no border (`--border-width-field` is 0), and v2's `default-200` resting border is 1.2:1 against white, below the 3:1 WCAG 1.4.11 needs. One rule in `src/styles/heroui-v3.css` serves `.select__trigger`, `.input`, `.textarea` and `.input-group`: 2px (`--heroui-border-width-medium`), `--heroui-radius-medium`, `default-500` at rest, `default-600` on hover, `default-foreground` on focus. It sets v3's own `--field-border*` variables, so v3's hover and focus rules still apply. An invalid field (`data-invalid` / `aria-invalid`, or `.select[data-invalid]`) sets the border to `--danger` at rest and on hover, and keeps `default-foreground` on focus with v3's danger ring around it; v3 reads a `--color-field-border-invalid` it never defines, so the rule sets it for `InputGroup`. The prefix / suffix divider is set to 0 so it does not double the group border. Measured against the page, a v2 `Card` and a dialog (`bg-surface-secondary`):
+
+| State                        | Light          | Dark             |
+| ---------------------------- | -------------- | ---------------- |
+| Rest (`default-500`)         | 4.6:1 to 4.8:1 | 6.8:1 to 8.2:1   |
+| Hover (`default-600`)        | 7.4:1 to 7.7:1 | 11.8:1 to 14.2:1 |
+| Focus (`default-foreground`) | 20.1:1 to 21:1 | 17.4:1 to 21:1   |
+
+The invalid border is `--danger` (`hsl(var(--heroui-danger))`, `rgb(243, 18, 96)` in both themes): 4.1:1 on white in light; 5.1:1 on the black page and 4.3:1 on a dark card or dialog. Focus on an invalid field is `default-foreground`, 21:1 on the page.
+
+Drop the rule at cutover and re-check contrast.
+
+Differences to expect:
+
+- Flat v2 fields (no `variant="bordered"`) now have a border. Fields keep the v3 fill (`bg-field`, white in light, `default` in dark) instead of v2's `default-100`.
+- Heights follow v3 (`min-h-9` for `InputGroup`, `py-2` for `Input`), so a few are 2-4px different from v2.
+- `Label` is `text-sm font-medium`, and a required field shows a red asterisk. The two `<label htmlFor>` rows in the GPT editor are now `Label`s inside the `TextField`, so the label is tied to the control and the whole row is the `TextField` (`flex flex-col sm:flex-row`).
+- `type="search"` inputs have the browser's native clear button; v2's `pr-9` padding for it is gone. v3 `SearchField` is not used (the epic excludes new v3-only components).
+- v2 `Textarea` grew with its content; v3 `TextArea` is `rows` plus the browser's resize handle.
+- `Input` is not an overlay, so a v3 `TextField` works inside a v3 `Modal` (the folder, passphrase and MCP server dialogs) and next to v2 components. The focus problem in the Modal section is only about v2 overlays.
+
+`src/styles/heroui-v3.css` gains `description.css` (shared, first), then `input.css`, `textarea.css`, `input-group.css` and `textfield.css`.
 
 ### Cutover
 

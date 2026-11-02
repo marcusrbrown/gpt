@@ -103,8 +103,8 @@ Accessibility violations found: ${summary.critical} critical, ${summary.serious}
       if (expectFocusable) {
         expect(navigation.focusable, `Element ${selector} should be focusable`).toBe(true)
         expect(
-          navigation.ariaLabel || navigation.role,
-          `Element ${selector} should have aria-label or role`,
+          navigation.ariaLabel || navigation.labelledByText || navigation.role,
+          `Element ${selector} should have aria-label, a label via aria-labelledby, or a role`,
         ).toBeTruthy()
       }
     })

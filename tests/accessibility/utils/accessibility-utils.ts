@@ -190,6 +190,7 @@ export const AccessibilityUtils = {
     focusable: boolean
     tabIndex: string | null
     ariaLabel: string | null
+    labelledByText: string | null
     role: string | null
   }> {
     const element = page.locator(selector)
@@ -202,11 +203,21 @@ export const AccessibilityUtils = {
     const tabIndex = await element.getAttribute('tabindex')
     const ariaLabel = await element.getAttribute('aria-label')
     const role = await element.getAttribute('role')
+    // A visible <Label> names its control through aria-labelledby; resolve it to the label's text.
+    const labelledByText = await element.evaluate(el => {
+      const ids = el.getAttribute('aria-labelledby')?.split(/\s+/).filter(Boolean) ?? []
+      const text = ids
+        .map(id => document.querySelector(`[id="${CSS.escape(id)}"]`)?.textContent?.trim() ?? '')
+        .filter(Boolean)
+        .join(' ')
+      return text || null
+    })
 
     return {
       focusable: isFocused,
       tabIndex,
       ariaLabel,
+      labelledByText,
       role,
     }
   },

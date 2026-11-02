@@ -20,13 +20,17 @@
 @import '@heroui-v3/styles/components/spinner.css' layer(components);
 @import '@heroui-v3/styles/components/modal.css' layer(components);
 @import '@heroui-v3/styles/components/label.css' layer(components);
+@import '@heroui-v3/styles/components/description.css' layer(components);
 @import '@heroui-v3/styles/components/field-error.css' layer(components);
 @import '@heroui-v3/styles/components/list-box-item.css' layer(components);
 @import '@heroui-v3/styles/components/list-box.css' layer(components);
 @import '@heroui-v3/styles/components/select.css' layer(components);
+@import '@heroui-v3/styles/components/input.css' layer(components);
+@import '@heroui-v3/styles/components/textarea.css' layer(components);
+@import '@heroui-v3/styles/components/input-group.css' layer(components);
+@import '@heroui-v3/styles/components/textfield.css' layer(components);
 
-/* Switch, Checkbox, Radio: shared description first. */
-@import '@heroui-v3/styles/components/description.css' layer(components);
+/* Switch, Checkbox, Radio: description.css is imported above (shared). */
 @import '@heroui-v3/styles/components/switch.css' layer(components);
 @import '@heroui-v3/styles/components/checkbox.css' layer(components);
 @import '@heroui-v3/styles/components/radio.css' layer(components);
@@ -65,20 +69,62 @@
 }
 
 /*
- * Select parity with the v2 bordered field: v3's trigger is borderless by default
- * (--border-width-field is 0). Same width and radius as the v2 Input. The resting border is
- * default-500, not v2's default-200: default-200 is 1.2:1 against white and 1.7:1 against the dark
- * dialog, below the 3:1 WCAG 1.4.11 needs for a control boundary. Hover darkens one step and
- * focus / open use the v2 focus colour. Drop it with the v2 plugin.
+ * Field border shared by every v3 text control: the Select trigger, Input, TextArea and InputGroup.
+ * v3's fields are borderless by default (--border-width-field is 0), so on a plain dialog they read
+ * as a row, not a control. This is the v2 bordered field: 2px (--heroui-border-width-medium) and the
+ * v2 medium radius. The resting border is default-500, not v2's default-200: default-200 is 1.2:1
+ * against white and 1.7:1 against the dark dialog, below the 3:1 WCAG 1.4.11 needs for a control
+ * boundary. Hover darkens one step and focus uses default-foreground. v3's own hover, focus and
+ * invalid rules read these variables, so they apply to every control in the list. An invalid field
+ * switches the border to the danger colour (below). Drop it with the v2 plugin.
  */
 @layer components {
-  .select__trigger {
+  .select__trigger,
+  .input,
+  .textarea,
+  .input-group {
     --border-width-field: var(--heroui-border-width-medium);
     --field-border: hsl(var(--heroui-default-500));
     --field-border-hover: hsl(var(--heroui-default-600));
     --field-border-focus: hsl(var(--heroui-default-foreground));
     border-radius: var(--heroui-radius-medium);
+  }
 
+  /*
+   * Invalid: the border is the danger colour at rest and on hover, so the failed field reads from its
+   * outline and not only from v3's thin outline ring. Focus keeps default-foreground, as v3 does (the
+   * danger ring stays around it). v3's invalid group rule reads --color-field-border-invalid, which v3
+   * never defines; set it here, and hand focus-within back to the focus colour.
+   */
+  .input[data-invalid='true'],
+  .input[aria-invalid='true'],
+  .textarea[data-invalid='true'],
+  .textarea[aria-invalid='true'],
+  .input-group[data-invalid='true'],
+  .input-group[aria-invalid='true'],
+  .select[data-invalid='true'] .select__trigger,
+  .select[aria-invalid='true'] .select__trigger {
+    --field-border: var(--danger);
+    --field-border-hover: var(--danger);
+    --color-field-border-invalid: var(--danger);
+  }
+
+  .input-group[data-invalid='true']:has([data-slot='input-group-input']:focus, [data-slot='input-group-textarea']:focus) {
+    --color-field-border-invalid: var(--field-border-focus);
+  }
+
+  /* A flex-1 input keeps its intrinsic width (min-width: auto) and would stop the group shrinking. */
+  .input-group__input {
+    min-width: 0;
+  }
+
+  /* The group draws the border; v3's prefix and suffix divider would double it at 2px. */
+  .input-group__prefix,
+  .input-group__suffix {
+    border-width: 0;
+  }
+
+  .select__trigger {
     &[aria-expanded='true'],
     &[data-focused='true'] {
       border-color: var(--field-border-focus);

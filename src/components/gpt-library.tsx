@@ -2,8 +2,8 @@ import type {GPTConfiguration} from '@/types/gpt'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds, responsive} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Spinner, Tab, Tabs} from '@heroui/react'
-import {Button, Card} from '@heroui-v3/react'
+import {Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spinner, Tab, Tabs} from '@heroui/react'
+import {Button, Card, InputGroup, TextField} from '@heroui-v3/react'
 import {Archive, Copy, Download, Edit, MoreVertical, Plus, RotateCcw, Search, Trash2} from 'lucide-react'
 import {useCallback, useEffect, useMemo, useState} from 'react'
 import {ArchiveDialog} from './archive-dialog'
@@ -167,22 +167,20 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
       </div>
 
       <div className="mb-4">
-        <Input
+        <TextField
           type="search"
-          placeholder="Search GPTs..."
           value={searchQuery}
-          onValueChange={setSearchQuery}
-          startContent={<Search className="h-4 w-4 text-content-tertiary" />}
-          variant="bordered"
+          onChange={setSearchQuery}
           aria-label="Search GPTs"
-          classNames={{
-            base: 'max-w-md',
-            input: 'text-sm',
-            inputWrapper: 'h-10 flex items-center',
-            innerWrapper: 'flex items-center',
-            mainWrapper: 'h-10',
-          }}
-        />
+          className="max-w-md"
+        >
+          <InputGroup fullWidth className="h-10">
+            <InputGroup.Prefix>
+              <Search className="h-4 w-4 text-content-tertiary" aria-hidden="true" />
+            </InputGroup.Prefix>
+            <InputGroup.Input placeholder="Search GPTs..." className="text-sm" />
+          </InputGroup>
+        </TextField>
       </div>
 
       {isLoading ? (

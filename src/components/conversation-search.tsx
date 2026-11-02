@@ -2,7 +2,9 @@ import type {SearchResult} from '@/services/conversation-search-service'
 import type {Conversation} from '@/types/gpt'
 import {useConversationContext} from '@/hooks/use-conversation-context'
 import {cn, ds} from '@/lib/design-system'
-import {Input, Spinner} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Spinner} from '@heroui/react'
+import {InputGroup, TextField} from '@heroui-v3/react'
 import {MessageSquare, Search, X} from 'lucide-react'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 
@@ -110,36 +112,37 @@ export function ConversationSearch({
 
   return (
     <div className={cn('relative', className)} onKeyDown={handleKeyDown}>
-      <Input
-        type="search"
-        placeholder={placeholder}
-        value={query}
-        onValueChange={handleQueryChange}
-        onFocus={() => setIsOpen(true)}
-        onBlur={() => setTimeout(() => setIsOpen(false), 200)}
-        startContent={<Search className="w-4 h-4 text-content-tertiary" />}
-        endContent={
-          query ? (
-            <button
-              type="button"
-              onClick={handleClear}
-              className="p-1 hover:bg-surface-tertiary rounded-full transition-colors"
-              aria-label="Clear search"
-            >
-              <X className="w-3 h-3" />
-            </button>
+      <TextField type="search" value={query} onChange={handleQueryChange} aria-label="Search conversations" fullWidth>
+        <InputGroup fullWidth className="bg-surface-secondary">
+          <InputGroup.Prefix>
+            <Search className="w-4 h-4 text-content-tertiary" aria-hidden="true" />
+          </InputGroup.Prefix>
+          <InputGroup.Input
+            placeholder={placeholder}
+            onFocus={() => setIsOpen(true)}
+            onBlur={() => setTimeout(() => setIsOpen(false), 200)}
+            aria-expanded={isOpen && results.length > 0}
+            aria-controls="search-results"
+            role="combobox"
+          />
+          {query ? (
+            <InputGroup.Suffix>
+              <button
+                type="button"
+                onClick={handleClear}
+                className="p-1 hover:bg-surface-tertiary rounded-full transition-colors"
+                aria-label="Clear search"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </InputGroup.Suffix>
           ) : isSearching ? (
-            <Spinner size="sm" />
-          ) : null
-        }
-        classNames={{
-          inputWrapper: 'bg-surface-secondary',
-        }}
-        aria-label="Search conversations"
-        aria-expanded={isOpen && results.length > 0}
-        aria-controls="search-results"
-        role="combobox"
-      />
+            <InputGroup.Suffix>
+              <Spinner size="sm" />
+            </InputGroup.Suffix>
+          ) : null}
+        </InputGroup>
+      </TextField>
 
       {isOpen && query.trim() && (
         <div

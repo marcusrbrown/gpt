@@ -10,8 +10,20 @@ import type {
 } from '@/types/knowledge'
 import {cn, ds} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Chip, Input, Tab, Tabs, Textarea} from '@heroui/react'
-import {Button, Card, Radio, RadioGroup, Tooltip} from '@heroui-v3/react'
+import {Chip, Tab, Tabs} from '@heroui/react'
+import {
+  Button,
+  Card,
+  FieldError,
+  Input,
+  InputGroup,
+  Label,
+  Radio,
+  RadioGroup,
+  TextArea,
+  TextField,
+  Tooltip,
+} from '@heroui-v3/react'
 import {AlertCircle, CheckCircle, FileText, Loader2, RefreshCw, Search, Trash2, Upload} from 'lucide-react'
 import {useId, useRef, useState} from 'react'
 
@@ -186,19 +198,18 @@ export function KnowledgeConfiguration({
 
   return (
     <div className={cn(ds.form.fieldGroup)}>
-      <Input
-        placeholder="Search knowledge base..."
-        startContent={
-          isSearching ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Search className="w-4 h-4 text-content-tertiary" />
-          )
-        }
-        onChange={e => handleSearch(e.target.value)}
-        className="mb-4"
-        aria-label="Search knowledge base"
-      />
+      <TextField onChange={handleSearch} className="mb-4" aria-label="Search knowledge base" fullWidth>
+        <InputGroup fullWidth>
+          <InputGroup.Prefix>
+            {isSearching ? (
+              <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <Search className="w-4 h-4 text-content-tertiary" aria-hidden="true" />
+            )}
+          </InputGroup.Prefix>
+          <InputGroup.Input placeholder="Search knowledge base..." />
+        </InputGroup>
+      </TextField>
 
       <Tabs aria-label="Knowledge configuration" color="primary" variant="underlined">
         <Tab key="files" title="Files">
@@ -349,13 +360,10 @@ export function KnowledgeConfiguration({
               <Card>
                 <Card.Content>
                   <div className="flex gap-2">
-                    <Input
-                      placeholder="https://example.com/docs"
-                      label="Add URL to cache"
-                      value={newUrlCache}
-                      onChange={e => setNewUrlCache(e.target.value)}
-                      className="flex-1"
-                    />
+                    <TextField value={newUrlCache} onChange={setNewUrlCache} className="flex-1" fullWidth>
+                      <Label>Add URL to cache</Label>
+                      <Input placeholder="https://example.com/docs" />
+                    </TextField>
                     <Button onPress={handleCacheUrl} variant="primary" className="h-full">
                       Cache URL
                     </Button>
@@ -368,14 +376,17 @@ export function KnowledgeConfiguration({
                   <h4 className={ds.text.heading.h4}>Simple URLs (Legacy)</h4>
                   {urls.map((url, index) => (
                     <div key={`legacy-url-${url || 'empty'}-${index}`} className="flex gap-2 items-center">
-                      <Input
+                      <TextField
                         value={url}
-                        onChange={e => onUrlChange(index, e.target.value)}
+                        onChange={value => onUrlChange(index, value)}
                         className="flex-1"
                         isInvalid={!!errors.knowledge.urls[index]}
-                        errorMessage={errors.knowledge.urls[index]}
                         aria-label={`URL ${index + 1}`}
-                      />
+                        fullWidth
+                      >
+                        <Input />
+                        <FieldError>{errors.knowledge.urls[index]}</FieldError>
+                      </TextField>
                       <Button
                         isIconOnly
                         variant="danger-soft"
@@ -478,36 +489,41 @@ export function KnowledgeConfiguration({
           <div className="space-y-6 pt-4">
             <Card>
               <Card.Content className="space-y-4">
-                <Input
-                  label="Title"
-                  placeholder="My code snippet"
+                <TextField
                   value={snippetForm.title || ''}
-                  onChange={e => setSnippetForm(prev => ({...prev, title: e.target.value}))}
+                  onChange={value => setSnippetForm(prev => ({...prev, title: value}))}
                   isRequired
-                />
-                <Textarea
-                  label="Content"
-                  placeholder="Paste your text..."
+                  fullWidth
+                >
+                  <Label>Title</Label>
+                  <Input placeholder="My code snippet" />
+                </TextField>
+                <TextField
                   value={snippetForm.content || ''}
-                  onChange={e => setSnippetForm(prev => ({...prev, content: e.target.value}))}
-                  minRows={8}
+                  onChange={value => setSnippetForm(prev => ({...prev, content: value}))}
                   maxLength={100000}
                   isRequired
-                />
-                <Input
-                  label="Tags (comma-separated)"
-                  placeholder="typescript, react, hooks"
+                  fullWidth
+                >
+                  <Label>Content</Label>
+                  <TextArea placeholder="Paste your text..." rows={8} />
+                </TextField>
+                <TextField
                   value={snippetForm.tags?.join(', ') || ''}
-                  onChange={e =>
+                  onChange={value =>
                     setSnippetForm(prev => ({
                       ...prev,
-                      tags: e.target.value
+                      tags: value
                         .split(',')
                         .map(t => t.trim())
                         .filter(Boolean),
                     }))
                   }
-                />
+                  fullWidth
+                >
+                  <Label>Tags (comma-separated)</Label>
+                  <Input placeholder="typescript, react, hooks" />
+                </TextField>
                 <div className="flex gap-2">
                   <Button
                     onPress={handleSaveSnippet}
