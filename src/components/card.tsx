@@ -1,7 +1,8 @@
+import type {FC} from 'react'
 import {cn, compose, ds} from '@/lib/design-system'
-import {Avatar, CardBody, CardFooter, CardHeader, Divider, Link, Card as NextUICard, Skeleton} from '@heroui/react'
-
-import {useRef, type FC} from 'react'
+import '@/styles/heroui-v3.css'
+import {Divider, Skeleton} from '@heroui/react'
+import {Avatar, Link, Card as NextUICard} from '@heroui-v3/react'
 
 export interface CardProps {
   title: string
@@ -24,38 +25,33 @@ export const Card: FC<CardProps> = ({
   isLoading = false,
   error = null,
 }) => {
-  const ref = useRef<HTMLDivElement | null>(null)
+  const isInteractive = !isLoading && !error
 
   return (
     <NextUICard
-      ref={ref}
-      as="div"
       className={cn(
         compose.card('max-w-sm'),
         'p-0 border-2', // Override compose.card padding since HeroUI Card handles internal spacing
-        'hover:border-primary-300 dark:hover:border-primary-600',
+        'shadow-small',
+        isInteractive && 'hover:border-primary-300 dark:hover:border-primary-600 hover:bg-content2',
         ds.animation.transition,
-        ds.focus.ring,
         isLoading && ds.state.loading,
         error && ds.state.error,
       )}
-      isHoverable={!isLoading && !error}
-      isPressable={!isLoading && !error}
-      shadow="sm"
       data-testid="example-gpt-card"
     >
       {error ? (
         <>
-          <CardHeader className="flex gap-4">
+          <NextUICard.Header className="flex gap-4">
             <div className="flex flex-col">
               <p className={cn(ds.text.heading.h4, 'text-danger')}>Error Loading GPT</p>
               <p className={cn(ds.text.body.small, 'text-danger')}>{error}</p>
             </div>
-          </CardHeader>
+          </NextUICard.Header>
         </>
       ) : (
         <>
-          <CardHeader className="flex gap-4">
+          <NextUICard.Header className="flex gap-4">
             {isLoading ? (
               <>
                 <Skeleton className="flex rounded-full w-12 h-12" />
@@ -66,18 +62,26 @@ export const Card: FC<CardProps> = ({
               </>
             ) : (
               <>
-                <Avatar alt="GPT Logo" isBordered radius="full" size="md" src={avatarUrl.toString()} />
+                <Avatar className="rounded-full ring-2 ring-default ring-offset-2 ring-offset-background" size="md">
+                  <Avatar.Image alt="GPT Logo" src={avatarUrl.toString()} />
+                  <Avatar.Fallback>{title.slice(0, 1).toUpperCase()}</Avatar.Fallback>
+                </Avatar>
                 <div className="flex flex-col">
                   <p className={cn(ds.text.heading.h4)}>{title}</p>
-                  <Link className={cn(ds.text.body.small)} href={authorUrl.toString()} isExternal>
+                  <Link
+                    className={cn(ds.text.body.small, 'font-normal')}
+                    href={authorUrl.toString()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {author}
                   </Link>
                 </div>
               </>
             )}
-          </CardHeader>
+          </NextUICard.Header>
           <Divider />
-          <CardBody>
+          <NextUICard.Content>
             {isLoading ? (
               <div className="space-y-2">
                 <Skeleton className="h-3 w-full rounded-lg" />
@@ -87,17 +91,23 @@ export const Card: FC<CardProps> = ({
             ) : (
               <p className={cn(ds.text.body.base)}>{description}</p>
             )}
-          </CardBody>
+          </NextUICard.Content>
           <Divider />
-          <CardFooter>
+          <NextUICard.Footer>
             {isLoading ? (
               <Skeleton className="h-4 w-32 rounded-lg" />
             ) : (
-              <Link href={gptUrl.toString()} isExternal showAnchorIcon color="primary" className="font-medium">
+              <Link
+                href={gptUrl.toString()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary"
+              >
                 Open in ChatGPT
+                <Link.Icon className="size-[1em] pb-0" />
               </Link>
             )}
-          </CardFooter>
+          </NextUICard.Footer>
         </>
       )}
     </NextUICard>

@@ -92,15 +92,6 @@ body {
   overflow-y: scroll;
 }
 
-/* ---------------------------------------------
-   Cards
-   --------------------------------------------- */
-[data-slot='card'],
-.heroui-card {
-  background-color: hsl(var(--surface-secondary));
-  border: 1px solid hsl(var(--border-default));
-}
-
 :root {
   --header-height: 4rem;
   --footer-height: 3rem;

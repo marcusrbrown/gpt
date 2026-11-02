@@ -1,8 +1,7 @@
 import {useSession} from '@/hooks/use-session'
 import {cn, ds} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Card, CardBody} from '@heroui/react'
-import {Button} from '@heroui-v3/react'
+import {Button, Card} from '@heroui-v3/react'
 
 export interface SessionWarningProps {
   className?: string
@@ -25,7 +24,7 @@ export function SessionWarning({className}: SessionWarningProps) {
   return (
     <div className={cn('fixed bottom-4 left-4 z-50', className)} role="status" data-testid="session-warning">
       <Card className="border border-warning bg-surface-elevated">
-        <CardBody className="flex flex-row items-center gap-4 p-4">
+        <Card.Content className="flex flex-row items-center gap-4 p-4">
           <p className={cn(ds.text.body.small, 'flex-1 font-medium text-content-primary')}>
             Session locks in {formatTime(remainingSeconds)}
           </p>
@@ -37,7 +36,7 @@ export function SessionWarning({className}: SessionWarningProps) {
           >
             Extend Session
           </Button>
-        </CardBody>
+        </Card.Content>
       </Card>
     </div>
   )

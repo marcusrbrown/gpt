@@ -1,7 +1,8 @@
 import type {FC} from 'react'
 import {siteConfig} from '@/config/site'
 import {cn} from '@/lib/design-system'
-import {Link} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Link, Tooltip} from '@heroui-v3/react'
 
 export const Footer: FC = () => {
   return (
@@ -11,15 +12,18 @@ export const Footer: FC = () => {
         'bg-surface-secondary border-border-default',
       )}
     >
-      <Link
-        className="flex items-center gap-2 text-current"
-        href={siteConfig.links.github}
-        isExternal
-        title="@marcusrbrown on GitHub"
-      >
-        <span className="text-sm text-content-secondary">Made with 🖤 by</span>
-        <span className="text-primary-600 dark:text-content-primary font-semibold text-sm">Marcus R. Brown</span>
-      </Link>
+      <Tooltip delay={0}>
+        <Link
+          className="flex items-center gap-2 font-normal text-current"
+          href={siteConfig.links.github}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <span className="text-sm text-content-secondary">Made with 🖤 by</span>
+          <span className="text-primary-600 dark:text-content-primary font-semibold text-sm">Marcus R. Brown</span>
+        </Link>
+        <Tooltip.Content>@marcusrbrown on GitHub</Tooltip.Content>
+      </Tooltip>
     </footer>
   )
 }

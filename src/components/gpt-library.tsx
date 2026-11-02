@@ -2,21 +2,8 @@ import type {GPTConfiguration} from '@/types/gpt'
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds, responsive} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-  Input,
-  Spinner,
-  Tab,
-  Tabs,
-} from '@heroui/react'
-import {Button} from '@heroui-v3/react'
+import {Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Spinner, Tab, Tabs} from '@heroui/react'
+import {Button, Card} from '@heroui-v3/react'
 import {Archive, Copy, Download, Edit, MoreVertical, Plus, RotateCcw, Search, Trash2} from 'lucide-react'
 import {useCallback, useEffect, useMemo, useState} from 'react'
 import {ArchiveDialog} from './archive-dialog'
@@ -226,7 +213,7 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
               )}
               data-testid="user-gpt-card"
             >
-              <CardHeader className="flex justify-between items-start gap-2">
+              <Card.Header className="flex justify-between items-start gap-2">
                 <div
                   className="flex-1 min-w-0 cursor-pointer"
                   onClick={() => onSelectGPT(gpt.id)}
@@ -323,11 +310,11 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
                     </DropdownItem>
                   </DropdownMenu>
                 </Dropdown>
-              </CardHeader>
-              <CardBody className="cursor-pointer" onClick={() => onSelectGPT(gpt.id)}>
+              </Card.Header>
+              <Card.Content className="cursor-pointer" onClick={() => onSelectGPT(gpt.id)}>
                 <p className={cn(ds.text.body.small, 'line-clamp-2')}>{gpt.description || 'No description'}</p>
-              </CardBody>
-              <CardFooter className="cursor-pointer" onClick={() => onSelectGPT(gpt.id)}>
+              </Card.Content>
+              <Card.Footer className="cursor-pointer" onClick={() => onSelectGPT(gpt.id)}>
                 <div className="flex gap-2 flex-wrap">
                   {gpt.tags.slice(0, 3).map(tag => (
                     <span key={tag} className={cn('px-2 py-0.5 rounded-full text-xs bg-surface-tertiary')}>
@@ -336,7 +323,7 @@ export function GPTLibrary({onSelectGPT, onEditGPT, onCreateGPT, folderId = null
                   ))}
                   {gpt.tags.length > 3 && <span className={cn(ds.text.caption)}>+{gpt.tags.length - 3} more</span>}
                 </div>
-              </CardFooter>
+              </Card.Footer>
             </Card>
           ))}
         </div>

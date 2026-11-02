@@ -1,9 +1,19 @@
 import type {LucideIcon} from 'lucide-react'
 import type {FC} from 'react'
 import {cn, compose, ds, theme} from '@/lib/design-system'
-import {Card, CardBody, CardFooter, CardHeader, Skeleton} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Skeleton} from '@heroui/react'
+import {Card} from '@heroui-v3/react'
+import {Link as RouterLink} from 'react-router-dom'
 
-import {useNavigate} from 'react-router-dom'
+/**
+ * The title link is the card's one interactive element. Its `::after` covers the card, so a click
+ * anywhere on the card follows the link. The card shows the focus ring when the link has keyboard focus.
+ */
+const stretchedLink = cn(
+  'rounded-sm outline-none after:absolute after:inset-0 after:rounded-[inherit] after:content-[""]',
+  'focus-visible:outline-none',
+)
 
 interface FeatureCardProps {
   title: string
@@ -24,17 +34,8 @@ export const FeatureCard: FC<FeatureCardProps> = ({
   isLoading = false,
   error = null,
 }) => {
-  const navigate = useNavigate()
   const isExternal = href.startsWith('http')
-
-  const handleCardPress = () => {
-    if (isLoading || error) return
-    if (isExternal) {
-      window.open(href, '_blank', 'noopener,noreferrer')
-    } else {
-      navigate(href) as void
-    }
-  }
+  const isInteractive = !isLoading && !error
 
   return (
     <Card
@@ -44,16 +45,14 @@ export const FeatureCard: FC<FeatureCardProps> = ({
         'max-w-sm',
         'cursor-pointer',
         'group',
-        ds.focus.ring,
+        isInteractive && 'hover:bg-content2',
+        'has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-primary-500 has-[a:focus-visible]:ring-offset-2',
         ds.animation.cardHover,
         isLoading && ds.state.loading,
         error && ds.state.error,
       )}
-      isHoverable={!isLoading && !error}
-      isPressable={!isLoading && !error}
-      onPress={handleCardPress}
     >
-      <CardHeader className={cn('pb-4')}>
+      <Card.Header className={cn('pb-4')}>
         {error ? (
           <div className="flex items-center gap-4">
             <div className={cn('rounded-lg p-3', 'bg-danger-50', 'text-danger')}>
@@ -78,14 +77,24 @@ export const FeatureCard: FC<FeatureCardProps> = ({
               <Icon className={cn('h-6 w-6', 'text-primary-500', 'group-hover:text-primary-600')} />
             </div>
             <div className="flex flex-col">
-              <h3 className={cn(ds.text.heading.h4)}>{title}</h3>
+              <h3 className={cn(ds.text.heading.h4)}>
+                {isExternal ? (
+                  <a href={href} target="_blank" rel="noopener noreferrer" className={stretchedLink}>
+                    {title}
+                  </a>
+                ) : (
+                  <RouterLink to={href} className={stretchedLink}>
+                    {title}
+                  </RouterLink>
+                )}
+              </h3>
               {domain && <div className={cn(ds.text.body.small)}>{domain}</div>}
             </div>
           </div>
         )}
-      </CardHeader>
+      </Card.Header>
 
-      <CardBody className="pt-0">
+      <Card.Content className="pt-0">
         {error ? (
           <p className={cn(ds.text.body.base, 'text-danger')}>Unable to load feature data. Please try again later.</p>
         ) : isLoading ? (
@@ -96,9 +105,9 @@ export const FeatureCard: FC<FeatureCardProps> = ({
         ) : (
           <p className={cn(ds.text.body.base, 'line-clamp-2')}>{description}</p>
         )}
-      </CardBody>
+      </Card.Content>
 
-      <CardFooter className="pt-4">
+      <Card.Footer className="pt-4">
         {error || isLoading ? (
           <Skeleton className="h-4 w-32 rounded-lg" />
         ) : (
@@ -106,7 +115,7 @@ export const FeatureCard: FC<FeatureCardProps> = ({
             {isExternal ? 'Open in ChatGPT' : 'Learn more'} →
           </span>
         )}
-      </CardFooter>
+      </Card.Footer>
     </Card>
   )
 }

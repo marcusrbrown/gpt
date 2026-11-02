@@ -32,6 +32,12 @@
 @import '@heroui-v3/styles/components/radio.css' layer(components);
 @import '@heroui-v3/styles/components/radio-group.css' layer(components);
 
+/* Card, Link, Avatar, Tooltip (#2171): standalone, no shared parts */
+@import '@heroui-v3/styles/components/card.css' layer(components);
+@import '@heroui-v3/styles/components/link.css' layer(components);
+@import '@heroui-v3/styles/components/avatar.css' layer(components);
+@import '@heroui-v3/styles/components/tooltip.css' layer(components);
+
 /*
  * Keep v3 buttons on the app's v2 brand colours. White text on the v3 default accent and danger is
  * 3.6:1 and 3.5:1 (WCAG AA needs 4.5:1 for normal text); the v2 values are 4.5:1 and 4.0:1, so this
@@ -112,5 +118,64 @@
     --border-width-field: var(--heroui-border-width-medium);
     --field-border: hsl(var(--heroui-default-500));
     --field-border-hover: hsl(var(--heroui-default-600));
+  }
+}
+
+/*
+ * Card parity with v2 until cutover. v3's card is a padded, gapped 3xl-rounded column on
+ * `--surface`; v2's is unpadded, 14px rounded, `overflow-hidden`, on `content1`, with the medium
+ * shadow, and its header / body / footer carry their own 12px padding (header is a row). Both are
+ * single-class rules placed after card.css, so the same-layer order wins; call-site utilities
+ * (`p-6`, `rounded-lg`, `shadow-sm`, `bg-*`) still override them. Drop with the v2 plugin.
+ */
+@layer components {
+  .card {
+    gap: 0;
+    padding: 0;
+    overflow: hidden;
+    color: hsl(var(--heroui-foreground));
+    border-radius: var(--heroui-radius-large);
+    box-shadow: var(--heroui-box-shadow-medium);
+  }
+
+  .card--default {
+    background-color: hsl(var(--heroui-content1));
+  }
+
+  .card__header,
+  .card__content,
+  .card__footer {
+    padding: 0.75rem;
+  }
+
+  .card__header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .card__content {
+    flex: 1 1 auto;
+    gap: 0;
+  }
+
+  .card__footer {
+    width: 100%;
+  }
+}
+
+/*
+ * Tooltip parity with v2: 12px radius (v3 24px), 4px 10px padding at 14px / 20px type (v3 8px at 12px),
+ * the v2 small shadow and the content1 surface. Drop with the v2 plugin.
+ */
+@layer components {
+  .tooltip {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: hsl(var(--heroui-foreground));
+    background-color: hsl(var(--heroui-content1));
+    border-radius: var(--heroui-radius-medium);
+    box-shadow: var(--heroui-box-shadow-small);
   }
 }

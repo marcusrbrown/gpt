@@ -2,7 +2,8 @@ import type {FC} from 'react'
 import type {GPTConfiguration} from '@/types/gpt'
 import {cn, compose, ds} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Card, CardBody, CardFooter, CardHeader, Divider, Skeleton} from '@heroui/react'
+import {Divider, Skeleton} from '@heroui/react'
+import {Card} from '@heroui-v3/react'
 import {buttonVariants} from '@heroui-v3/styles'
 import {Edit, Play} from 'lucide-react'
 import {Link} from 'react-router-dom'
@@ -19,17 +20,17 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
       className={cn(
         compose.card('max-w-sm'),
         'p-0 border-2',
+        'shadow-small',
         'hover:border-primary-300 dark:hover:border-primary-600',
+        !isLoading && !error && 'hover:bg-content2',
         ds.focus.ring,
         ds.animation.cardHover,
         isLoading && ds.state.loading,
         error && ds.state.error,
       )}
-      isHoverable={!isLoading && !error}
-      shadow="sm"
       data-testid="user-gpt-card"
     >
-      <CardHeader className="flex gap-4 pb-3">
+      <Card.Header className="flex gap-4 pb-3">
         {error ? (
           <div className="flex flex-col">
             <p className={cn(ds.text.heading.h4, 'text-danger')}>Error Loading GPT</p>
@@ -48,9 +49,9 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
             <p className={cn(ds.text.body.small)}>Updated: {new Date(gpt.updatedAt).toLocaleDateString()}</p>
           </div>
         )}
-      </CardHeader>
+      </Card.Header>
       <Divider />
-      <CardBody>
+      <Card.Content>
         {error ? (
           <p className={cn(ds.text.body.base, 'text-danger')}>Unable to load GPT data. Please try again later.</p>
         ) : isLoading ? (
@@ -62,9 +63,9 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
         ) : (
           <p className={cn(ds.text.body.base, 'line-clamp-3')}>{gpt.description || 'No description provided.'}</p>
         )}
-      </CardBody>
+      </Card.Content>
       <Divider />
-      <CardFooter className="flex justify-between gap-3">
+      <Card.Footer className="flex justify-between gap-3">
         {error || isLoading ? (
           <>
             <Skeleton className="h-10 w-20 rounded-lg" />
@@ -82,7 +83,7 @@ export const UserGPTCard: FC<UserGPTCardProps> = ({gpt, isLoading = false, error
             </Link>
           </>
         )}
-      </CardFooter>
+      </Card.Footer>
     </Card>
   )
 }

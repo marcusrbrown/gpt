@@ -141,6 +141,8 @@ Based on 4px base unit with consistent increments:
 
 ### Cards
 
+> `Card` is on HeroUI v3 (`@heroui-v3/react`). The v2 examples below (`CardHeader`, `CardBody`, `isPressable`) are kept for reference; see "Card (v3)" under v2/v3 Coexistence for the current API.
+
 ```tsx
 // Standard card
 <Card className="p-6 shadow-sm hover:shadow-md transition-shadow">
@@ -527,7 +529,7 @@ Differences to expect, and what the app does about them:
 - v3 rounds the dialog to 32px and fills the close button. `src/styles/heroui-v3.css` keeps the v2 radius (`--heroui-radius-large`) and a transparent close button. Drop both at cutover.
 - The v2 menu that opens a dialog (the GPT actions `Dropdown`) is still animating out when the dialog mounts, and v3 does not set `aria-hidden` on it, so it briefly counts as a second `role="dialog"`. Locate the dialog by name in tests: `getByRole('dialog', {name: /export/i})`.
 
-**Do not put a v2 overlay (`Select`, `Dropdown`, `Popover`) inside a v3 `Modal`.** The two majors resolve different `@react-aria/focus` and `@react-aria/overlays` versions, so their focus scopes do not nest: the v3 modal pulls focus back from the v2 popover and the popover closes on open. (Seen on a v2 `Select` in `mcp/mcp-server-form.tsx`: `aria-expanded` flipped back to `false`, and a `portalContainer` inside the dialog did not fix it.) Use the v3 `Select` (below), which nests in the v3 modal; `mcp-server-form.tsx` is the reference. v2 `Tooltip` and non-overlay v2 components (`Input`, `Progress`, `Accordion`) work inside a v3 modal.
+**Do not put a v2 overlay (`Select`, `Dropdown`, `Popover`) inside a v3 `Modal`.** The two majors resolve different `@react-aria/focus` and `@react-aria/overlays` versions, so their focus scopes do not nest: the v3 modal pulls focus back from the v2 popover and the popover closes on open. (Seen on a v2 `Select` in `mcp/mcp-server-form.tsx`: `aria-expanded` flipped back to `false`, and a `portalContainer` inside the dialog did not fix it.) Use the v3 `Select` (below), which nests in the v3 modal; `mcp-server-form.tsx` is the reference. A v3 `Tooltip` and non-overlay v2 components (`Input`, `Progress`, `Accordion`) work inside a v3 modal.
 
 The v3 import list in `src/styles/heroui-v3.css` gains `base/overlay-motion.css` (`layer(base)`), `close-button.css` (shared, before `modal.css`) and `modal.css`.
 
@@ -636,6 +638,118 @@ Differences to expect, and what the app does about them:
 - The checkbox's hidden input is the focus target. `getByRole('checkbox', {name})` and `getByLabel` work; a force click on the input still toggles it.
 
 `src/styles/heroui-v3.css` gains `description.css` (shared, first), `switch.css`, `checkbox.css`, `radio.css` and `radio-group.css`, plus one override block for the points above.
+
+### Card (v3)
+
+```tsx
+import '@/styles/heroui-v3.css'
+import {Card} from '@heroui-v3/react'
+
+<Card className="max-w-sm">
+  <Card.Header>
+    <Card.Title>Title</Card.Title>
+  </Card.Header>
+  <Card.Content>...</Card.Content>
+  <Card.Footer>...</Card.Footer>
+</Card>
+
+// A card that does one thing: a link or button inside it, stretched over the card
+<Card className="has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-primary-500 has-[a:focus-visible]:ring-offset-2">
+  <Card.Content>
+    <h3>
+      <RouterLink to="/settings" className="outline-none after:absolute after:inset-0 after:content-['']">
+        Settings
+      </RouterLink>
+    </h3>
+  </Card.Content>
+</Card>
+```
+
+| v2 | v3 |
+| --- | --- |
+| `CardHeader` / `CardBody` / `CardFooter` | `Card.Header` / `Card.Content` / `Card.Footer` (`Card.Title` and `Card.Description` are new) |
+| `isPressable` + `onPress` | removed. Put one `<button>` or link inside and stretch it over the card (`after:absolute after:inset-0`; the card is `relative`). The card is not a button, so it holds no other interactive element as a nested child of a button |
+| `isHoverable` | `hover:bg-content2` (v2 used `data-hover` on `content2`) |
+| `shadow="sm"` | `shadow-small` (v2 plugin class) |
+| `as`, `radius`, `fullWidth`, `isBlurred`, `isDisabled`, `classNames` | removed; Tailwind classes and conditional rendering |
+
+`src/styles/heroui-v3.css` keeps v2 parity (drop it with the v2 plugin at cutover): no padding or gap on the card, 12px on header / content / footer (the header is a row), 14px radius (`--heroui-radius-large`), `overflow: hidden`, `content1` surface, the v2 medium shadow and `foreground` text. v3's own card is `p-4 gap-3`, `rounded-3xl`, `bg-surface` and `shadow-surface`. Class names on the call site still win (they are Tailwind utilities).
+
+The `[data-slot='card'], .heroui-card` rule that used to sit in `src/index.css` is gone. v2's card never carried `data-slot="card"`, so it matched nothing; v3's card does, and the rule is unlayered, so it would have beaten every `bg-*` and `border-*` class on a card. Style cards through classes.
+
+Focus: the card has no focus ring of its own; show it from the inner link or button with `has-[a:focus-visible]` / `has-[button:focus-visible]` (`transition-all` makes it appear over 200 ms, so wait before a screenshot). A stretched link activates on Enter only; a `<button>` also activates on Space.
+
+### Link (v3)
+
+```tsx
+import {Link} from '@heroui-v3/react'
+
+<Link href="https://example.com" target="_blank" rel="noopener noreferrer">
+  Open in ChatGPT
+  <Link.Icon />
+</Link>
+```
+
+| v2 | v3 |
+| --- | --- |
+| `isExternal` | `target="_blank" rel="noopener noreferrer"` |
+| `showAnchorIcon` | `<Link.Icon />` child (a smaller external-link arrow; pass `className="size-[1em] pb-0"` to size it to the text) |
+| `color="primary"`, `size`, `underline` | removed. `font-medium text-primary`, a `text-*` class (the v2 plugin's `text-primary` still works), `underline` classes. v3 underlines on hover; v2 faded |
+| `title` | not in the v3 types and not forwarded; wrap the link in a `Tooltip` (the footer does) |
+| `as` | removed; style a router link with Tailwind |
+
+v3's `.link` is `font-medium`; add `font-normal` where v2 text was regular. A router link is still react-router's `Link` (with `buttonVariants()` for a button look); the v3 `Link` is for `href`s.
+
+### Avatar (v3)
+
+```tsx
+<Avatar size="md" className="rounded-full ring-2 ring-default ring-offset-2 ring-offset-background">
+  <Avatar.Image alt="GPT Logo" src={url} />
+  <Avatar.Fallback>{title.slice(0, 1).toUpperCase()}</Avatar.Fallback>
+</Avatar>
+```
+
+| v2 | v3 |
+| --- | --- |
+| `src`, `alt` | `Avatar.Image` (`src`, `alt`) |
+| `name` | removed. `Avatar.Fallback` shows when the image fails or is loading, so render the initials yourself |
+| `isBordered`, `radius="full"` | `ring-2 ring-default ring-offset-2 ring-offset-background`, `rounded-full` |
+| `size`, `color` | `size` `sm` / `md` / `lg` (same pixel sizes); `color` `primary` → `accent`, `secondary` → `default` |
+
+### Tooltip (v3)
+
+```tsx
+import {Button, Tooltip} from '@heroui-v3/react'
+
+// A Button is already focusable: it is the trigger, no Tooltip.Trigger
+<Tooltip delay={0}>
+  <Button isIconOnly aria-label="Back" onPress={back}>
+    <ChevronLeft />
+  </Button>
+  <Tooltip.Content>Back to Library</Tooltip.Content>
+</Tooltip>
+
+// Anything else needs Tooltip.Trigger, which renders a focusable role="button" div
+<Tooltip delay={0}>
+  <Tooltip.Trigger>
+    <Chip>Failed</Chip>
+  </Tooltip.Trigger>
+  <Tooltip.Content>{error}</Tooltip.Content>
+</Tooltip>
+```
+
+| v2 | v3 |
+| --- | --- |
+| `<Tooltip content="…">trigger</Tooltip>` | `<Tooltip delay={0}>` trigger + `<Tooltip.Content>…</Tooltip.Content>` |
+| default delay 0 | default 1500 ms (`--tooltip-delay`); pass `delay={0}` to keep v2 timing |
+| `placement`, `offset`, `showArrow` | on `Tooltip.Content` (`<Tooltip.Arrow />` inside). v3's default offset is 3px; v2's was 7px |
+| `color`, `size`, `radius`, `shadow`, `classNames` | removed |
+
+Do not wrap a `Button` in `Tooltip.Trigger`: that nests a button in a `role="button"` div. The tooltip still needs the `aria-label` on an icon-only `Button`; it adds the text as the description (`aria-describedby`) on hover or keyboard focus, and Escape closes it. A non-interactive trigger (the showcase capability badge) becomes a tab stop through `Tooltip.Trigger`, and its content is the accessible name.
+
+`src/styles/heroui-v3.css` keeps the v2 look until cutover: 12px radius, `4px 10px` padding at 14px / 20px, the small shadow and the `content1` surface (v3: 24px radius, `p-2` at 12px, `bg-overlay`). Playwright's single `hover()` can miss a React Aria tooltip; move the mouse in two steps.
+
+The v3 import list in `src/styles/heroui-v3.css` gains `card.css`, `link.css`, `avatar.css` and `tooltip.css` (all standalone).
 
 ### Cutover
 

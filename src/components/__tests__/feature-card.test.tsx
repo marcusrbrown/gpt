@@ -1,13 +1,13 @@
 import {render, screen} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
-import {MemoryRouter} from 'react-router-dom'
+import {MemoryRouter, useLocation} from 'react-router-dom'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {FeatureCard} from '../feature-card'
 
 // Mock the design system utilities
 vi.mock('@/lib/design-system', () => ({
-  cn: (...args: any[]) => args.join(' '),
+  cn: (...args: any[]) => args.filter(Boolean).join(' '),
   compose: {
     card: (className?: string) => `compose-card ${className ?? ''}`,
   },
@@ -23,6 +23,7 @@ vi.mock('@/lib/design-system', () => ({
     },
     animation: {
       transition: 'transition-all',
+      cardHover: 'card-hover',
     },
     focus: {
       ring: 'focus-ring',
@@ -37,39 +38,24 @@ vi.mock('@/lib/design-system', () => ({
   },
 }))
 
-// Mock HeroUI components
+// Skeleton is still on HeroUI v2; Card is the real v3 component.
 vi.mock('@heroui/react', () => ({
-  Card: ({children, className, isHoverable, isPressable, onPress, ...props}: any) => (
-    <div className={className} data-hoverable={isHoverable} data-pressable={isPressable} onClick={onPress} {...props}>
-      {children}
-    </div>
-  ),
-  CardHeader: ({children, className}: any) => <div className={className}>{children}</div>,
-  CardBody: ({children, className}: any) => <div className={className}>{children}</div>,
-  CardFooter: ({children, className}: any) => <div className={className}>{children}</div>,
   Skeleton: ({className}: any) => <div className={`skeleton ${className}`} />,
 }))
-
-// Mock react-router-dom
-const mockNavigate = vi.fn()
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom')
-  return {
-    ...actual,
-    useNavigate: vi.fn(() => mockNavigate),
-  }
-})
-
-// Mock window.open
-const mockWindowOpen = vi.fn()
-Object.defineProperty(window, 'open', {
-  value: mockWindowOpen,
-})
 
 // Mock icon component
 const MockIcon = () => <svg data-testid="mock-icon" />
 
-const TestWrapper: React.FC<{children: React.ReactNode}> = ({children}) => <MemoryRouter>{children}</MemoryRouter>
+function LocationProbe() {
+  return <div data-testid="location">{useLocation().pathname}</div>
+}
+
+const TestWrapper: React.FC<{children: React.ReactNode}> = ({children}) => (
+  <MemoryRouter initialEntries={['/start']}>
+    {children}
+    <LocationProbe />
+  </MemoryRouter>
+)
 
 describe('featureCard', () => {
   const defaultProps = {
@@ -110,11 +96,10 @@ describe('featureCard', () => {
     })
 
     it('applies correct CSS classes for design system integration', () => {
-      const {container} = renderCard()
+      renderCard()
 
-      const card = container.firstChild
+      const card = screen.getByTestId('feature-card')
       expect(card).toHaveClass('compose-card')
-      expect(card).toHaveClass('focus-ring')
       expect(card).toHaveClass('group')
     })
 
@@ -139,19 +124,17 @@ describe('featureCard', () => {
       expect(skeletons.length).toBeGreaterThan(0)
     })
 
-    it('disables hover and press states when loading', () => {
-      const {container} = renderCard({isLoading: true})
+    it('disables hover and link states when loading', () => {
+      renderCard({isLoading: true})
 
-      const card = container.firstChild
-      expect(card).toHaveAttribute('data-hoverable', 'false')
-      expect(card).toHaveAttribute('data-pressable', 'false')
+      expect(screen.getByTestId('feature-card')).not.toHaveClass('hover:bg-content2')
+      expect(screen.queryByRole('link')).not.toBeInTheDocument()
     })
 
     it('applies loading state styles', () => {
-      const {container} = renderCard({isLoading: true})
+      renderCard({isLoading: true})
 
-      const card = container.firstChild
-      expect(card).toHaveClass('state-loading')
+      expect(screen.getByTestId('feature-card')).toHaveClass('state-loading')
     })
   })
 
@@ -164,19 +147,17 @@ describe('featureCard', () => {
       expect(screen.getByText('Unable to load feature data. Please try again later.')).toBeInTheDocument()
     })
 
-    it('disables hover and press states when error occurs', () => {
-      const {container} = renderCard({error: 'Test error'})
+    it('disables hover and link states when error occurs', () => {
+      renderCard({error: 'Test error'})
 
-      const card = container.firstChild
-      expect(card).toHaveAttribute('data-hoverable', 'false')
-      expect(card).toHaveAttribute('data-pressable', 'false')
+      expect(screen.getByTestId('feature-card')).not.toHaveClass('hover:bg-content2')
+      expect(screen.queryByRole('link')).not.toBeInTheDocument()
     })
 
     it('applies error state styles', () => {
-      const {container} = renderCard({error: 'Test error'})
+      renderCard({error: 'Test error'})
 
-      const card = container.firstChild
-      expect(card).toHaveClass('state-error')
+      expect(screen.getByTestId('feature-card')).toHaveClass('state-error')
     })
 
     it('shows skeleton for call-to-action in error state', () => {
@@ -188,72 +169,84 @@ describe('featureCard', () => {
   })
 
   describe('navigation', () => {
-    it('calls navigate for internal links', async () => {
+    it('renders internal targets as a router link and navigates on click', async () => {
       const user = userEvent.setup()
-      const {container} = renderCard({href: '/internal'})
+      renderCard({href: '/internal'})
 
-      const card = container.firstChild as HTMLElement
-      await user.click(card)
+      const link = screen.getByRole('link', {name: 'Test Feature'})
+      expect(link).toHaveAttribute('href', '/internal')
+      expect(link).not.toHaveAttribute('target')
 
-      expect(mockNavigate).toHaveBeenCalledWith('/internal')
-      expect(mockWindowOpen).not.toHaveBeenCalled()
+      await user.click(link)
+
+      expect(screen.getByTestId('location')).toHaveTextContent('/internal')
     })
 
-    it('calls window.open for external links', async () => {
+    it('renders external targets as a new-tab anchor', async () => {
       const user = userEvent.setup()
-      const {container} = renderCard({href: 'https://external.com'})
+      renderCard({href: 'https://external.com'})
 
-      const card = container.firstChild as HTMLElement
-      await user.click(card)
+      const link = screen.getByRole('link', {name: 'Test Feature'})
+      expect(link).toHaveAttribute('href', 'https://external.com')
+      expect(link).toHaveAttribute('target', '_blank')
+      expect(link).toHaveAttribute('rel', 'noopener noreferrer')
 
-      expect(mockWindowOpen).toHaveBeenCalledWith('https://external.com', '_blank', 'noopener,noreferrer')
-      expect(mockNavigate).not.toHaveBeenCalled()
+      await user.click(link)
+
+      // The anchor opens a new tab; the router stays put
+      expect(screen.getByTestId('location')).toHaveTextContent('/start')
     })
 
     it('does not navigate when loading', async () => {
       const user = userEvent.setup()
-      const {container} = renderCard({href: '/test', isLoading: true})
+      renderCard({href: '/test', isLoading: true})
 
-      const card = container.firstChild as HTMLElement
-      await user.click(card)
+      await user.click(screen.getByTestId('feature-card'))
 
-      expect(mockNavigate).not.toHaveBeenCalled()
-      expect(mockWindowOpen).not.toHaveBeenCalled()
+      expect(screen.getByTestId('location')).toHaveTextContent('/start')
     })
 
     it('does not navigate when error exists', async () => {
       const user = userEvent.setup()
-      const {container} = renderCard({href: '/test', error: 'Test error'})
+      renderCard({href: '/test', error: 'Test error'})
 
-      const card = container.firstChild as HTMLElement
-      await user.click(card)
+      await user.click(screen.getByTestId('feature-card'))
 
-      expect(mockNavigate).not.toHaveBeenCalled()
-      expect(mockWindowOpen).not.toHaveBeenCalled()
+      expect(screen.getByTestId('location')).toHaveTextContent('/start')
     })
   })
 
   describe('accessibility', () => {
-    it('is keyboard accessible when enabled', () => {
-      const {container} = renderCard()
+    it('exposes exactly one interactive element, named after the card', () => {
+      renderCard()
 
-      const card = container.firstChild
-      expect(card).toHaveAttribute('data-pressable', 'true')
+      expect(screen.getAllByRole('link')).toHaveLength(1)
+      expect(screen.getByRole('link', {name: 'Test Feature'})).toBeInTheDocument()
+      expect(screen.queryByRole('button')).not.toBeInTheDocument()
     })
 
-    it('applies focus styles', () => {
-      const {container} = renderCard()
+    it('is keyboard accessible when enabled', async () => {
+      const user = userEvent.setup()
+      renderCard({href: '/internal'})
 
-      const card = container.firstChild
-      expect(card).toHaveClass('focus-ring')
+      await user.tab()
+      expect(screen.getByRole('link', {name: 'Test Feature'})).toHaveFocus()
+
+      await user.keyboard('{Enter}')
+      expect(screen.getByTestId('location')).toHaveTextContent('/internal')
+    })
+
+    it('shows the focus ring on the card when the link has keyboard focus', () => {
+      renderCard()
+
+      expect(screen.getByTestId('feature-card')).toHaveClass('has-[a:focus-visible]:ring-2')
     })
 
     it('has proper semantic structure', () => {
       renderCard()
 
-      // Title should be a heading
-      const title = screen.getByText('Test Feature')
-      expect(title.tagName.toLowerCase()).toBe('h3')
+      // Title is a heading, and the heading holds the link
+      expect(screen.getByRole('heading', {name: 'Test Feature', level: 3})).toBeInTheDocument()
     })
   })
 
@@ -268,17 +261,15 @@ describe('featureCard', () => {
 
   describe('micro-interactions', () => {
     it('applies group class for hover effects', () => {
-      const {container} = renderCard()
+      renderCard()
 
-      const card = container.firstChild
-      expect(card).toHaveClass('group')
+      expect(screen.getByTestId('feature-card')).toHaveClass('group')
     })
 
     it('applies transition animations via compose.card()', () => {
-      const {container} = renderCard()
+      renderCard()
 
-      const card = container.firstChild
-      expect(card).toHaveClass('compose-card')
+      expect(screen.getByTestId('feature-card')).toHaveClass('compose-card')
     })
   })
 })
