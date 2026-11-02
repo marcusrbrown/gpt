@@ -3,6 +3,7 @@ import {CapabilitiesConfiguration} from '@/components/capabilities-configuration
 import {cn, ds, responsive} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
 import {Button, FieldError, Input, Label, TextArea, TextField} from '@heroui-v3/react'
+import {useState} from 'react'
 
 interface GeneralTabProps {
   gpt: GPTConfiguration
@@ -30,13 +31,23 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
     })
   }
 
+  // Starters are persisted as plain strings, so keep a parallel array of stable ids for React keys.
+  const [starterIds, setStarterIds] = useState(() => (gpt.conversationStarters || []).map(() => crypto.randomUUID()))
+  const startersLength = (gpt.conversationStarters || []).length
+  if (starterIds.length !== startersLength) {
+    // Starters changed outside this tab (e.g. GPT loaded): resync ids to the list length.
+    setStarterIds(Array.from({length: startersLength}, (_, i) => starterIds[i] ?? crypto.randomUUID()))
+  }
+
   const handleAddStarter = () => {
     const starters = gpt.conversationStarters || []
+    setStarterIds([...starterIds, crypto.randomUUID()])
     onUpdate({conversationStarters: [...starters, '']})
   }
 
   const handleRemoveStarter = (index: number) => {
     const starters = gpt.conversationStarters || []
+    setStarterIds(starterIds.filter((_, i) => i !== index))
     onUpdate({conversationStarters: starters.filter((_, i) => i !== index)})
   }
 
@@ -135,7 +146,7 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
           </div>
           <div className="flex-1 space-y-2">
             {(gpt.conversationStarters || []).map((starter, index) => (
-              <div key={`starter-${starter || `empty-${index}`}`} className="flex gap-2">
+              <div key={starterIds[index]} className="flex gap-2">
                 <TextField
                   value={starter}
                   onChange={value => handleStarterChange(index, value)}
