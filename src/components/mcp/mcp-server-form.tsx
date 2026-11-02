@@ -1,8 +1,8 @@
 import type {MCPAuthentication, MCPServerConfig} from '@/types/mcp'
 import {cn, ds, theme} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Checkbox, Input} from '@heroui/react'
-import {Button, Label, ListBox, Modal, Select, Spinner} from '@heroui-v3/react'
+import {Input} from '@heroui/react'
+import {Button, Checkbox, Label, ListBox, Modal, Select, Spinner} from '@heroui-v3/react'
 import {useState} from 'react'
 import {z} from 'zod'
 
@@ -228,8 +228,13 @@ export function MCPServerForm({isOpen, onClose, onSave, initialConfig}: MCPServe
                 </Select>
 
                 <div className="flex items-end pb-2">
-                  <Checkbox isSelected={formState.enabled} onValueChange={v => updateField('enabled', v)} size="sm">
-                    Enabled
+                  <Checkbox isSelected={formState.enabled} onChange={v => updateField('enabled', v)}>
+                    <Checkbox.Content>
+                      <Checkbox.Control>
+                        <Checkbox.Indicator />
+                      </Checkbox.Control>
+                      <Label className="font-normal">Enabled</Label>
+                    </Checkbox.Content>
                   </Checkbox>
                 </div>
               </div>

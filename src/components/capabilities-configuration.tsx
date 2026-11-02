@@ -1,6 +1,7 @@
 import type {GPTCapabilities} from '@/types/gpt'
 import {cn, ds} from '@/lib/design-system'
-import {Checkbox} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Checkbox} from '@heroui-v3/react'
 
 interface CapabilitiesConfigurationProps {
   capabilities: GPTCapabilities
@@ -18,12 +19,15 @@ export function CapabilitiesConfiguration({capabilities, onCapabilityChange}: Ca
             <Checkbox
               key={key}
               id={key}
-              size="md"
-              color="primary"
               isSelected={typeof value === 'boolean' ? value : value.enabled}
-              onValueChange={() => onCapabilityChange(key as keyof GPTCapabilities)}
+              onChange={() => onCapabilityChange(key as keyof GPTCapabilities)}
             >
-              {label}
+              <Checkbox.Content>
+                <Checkbox.Control className="size-5">
+                  <Checkbox.Indicator />
+                </Checkbox.Control>
+                {label}
+              </Checkbox.Content>
             </Checkbox>
           )
         })}

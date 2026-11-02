@@ -10,10 +10,10 @@ import type {
 } from '@/types/knowledge'
 import {cn, ds} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Card, CardBody, Chip, Input, Radio, RadioGroup, Tab, Tabs, Textarea, Tooltip} from '@heroui/react'
-import {Button} from '@heroui-v3/react'
+import {Card, CardBody, Chip, Input, Tab, Tabs, Textarea, Tooltip} from '@heroui/react'
+import {Button, Radio, RadioGroup} from '@heroui-v3/react'
 import {AlertCircle, CheckCircle, FileText, Loader2, RefreshCw, Search, Trash2, Upload} from 'lucide-react'
-import {useRef, useState} from 'react'
+import {useId, useRef, useState} from 'react'
 
 interface FormErrors {
   knowledge: {
@@ -81,6 +81,7 @@ export function KnowledgeConfiguration({
   summary,
 }: KnowledgeConfigurationProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const extractionModeLabelId = useId()
   const [newUrlCache, setNewUrlCache] = useState('')
   const [snippetForm, setSnippetForm] = useState<Partial<CreateSnippetInput>>({})
   const [isEditingSnippet, setIsEditingSnippet] = useState<string | null>(null)
@@ -201,28 +202,41 @@ export function KnowledgeConfiguration({
           <div className="space-y-6 pt-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div className="w-full max-w-md">
-                <span className={cn(ds.form.label, 'block mb-3')}>Extraction Mode</span>
+                <span id={extractionModeLabelId} className={cn(ds.form.label, 'block mb-3')}>
+                  Extraction Mode
+                </span>
                 <RadioGroup
-                  orientation="vertical"
+                  name="extraction-mode"
+                  aria-labelledby={extractionModeLabelId}
                   value={extractionMode}
-                  onValueChange={val => onExtractionModeChange(val as 'manual' | 'auto')}
-                  classNames={{
-                    wrapper: 'gap-3',
-                  }}
+                  onChange={val => onExtractionModeChange(val as 'manual' | 'auto')}
+                  className="gap-3"
                 >
                   <div className="flex items-center justify-between p-2 rounded-lg hover:bg-surface-secondary/50 transition-colors">
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">Manual</span>
                       <span className="text-xs text-content-tertiary">Extract when ready</span>
                     </div>
-                    <Radio value="manual" aria-label="Manual" classNames={{base: 'm-0 p-0'}} />
+                    <Radio value="manual" aria-label="Manual" className="m-0 p-0">
+                      <Radio.Content>
+                        <Radio.Control className="size-5">
+                          <Radio.Indicator />
+                        </Radio.Control>
+                      </Radio.Content>
+                    </Radio>
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-lg hover:bg-surface-secondary/50 transition-colors">
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">Auto-extract</span>
                       <span className="text-xs text-content-tertiary">Extract on upload</span>
                     </div>
-                    <Radio value="auto" aria-label="Auto-extract" classNames={{base: 'm-0 p-0'}} />
+                    <Radio value="auto" aria-label="Auto-extract" className="m-0 p-0">
+                      <Radio.Content>
+                        <Radio.Control className="size-5">
+                          <Radio.Indicator />
+                        </Radio.Control>
+                      </Radio.Content>
+                    </Radio>
                   </div>
                 </RadioGroup>
               </div>

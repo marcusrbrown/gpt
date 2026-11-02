@@ -2,8 +2,7 @@ import type {GPTExportOptions} from '@/types/export-import'
 import type {GPTConfiguration} from '@/types/gpt'
 import {cn} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Checkbox} from '@heroui/react'
-import {Button, Modal, Spinner} from '@heroui-v3/react'
+import {Button, Checkbox, Description, Label, Modal, Spinner} from '@heroui-v3/react'
 import {Download, FileJson, Package} from 'lucide-react'
 import {useCallback, useState} from 'react'
 
@@ -150,23 +149,32 @@ export function GPTExportDialog({isOpen, onClose, gpt, gpts, onExport, isBulkExp
             <div className="space-y-3">
               <h3 className="text-sm font-medium text-content-secondary">Include</h3>
               <div className="space-y-3">
-                <Checkbox isSelected={includeKnowledge} onValueChange={setIncludeKnowledge} size="sm">
-                  <div className="flex flex-col">
-                    <span className="text-sm">Knowledge files</span>
-                    <span className="text-xs text-content-tertiary">Attached documents and extracted text</span>
-                  </div>
+                <Checkbox isSelected={includeKnowledge} onChange={setIncludeKnowledge}>
+                  <Checkbox.Content>
+                    <Checkbox.Control>
+                      <Checkbox.Indicator />
+                    </Checkbox.Control>
+                    <Label className="font-normal">Knowledge files</Label>
+                  </Checkbox.Content>
+                  <Description className="text-content-tertiary">Attached documents and extracted text</Description>
                 </Checkbox>
-                <Checkbox isSelected={includeVersionHistory} onValueChange={setIncludeVersionHistory} size="sm">
-                  <div className="flex flex-col">
-                    <span className="text-sm">Version history</span>
-                    <span className="text-xs text-content-tertiary">Previous versions and change descriptions</span>
-                  </div>
+                <Checkbox isSelected={includeVersionHistory} onChange={setIncludeVersionHistory}>
+                  <Checkbox.Content>
+                    <Checkbox.Control>
+                      <Checkbox.Indicator />
+                    </Checkbox.Control>
+                    <Label className="font-normal">Version history</Label>
+                  </Checkbox.Content>
+                  <Description className="text-content-tertiary">Previous versions and change descriptions</Description>
                 </Checkbox>
-                <Checkbox isSelected={includeConversations} onValueChange={setIncludeConversations} size="sm">
-                  <div className="flex flex-col">
-                    <span className="text-sm">Conversations</span>
-                    <span className="text-xs text-content-tertiary">All conversation history for this GPT</span>
-                  </div>
+                <Checkbox isSelected={includeConversations} onChange={setIncludeConversations}>
+                  <Checkbox.Content>
+                    <Checkbox.Control>
+                      <Checkbox.Indicator />
+                    </Checkbox.Control>
+                    <Label className="font-normal">Conversations</Label>
+                  </Checkbox.Content>
+                  <Description className="text-content-tertiary">All conversation history for this GPT</Description>
                 </Checkbox>
               </div>
             </div>
