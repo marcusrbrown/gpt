@@ -1,6 +1,7 @@
 import type {Conversation, GPTConfiguration} from '@/types/gpt'
 import type {GPTFolder} from '@/types/gpt-extensions'
 import {db, toISOString} from '@/lib/database'
+import {withoutReplay} from '@/lib/message-metadata'
 import {
   APP_VERSION,
   CURRENT_EXPORT_VERSION,
@@ -80,16 +81,6 @@ function gptToExportData(gpt: GPTConfiguration): GPTDataExport {
     createdAt: toISOString(gpt.createdAt),
     updatedAt: toISOString(gpt.updatedAt),
   }
-}
-
-/**
- * Replay data (encrypted reasoning) only works with the key that created it, so it never travels in export files.
- * Everything else in the metadata, including which provider and model made the reply, is kept.
- */
-function withoutReplay<T extends {replay?: unknown}>(metadata: T | undefined): Omit<T, 'replay'> | undefined {
-  if (!metadata) return undefined
-  const {replay: discarded, ...rest} = metadata
-  return rest
 }
 
 function conversationToExportData(conv: Conversation, gptName: string): ConversationDataExport {
