@@ -225,3 +225,18 @@
     box-shadow: var(--heroui-box-shadow-small);
   }
 }
+
+/*
+ * Button hover. Same cause as the toggles above: the app's unlayered `--accent-hover` (#2563eb, and
+ * #e5e5e5 in dark) beats v3's layered one, so a `primary` button went from #006fee to #e5e5e5 under
+ * white text on hover in dark mode (1.2:1). Derive it from --accent here instead. The `danger` hover is
+ * v3's own, but it mixes toward white: against the re-pointed --danger above, white text drops from
+ * 4.0:1 at rest to 3.4:1 on hover. Darken it the same way so hover never loses contrast. Scoped to
+ * `.button`, so the app's own uses of --accent-hover are unchanged. Drop it with the v2 plugin.
+ */
+@layer components {
+  .button {
+    --accent-hover: color-mix(in oklab, var(--accent) 88%, black);
+    --danger-hover: color-mix(in oklab, var(--danger) 88%, black);
+  }
+}
