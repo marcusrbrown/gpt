@@ -10,6 +10,7 @@ Shared libraries and low-level utilities.
 | `database.ts`         | Dexie/IndexedDB setup                            |
 | `crypto.ts`           | Web Crypto helpers for encryption                |
 | `message-metadata.ts` | `withoutReplay`: strips replay data from exports |
+| `csp-connect-src.ts`  | Build-time parser for `VITE_CONNECT_SRC_EXTRA`   |
 
 ## Conventions
 

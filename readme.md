@@ -39,6 +39,14 @@ For detailed design decisions, see [docs/overview.md](docs/overview.md) and the 
 
 Chats live only in your browser (IndexedDB); there is no backend. Each turn sends the conversation, plus the GPT's instructions, straight from your browser to the GPT's provider, using your own API key. For OpenAI, the app asks it not to store responses (`store: false`); OpenAI's own [data controls and abuse-monitoring retention](https://developers.openai.com/api/docs/guides/your-data) still apply. Anthropic and hosted providers follow their own policies. Ollama stays on your machine only when its server runs on your machine; a remote Ollama server receives the conversation.
 
+## Custom Provider Gateways
+
+OpenAI and Anthropic settings accept an optional Base URL, so the app can call an OpenAI- or Anthropic-compatible gateway. Production builds pin the Content Security Policy `connect-src` to `api.openai.com`, `api.anthropic.com`, and `localhost:11434`, so a gateway origin must be allowed when you build. Set `VITE_CONNECT_SRC_EXTRA` to a space- or comma-separated list of origins (scheme and host, plus an optional port; no wildcards, paths, or credentials). Invalid entries fail the build, and the variable only affects production builds:
+
+```bash
+VITE_CONNECT_SRC_EXTRA="https://proxy.example.com http://localhost:8317" pnpm build
+```
+
 ## Tech Stack
 
 - **Framework**: React 19, TypeScript 5.9, Vite 8
