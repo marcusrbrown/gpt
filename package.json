@@ -85,7 +85,7 @@
     "eslint-plugin-prettier": "5.5.7",
     "eslint-plugin-react-hooks": "7.1.1",
     "eslint-plugin-react-refresh": "0.5.7",
-    "fake-indexeddb": "6.2.6",
+    "fake-indexeddb": "6.2.7",
     "jiti": "2.7.0",
     "jsdom": "29.1.1",
     "lighthouse": "13.6.0",
