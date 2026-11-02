@@ -157,6 +157,25 @@ describe('ChatInterface', () => {
     expect(screen.queryByText("Couldn't save this conversation.")).not.toBeInTheDocument()
   })
 
+  describe('status dot', () => {
+    it.each([
+      ['ready', 'Ready', 'bg-success-500'],
+      ['not-configured', 'Not set up', 'bg-warning-500'],
+      ['unsupported', 'Not supported', 'bg-default-400'],
+      ['loading', 'Checking provider', 'bg-default-400'],
+    ] as const)('shows %s as %s with a matching color', (status, label, color) => {
+      show({status})
+      const dot = screen.getByRole('img', {name: label})
+      expect(dot).toHaveClass(color)
+      expect(screen.getAllByRole('img', {name: /^(Ready|Not set up|Not supported|Checking provider)$/})).toHaveLength(1)
+    })
+
+    it('uses no success color unless the provider is ready', () => {
+      show({status: 'not-configured'})
+      expect(screen.getByRole('img', {name: 'Not set up'})).not.toHaveClass('bg-success-500')
+    })
+  })
+
   it('keeps history visible when Azure is unsupported', () => {
     show({status: 'unsupported', providerName: 'Azure'})
     expect(screen.getByText('Azure isn’t supported yet.')).toBeInTheDocument()

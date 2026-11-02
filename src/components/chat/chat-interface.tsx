@@ -47,6 +47,14 @@ function turnErrorMessage(error: ChatTurnError, providerName: string): string {
   }
 }
 
+/** The header dot: ready is success, a provider that needs setup or unlocking is warning, anything else is neutral. */
+const STATUS_DOT = {
+  ready: {color: 'bg-success-500', label: 'Ready'},
+  'not-configured': {color: 'bg-warning-500', label: 'Not set up'},
+  unsupported: {color: 'bg-default-400', label: 'Not supported'},
+  loading: {color: 'bg-default-400', label: 'Checking provider'},
+} as const satisfies Record<ChatProviderStatus, {color: string; label: string}>
+
 interface ChatInterfaceProps {
   gptConfig: GPTConfiguration
   messages: ConversationMessage[]
@@ -201,7 +209,11 @@ export function ChatInterface({
             <div className="flex flex-col min-w-0">
               <h1 className="text-sm font-semibold text-content-primary truncate">{conversationName}</h1>
               <div className="flex items-center gap-1.5">
-                <span className={`w-1.5 h-1.5 rounded-full bg-success-500 ${isStreaming ? 'animate-pulse' : ''}`} />
+                <span
+                  role="img"
+                  aria-label={STATUS_DOT[status].label}
+                  className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[status].color} ${isStreaming ? 'animate-pulse' : ''}`}
+                />
                 <span className="text-[10px] text-content-tertiary font-medium">
                   {model ? `${providerName} · ${model}` : 'No model set'}
                 </span>
