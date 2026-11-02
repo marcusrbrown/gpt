@@ -1,6 +1,7 @@
 import type {Conversation, GPTConfiguration} from '@/types/gpt'
 import type {GPTFolder} from '@/types/gpt-extensions'
 import {db, toISOString} from '@/lib/database'
+import {withoutReplay} from '@/lib/message-metadata'
 import {
   APP_VERSION,
   CURRENT_EXPORT_VERSION,
@@ -94,7 +95,7 @@ function conversationToExportData(conv: Conversation, gptName: string): Conversa
       role: msg.role,
       content: msg.content,
       timestamp: toISOString(msg.timestamp),
-      metadata: undefined,
+      metadata: withoutReplay(msg.metadata),
     })),
     tags: conv.tags,
     isPinned: conv.isPinned,
@@ -401,6 +402,8 @@ export async function createFullBackup(onProgress?: ExportProgressCallback): Pro
           role: msg.role,
           content: msg.content,
           timestamp: msg.timestampISO,
+          // The rest-spread inside also copies, which the Dexie `MessageMetadata` interface (no index signature) needs.
+          metadata: withoutReplay(msg.metadata),
         })),
       tags: conv.tags,
       isPinned: conv.isPinned,

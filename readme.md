@@ -20,7 +20,7 @@ GPT is a local-first platform for creating, customizing, and interacting with AI
 
 - **Create & Manage**: Build custom GPTs with specific instructions, prompts, and toolsets.
 - **Local-First**: Persistent storage via IndexedDB (Dexie) with cross-tab synchronization.
-- **Privacy-Centric**: AES-GCM encryption for API keys; data never leaves your browser.
+- **Privacy-Centric**: AES-GCM encryption for API keys; chats are stored only in your browser (see [Privacy](#privacy)).
 - **Multi-Provider**: Unified interface for OpenAI, Anthropic, and local Ollama models.
 - **Advanced UI**: Responsive, accessible interface built with React 19 and HeroUI.
 
@@ -34,6 +34,10 @@ The project follows a modular, provider-abstracted architecture:
 - **UI Layer**: Component-driven architecture using HeroUI and TailwindCSS 4 tokens.
 
 For detailed design decisions, see [docs/overview.md](docs/overview.md) and the [RFCs](RFCs/RFCS.md).
+
+## Privacy
+
+Chats live only in your browser (IndexedDB); there is no backend. Each turn sends the conversation, plus the GPT's instructions, straight from your browser to the GPT's provider, using your own API key. For OpenAI, the app asks it not to store responses (`store: false`); OpenAI's own [data controls and abuse-monitoring retention](https://developers.openai.com/api/docs/guides/your-data) still apply. Anthropic and hosted providers follow their own policies. Ollama stays on your machine only when its server runs on your machine; a remote Ollama server receives the conversation.
 
 ## Tech Stack
 

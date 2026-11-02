@@ -158,8 +158,8 @@ export function APISettings() {
       <div className={cn('mt-4 pt-4', 'border-t', theme.border())}>
         <h3 className={cn(ds.text.heading.h4, 'mb-2')}>Using Your API Key</h3>
         <p className={cn(ds.text.body.small)}>
-          Your OpenAI API key is used to access the Assistants API for testing your GPT configurations. Usage will be
-          billed to your OpenAI account based on your API usage.
+          Your OpenAI API key is used to chat with your OpenAI GPTs through the Responses API. Usage will be billed to
+          your OpenAI account based on your API usage.
         </p>
       </div>
 

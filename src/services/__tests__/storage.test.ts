@@ -1,5 +1,9 @@
-import type {Conversation, GPTConfiguration} from '@/types/gpt'
+import type {Conversation, ConversationMessage, GPTConfiguration} from '@/types/gpt'
 import {db, deleteDatabase} from '@/lib/database'
+import {ConversationMessageSchema} from '@/types/gpt'
+import {exportConversation} from '../export-service'
+import {importConversation} from '../import-service'
+import {ConversationExportSchema} from '@/types/export-import'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {IndexedDBStorageService} from '../storage'
 import 'fake-indexeddb/auto'
@@ -124,6 +128,133 @@ describe('IndexedDBStorageService', () => {
       expect(retrieved).toBeDefined()
       expect(retrieved?.id).toBe(conversation.id)
       expect(retrieved?.gptId).toBe(gpt.id)
+    })
+
+    describe('message metadata', () => {
+      const fullMetadata: NonNullable<ConversationMessage['metadata']> = {
+        provider: 'openai',
+        model: 'gpt-5',
+        stopped: true,
+        replay: {
+          openai: [
+            {type: 'reasoning', id: 'rs_1', encrypted_content: 'abc', summary: []},
+            {nested: {deep: [1, 'two', null, {three: true}]}},
+          ],
+        },
+      }
+
+      function createMetadataConversation(gptId: string): Conversation {
+        const base = createTestConversation(gptId)
+        const assistant: ConversationMessage = {
+          id: crypto.randomUUID(),
+          role: 'assistant',
+          content: 'Partial reply',
+          timestamp: new Date(Date.now() + 1000),
+          metadata: fullMetadata,
+        }
+        return {...base, messages: [...base.messages, assistant], messageCount: 2}
+      }
+
+      it('round-trips full assistant metadata through save and load', async () => {
+        const gpt = createTestGPT()
+        await storage.saveGPT(gpt)
+        const conversation = createMetadataConversation(gpt.id)
+        await storage.saveConversation(conversation)
+
+        // Fresh service instance bypasses the LRU cache and reads from IndexedDB.
+        const fresh = new IndexedDBStorageService()
+        try {
+          const retrieved = await fresh.getConversation(conversation.id)
+          const assistant = retrieved?.messages.find(m => m.role === 'assistant')
+          expect(assistant?.metadata).toEqual(fullMetadata)
+          expect(ConversationMessageSchema.shape.metadata.parse(assistant?.metadata)).toEqual(fullMetadata)
+        } finally {
+          fresh.destroy()
+        }
+      })
+
+      it('leaves metadata absent on messages saved without it', async () => {
+        const gpt = createTestGPT()
+        await storage.saveGPT(gpt)
+        const conversation = createMetadataConversation(gpt.id)
+        await storage.saveConversation(conversation)
+
+        const fresh = new IndexedDBStorageService()
+        try {
+          const retrieved = await fresh.getConversation(conversation.id)
+          const user = retrieved?.messages.find(m => m.role === 'user')
+          expect(user).toBeDefined()
+          expect(user).not.toHaveProperty('metadata')
+        } finally {
+          fresh.destroy()
+        }
+      })
+
+      it('loads a pre-change record that has no metadata field', async () => {
+        const gpt = createTestGPT()
+        await storage.saveGPT(gpt)
+        const conversationId = crypto.randomUUID()
+        const now = new Date().toISOString()
+        await db.conversations.put({
+          id: conversationId,
+          gptId: gpt.id,
+          createdAtISO: now,
+          updatedAtISO: now,
+          messageCount: 1,
+          tags: [],
+          isPinned: false,
+          isArchived: false,
+          pinnedAtISO: null,
+          archivedAtISO: null,
+        })
+        await db.messages.put({
+          id: crypto.randomUUID(),
+          conversationId,
+          role: 'assistant',
+          content: 'Old reply',
+          timestampISO: now,
+        })
+
+        const retrieved = await storage.getConversation(conversationId)
+        expect(retrieved?.messages).toHaveLength(1)
+        expect(retrieved?.messages[0]?.content).toBe('Old reply')
+        expect(retrieved?.messages[0]?.metadata).toBeUndefined()
+      })
+
+      it('keeps metadata valid through export and import', async () => {
+        const gpt = createTestGPT()
+        await storage.saveGPT(gpt)
+        const conversation = createMetadataConversation(gpt.id)
+        await storage.saveConversation(conversation)
+
+        const saved = await storage.getConversation(conversation.id)
+        expect(saved).toBeDefined()
+        const exported = await exportConversation(saved as Conversation, gpt.name)
+
+        // Replay only works with the key that created it, so exports leave it out and keep the rest.
+        const {replay: discarded, ...exportedMetadata} = fullMetadata
+        expect(discarded).toBeDefined()
+
+        // JSON round-trip, as a downloaded file would be.
+        const parsed = ConversationExportSchema.parse(JSON.parse(JSON.stringify(exported)))
+        expect(parsed.conversation.messages[0]?.metadata).toBeUndefined()
+        expect(parsed.conversation.messages[1]?.metadata).toEqual(exportedMetadata)
+
+        await storage.deleteConversation(conversation.id)
+        const result = await importConversation(parsed, 'overwrite')
+        expect(result.errors).toHaveLength(0)
+
+        const fresh = new IndexedDBStorageService()
+        try {
+          const reloaded = await fresh.getConversation(conversation.id)
+          const assistant = reloaded?.messages.find(m => m.role === 'assistant')
+          expect(assistant?.metadata).toEqual(exportedMetadata)
+          expect(ConversationMessageSchema.shape.metadata.parse(assistant?.metadata)).toEqual(exportedMetadata)
+          expect(reloaded?.messages.find(m => m.role === 'user')).not.toHaveProperty('metadata')
+        } finally {
+          fresh.destroy()
+        }
+      })
     })
 
     it('should get conversations for a GPT', async () => {

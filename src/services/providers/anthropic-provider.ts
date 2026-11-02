@@ -165,8 +165,7 @@ export class AnthropicProvider extends BaseLLMProvider {
       }
 
       if (!response.ok && response.status !== 400) {
-        const errorBody = await response.json().catch(() => ({}))
-        const errorMessage = (errorBody as {error?: {message?: string}})?.error?.message || `HTTP ${response.status}`
+        const errorMessage = await this.readErrorMessage(response)
         return {valid: false, error: errorMessage}
       }
 
@@ -189,6 +188,10 @@ export class AnthropicProvider extends BaseLLMProvider {
       throw new ProviderError('API key not set', 'authentication', 'anthropic')
     }
 
+    const {signal} = request
+    const aborted = this.toAbortError(undefined, signal)
+    if (aborted) throw aborted
+
     const resolvedModel = this.resolveModel(request.model)
 
     if (!rateLimiter.canMakeRequest(resolvedModel)) {
@@ -207,18 +210,18 @@ export class AnthropicProvider extends BaseLLMProvider {
 
     try {
       if (request.stream) {
-        yield* this.createStreamingCompletion(anthropicRequest, {use1MContext})
+        yield* this.createStreamingCompletion(anthropicRequest, {use1MContext, signal})
       } else {
-        yield* this.createNonStreamingCompletion(anthropicRequest, {use1MContext})
+        yield* this.createNonStreamingCompletion(anthropicRequest, {use1MContext, signal})
       }
     } catch (error_) {
-      throw this.mapError(error_)
+      throw this.toAbortError(error_, signal) ?? this.mapError(error_)
     }
   }
 
   private async *createStreamingCompletion(
     anthropicRequest: AnthropicRequest,
-    options?: {use1MContext?: boolean},
+    options?: {use1MContext?: boolean; signal?: AbortSignal},
   ): AsyncIterable<CompletionChunk> {
     const apiKey = this.apiKey
     if (!apiKey) {
@@ -230,6 +233,7 @@ export class AnthropicProvider extends BaseLLMProvider {
         method: 'POST',
         headers: this.buildHeaders(apiKey, options),
         body: JSON.stringify({...anthropicRequest, stream: true}),
+        signal: options?.signal,
       }),
     )
 
@@ -247,6 +251,9 @@ export class AnthropicProvider extends BaseLLMProvider {
     let messageId = ''
     let totalInputTokens = 0
     let totalOutputTokens = 0
+    let receivedText = false
+    let sawMessageStop = false
+    const stopWatchingAbort = this.cancelReaderOnAbort(reader, options?.signal)
 
     try {
       while (true) {
@@ -270,8 +277,11 @@ export class AnthropicProvider extends BaseLLMProvider {
             continue
           }
 
+          if (event.type === 'message_stop') sawMessageStop = true
+
           const chunk = this.processStreamEvent(event, messageId)
           if (chunk) {
+            if (chunk.content) receivedText = true
             if (chunk.id) messageId = chunk.id
             if (event.type === 'message_start') {
               const usage = (event.message as {usage?: {input_tokens?: number}})?.usage
@@ -285,19 +295,28 @@ export class AnthropicProvider extends BaseLLMProvider {
         }
       }
 
+      // A cancelled reader reports `done`, so a stopped stream must not look like a finished one.
+      options?.signal?.throwIfAborted()
+
+      // EOF without `message_stop` is a dropped connection, not a finished reply. Keep any text, flagged as cut off.
+      if (!sawMessageStop && !receivedText) {
+        throw new ProviderError('The response ended before any text arrived', 'connection', 'anthropic')
+      }
+
       yield {
         id: messageId,
-        finishReason: 'stop',
+        finishReason: sawMessageStop ? 'stop' : 'length',
         usage: {promptTokens: totalInputTokens, completionTokens: totalOutputTokens},
       }
     } finally {
+      stopWatchingAbort()
       reader.releaseLock()
     }
   }
 
   private async *createNonStreamingCompletion(
     anthropicRequest: AnthropicRequest,
-    options?: {use1MContext?: boolean},
+    options?: {use1MContext?: boolean; signal?: AbortSignal},
   ): AsyncIterable<CompletionChunk> {
     const apiKey = this.apiKey
     if (!apiKey) {
@@ -309,6 +328,7 @@ export class AnthropicProvider extends BaseLLMProvider {
         method: 'POST',
         headers: this.buildHeaders(apiKey, options),
         body: JSON.stringify(anthropicRequest),
+        signal: options?.signal,
       }),
     )
 
@@ -425,8 +445,10 @@ export class AnthropicProvider extends BaseLLMProvider {
       max_tokens: maxTokens,
     }
 
-    if (systemMessage) {
-      anthropicRequest.system = systemMessage.content
+    // Instructions come first; the existing system message is kept after them.
+    const system = [request.instructions, systemMessage?.content].filter(Boolean).join('\n\n')
+    if (system) {
+      anthropicRequest.system = system
     }
 
     if (anthropicOptions?.extendedThinking?.enabled) {
@@ -491,8 +513,7 @@ export class AnthropicProvider extends BaseLLMProvider {
   }
 
   private async handleErrorResponse(response: Response): Promise<never> {
-    const body = await response.json().catch(() => ({}))
-    const errorMessage = (body as {error?: {message?: string}})?.error?.message || `HTTP ${response.status}`
+    const errorMessage = await this.readErrorMessage(response)
 
     switch (response.status) {
       case 400:
@@ -507,7 +528,7 @@ export class AnthropicProvider extends BaseLLMProvider {
         throw new ProviderError('Rate limit exceeded', 'rate_limit', 'anthropic', 429)
       case 500:
       case 529:
-        throw new ProviderError('Anthropic API error', 'server', 'anthropic', response.status)
+        throw new ProviderError(errorMessage, 'server', 'anthropic', response.status)
       default:
         throw new ProviderError(errorMessage, 'unknown', 'anthropic', response.status)
     }

@@ -16,6 +16,7 @@ export class GPTTestPage extends BasePage {
   readonly chatHeader: Locator
   readonly messageInput: Locator
   readonly sendButton: Locator
+  readonly stopButton: Locator
   readonly messages: Locator
   readonly userMessages: Locator
   readonly assistantMessages: Locator
@@ -44,6 +45,9 @@ export class GPTTestPage extends BasePage {
   // Error display
   readonly errorMessage: Locator
 
+  // Stopped reply tag
+  readonly stoppedTag: Locator
+
   // Processing indicator
   readonly processingIndicator: Locator
 
@@ -65,6 +69,7 @@ export class GPTTestPage extends BasePage {
     this.messageInput = page.locator('textarea[aria-label="Enter your message to send to the GPT"]')
     // Send button with aria-label
     this.sendButton = page.locator('button[aria-label="Send message to GPT assistant"]')
+    this.stopButton = page.getByRole('button', {name: 'Stop generating'})
     // Messages are wrapped in groups with user/assistant role styling
     this.messages = page.locator('.group:has(.whitespace-pre-wrap)')
     // User messages have specific styling (flex-row-reverse)
@@ -101,6 +106,9 @@ export class GPTTestPage extends BasePage {
 
     // Error message display
     this.errorMessage = page.locator(String.raw`.bg-danger-50\/50`)
+
+    // Tag shown under a reply the user stopped mid-stream
+    this.stoppedTag = page.getByText('Stopped', {exact: true})
 
     // Processing indicator with "Thinking..." text
     this.processingIndicator = page.locator('.text-xs.font-medium.text-content-secondary')
@@ -147,6 +155,14 @@ export class GPTTestPage extends BasePage {
   async sendMessage(message: string): Promise<void> {
     await this.fillInput(this.messageInput, message)
     await this.clickElement(this.sendButton)
+  }
+
+  /**
+   * Click regenerate on the last assistant reply (the action only shows on hover)
+   */
+  async regenerateLastReply(): Promise<void> {
+    await this.assistantMessages.last().hover()
+    await this.clickElement(this.regenerateButton)
   }
 
   /**
@@ -435,7 +451,7 @@ export class GPTTestPage extends BasePage {
    * Check if model status indicator shows "online" (green dot)
    */
   async isModelOnline(): Promise<boolean> {
-    const statusDot = this.page.locator('header .bg-success-500.animate-pulse')
+    const statusDot = this.page.locator('header .bg-success-500')
     return statusDot.isVisible()
   }
 }

@@ -1,4 +1,5 @@
 import type {Conversation} from '@/types/gpt'
+import {withoutReplay} from '@/lib/message-metadata'
 import {z} from 'zod'
 
 export const ExportFormatSchema = z.enum(['json', 'markdown'])
@@ -62,7 +63,7 @@ export class ConversationExportService {
         }
 
         if (options.includeMetadata && msg.metadata) {
-          messageData.metadata = msg.metadata
+          messageData.metadata = withoutReplay(msg.metadata)
         }
 
         return messageData

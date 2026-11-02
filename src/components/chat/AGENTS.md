@@ -13,7 +13,7 @@ Modern chat interface for GPT testing.
 
 ## Patterns
 
-- Streaming responses via `openAIService.streamRun()`
+- Streaming responses via `useChatCompletion()` (provider streaming; see `src/hooks/use-chat-completion.ts`)
 - Mobile: `Drawer` for sidebar, desktop: fixed panel
 - Date grouping: Today / Yesterday / Older
 - Message actions: copy, regenerate, export

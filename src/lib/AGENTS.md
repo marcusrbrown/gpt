@@ -4,11 +4,12 @@ Shared libraries and low-level utilities.
 
 ## Files
 
-| File               | Purpose                                          |
-| ------------------ | ------------------------------------------------ |
-| `design-system.ts` | `cn`, `ds`, `compose` utilities, semantic tokens |
-| `database.ts`      | Dexie/IndexedDB setup                            |
-| `crypto.ts`        | Web Crypto helpers for encryption                |
+| File                  | Purpose                                          |
+| --------------------- | ------------------------------------------------ |
+| `design-system.ts`    | `cn`, `ds`, `compose` utilities, semantic tokens |
+| `database.ts`         | Dexie/IndexedDB setup                            |
+| `crypto.ts`           | Web Crypto helpers for encryption                |
+| `message-metadata.ts` | `withoutReplay`: strips replay data from exports |
 
 ## Conventions
 

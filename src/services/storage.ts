@@ -225,6 +225,7 @@ export class IndexedDBStorageService {
       role: msg.role,
       content: msg.content,
       timestampISO: toISOString(msg.timestamp),
+      ...(msg.metadata && {metadata: msg.metadata}),
     }))
 
     const lastMessage = conv.messages.at(-1)
@@ -258,6 +259,7 @@ export class IndexedDBStorageService {
         role: msg.role,
         content: msg.content,
         timestamp: fromISOString(msg.timestampISO),
+        ...(msg.metadata && {metadata: msg.metadata}),
       })),
       createdAt: fromISOString(record.createdAtISO),
       updatedAt: fromISOString(record.updatedAtISO),

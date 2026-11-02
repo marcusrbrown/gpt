@@ -40,6 +40,40 @@ const createMockStreamResponse = (chunks: object[]) => {
   })
 }
 
+/** NDJSON response that emits the given chunks and then stays open until the reader is cancelled. */
+const createStalledStreamResponse = (chunks: object[]) => {
+  const encoder = new TextEncoder()
+  const stream = new ReadableStream({
+    start(controller) {
+      for (const chunk of chunks) {
+        controller.enqueue(encoder.encode(`${JSON.stringify(chunk)}\n`))
+      }
+    },
+  })
+
+  return new Response(stream, {
+    status: 200,
+    headers: {'Content-Type': 'application/x-ndjson'},
+  })
+}
+
+const helloChunk = {
+  model: 'llama3.3:latest',
+  created_at: '2025-01-01T00:00:00Z',
+  message: {role: 'assistant', content: 'Hello'},
+  done: false,
+}
+
+const nonStreamingBody = {
+  model: 'llama3.3:latest',
+  created_at: '2024-01-01T00:00:00Z',
+  message: {role: 'assistant', content: 'Hi'},
+  done: true,
+  done_reason: 'stop',
+  prompt_eval_count: 1,
+  eval_count: 1,
+}
+
 async function collectChunks(generator: AsyncIterable<CompletionChunk>): Promise<CompletionChunk[]> {
   const chunks: CompletionChunk[] = []
   for await (const chunk of generator) {
@@ -74,6 +108,30 @@ describe('OllamaProvider', () => {
   afterEach(() => {
     vi.restoreAllMocks()
     vi.unstubAllGlobals()
+  })
+
+  it.each([
+    [{error: 'Model is unavailable'}, 'Model is unavailable'],
+    [{error: {message: 'Server is busy'}}, 'Server is busy'],
+    [{error: {details: 'internal'}}, 'Service Unavailable'],
+  ])('extracts a human error message or falls back to status text', async (body, expected) => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response(JSON.stringify(body), {status: 500, statusText: 'Service Unavailable'})),
+    )
+    const provider = new OllamaProvider()
+    const error = await expectGeneratorThrows(
+      provider.createCompletion({model: 'llama', messages: [{role: 'user', content: 'hi'}], stream: true}),
+    )
+    expect(error).toMatchObject({type: 'server', message: expected})
+  })
+
+  it('falls back to HTTP status when the error response is not JSON and has no status text', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response('<html>private details</html>', {status: 500})))
+    const error = await expectGeneratorThrows(
+      new OllamaProvider().createCompletion({model: 'llama', messages: [{role: 'user', content: 'hi'}], stream: true}),
+    )
+    expect(error.message).toBe('HTTP 500')
   })
 
   describe('metadata', () => {
@@ -370,6 +428,41 @@ describe('OllamaProvider', () => {
         expect(finalChunk?.finishReason).toBe('stop')
       })
 
+      it('ends a stream that stops before a done chunk with a length finish so the text is flagged cut off', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(createMockStreamResponse([helloChunk])))
+
+        const provider = new OllamaProvider()
+
+        const chunks = await collectChunks(
+          provider.createCompletion({
+            model: 'llama3.3:latest',
+            messages: [{role: 'user', content: 'Hello'}],
+            stream: true,
+          }),
+        )
+
+        expect(chunks.map(c => c.content ?? '').join('')).toBe('Hello')
+        expect(chunks.at(-1)?.finishReason).toBe('length')
+        expect(chunks.some(c => c.finishReason === 'stop')).toBe(false)
+      })
+
+      it('throws a ProviderError when the stream ends before a done chunk with no text', async () => {
+        vi.stubGlobal('fetch', vi.fn().mockResolvedValue(createMockStreamResponse([])))
+
+        const provider = new OllamaProvider()
+
+        const thrown = await expectGeneratorThrows(
+          provider.createCompletion({
+            model: 'llama3.3:latest',
+            messages: [{role: 'user', content: 'Hello'}],
+            stream: true,
+          }),
+          ProviderError,
+        )
+
+        expect(thrown.provider).toBe('ollama')
+      })
+
       it('handles reasoning/thinking content in stream', async () => {
         const streamChunks = [
           {
@@ -464,6 +557,266 @@ describe('OllamaProvider', () => {
         const thrownError = await expectGeneratorThrows(generator, ProviderError)
         expect(thrownError.type).toBe('server')
       })
+    })
+  })
+
+  describe('instructions', () => {
+    const sentMessages = (mockFetch: ReturnType<typeof vi.fn>, call = 0) =>
+      (JSON.parse((mockFetch.mock.calls[call] as [string, RequestInit])[1].body as string) as {messages: unknown[]})
+        .messages
+
+    it('sends instructions as the system message', async () => {
+      const mockFetch = vi.fn().mockResolvedValue(createMockResponse(nonStreamingBody))
+      vi.stubGlobal('fetch', mockFetch)
+
+      await collectChunks(
+        new OllamaProvider().createCompletion({
+          model: 'llama3.3:latest',
+          instructions: 'Answer in French.',
+          messages: [{role: 'user', content: 'Hello'}],
+          stream: false,
+        }),
+      )
+
+      expect(sentMessages(mockFetch)).toEqual([
+        {role: 'system', content: 'Answer in French.'},
+        {role: 'user', content: 'Hello'},
+      ])
+    })
+
+    it('puts instructions before an existing system message without dropping it', async () => {
+      const mockFetch = vi.fn().mockResolvedValue(createMockResponse(nonStreamingBody))
+      vi.stubGlobal('fetch', mockFetch)
+
+      await collectChunks(
+        new OllamaProvider().createCompletion({
+          model: 'llama3.3:latest',
+          instructions: 'Answer in French.',
+          messages: [
+            {role: 'system', content: 'You are helpful'},
+            {role: 'user', content: 'Hello'},
+          ],
+          stream: false,
+        }),
+      )
+
+      expect(sentMessages(mockFetch)).toEqual([
+        {role: 'system', content: 'Answer in French.'},
+        {role: 'system', content: 'You are helpful'},
+        {role: 'user', content: 'Hello'},
+      ])
+    })
+
+    it('adds no system message for absent or empty instructions', async () => {
+      const mockFetch = vi.fn().mockImplementation(async () => createMockResponse(nonStreamingBody))
+      vi.stubGlobal('fetch', mockFetch)
+      const provider = new OllamaProvider()
+
+      for (const instructions of [undefined, '']) {
+        await collectChunks(
+          provider.createCompletion({
+            model: 'llama3.3:latest',
+            instructions,
+            messages: [{role: 'user', content: 'Hello'}],
+            stream: false,
+          }),
+        )
+      }
+
+      expect(sentMessages(mockFetch, 0)).toEqual([{role: 'user', content: 'Hello'}])
+      expect(sentMessages(mockFetch, 1)).toEqual([{role: 'user', content: 'Hello'}])
+    })
+
+    it('keeps instructions first when the qwen3 /think suffix is applied', async () => {
+      const mockFetch = vi.fn().mockResolvedValue(createMockResponse({...nonStreamingBody, model: 'qwen3:8b'}))
+      vi.stubGlobal('fetch', mockFetch)
+
+      await collectChunks(
+        new OllamaProvider().createCompletion({
+          model: 'qwen3:8b',
+          instructions: 'Answer in French.',
+          messages: [{role: 'user', content: 'Hello'}],
+          stream: false,
+        }),
+      )
+
+      expect(sentMessages(mockFetch)).toEqual([
+        {role: 'system', content: 'Answer in French.\n\n/think'},
+        {role: 'user', content: 'Hello'},
+      ])
+    })
+
+    it('ignores replay data on messages', async () => {
+      const mockFetch = vi.fn().mockResolvedValue(createMockResponse(nonStreamingBody))
+      vi.stubGlobal('fetch', mockFetch)
+
+      await collectChunks(
+        new OllamaProvider().createCompletion({
+          model: 'llama3.3:latest',
+          messages: [
+            {role: 'user', content: 'Hello'},
+            {role: 'assistant', content: 'Hi', replay: {openai: [{type: 'reasoning', encrypted_content: 'abc'}]}},
+            {role: 'user', content: 'Again'},
+          ],
+          stream: false,
+        }),
+      )
+
+      expect(sentMessages(mockFetch)).toEqual([
+        {role: 'user', content: 'Hello'},
+        {role: 'assistant', content: 'Hi'},
+        {role: 'user', content: 'Again'},
+      ])
+    })
+  })
+
+  describe('abort signal', () => {
+    const thrownBy = async (generator: AsyncIterable<CompletionChunk>): Promise<unknown> => {
+      try {
+        for await (const chunk of generator) {
+          expect(chunk).toBeDefined()
+        }
+      } catch (error_) {
+        return error_
+      }
+      throw new Error('Expected generator to throw')
+    }
+
+    it('still applies the configured timeout when no signal is supplied', async () => {
+      const mockFetch = vi.fn().mockResolvedValue(createMockResponse(nonStreamingBody))
+      vi.stubGlobal('fetch', mockFetch)
+      const timeoutSpy = vi.spyOn(AbortSignal, 'timeout')
+
+      await collectChunks(
+        new OllamaProvider().createCompletion({
+          model: 'llama3.3:latest',
+          messages: [{role: 'user', content: 'Hello'}],
+          stream: false,
+        }),
+      )
+
+      expect(timeoutSpy).toHaveBeenCalledWith(120000)
+      expect((mockFetch.mock.calls[0] as [string, RequestInit])[1].signal).toBeInstanceOf(AbortSignal)
+    })
+
+    it('combines the caller signal with the timeout signal for streaming and non-streaming requests', async () => {
+      const mockFetch = vi
+        .fn()
+        .mockResolvedValueOnce(createMockStreamResponse([helloChunk]))
+        .mockResolvedValueOnce(createMockResponse(nonStreamingBody))
+      vi.stubGlobal('fetch', mockFetch)
+      const timeoutSpy = vi.spyOn(AbortSignal, 'timeout')
+      const provider = new OllamaProvider()
+      const controller = new AbortController()
+
+      for (const stream of [true, false]) {
+        await collectChunks(
+          provider.createCompletion({
+            model: 'llama3.3:latest',
+            messages: [{role: 'user', content: 'Hello'}],
+            signal: controller.signal,
+            stream,
+          }),
+        )
+      }
+
+      expect(timeoutSpy).toHaveBeenCalledTimes(2)
+      for (const call of mockFetch.mock.calls) {
+        const fetchSignal = (call as [string, RequestInit])[1].signal as AbortSignal
+        expect(fetchSignal).not.toBe(controller.signal)
+        expect(fetchSignal.aborted).toBe(false)
+      }
+
+      controller.abort()
+      for (const call of mockFetch.mock.calls) {
+        expect(((call as [string, RequestInit])[1].signal as AbortSignal).aborted).toBe(true)
+      }
+    })
+
+    it('ends a stream with an abort error when aborted mid-stream, without a final chunk', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(createStalledStreamResponse([helloChunk])))
+      const provider = new OllamaProvider()
+      const controller = new AbortController()
+      const received: CompletionChunk[] = []
+
+      const thrown = await thrownBy(
+        (async function* () {
+          for await (const chunk of provider.createCompletion({
+            model: 'llama3.3:latest',
+            messages: [{role: 'user', content: 'Hello'}],
+            signal: controller.signal,
+            stream: true,
+          })) {
+            received.push(chunk)
+            if (chunk.content) controller.abort()
+            yield chunk
+          }
+        })(),
+      )
+
+      expect(thrown).toBeInstanceOf(Error)
+      expect((thrown as Error).name).toBe('AbortError')
+      expect(thrown).not.toBeInstanceOf(ProviderError)
+      expect(received.map(c => c.content).join('')).toBe('Hello')
+      expect(received.some(c => c.finishReason === 'stop')).toBe(false)
+    })
+
+    it('throws an abort error without calling fetch when the signal is already aborted', async () => {
+      const mockFetch = vi.fn()
+      vi.stubGlobal('fetch', mockFetch)
+      const controller = new AbortController()
+      controller.abort()
+
+      const thrown = await thrownBy(
+        new OllamaProvider().createCompletion({
+          model: 'llama3.3:latest',
+          messages: [{role: 'user', content: 'Hello'}],
+          signal: controller.signal,
+          stream: true,
+        }),
+      )
+
+      expect((thrown as Error).name).toBe('AbortError')
+      expect(mockFetch).not.toHaveBeenCalled()
+    })
+
+    it('surfaces a rejected fetch as an abort error, not a timeout ProviderError, once the signal aborted', async () => {
+      const controller = new AbortController()
+      vi.stubGlobal(
+        'fetch',
+        vi.fn().mockImplementation(async () => {
+          controller.abort('user stopped')
+          throw new Error('The operation was aborted due to timeout')
+        }),
+      )
+
+      const thrown = await thrownBy(
+        new OllamaProvider().createCompletion({
+          model: 'llama3.3:latest',
+          messages: [{role: 'user', content: 'Hello'}],
+          signal: controller.signal,
+          stream: false,
+        }),
+      )
+
+      expect((thrown as Error).name).toBe('AbortError')
+      expect(thrown).not.toBeInstanceOf(ProviderError)
+    })
+
+    it('still wraps non-abort failures in a ProviderError when a signal is supplied', async () => {
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(createMockResponse({error: 'boom'}, 500)))
+
+      const thrown = await expectGeneratorThrows(
+        new OllamaProvider().createCompletion({
+          model: 'llama3.3:latest',
+          messages: [{role: 'user', content: 'Hello'}],
+          signal: new AbortController().signal,
+          stream: false,
+        }),
+        ProviderError,
+      )
+
+      expect(thrown.type).toBe('server')
     })
   })
 

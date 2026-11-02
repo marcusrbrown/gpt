@@ -120,14 +120,16 @@ export function StorageProvider({children}: StorageProviderProps) {
     }
   }, [])
 
+  // Resolves `undefined` only for a conversation that does not exist. A failed read rejects, so callers can tell
+  // "missing" from "could not read" and never treat unreadable history as empty.
   const getConversation = useCallback(async (id: string): Promise<Conversation | undefined> => {
     try {
-      if (!storageServiceRef.current) return undefined
+      if (!storageServiceRef.current) throw new Error('Storage not initialized')
       return await storageServiceRef.current.getConversation(id)
     } catch (error_) {
       console.error(`Error getting conversation ${id}:`, error_)
       setError(error_ instanceof Error ? error_ : new Error(`Failed to get conversation ${id}`))
-      return undefined
+      throw error_
     }
   }, [])
 

@@ -1,11 +1,59 @@
 import type {Conversation, ConversationMessage, GPTConfiguration} from '@/types/gpt'
-import {Button, Drawer, DrawerBody, DrawerContent, DrawerHeader, Tooltip, useDisclosure} from '@heroui/react'
+import type {ChatLoadError, ChatProviderStatus, ChatTurnError} from '@/hooks/use-chat-completion'
+import {GPTProviderPrompt} from '@/components/empty-states/gpt-provider-prompt'
+import '@/styles/heroui-v3.css'
+import {Button} from '@heroui-v3/react'
+import {Drawer, DrawerBody, DrawerContent, DrawerHeader, Tooltip, useDisclosure} from '@heroui/react'
 import {Menu, MessageSquare, MoreVertical, Trash2} from 'lucide-react'
 import React, {useEffect, useRef, useState} from 'react'
+import {Link} from 'react-router-dom'
 
 import {ChatInput} from './chat-input'
 import {MessageBubble} from './message-bubble'
 import {SidebarContent} from './sidebar-content'
+
+function turnErrorMessage(error: ChatTurnError, providerName: string): string {
+  switch (error.type) {
+    case 'authentication':
+      return 'Your API key was rejected.'
+    case 'permission':
+      return 'Your API key does not have permission for this request.'
+    case 'rate_limit':
+      return 'Rate limit reached. Try again shortly.'
+    case 'connection':
+    case 'server':
+      return providerName === 'Ollama'
+        ? "Couldn't reach Ollama. Check that it's running."
+        : `Couldn't reach ${providerName}. Try again shortly.`
+    case 'timeout':
+      return 'The request timed out. Try again.'
+    case 'not_implemented':
+      return 'This provider is not supported yet.'
+    default: {
+      const message = error.message.trim()
+      const readable =
+        message.length > 0 &&
+        message.length <= 160 &&
+        /[a-z]/i.test(message) &&
+        !/[{}<>[\]\n\r]/.test(message) &&
+        !message.startsWith('"') &&
+        !/^(?:null|true|false)$/.test(message)
+      return readable
+        ? message
+        : error.type === 'not_found'
+          ? 'The requested model was not found.'
+          : 'Something went wrong. Try again.'
+    }
+  }
+}
+
+/** The header dot: ready is success, a provider that needs setup or unlocking is warning, anything else is neutral. */
+const STATUS_DOT = {
+  ready: {color: 'bg-success-500', label: 'Ready'},
+  'not-configured': {color: 'bg-warning-500', label: 'Not set up'},
+  unsupported: {color: 'bg-default-400', label: 'Not supported'},
+  loading: {color: 'bg-default-400', label: 'Checking provider'},
+} as const satisfies Record<ChatProviderStatus, {color: string; label: string}>
 
 interface ChatInterfaceProps {
   gptConfig: GPTConfiguration
@@ -19,7 +67,20 @@ interface ChatInterfaceProps {
   onRegenerate?: () => void
   conversationName?: string
   error?: string | null
-  processingMessage?: string
+  providerName: string
+  model: string
+  status: ChatProviderStatus
+  isStreaming: boolean
+  streamingMessageId: string | null
+  turnErrors: Record<string, ChatTurnError>
+  onStop: () => void
+  onRetry: (id: string) => void
+  /** Set when the saved conversation can't be used. Replaces the input so nothing can overwrite its history. */
+  loadError?: ChatLoadError | null
+  onReload?: () => void
+  /** Set when the conversation could not be saved. The messages are still on screen; the input stays available. */
+  saveError?: string | null
+  onRetrySave?: () => void
 }
 
 export function ChatInterface({
@@ -34,16 +95,28 @@ export function ChatInterface({
   onRegenerate,
   conversationName = 'New Chat',
   error,
-  processingMessage,
+  providerName,
+  model,
+  status,
+  isStreaming,
+  streamingMessageId,
+  turnErrors,
+  onStop,
+  onRetry,
+  loadError,
+  onReload,
+  saveError,
+  onRetrySave,
 }: ChatInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const nearBottomRef = useRef(true)
   const {isOpen, onOpen, onOpenChange} = useDisclosure()
   const [isMobile, setIsMobile] = useState(false)
 
   // Auto-scroll to bottom
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
-  }, [messages, isLoading])
+    if (!isStreaming || nearBottomRef.current) messagesEndRef.current?.scrollIntoView({behavior: 'smooth'})
+  }, [messages, isLoading, isStreaming])
 
   // Responsive check
   useEffect(() => {
@@ -122,15 +195,28 @@ export function ChatInterface({
         <header className="h-14 flex items-center justify-between px-4 border-b border-border-subtle bg-surface-primary/80 backdrop-blur-md z-10 transition-colors">
           <div className="flex items-center gap-2 min-w-0">
             {isMobile && (
-              <Button isIconOnly variant="light" size="sm" onPress={onOpen} className="-ml-2">
+              <Button
+                isIconOnly
+                variant="tertiary"
+                size="sm"
+                onPress={onOpen}
+                className="-ml-2 flex items-center gap-2"
+                aria-label="Open menu"
+              >
                 <Menu size={20} className="text-content-secondary" />
               </Button>
             )}
             <div className="flex flex-col min-w-0">
               <h1 className="text-sm font-semibold text-content-primary truncate">{conversationName}</h1>
               <div className="flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-success-500 animate-pulse" />
-                <span className="text-[10px] text-content-tertiary font-medium">GPT-4o</span>
+                <span
+                  role="img"
+                  aria-label={STATUS_DOT[status].label}
+                  className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[status].color} ${isStreaming ? 'animate-pulse' : ''}`}
+                />
+                <span className="text-[10px] text-content-tertiary font-medium">
+                  {model ? `${providerName} · ${model}` : 'No model set'}
+                </span>
               </div>
             </div>
           </div>
@@ -138,22 +224,35 @@ export function ChatInterface({
             <Tooltip content="Clear conversation">
               <Button
                 isIconOnly
-                variant="light"
+                variant="tertiary"
                 size="sm"
-                className="text-content-tertiary hover:text-danger hover:bg-danger-50"
+                className="flex items-center gap-2 text-content-tertiary hover:text-danger hover:bg-danger-50"
                 onPress={onClearConversation}
+                aria-label="Clear conversation"
               >
                 <Trash2 size={18} />
               </Button>
             </Tooltip>
-            <Button isIconOnly variant="light" size="sm" className="text-content-tertiary hover:text-content-primary">
+            <Button
+              isIconOnly
+              variant="tertiary"
+              size="sm"
+              className="flex items-center gap-2 text-content-tertiary hover:text-content-primary"
+              aria-label="More options"
+            >
               <MoreVertical size={18} />
             </Button>
           </div>
         </header>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-6 scroll-smooth custom-scrollbar">
+        <div
+          className="flex-1 overflow-y-auto px-4 py-6 scroll-smooth custom-scrollbar"
+          onScroll={event => {
+            const element = event.currentTarget
+            nearBottomRef.current = element.scrollHeight - element.scrollTop - element.clientHeight < 100
+          }}
+        >
           <div className="max-w-3xl mx-auto space-y-8">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-[60vh] text-center px-4 animate-in fade-in zoom-in-95 duration-500">
@@ -179,16 +278,35 @@ export function ChatInterface({
                     </span>
                   </div>
                   <div className="space-y-6">
-                    {msgs.map(msg => (
-                      <MessageBubble
-                        key={msg.id}
-                        role={msg.role === 'tool' ? 'system' : msg.role}
-                        content={msg.content}
-                        timestamp={new Date(msg.timestamp)}
-                        assistantName={gptConfig.name}
-                        onRegenerate={msg.role === 'assistant' ? onRegenerate : undefined}
-                      />
-                    ))}
+                    {msgs.map(msg => {
+                      const turnError = turnErrors[msg.id]
+                      return (
+                        <React.Fragment key={msg.id}>
+                          <MessageBubble
+                            key={msg.id}
+                            role={msg.role === 'tool' ? 'system' : msg.role}
+                            content={msg.content}
+                            timestamp={new Date(msg.timestamp)}
+                            assistantName={gptConfig.name}
+                            onRegenerate={
+                              msg.role === 'assistant' && msg.id === messages.at(-1)?.id ? onRegenerate : undefined
+                            }
+                            regenerateDisabled={isStreaming}
+                            isLoading={msg.id === streamingMessageId && !msg.content}
+                            stopped={msg.metadata?.stopped}
+                            truncated={msg.metadata?.truncated}
+                          />
+                          {turnError && (
+                            <div role="alert" className="text-danger-700 text-sm text-right">
+                              {turnErrorMessage(turnError, providerName)}{' '}
+                              <Button variant="tertiary" size="sm" onPress={() => onRetry(msg.id)}>
+                                Retry
+                              </Button>
+                            </div>
+                          )}
+                        </React.Fragment>
+                      )
+                    })}
                   </div>
                 </div>
               ))
@@ -206,28 +324,65 @@ export function ChatInterface({
               </div>
             )}
 
-            {/* Loading Indicator (if no partial message is streaming) */}
-            {isLoading && messages.at(-1)?.role === 'user' && (
-              <div className="flex justify-start px-1 animate-in fade-in duration-300">
-                <div className="flex items-center gap-2 p-3 rounded-2xl bg-surface-secondary/50 border border-border-subtle/50">
-                  <div className="flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-bounce [animation-delay:-0.32s]" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-bounce [animation-delay:-0.16s]" />
-                    <span className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-bounce" />
-                  </div>
-                  <span className="text-xs font-medium text-content-secondary">
-                    {processingMessage || 'Thinking...'}
-                  </span>
-                </div>
-              </div>
-            )}
-
             <div ref={messagesEndRef} className="h-4" />
           </div>
         </div>
 
+        {/* Unsaved warning */}
+        {saveError && !loadError && (
+          <div
+            role="alert"
+            className="flex items-center justify-center gap-2 border-t border-border-default p-3 text-sm text-danger-700"
+          >
+            <span>Couldn't save this conversation.</span>
+            <Button
+              variant="tertiary"
+              size="sm"
+              onPress={() => {
+                onRetrySave?.()
+              }}
+            >
+              Try again
+            </Button>
+          </div>
+        )}
+
         {/* Input Area */}
-        <ChatInput onSendMessage={onSendMessage} isDisabled={isLoading} />
+        {loadError ? (
+          <div
+            role="alert"
+            className="flex items-center justify-center gap-2 border-t border-border-default p-4 text-sm text-danger-700"
+          >
+            <span>{loadError.message}</span>
+            {loadError.kind === 'read-failed' && (
+              <Button
+                variant="tertiary"
+                size="sm"
+                onPress={() => {
+                  onReload?.()
+                }}
+              >
+                Try again
+              </Button>
+            )}
+          </div>
+        ) : status === 'not-configured' ? (
+          <GPTProviderPrompt providerName={providerName} />
+        ) : status === 'unsupported' ? (
+          <div className="border-t border-border-default p-4 text-center text-sm text-content-secondary">
+            Azure isn’t supported yet.{' '}
+            <Link className="text-primary-600 underline" to={`/gpt/edit/${gptConfig.id}`}>
+              Edit GPT
+            </Link>
+          </div>
+        ) : (
+          <ChatInput
+            onSendMessage={onSendMessage}
+            isDisabled={isLoading || status === 'loading'}
+            isStreaming={isStreaming}
+            onStop={onStop}
+          />
+        )}
       </div>
     </div>
   )

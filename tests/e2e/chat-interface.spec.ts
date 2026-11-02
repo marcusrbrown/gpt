@@ -3,6 +3,17 @@ import {GPTDataFactory} from './utils/test-data-factory'
 
 test.describe('Chat Interface', () => {
   test.beforeEach(async ({gptEditorPage, page}) => {
+    await page.route(/localhost:11434/, async route => {
+      if (route.request().url().includes('/api/chat')) {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/x-ndjson',
+          body: `${JSON.stringify({model: 'llama3.2:latest', message: {role: 'assistant', content: 'Hello!'}, done: true})}\n`,
+        })
+      } else {
+        await route.fulfill({status: 200, contentType: 'application/json', body: JSON.stringify({models: []})})
+      }
+    })
     // Create a GPT and navigate to test page
     await gptEditorPage.navigateToNew()
     expect(await gptEditorPage.isLoaded()).toBe(true)
@@ -19,6 +30,24 @@ test.describe('Chat Interface', () => {
 
     // Wait for navigation to test page
     await page.waitForURL(/\/gpt\/test\//)
+    const gptId = new URL(page.url()).pathname.split('/').at(-1)
+    await page.evaluate(async id => {
+      const database = await new Promise<IDBDatabase>((resolve, reject) => {
+        const request = indexedDB.open('gpt-platform')
+        request.onsuccess = () => resolve(request.result)
+        request.addEventListener('error', () => reject(request.error))
+      })
+      await new Promise<void>((resolve, reject) => {
+        const transaction = database.transaction('gpts', 'readwrite')
+        const store = transaction.objectStore('gpts')
+        const request = store.get(id)
+        request.onsuccess = () => store.put({...request.result, modelProvider: 'ollama', modelName: 'llama3.2:latest'})
+        transaction.oncomplete = () => resolve()
+        transaction.addEventListener('error', () => reject(transaction.error))
+      })
+      database.close()
+    }, gptId)
+    await page.reload()
   })
 
   test('should display chat interface with input area', async ({gptTestPage}) => {
@@ -37,6 +66,51 @@ test.describe('Chat Interface', () => {
     expect(placeholder).toContain('message')
   })
 
+  test('shows the OpenAI setup prompt without hiding saved history', async ({page, gptTestPage}) => {
+    const gptId = new URL(page.url()).pathname.split('/').at(-1)
+    const conversationId = 'saved-chat'
+    await page.evaluate(
+      async ({id, conversationId}) => {
+        const database = await new Promise<IDBDatabase>((resolve, reject) => {
+          const request = indexedDB.open('gpt-platform')
+          request.onsuccess = () => resolve(request.result)
+          request.addEventListener('error', () => reject(request.error))
+        })
+        await new Promise<void>((resolve, reject) => {
+          const transaction = database.transaction(['gpts', 'conversations', 'messages'], 'readwrite')
+          const store = transaction.objectStore('gpts')
+          const request = store.get(id)
+          request.onsuccess = () => store.put({...request.result, modelProvider: 'openai', modelName: 'gpt-4'})
+          const now = new Date().toISOString()
+          transaction.objectStore('conversations').put({
+            id: conversationId,
+            gptId: id,
+            title: 'Saved chat',
+            createdAtISO: now,
+            updatedAtISO: now,
+            messageCount: 1,
+            tags: [],
+            isPinned: false,
+            isArchived: false,
+            pinnedAtISO: null,
+            archivedAtISO: null,
+          })
+          transaction
+            .objectStore('messages')
+            .put({id: 'saved-message', conversationId, role: 'user', content: 'Earlier question', timestampISO: now})
+          transaction.oncomplete = () => resolve()
+          transaction.addEventListener('error', () => reject(transaction.error))
+        })
+        database.close()
+      },
+      {id: gptId, conversationId},
+    )
+    await page.goto(`/gpt/test/${gptId}/c/${conversationId}`)
+    await expect(page.getByText('Earlier question')).toBeVisible()
+    await expect(page.getByText("OpenAI isn't set up for this GPT. Add its API key in Settings.")).toBeVisible()
+    await expect(gptTestPage.messageInput).toHaveCount(0)
+  })
+
   test('should show conversation name in header', async ({gptTestPage}) => {
     // The header should show a conversation name (may be empty initially or show "New Chat")
     // Wait for the chat to load fully
@@ -48,7 +122,7 @@ test.describe('Chat Interface', () => {
     // On first load, conversation name may be set via GPTTestPage state after a delay
     // Check that the model indicator is visible (confirms header is rendering)
     const modelIndicator = await gptTestPage.getModelIndicator()
-    expect(modelIndicator).toContain('GPT-4o')
+    expect(modelIndicator).toContain('Ollama · llama3.2:latest')
   })
 
   test('should have functional message input with send button state', async ({gptTestPage}) => {
@@ -186,7 +260,7 @@ test.describe('Chat Interface', () => {
   test('should show model status indicator in header', async ({gptTestPage}) => {
     // Verify model indicator is visible (GPT-4o text)
     const modelIndicator = await gptTestPage.getModelIndicator()
-    expect(modelIndicator).toContain('GPT-4o')
+    expect(modelIndicator).toContain('Ollama · llama3.2:latest')
 
     // Verify online status indicator (green dot)
     const isOnline = await gptTestPage.isModelOnline()

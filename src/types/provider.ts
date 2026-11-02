@@ -37,10 +37,19 @@ export type ProviderConfig = z.infer<typeof ProviderConfigSchema>
 export const MessageRoleSchema = z.enum(['system', 'user', 'assistant', 'tool'])
 export type MessageRole = z.infer<typeof MessageRoleSchema>
 
+/**
+ * Opaque per-provider replay data, keyed by the provider that produced it (for example OpenAI's encrypted reasoning
+ * items). Only the owning provider interprets its entry; every other provider ignores it. JSON-only so it can be
+ * persisted with a message and exported.
+ */
+export const ReplayDataSchema = z.partialRecord(ProviderIdSchema, z.json())
+export type ReplayData = z.infer<typeof ReplayDataSchema>
+
 export const CompletionMessageSchema = z.object({
   role: MessageRoleSchema,
   content: z.string(),
   toolCallId: z.string().optional(),
+  replay: ReplayDataSchema.optional(),
 })
 
 export type CompletionMessage = z.infer<typeof CompletionMessageSchema>
@@ -57,9 +66,19 @@ export const AnthropicOptionsSchema = z.object({
 
 export type AnthropicOptions = z.infer<typeof AnthropicOptionsSchema>
 
+/** Runtime-only: an `AbortSignal` can't be serialized, so it must never be persisted or sent over the wire. */
+const AbortSignalSchema = z.custom<AbortSignal>(
+  value => typeof AbortSignal !== 'undefined' && value instanceof AbortSignal,
+  'Expected an AbortSignal',
+)
+
 export const CompletionRequestSchema = z.object({
   model: z.string(),
+  /** Top-level system-level guidance. Providers map it to their native instructions or system message. */
+  instructions: z.string().optional(),
   messages: z.array(CompletionMessageSchema),
+  /** Aborting ends the completion with an `AbortError`. */
+  signal: AbortSignalSchema.optional(),
   temperature: z.number().min(0).max(2).optional(),
   maxTokens: z.number().positive().optional(),
   tools: z.array(z.record(z.string(), z.unknown())).optional(),
@@ -86,6 +105,8 @@ export const CompletionChunkSchema = z.object({
   content: z.string().optional(),
   toolCalls: z.array(ToolCallSchema).optional(),
   finishReason: z.enum(['stop', 'length', 'tool_calls', 'error']).optional(),
+  /** Replay data for the message this chunk completes; send it back on that message in later requests. */
+  replay: ReplayDataSchema.optional(),
   usage: z
     .object({
       promptTokens: z.number(),

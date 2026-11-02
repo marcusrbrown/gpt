@@ -1,6 +1,13 @@
 import type {Conversation, GPTConfiguration} from '@/types/gpt'
+import JSZip from 'jszip'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
-import {createExportMetadata, exportConversation, exportGPT, sanitizeFilename} from '../export-service'
+import {
+  createExportMetadata,
+  createFullBackup,
+  exportConversation,
+  exportGPT,
+  sanitizeFilename,
+} from '../export-service'
 
 const createMockWhere = (data: unknown[] = []) => ({
   equals: vi.fn().mockReturnValue({
@@ -9,9 +16,19 @@ const createMockWhere = (data: unknown[] = []) => ({
   }),
 })
 
+const backupRows = vi.hoisted(() => ({
+  conversations: [] as unknown[],
+  messages: [] as unknown[],
+}))
+
 vi.mock('@/lib/database', () => ({
   db: {
-    knowledgeFiles: {where: vi.fn(() => createMockWhere([]))},
+    gpts: {toArray: vi.fn(async () => [])},
+    conversations: {toArray: vi.fn(async () => backupRows.conversations)},
+    messages: {toArray: vi.fn(async () => backupRows.messages)},
+    folders: {toArray: vi.fn(async () => [])},
+    settings: {toArray: vi.fn(async () => [])},
+    knowledgeFiles: {toArray: vi.fn(async () => []), where: vi.fn(() => createMockWhere([]))},
     cachedURLs: {where: vi.fn(() => createMockWhere([]))},
     textSnippets: {where: vi.fn(() => createMockWhere([]))},
     gptVersions: {where: vi.fn(() => createMockWhere([]))},
@@ -341,6 +358,65 @@ describe('exportConversation edge cases', () => {
     expect(message?.role).toBe('user')
     expect(message?.content).toBe('Hello')
     expect(message?.timestamp).toBeDefined()
+  })
+})
+
+describe('replay data in exports', () => {
+  const replay = {openai: [{type: 'reasoning', id: 'rs_1', encrypted_content: 'secret-blob'}]}
+  const metadata = {provider: 'openai' as const, model: 'o3-mini', stopped: true, replay}
+
+  it('strips replay from conversation exports and keeps the other metadata', async () => {
+    const conversation = createMockConversation({
+      messages: [
+        {id: 'm1', role: 'user', content: 'Hi', timestamp: new Date('2024-01-01T12:00:00Z')},
+        {id: 'm2', role: 'assistant', content: 'Hello', timestamp: new Date('2024-01-01T12:00:01Z'), metadata},
+      ],
+    })
+
+    const result = await exportConversation(conversation, 'Test GPT')
+
+    expect(result.conversation.messages[0]?.metadata).toBeUndefined()
+    expect(result.conversation.messages[1]?.metadata).toEqual({provider: 'openai', model: 'o3-mini', stopped: true})
+    expect(JSON.stringify(result)).not.toContain('secret-blob')
+    // The stored conversation is untouched.
+    expect(conversation.messages[1]?.metadata?.replay).toEqual(replay)
+  })
+
+  it('strips replay from full backups and keeps the other metadata', async () => {
+    backupRows.conversations = [
+      {
+        id: 'conv-1',
+        gptId: 'test-gpt-1',
+        title: 'Backup',
+        createdAtISO: '2024-01-01T00:00:00.000Z',
+        updatedAtISO: '2024-01-01T00:00:00.000Z',
+        tags: [],
+        isPinned: false,
+      },
+    ]
+    backupRows.messages = [
+      {
+        id: 'm2',
+        conversationId: 'conv-1',
+        role: 'assistant',
+        content: 'Hello',
+        timestampISO: '2024-01-01T12:00:01.000Z',
+        metadata,
+      },
+    ]
+
+    const zip = await JSZip.loadAsync(await createFullBackup())
+    const json = await zip.file('backup.json')?.async('string')
+    expect(json).toBeDefined()
+    expect(json).not.toContain('secret-blob')
+    const backup = JSON.parse(json ?? '{}') as {
+      contents: {conversations: {messages: {metadata?: Record<string, unknown>}[]}[]}
+    }
+    expect(backup.contents.conversations[0]?.messages[0]?.metadata).toEqual({
+      provider: 'openai',
+      model: 'o3-mini',
+      stopped: true,
+    })
   })
 })
 
