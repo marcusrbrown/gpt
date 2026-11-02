@@ -89,8 +89,20 @@ tests/
   </Modal.Container>
 </Modal.Backdrop>
 
-// Inputs with icons need classNames
-<Input classNames={{ inputWrapper: 'flex items-center' }} startContent={<Icon />} />
+// Inputs (v3, `@heroui-v3/react`): TextField owns label/error, Input is the control
+<TextField value={value} onChange={setValue} isInvalid={!!error} fullWidth>
+  <Label>Name</Label>
+  <Input placeholder="Name" />
+  <FieldError>{error}</FieldError>
+</TextField>
+
+// Inputs with icons: InputGroup (Prefix/Suffix) inside TextField, aria-label when there is no Label
+<TextField aria-label="Search" fullWidth>
+  <InputGroup fullWidth>
+    <InputGroup.Prefix><Icon aria-hidden="true" /></InputGroup.Prefix>
+    <InputGroup.Input placeholder="Search..." />
+  </InputGroup>
+</TextField>
 ```
 
 ## Quality Gates (before PR)

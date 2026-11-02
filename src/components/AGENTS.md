@@ -8,7 +8,7 @@ Reusable React UI components. HeroUI + TailwindCSS design tokens.
 - Use `cn`, `ds` from `@/lib/design-system` — never hardcode colors
 - Async handlers: `.catch(console.error)` to avoid floating promises
 - Buttons: `Button` comes from `@heroui-v3/react` (see `docs/design-system.md`, "Button (v3)"); icons go in as children, no `startContent`
-- Inputs with icons: add `classNames={{ inputWrapper: 'flex items-center' }}`
+- Inputs: `TextField` + `Input` / `TextArea` come from `@heroui-v3/react` (see `docs/design-system.md`, "Input / TextField (v3)"); label, description and error are children (`Label`, `Description`, `FieldError`), `onChange` gets the string. Icons: `InputGroup` with `InputGroup.Prefix` / `InputGroup.Suffix` inside `TextField`; name the field with `aria-label` when there is no `Label`
 - Modals: `Modal` comes from `@heroui-v3/react` (see `docs/design-system.md`, "Modal (v3)"): always `<Modal.Container placement="center">` inside `<Modal.Backdrop variant="opaque">`. `Select` comes from `@heroui-v3/react` too ("Select (v3)"): never put a v2 overlay inside a v3 `Modal`
 
 ## Tests
