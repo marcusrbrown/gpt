@@ -7,6 +7,7 @@ import {addToast} from '@heroui/react'
 import {Button, Description, Input, TextField} from '@heroui-v3/react'
 import {XCircle} from 'lucide-react'
 import {useState} from 'react'
+import {ProviderBaseUrlField} from './provider-base-url-field'
 
 export function AnthropicSettings() {
   const {setSecret, deleteSecret, getSecret} = useSession()
@@ -148,6 +149,13 @@ export function AnthropicSettings() {
             Clear API Key
           </Button>
         </div>
+
+        <ProviderBaseUrlField
+          providerId="anthropic"
+          providerName="Anthropic"
+          compatibleWith="an Anthropic-compatible"
+          defaultUrl="https://api.anthropic.com/v1"
+        />
       </div>
 
       <div className={cn('mt-4 pt-4', 'border-t', theme.border())}>
