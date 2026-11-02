@@ -75,8 +75,8 @@
  * v2 medium radius. The resting border is default-500, not v2's default-200: default-200 is 1.2:1
  * against white and 1.7:1 against the dark dialog, below the 3:1 WCAG 1.4.11 needs for a control
  * boundary. Hover darkens one step and focus uses default-foreground. v3's own hover, focus and
- * invalid rules read these variables, so they apply to every control in the list. Drop it with the
- * v2 plugin.
+ * invalid rules read these variables, so they apply to every control in the list. An invalid field
+ * switches the border to the danger colour (below). Drop it with the v2 plugin.
  */
 @layer components {
   .select__trigger,
@@ -88,6 +88,29 @@
     --field-border-hover: hsl(var(--heroui-default-600));
     --field-border-focus: hsl(var(--heroui-default-foreground));
     border-radius: var(--heroui-radius-medium);
+  }
+
+  /*
+   * Invalid: the border is the danger colour at rest and on hover, so the failed field reads from its
+   * outline and not only from v3's thin outline ring. Focus keeps default-foreground, as v3 does (the
+   * danger ring stays around it). v3's invalid group rule reads --color-field-border-invalid, which v3
+   * never defines; set it here, and hand focus-within back to the focus colour.
+   */
+  .input[data-invalid='true'],
+  .input[aria-invalid='true'],
+  .textarea[data-invalid='true'],
+  .textarea[aria-invalid='true'],
+  .input-group[data-invalid='true'],
+  .input-group[aria-invalid='true'],
+  .select[data-invalid='true'] .select__trigger,
+  .select[aria-invalid='true'] .select__trigger {
+    --field-border: var(--danger);
+    --field-border-hover: var(--danger);
+    --color-field-border-invalid: var(--danger);
+  }
+
+  .input-group[data-invalid='true']:has([data-slot='input-group-input']:focus, [data-slot='input-group-textarea']:focus) {
+    --color-field-border-invalid: var(--field-border-focus);
   }
 
   /* A flex-1 input keeps its intrinsic width (min-width: auto) and would stop the group shrinking. */

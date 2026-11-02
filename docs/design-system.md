@@ -801,13 +801,15 @@ import {Description, FieldError, Input, InputGroup, Label, TextArea, TextField} 
 
 **Validation.** `TextField` is a React Aria field with the same `validationBehavior` switch as v2: default `native` (sets `required` and runs the browser's form validation), `aria` (no native attributes; only `aria-invalid`). `passphrase-modal.tsx` keeps `validationBehavior="aria"` on both fields. Controlled `isInvalid` plus a `<FieldError>` child works without `validate`: the input gets `aria-invalid="true"` and `aria-describedby` pointing at the error text.
 
-**Field border.** v3 fields have no border (`--border-width-field` is 0), and v2's `default-200` resting border is 1.2:1 against white, below the 3:1 WCAG 1.4.11 needs. One rule in `src/styles/heroui-v3.css` serves `.select__trigger`, `.input`, `.textarea` and `.input-group`: 2px (`--heroui-border-width-medium`), `--heroui-radius-medium`, `default-500` at rest, `default-600` on hover, `default-foreground` on focus. It sets v3's own `--field-border*` variables, so v3's hover, focus and invalid rules still apply and the invalid state keeps its danger colour. The prefix / suffix divider is set to 0 so it does not double the group border. Measured against the page, a v2 `Card` and a dialog (`bg-surface-secondary`):
+**Field border.** v3 fields have no border (`--border-width-field` is 0), and v2's `default-200` resting border is 1.2:1 against white, below the 3:1 WCAG 1.4.11 needs. One rule in `src/styles/heroui-v3.css` serves `.select__trigger`, `.input`, `.textarea` and `.input-group`: 2px (`--heroui-border-width-medium`), `--heroui-radius-medium`, `default-500` at rest, `default-600` on hover, `default-foreground` on focus. It sets v3's own `--field-border*` variables, so v3's hover and focus rules still apply. An invalid field (`data-invalid` / `aria-invalid`, or `.select[data-invalid]`) sets the border to `--danger` at rest and on hover, and keeps `default-foreground` on focus with v3's danger ring around it; v3 reads a `--color-field-border-invalid` it never defines, so the rule sets it for `InputGroup`. The prefix / suffix divider is set to 0 so it does not double the group border. Measured against the page, a v2 `Card` and a dialog (`bg-surface-secondary`):
 
 | State                        | Light          | Dark             |
 | ---------------------------- | -------------- | ---------------- |
 | Rest (`default-500`)         | 4.6:1 to 4.8:1 | 6.8:1 to 8.2:1   |
 | Hover (`default-600`)        | 7.4:1 to 7.7:1 | 11.8:1 to 14.2:1 |
 | Focus (`default-foreground`) | 20.1:1 to 21:1 | 17.4:1 to 21:1   |
+
+The invalid border is `--danger` (`hsl(var(--heroui-danger))`, `rgb(243, 18, 96)` in both themes): 4.1:1 on white in light; 5.1:1 on the black page and 4.3:1 on a dark card or dialog. Focus on an invalid field is `default-foreground`, 21:1 on the page.
 
 Drop the rule at cutover and re-check contrast.
 
