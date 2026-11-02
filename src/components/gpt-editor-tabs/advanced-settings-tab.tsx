@@ -1,6 +1,8 @@
 import type {GPTConfiguration} from '@/types/gpt'
 import {cn, ds, responsive} from '@/lib/design-system'
-import {Input, Slider} from '@heroui/react'
+import '@/styles/heroui-v3.css'
+import {Slider} from '@heroui/react'
+import {Description, Input, Label, TextField} from '@heroui-v3/react'
 
 interface AdvancedSettingsTabProps {
   gpt: GPTConfiguration
@@ -24,25 +26,23 @@ export function AdvancedSettingsTab({gpt, onUpdate}: AdvancedSettingsTabProps) {
 
         <div className="grid gap-6 md:grid-cols-2">
           <div>
-            <Input
-              label="Model Name"
-              labelPlacement="outside"
-              value={gpt.modelName || ''}
-              onChange={e => onUpdate({modelName: e.target.value})}
-              placeholder="e.g. gpt-4o"
-              description="Specific model identifier to use (optional)."
-            />
+            <TextField value={gpt.modelName || ''} onChange={value => onUpdate({modelName: value})} fullWidth>
+              <Label>Model Name</Label>
+              <Input placeholder="e.g. gpt-4o" />
+              <Description>Specific model identifier to use (optional).</Description>
+            </TextField>
           </div>
 
           <div>
-            <Input
+            <TextField
               type="number"
-              label="Max Tokens"
-              labelPlacement="outside"
               value={gpt.modelSettings?.maxTokens?.toString() || ''}
-              onChange={e => handleModelSettingsChange('maxTokens', Number.parseInt(e.target.value) || 0)}
-              placeholder="e.g. 4096"
-            />
+              onChange={value => handleModelSettingsChange('maxTokens', Number.parseInt(value) || 0)}
+              fullWidth
+            >
+              <Label>Max Tokens</Label>
+              <Input placeholder="e.g. 4096" />
+            </TextField>
           </div>
         </div>
 

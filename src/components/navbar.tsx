@@ -1,8 +1,7 @@
 import {ThemeSwitch} from '@/components/theme-switch'
 import {cn, ds, theme} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Input} from '@heroui/react'
-import {Button} from '@heroui-v3/react'
+import {Button, InputGroup, TextField} from '@heroui-v3/react'
 import {buttonVariants, type ButtonVariants} from '@heroui-v3/styles'
 import {Archive, BookOpen, Github, Menu, Search, Settings, X} from 'lucide-react'
 import {useEffect, useState, type MouseEvent} from 'react'
@@ -87,24 +86,16 @@ export const Navbar = () => {
         </div>
 
         {/* Center section - Search */}
-        <div className="flex-1 max-w-2xl mx-4 flex items-center">
+        <div className="flex-1 min-w-0 max-w-2xl mx-4 flex items-center">
           <div className="relative w-full">
-            <Input
-              type="search"
-              placeholder="Search documentation..."
-              startContent={<Search className={cn(theme.content('tertiary'), 'mr-1')} size={16} aria-hidden="true" />}
-              size="md"
-              variant="bordered"
-              className={cn(ds.animation.transition)}
-              classNames={{
-                base: 'h-10',
-                input: 'text-sm pr-9',
-                inputWrapper: cn(theme.surface(1), 'h-10 flex items-center'),
-                innerWrapper: 'flex items-center',
-                mainWrapper: 'h-10',
-              }}
-              aria-label="Search documentation"
-            />
+            <TextField type="search" aria-label="Search documentation" fullWidth>
+              <InputGroup fullWidth className={cn(theme.surface(1), 'h-10', ds.animation.transition)}>
+                <InputGroup.Prefix>
+                  <Search className={theme.content('tertiary')} size={16} aria-hidden="true" />
+                </InputGroup.Prefix>
+                <InputGroup.Input placeholder="Search documentation..." className="text-sm" />
+              </InputGroup>
+            </TextField>
           </div>
         </div>
 
@@ -185,19 +176,14 @@ export const Navbar = () => {
 
             {/* Navigation content - Settings removed from list (available in header) */}
             <nav className={cn(ds.layout.container, 'flex flex-col gap-4 py-6')} aria-label="Mobile navigation">
-              <Input
-                type="search"
-                placeholder="Search documentation..."
-                startContent={<Search className={cn(theme.content('tertiary'), 'mr-1')} size={16} aria-hidden="true" />}
-                size="sm"
-                variant="bordered"
-                className={cn(ds.animation.transition)}
-                classNames={{
-                  input: 'text-sm pr-9',
-                  inputWrapper: cn(theme.surface(1), 'min-h-[40px]'),
-                }}
-                aria-label="Search documentation"
-              />
+              <TextField type="search" aria-label="Search documentation" fullWidth>
+                <InputGroup fullWidth className={cn(theme.surface(1), 'min-h-[40px]', ds.animation.transition)}>
+                  <InputGroup.Prefix>
+                    <Search className={theme.content('tertiary')} size={16} aria-hidden="true" />
+                  </InputGroup.Prefix>
+                  <InputGroup.Input placeholder="Search documentation..." className="text-sm" />
+                </InputGroup>
+              </TextField>
               <ButtonLink
                 to="/backup"
                 variant="tertiary"

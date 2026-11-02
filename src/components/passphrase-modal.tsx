@@ -2,8 +2,7 @@ import {useSession} from '@/hooks/use-session'
 import {cn, ds} from '@/lib/design-system'
 import {PassphraseSchema} from '@/services/encryption'
 import '@/styles/heroui-v3.css'
-import {Input} from '@heroui/react'
-import {Button, Modal, Spinner} from '@heroui-v3/react'
+import {Button, Description, FieldError, Input, Label, Modal, Spinner, TextField} from '@heroui-v3/react'
 import {useCallback, useState, type FormEvent} from 'react'
 
 export type PassphraseModalMode = 'setup' | 'unlock'
@@ -182,32 +181,36 @@ export function PassphraseModal({mode, isOpen, onClose, onSuccess, onReset}: Pas
                     : 'Enter your passphrase to unlock your stored API keys.'}
                 </p>
 
-                <Input
+                <TextField
                   type="password"
                   validationBehavior="aria"
-                  label="Passphrase"
-                  placeholder={isSetup ? 'Enter a secure passphrase' : 'Enter your passphrase'}
                   value={passphrase}
-                  onValueChange={setPassphrase}
+                  onChange={setPassphrase}
                   autoFocus
                   autoComplete={isSetup ? 'new-password' : 'current-password'}
-                  description={isSetup ? 'Minimum 8 characters' : undefined}
                   isInvalid={isSetup ? tooShort : error !== null}
-                  errorMessage={isSetup && tooShort ? 'Must be at least 8 characters' : undefined}
-                />
+                  fullWidth
+                >
+                  <Label>Passphrase</Label>
+                  <Input placeholder={isSetup ? 'Enter a secure passphrase' : 'Enter your passphrase'} />
+                  {isSetup && <Description>Minimum 8 characters</Description>}
+                  <FieldError>{isSetup && tooShort ? 'Must be at least 8 characters' : undefined}</FieldError>
+                </TextField>
 
                 {isSetup && (
-                  <Input
+                  <TextField
                     type="password"
                     validationBehavior="aria"
-                    label="Confirm Passphrase"
-                    placeholder="Confirm your passphrase"
                     value={confirmPassphrase}
-                    onValueChange={setConfirmPassphrase}
+                    onChange={setConfirmPassphrase}
                     autoComplete="new-password"
                     isInvalid={mismatch}
-                    errorMessage={mismatch ? 'Passphrases do not match' : undefined}
-                  />
+                    fullWidth
+                  >
+                    <Label>Confirm Passphrase</Label>
+                    <Input placeholder="Confirm your passphrase" />
+                    <FieldError>{mismatch ? 'Passphrases do not match' : undefined}</FieldError>
+                  </TextField>
                 )}
 
                 {error && (

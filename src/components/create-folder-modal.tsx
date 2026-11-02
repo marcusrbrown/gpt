@@ -1,8 +1,7 @@
 import {useStorage} from '@/hooks/use-storage'
 import {cn, ds} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Input} from '@heroui/react'
-import {Button, Modal, Spinner} from '@heroui-v3/react'
+import {Button, Description, FieldError, Input, Label, Modal, Spinner, TextField} from '@heroui-v3/react'
 import {Folder} from 'lucide-react'
 import {useCallback, useState} from 'react'
 
@@ -77,21 +76,21 @@ export function CreateFolderModal({isOpen, onClose, onFolderCreated, parentFolde
             <Modal.Heading className="text-lg font-semibold">Create New Folder</Modal.Heading>
           </Modal.Header>
           <Modal.Body>
-            <Input
+            <TextField
               autoFocus
-              label="Folder Name"
-              placeholder="Enter folder name"
               value={folderName}
-              onValueChange={value => {
+              onChange={value => {
                 setFolderName(value)
                 setError(null)
               }}
-              onKeyDown={handleKeyDown}
               isInvalid={!!error}
-              errorMessage={error}
-              maxLength={50}
-              description={parentFolderId ? 'This folder will be created inside the selected folder' : undefined}
-            />
+              fullWidth
+            >
+              <Label>Folder Name</Label>
+              <Input placeholder="Enter folder name" onKeyDown={handleKeyDown} maxLength={50} />
+              {parentFolderId && <Description>This folder will be created inside the selected folder</Description>}
+              <FieldError>{error}</FieldError>
+            </TextField>
             {parentFolderId && (
               <p className={cn(ds.text.caption, 'text-content-tertiary mt-2')}>
                 Note: Folders can be nested up to 3 levels deep.

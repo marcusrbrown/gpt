@@ -3,8 +3,8 @@ import {useSession} from '@/hooks/use-session'
 import {useUnlockGate} from '@/hooks/use-unlock-gate'
 import {cn, compose, ds, responsive, theme} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {addToast, Input} from '@heroui/react'
-import {Button} from '@heroui-v3/react'
+import {addToast} from '@heroui/react'
+import {Button, Description, Input, TextField} from '@heroui-v3/react'
 import {XCircle} from 'lucide-react'
 import {useState} from 'react'
 
@@ -17,10 +17,6 @@ export function APISettings() {
 
   const openAIConfig = providers.find(p => p.id === 'openai')
   const isConfigured = openAIConfig?.isConfigured ?? false
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputKey(e.target.value)
-  }
 
   const handleSaveKey = async () => {
     try {
@@ -103,23 +99,24 @@ export function APISettings() {
         )}
 
         <div className="flex items-center mb-2">
-          <Input
+          <TextField
             type={showApiKey ? 'text' : 'password'}
             value={inputKey}
-            onChange={handleInputChange}
+            onChange={setInputKey}
             onFocus={() => {
               if (!inputKey && isConfigured) {
                 loadCurrentKey().catch(console.error)
               }
             }}
-            placeholder="sk-..."
-            className={cn('flex-1 mr-2', ds.focus.ring, ds.animation.transition)}
-            description="Your OpenAI API key for testing GPT configurations"
+            className="flex-1 mr-2"
             aria-label="Enter your OpenAI API key"
-            classNames={{
-              description: 'text-content-secondary',
-            }}
-          />
+            fullWidth
+          >
+            <Input placeholder="sk-..." />
+            <Description className="text-content-secondary">
+              Your OpenAI API key for testing GPT configurations
+            </Description>
+          </TextField>
           <Button
             onPress={toggleShowApiKey}
             variant="outline"

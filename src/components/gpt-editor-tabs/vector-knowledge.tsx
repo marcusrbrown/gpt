@@ -1,8 +1,7 @@
 import type {LocalFile, VectorStore} from '@/types/gpt'
 import {cn, ds, responsive} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Input} from '@heroui/react'
-import {Button, Spinner} from '@heroui-v3/react'
+import {Button, Input, Label, Spinner, TextField} from '@heroui-v3/react'
 import {useState} from 'react'
 
 interface VectorKnowledgeProps {
@@ -66,17 +65,10 @@ export function VectorKnowledge({files, vectorStores, onCreateVectorStore, onDel
 
       <div className={cn('border rounded-md p-4 space-y-4', isCreating && ds.state.disabled)}>
         <div>
-          <label htmlFor="storeName" className={cn(ds.form.label)}>
-            Vector Store Name
-          </label>
-          <Input
-            id="storeName"
-            value={newStoreName}
-            onChange={e => setNewStoreName(e.target.value)}
-            className={cn('mt-1', ds.animation.formFocus)}
-            placeholder="My Knowledge Base"
-            isDisabled={isCreating}
-          />
+          <TextField value={newStoreName} onChange={setNewStoreName} isDisabled={isCreating} fullWidth>
+            <Label className={cn(ds.form.label)}>Vector Store Name</Label>
+            <Input placeholder="My Knowledge Base" className={cn('mt-1', ds.animation.formFocus)} />
+          </TextField>
         </div>
 
         <div>

@@ -2,8 +2,7 @@ import type {GPTCapabilities, GPTConfiguration} from '@/types/gpt'
 import {CapabilitiesConfiguration} from '@/components/capabilities-configuration'
 import {cn, ds, responsive} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Input, Textarea} from '@heroui/react'
-import {Button} from '@heroui-v3/react'
+import {Button, FieldError, Input, Label, TextArea, TextField} from '@heroui-v3/react'
 
 interface GeneralTabProps {
   gpt: GPTConfiguration
@@ -13,9 +12,10 @@ interface GeneralTabProps {
   hasFieldSuccess: (field: string) => boolean
 }
 
+const fieldRowClass = 'flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4'
+
 export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFieldSuccess}: GeneralTabProps) {
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const {name, value} = e.target
+  const handleFieldChange = (name: 'name' | 'description' | 'systemPrompt', value: string) => {
     onUpdate({[name]: value})
     // Clear validation errors on change
     handleFieldValidation(name, value, {...gpt, [name]: value}, 'change')
@@ -52,81 +52,81 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
       <div className="space-y-4">
         <h2 className={responsive.heading.medium}>Basic Information</h2>
 
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
-          <label htmlFor="name" className={cn(ds.form.label, 'sm:w-32 sm:pt-3 shrink-0')}>
-            Name
-          </label>
-          <Input
-            type="text"
-            name="name"
-            id="name"
-            value={gpt.name}
-            onChange={handleInputChange}
-            onBlur={() => handleFieldValidation('name', gpt.name, gpt, 'blur')}
-            isInvalid={!!errors.name}
-            errorMessage={errors.name}
-            isRequired
+        <TextField
+          name="name"
+          value={gpt.name}
+          onChange={value => handleFieldChange('name', value)}
+          onBlur={() => handleFieldValidation('name', gpt.name, gpt, 'blur')}
+          isInvalid={!!errors.name}
+          isRequired
+          className={fieldRowClass}
+        >
+          <Label className={cn(ds.form.label, 'sm:w-32 sm:pt-3 shrink-0')}>Name</Label>
+          <div
             className={cn(
-              'flex-1',
+              'flex-1 flex flex-col gap-1',
               hasFieldSuccess('name') && !errors.name && ds.state.success,
               ds.animation.transition,
               ds.animation.formFocus,
             )}
-          />
-        </div>
+          >
+            <Input type="text" fullWidth />
+            <FieldError>{errors.name}</FieldError>
+          </div>
+        </TextField>
 
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
-          <label htmlFor="description" className={cn(ds.form.label, 'sm:w-32 sm:pt-3 shrink-0')}>
-            Description
-          </label>
-          <Textarea
-            name="description"
-            id="description"
-            value={gpt.description}
-            onChange={handleInputChange}
-            onBlur={() => handleFieldValidation('description', gpt.description, gpt, 'blur')}
-            minRows={3}
-            isInvalid={!!errors.description}
-            errorMessage={errors.description}
-            isRequired
+        <TextField
+          name="description"
+          value={gpt.description}
+          onChange={value => handleFieldChange('description', value)}
+          onBlur={() => handleFieldValidation('description', gpt.description, gpt, 'blur')}
+          isInvalid={!!errors.description}
+          isRequired
+          className={fieldRowClass}
+        >
+          <Label className={cn(ds.form.label, 'sm:w-32 sm:pt-3 shrink-0')}>Description</Label>
+          <div
             className={cn(
-              'flex-1',
+              'flex-1 flex flex-col gap-1',
               hasFieldSuccess('description') && !errors.description && ds.state.success,
               ds.animation.transition,
               ds.animation.formFocus,
             )}
-          />
-        </div>
+          >
+            <TextArea rows={3} fullWidth />
+            <FieldError>{errors.description}</FieldError>
+          </div>
+        </TextField>
       </div>
 
       <div className="space-y-4">
         <h2 className={responsive.heading.medium}>Instructions</h2>
 
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+        <TextField
+          name="systemPrompt"
+          value={gpt.systemPrompt}
+          onChange={value => handleFieldChange('systemPrompt', value)}
+          onBlur={() => handleFieldValidation('systemPrompt', gpt.systemPrompt, gpt, 'blur')}
+          isInvalid={!!errors.systemPrompt}
+          isRequired
+          className={fieldRowClass}
+        >
           <div className="sm:w-32 shrink-0">
-            <label htmlFor="systemPrompt" className={cn(ds.form.label)}>
-              System Prompt
-            </label>
+            <Label className={cn(ds.form.label)}>System Prompt</Label>
             <p className={cn(ds.text.caption, 'text-content-secondary mt-1')}>Define behavior and persona.</p>
           </div>
-          <Textarea
-            name="systemPrompt"
-            id="systemPrompt"
-            value={gpt.systemPrompt}
-            onChange={handleInputChange}
-            onBlur={() => handleFieldValidation('systemPrompt', gpt.systemPrompt, gpt, 'blur')}
-            minRows={5}
-            isInvalid={!!errors.systemPrompt}
-            errorMessage={errors.systemPrompt}
-            isRequired
+          <div
             className={cn(
-              'flex-1',
+              'flex-1 flex flex-col gap-1',
               hasFieldSuccess('systemPrompt') && !errors.systemPrompt && ds.state.success,
               ds.animation.transition,
               ds.animation.formFocus,
             )}
-          />
-        </div>
+          >
+            <TextArea rows={5} fullWidth />
+            <FieldError>{errors.systemPrompt}</FieldError>
+          </div>
+        </TextField>
 
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
           <div className="sm:w-32 shrink-0">
@@ -136,12 +136,14 @@ export function GeneralTab({gpt, onUpdate, errors, handleFieldValidation, hasFie
           <div className="flex-1 space-y-2">
             {(gpt.conversationStarters || []).map((starter, index) => (
               <div key={`starter-${starter || `empty-${index}`}`} className="flex gap-2">
-                <Input
+                <TextField
                   value={starter}
-                  onChange={e => handleStarterChange(index, e.target.value)}
-                  placeholder="e.g. Help me write a blog post..."
+                  onChange={value => handleStarterChange(index, value)}
+                  aria-label={`Conversation starter ${index + 1}`}
                   className={cn('flex-1', ds.animation.formFocus)}
-                />
+                >
+                  <Input placeholder="e.g. Help me write a blog post..." fullWidth />
+                </TextField>
                 <Button
                   isIconOnly
                   variant="danger-soft"

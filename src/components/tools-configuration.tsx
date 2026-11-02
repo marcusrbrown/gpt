@@ -1,8 +1,7 @@
 import type {MCPTool} from '@/types/gpt'
 import {cn, ds} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Input} from '@heroui/react'
-import {Button, FieldError, ListBox, Select} from '@heroui-v3/react'
+import {Button, FieldError, Input, Label, ListBox, Select, TextField} from '@heroui-v3/react'
 
 interface FormErrors {
   tools: {
@@ -48,37 +47,43 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
             </div>
             <div className={cn(ds.form.fieldRow, 'grid grid-cols-1 gap-4 sm:grid-cols-2')}>
               <div>
-                <label className={cn(ds.form.label)}>Name</label>
-                <Input
+                <TextField
                   value={tool.name}
-                  onChange={e => onToolChange(index, 'name', e.target.value)}
-                  required
+                  onChange={value => onToolChange(index, 'name', value)}
+                  isRequired
                   isInvalid={!!errors.tools[index]?.name}
-                  errorMessage={errors.tools[index]?.name}
-                  className={cn(ds.focus.ring, ds.animation.transition)}
-                />
+                  fullWidth
+                >
+                  <Label className={cn(ds.form.label)}>Name</Label>
+                  <Input />
+                  <FieldError>{errors.tools[index]?.name}</FieldError>
+                </TextField>
               </div>
               <div>
-                <label className={cn(ds.form.label)}>Description</label>
-                <Input
+                <TextField
                   value={tool.description}
-                  onChange={e => onToolChange(index, 'description', e.target.value)}
-                  required
+                  onChange={value => onToolChange(index, 'description', value)}
+                  isRequired
                   isInvalid={!!errors.tools[index]?.description}
-                  errorMessage={errors.tools[index]?.description}
-                  className={cn(ds.focus.ring, ds.animation.transition)}
-                />
+                  fullWidth
+                >
+                  <Label className={cn(ds.form.label)}>Description</Label>
+                  <Input />
+                  <FieldError>{errors.tools[index]?.description}</FieldError>
+                </TextField>
               </div>
               <div>
-                <label className={cn(ds.form.label)}>Endpoint</label>
-                <Input
+                <TextField
                   value={tool.endpoint}
-                  onChange={e => onToolChange(index, 'endpoint', e.target.value)}
-                  required
+                  onChange={value => onToolChange(index, 'endpoint', value)}
+                  isRequired
                   isInvalid={!!errors.tools[index]?.endpoint}
-                  errorMessage={errors.tools[index]?.endpoint}
-                  className={cn(ds.focus.ring, ds.animation.transition)}
-                />
+                  fullWidth
+                >
+                  <Label className={cn(ds.form.label)}>Endpoint</Label>
+                  <Input />
+                  <FieldError>{errors.tools[index]?.endpoint}</FieldError>
+                </TextField>
               </div>
               <div>
                 <label className={cn(ds.form.label)}>Authentication Type</label>
@@ -115,21 +120,23 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
               </div>
               {tool.authentication && (
                 <div className="sm:col-span-2">
-                  <label className={cn(ds.form.label)}>Authentication Value</label>
-                  <Input
+                  <TextField
                     type="password"
                     value={tool.authentication.value}
-                    onChange={e =>
+                    onChange={value =>
                       onToolChange(index, 'authentication', {
                         ...tool.authentication,
-                        value: e.target.value,
+                        value,
                       })
                     }
-                    required
+                    isRequired
                     isInvalid={!!errors.tools[index]?.authentication}
-                    errorMessage={errors.tools[index]?.authentication}
-                    className={cn(ds.focus.ring, ds.animation.transition)}
-                  />
+                    fullWidth
+                  >
+                    <Label className={cn(ds.form.label)}>Authentication Value</Label>
+                    <Input />
+                    <FieldError>{errors.tools[index]?.authentication}</FieldError>
+                  </TextField>
                 </div>
               )}
             </div>
