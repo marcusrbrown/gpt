@@ -1,18 +1,8 @@
 import type {MCPAuthentication, MCPServerConfig} from '@/types/mcp'
 import {cn, ds, theme} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {
-  Checkbox,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-} from '@heroui/react'
-import {Button, Spinner} from '@heroui-v3/react'
+import {Checkbox, Input} from '@heroui/react'
+import {Button, Label, ListBox, Modal, Select, Spinner} from '@heroui-v3/react'
 import {useState} from 'react'
 import {z} from 'zod'
 
@@ -23,7 +13,15 @@ interface MCPServerFormProps {
   initialConfig?: MCPServerConfig
 }
 
-type AuthType = 'none' | 'bearer' | 'api-key' | 'basic' | 'oauth2'
+const AUTH_TYPE_OPTIONS = [
+  {id: 'none', label: 'None'},
+  {id: 'api-key', label: 'API Key'},
+  {id: 'bearer', label: 'Bearer Token'},
+  {id: 'basic', label: 'Basic Auth'},
+  {id: 'oauth2', label: 'OAuth 2.0'},
+] as const
+
+type AuthType = (typeof AUTH_TYPE_OPTIONS)[number]['id']
 
 interface FormState {
   name: string
@@ -172,240 +170,247 @@ export function MCPServerForm({isOpen, onClose, onSave, initialConfig}: MCPServe
   }
 
   return (
-    <Modal
+    <Modal.Backdrop
       isOpen={isOpen}
-      onClose={onClose}
-      placement="center"
-      backdrop="opaque"
-      scrollBehavior="inside"
-      classNames={{
-        base: cn(theme.surface(1), 'border', theme.border(), 'max-w-2xl'),
-        wrapper: 'bg-black/50',
-        header: 'border-b border-default-100',
-        footer: 'border-t border-default-100',
+      onOpenChange={open => {
+        if (!open) onClose()
       }}
+      variant="opaque"
     >
-      <ModalContent>
-        <ModalHeader className="flex flex-col gap-1">
-          {initialConfig ? 'Edit MCP Server' : 'Add MCP Server'}
-          <span className={cn(ds.text.body.small, 'font-normal text-default-500')}>
-            Configure a Model Context Protocol server connection.
-          </span>
-        </ModalHeader>
-        <ModalBody className="py-6 gap-6">
-          <div className="grid gap-4">
-            <Input
-              label="Server Name"
-              placeholder="e.g. Memory Service"
-              value={formState.name}
-              onChange={e => updateField('name', e.target.value)}
-              variant="bordered"
-              labelPlacement="outside"
-              className={cn(ds.focus.ring)}
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              <Select
-                label="Transport"
-                selectedKeys={[formState.transport]}
-                onChange={e =>
-                  e.target.value && updateField('transport', e.target.value as 'stdio' | 'streamable-http')
-                }
-                variant="bordered"
-                labelPlacement="outside"
-                disallowEmptySelection
-              >
-                <SelectItem key="streamable-http" textValue="SSE / HTTP">
-                  SSE / HTTP (Remote)
-                </SelectItem>
-                <SelectItem key="stdio" textValue="Stdio">
-                  Stdio (Local Process)
-                </SelectItem>
-              </Select>
-
-              <div className="flex items-end pb-2">
-                <Checkbox isSelected={formState.enabled} onValueChange={v => updateField('enabled', v)} size="sm">
-                  Enabled
-                </Checkbox>
-              </div>
-            </div>
-
-            {formState.transport === 'streamable-http' && (
+      <Modal.Container size="lg" placement="center" scroll="inside">
+        <Modal.Dialog className={cn(theme.surface(1), 'border', theme.border(), 'max-w-2xl')}>
+          <Modal.CloseTrigger />
+          <Modal.Header className="gap-1 border-b border-default-100 pb-4 pr-8">
+            <Modal.Heading className="text-lg font-semibold">
+              {initialConfig ? 'Edit MCP Server' : 'Add MCP Server'}
+            </Modal.Heading>
+            <span className={cn(ds.text.body.small, 'font-normal text-default-500')}>
+              Configure a Model Context Protocol server connection.
+            </span>
+          </Modal.Header>
+          <Modal.Body className="flex flex-col gap-6 py-6 text-base text-foreground">
+            <div className="grid gap-4">
               <Input
-                label="Server URL"
-                placeholder="http://localhost:3000/sse"
-                value={formState.url}
-                onChange={e => updateField('url', e.target.value)}
+                label="Server Name"
+                placeholder="e.g. Memory Service"
+                value={formState.name}
+                onChange={e => updateField('name', e.target.value)}
                 variant="bordered"
                 labelPlacement="outside"
                 className={cn(ds.focus.ring)}
-                type="url"
               />
-            )}
 
-            {formState.transport === 'stdio' && (
-              <div className={cn('p-3 rounded-lg bg-warning-50 text-warning-800 text-sm')}>
-                Stdio transport requires a desktop environment (Tauri). Not currently supported in web mode.
-              </div>
-            )}
-
-            <div className="border-t border-default-100 my-2" />
-
-            <Select
-              label="Authentication"
-              selectedKeys={[formState.authType]}
-              onChange={e => e.target.value && updateField('authType', e.target.value as AuthType)}
-              variant="bordered"
-              labelPlacement="outside"
-              disallowEmptySelection
-            >
-              <SelectItem key="none" textValue="None">
-                None
-              </SelectItem>
-              <SelectItem key="api-key" textValue="API Key">
-                API Key
-              </SelectItem>
-              <SelectItem key="bearer" textValue="Bearer Token">
-                Bearer Token
-              </SelectItem>
-              <SelectItem key="basic" textValue="Basic Auth">
-                Basic Auth
-              </SelectItem>
-              <SelectItem key="oauth2" textValue="OAuth 2.0">
-                OAuth 2.0
-              </SelectItem>
-            </Select>
-
-            {formState.authType === 'api-key' && (
-              <div className="grid grid-cols-3 gap-4">
-                <Input
-                  label="Header Name"
-                  value={formState.authKeyHeader}
-                  onChange={e => updateField('authKeyHeader', e.target.value)}
-                  placeholder="x-api-key"
-                  variant="bordered"
-                  labelPlacement="outside"
-                  className="col-span-1"
-                />
-                <Input
-                  label="Key"
-                  value={formState.authKey}
-                  onChange={e => updateField('authKey', e.target.value)}
-                  type="password"
-                  placeholder="sk-..."
-                  variant="bordered"
-                  labelPlacement="outside"
-                  className="col-span-2"
-                />
-              </div>
-            )}
-
-            {formState.authType === 'bearer' && (
-              <Input
-                label="Token"
-                value={formState.authToken}
-                onChange={e => updateField('authToken', e.target.value)}
-                type="password"
-                placeholder="eyJ..."
-                variant="bordered"
-                labelPlacement="outside"
-              />
-            )}
-
-            {formState.authType === 'basic' && (
               <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="Username"
-                  value={formState.authUsername}
-                  onChange={e => updateField('authUsername', e.target.value)}
-                  variant="bordered"
-                  labelPlacement="outside"
-                />
-                <Input
-                  label="Password"
-                  value={formState.authPassword}
-                  onChange={e => updateField('authPassword', e.target.value)}
-                  type="password"
-                  variant="bordered"
-                  labelPlacement="outside"
-                />
-              </div>
-            )}
+                <Select
+                  value={formState.transport}
+                  onChange={key => {
+                    if (key === 'stdio' || key === 'streamable-http') updateField('transport', key)
+                  }}
+                  fullWidth
+                >
+                  <Label>Transport</Label>
+                  <Select.Trigger>
+                    <Select.Value />
+                    <Select.Indicator />
+                  </Select.Trigger>
+                  <Select.Popover>
+                    <ListBox>
+                      <ListBox.Item id="streamable-http" textValue="SSE / HTTP">
+                        SSE / HTTP (Remote)
+                        <ListBox.ItemIndicator />
+                      </ListBox.Item>
+                      <ListBox.Item id="stdio" textValue="Stdio">
+                        Stdio (Local Process)
+                        <ListBox.ItemIndicator />
+                      </ListBox.Item>
+                    </ListBox>
+                  </Select.Popover>
+                </Select>
 
-            {formState.authType === 'oauth2' && (
-              <div className="space-y-4">
+                <div className="flex items-end pb-2">
+                  <Checkbox isSelected={formState.enabled} onValueChange={v => updateField('enabled', v)} size="sm">
+                    Enabled
+                  </Checkbox>
+                </div>
+              </div>
+
+              {formState.transport === 'streamable-http' && (
+                <Input
+                  label="Server URL"
+                  placeholder="http://localhost:3000/sse"
+                  value={formState.url}
+                  onChange={e => updateField('url', e.target.value)}
+                  variant="bordered"
+                  labelPlacement="outside"
+                  className={cn(ds.focus.ring)}
+                  type="url"
+                />
+              )}
+
+              {formState.transport === 'stdio' && (
+                <div className={cn('p-3 rounded-lg bg-warning-50 text-warning-800 text-sm')}>
+                  Stdio transport requires a desktop environment (Tauri). Not currently supported in web mode.
+                </div>
+              )}
+
+              <div className="border-t border-default-100 my-2" />
+
+              <Select
+                value={formState.authType}
+                onChange={key => {
+                  const authType = AUTH_TYPE_OPTIONS.find(option => option.id === key)
+                  if (authType) updateField('authType', authType.id)
+                }}
+                fullWidth
+              >
+                <Label>Authentication</Label>
+                <Select.Trigger>
+                  <Select.Value />
+                  <Select.Indicator />
+                </Select.Trigger>
+                <Select.Popover>
+                  <ListBox>
+                    {AUTH_TYPE_OPTIONS.map(option => (
+                      <ListBox.Item key={option.id} id={option.id} textValue={option.label}>
+                        {option.label}
+                        <ListBox.ItemIndicator />
+                      </ListBox.Item>
+                    ))}
+                  </ListBox>
+                </Select.Popover>
+              </Select>
+
+              {formState.authType === 'api-key' && (
+                <div className="grid grid-cols-3 gap-4">
+                  <Input
+                    label="Header Name"
+                    value={formState.authKeyHeader}
+                    onChange={e => updateField('authKeyHeader', e.target.value)}
+                    placeholder="x-api-key"
+                    variant="bordered"
+                    labelPlacement="outside"
+                    className="col-span-1"
+                  />
+                  <Input
+                    label="Key"
+                    value={formState.authKey}
+                    onChange={e => updateField('authKey', e.target.value)}
+                    type="password"
+                    placeholder="sk-..."
+                    variant="bordered"
+                    labelPlacement="outside"
+                    className="col-span-2"
+                  />
+                </div>
+              )}
+
+              {formState.authType === 'bearer' && (
+                <Input
+                  label="Token"
+                  value={formState.authToken}
+                  onChange={e => updateField('authToken', e.target.value)}
+                  type="password"
+                  placeholder="eyJ..."
+                  variant="bordered"
+                  labelPlacement="outside"
+                />
+              )}
+
+              {formState.authType === 'basic' && (
                 <div className="grid grid-cols-2 gap-4">
                   <Input
-                    label="Client ID"
-                    value={formState.oauthClientId}
-                    onChange={e => updateField('oauthClientId', e.target.value)}
+                    label="Username"
+                    value={formState.authUsername}
+                    onChange={e => updateField('authUsername', e.target.value)}
                     variant="bordered"
                     labelPlacement="outside"
                   />
                   <Input
-                    label="Client Secret"
-                    value={formState.oauthClientSecret}
-                    onChange={e => updateField('oauthClientSecret', e.target.value)}
+                    label="Password"
+                    value={formState.authPassword}
+                    onChange={e => updateField('authPassword', e.target.value)}
                     type="password"
                     variant="bordered"
                     labelPlacement="outside"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <Input
-                    label="Auth URL"
-                    value={formState.oauthAuthUrl}
-                    onChange={e => updateField('oauthAuthUrl', e.target.value)}
-                    placeholder="https://.../authorize"
-                    variant="bordered"
-                    labelPlacement="outside"
-                  />
-                  <Input
-                    label="Token URL"
-                    value={formState.oauthTokenUrl}
-                    onChange={e => updateField('oauthTokenUrl', e.target.value)}
-                    placeholder="https://.../token"
-                    variant="bordered"
-                    labelPlacement="outside"
-                  />
-                </div>
-                <Input
-                  label="Scopes (comma separated)"
-                  value={formState.oauthScopes}
-                  onChange={e => updateField('oauthScopes', e.target.value)}
-                  placeholder="read,write"
-                  variant="bordered"
-                  labelPlacement="outside"
-                />
-                <div className="p-2 bg-default-50 rounded text-xs text-default-500">
-                  Note: Full OAuth flow configuration is not yet implemented in this UI.
-                </div>
-              </div>
-            )}
-          </div>
+              )}
 
-          {error && <div className={cn(ds.form.errorText, 'text-center')}>{error}</div>}
-        </ModalBody>
-        <ModalFooter>
-          <Button variant="tertiary" onPress={onClose} isDisabled={isSaving}>
-            Cancel
-          </Button>
-          <Button
-            variant="primary"
-            onPress={() => {
-              handleSave().catch(console.error)
-            }}
-            isPending={isSaving}
-          >
-            {({isPending}) => (
-              <>
-                {isPending && <Spinner size="sm" color="current" />}
-                Save Server
-              </>
-            )}
-          </Button>
-        </ModalFooter>
-      </ModalContent>
-    </Modal>
+              {formState.authType === 'oauth2' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input
+                      label="Client ID"
+                      value={formState.oauthClientId}
+                      onChange={e => updateField('oauthClientId', e.target.value)}
+                      variant="bordered"
+                      labelPlacement="outside"
+                    />
+                    <Input
+                      label="Client Secret"
+                      value={formState.oauthClientSecret}
+                      onChange={e => updateField('oauthClientSecret', e.target.value)}
+                      type="password"
+                      variant="bordered"
+                      labelPlacement="outside"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <Input
+                      label="Auth URL"
+                      value={formState.oauthAuthUrl}
+                      onChange={e => updateField('oauthAuthUrl', e.target.value)}
+                      placeholder="https://.../authorize"
+                      variant="bordered"
+                      labelPlacement="outside"
+                    />
+                    <Input
+                      label="Token URL"
+                      value={formState.oauthTokenUrl}
+                      onChange={e => updateField('oauthTokenUrl', e.target.value)}
+                      placeholder="https://.../token"
+                      variant="bordered"
+                      labelPlacement="outside"
+                    />
+                  </div>
+                  <Input
+                    label="Scopes (comma separated)"
+                    value={formState.oauthScopes}
+                    onChange={e => updateField('oauthScopes', e.target.value)}
+                    placeholder="read,write"
+                    variant="bordered"
+                    labelPlacement="outside"
+                  />
+                  <div className="p-2 bg-default-50 rounded text-xs text-default-500">
+                    Note: Full OAuth flow configuration is not yet implemented in this UI.
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {error && <div className={cn(ds.form.errorText, 'text-center')}>{error}</div>}
+          </Modal.Body>
+          <Modal.Footer className="border-t border-default-100 pt-4">
+            <Button variant="tertiary" onPress={onClose} isDisabled={isSaving}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onPress={() => {
+                handleSave().catch(console.error)
+              }}
+              isPending={isSaving}
+            >
+              {({isPending}) => (
+                <>
+                  {isPending && <Spinner size="sm" color="current" />}
+                  Save Server
+                </>
+              )}
+            </Button>
+          </Modal.Footer>
+        </Modal.Dialog>
+      </Modal.Container>
+    </Modal.Backdrop>
   )
 }

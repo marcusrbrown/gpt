@@ -9,7 +9,7 @@ Reusable React UI components. HeroUI + TailwindCSS design tokens.
 - Async handlers: `.catch(console.error)` to avoid floating promises
 - Buttons: `Button` comes from `@heroui-v3/react` (see `docs/design-system.md`, "Button (v3)"); icons go in as children, no `startContent`
 - Inputs with icons: add `classNames={{ inputWrapper: 'flex items-center' }}`
-- Modals: `Modal` comes from `@heroui-v3/react` (see `docs/design-system.md`, "Modal (v3)"): always `<Modal.Container placement="center">` inside `<Modal.Backdrop variant="opaque">`. Exception: `mcp/mcp-server-form.tsx` stays on v2 until `Select` migrates (see the design-system doc)
+- Modals: `Modal` comes from `@heroui-v3/react` (see `docs/design-system.md`, "Modal (v3)"): always `<Modal.Container placement="center">` inside `<Modal.Backdrop variant="opaque">`. `Select` comes from `@heroui-v3/react` too ("Select (v3)"): never put a v2 overlay inside a v3 `Modal`
 
 ## Tests
 

@@ -1,8 +1,8 @@
 import type {MCPTool} from '@/types/gpt'
 import {cn, ds} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Input, Select, SelectItem} from '@heroui/react'
-import {Button} from '@heroui-v3/react'
+import {Input} from '@heroui/react'
+import {Button, FieldError, ListBox, Select} from '@heroui-v3/react'
 
 interface FormErrors {
   tools: {
@@ -83,22 +83,34 @@ export function ToolsConfiguration({tools, errors, onAddTool, onRemoveTool, onTo
               <div>
                 <label className={cn(ds.form.label)}>Authentication Type</label>
                 <Select
-                  selectedKeys={tool.authentication?.type ? [tool.authentication.type] : []}
-                  onSelectionChange={keys => {
-                    const value = Array.from(keys)[0] as string
+                  aria-label="Authentication Type"
+                  value={tool.authentication?.type ?? null}
+                  onChange={key => {
+                    if (typeof key !== 'string') return
                     onToolChange(index, 'authentication', {
-                      type: value as 'bearer' | 'api_key',
+                      type: key as 'bearer' | 'api_key',
                       value: tool.authentication?.value || '',
                     })
                   }}
                   placeholder="Select type..."
-                  className={cn(ds.form.fieldGroup, ds.focus.ring, ds.animation.transition)}
+                  fullWidth
                   isInvalid={!!errors.tools[index]?.authentication}
-                  errorMessage={errors.tools[index]?.authentication}
                 >
-                  {AUTH_TYPES.map(type => (
-                    <SelectItem key={type.value}>{type.label}</SelectItem>
-                  ))}
+                  <Select.Trigger>
+                    <Select.Value />
+                    <Select.Indicator />
+                  </Select.Trigger>
+                  <FieldError>{errors.tools[index]?.authentication}</FieldError>
+                  <Select.Popover>
+                    <ListBox>
+                      {AUTH_TYPES.map(type => (
+                        <ListBox.Item key={type.value} id={type.value} textValue={type.label}>
+                          {type.label}
+                          <ListBox.ItemIndicator />
+                        </ListBox.Item>
+                      ))}
+                    </ListBox>
+                  </Select.Popover>
                 </Select>
               </div>
               {tool.authentication && (
