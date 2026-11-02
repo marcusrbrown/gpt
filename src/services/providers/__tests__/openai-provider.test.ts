@@ -198,6 +198,14 @@ async function thrownBy(generator: AsyncIterable<CompletionChunk>): Promise<unkn
   throw new Error('Expected generator to throw')
 }
 
+function modelsResponse(ids: string[]): Response {
+  const data = ids.map(id => ({id, object: 'model', created: 0, owned_by: 'gateway'}))
+  return new Response(JSON.stringify({object: 'list', data}), {
+    status: 200,
+    headers: {'Content-Type': 'application/json'},
+  })
+}
+
 function createProvider(): OpenAIProvider {
   const provider = new OpenAIProvider()
   provider.setApiKey('sk-test-key')
@@ -292,6 +300,141 @@ describe('OpenAIProvider', () => {
       const result = await new OpenAIProvider().validateCredentials('sk-bad')
 
       expect(result).toEqual({valid: false, error: 'Invalid API key'})
+    })
+  })
+
+  describe('base URL', () => {
+    const GATEWAY = 'http://localhost:8317/v1'
+
+    it('uses the OpenAI endpoints when no base URL is set', async () => {
+      const {requests} = mockFetch(init => {
+        return init?.method === 'POST' ? streamResponse(textStreamEvents(['Hi'])) : modelsResponse(['gpt-4o'])
+      })
+      const provider = createProvider()
+
+      expect(provider.baseUrl).toBeUndefined()
+      await provider.validateCredentials('sk-test-key')
+      await collectChunks(provider.createCompletion(request()))
+
+      expect(requests.map(r => r.url)).toEqual([
+        'https://api.openai.com/v1/models',
+        'https://api.openai.com/v1/responses',
+      ])
+    })
+
+    it('sends validation to <baseUrl>/models with the key as a bearer token', async () => {
+      const {requests} = mockFetch(() => modelsResponse(['gpt-5', 'claude-sonnet-4-5']))
+      const provider = new OpenAIProvider()
+      provider.configure({baseUrl: GATEWAY})
+
+      const result = await provider.validateCredentials('sk-gateway-key')
+
+      expect(requests).toHaveLength(1)
+      expect(requests[0]?.url).toBe(`${GATEWAY}/models`)
+      expect(requests[0]?.headers.get('authorization')).toBe('Bearer sk-gateway-key')
+      expect(result.valid).toBe(true)
+      expect(result.models?.map(m => m.id)).toEqual(['gpt-5', 'claude-sonnet-4-5'])
+    })
+
+    it('streams the Responses API call to <baseUrl>/responses with the usual body', async () => {
+      const {requests} = mockFetch(() => streamResponse(textStreamEvents(['Hello'])))
+      const provider = createProvider()
+      provider.configure({baseUrl: GATEWAY})
+
+      const chunks = await collectChunks(provider.createCompletion(request({instructions: 'Be terse.'})))
+
+      expect(requests).toHaveLength(1)
+      expect(requests[0]?.url).toBe(`${GATEWAY}/responses`)
+      expect(requests[0]?.headers.get('authorization')).toBe('Bearer sk-test-key')
+      expect(requests[0]?.body).toMatchObject({
+        model: 'gpt-4o',
+        store: false,
+        stream: true,
+        instructions: 'Be terse.',
+        input: [{role: 'user', content: 'Hello'}],
+      })
+      expect(chunks.map(c => c.content).filter(Boolean)).toEqual(['Hello'])
+    })
+
+    it.each(['http://localhost:8317/v1/', 'http://localhost:8317/v1///', '  http://localhost:8317/v1/  '])(
+      'drops trailing slashes and whitespace from %j',
+      async value => {
+        const {requests} = mockFetch(() => modelsResponse(['gpt-5']))
+        const provider = new OpenAIProvider()
+
+        provider.configure({baseUrl: value})
+        await provider.validateCredentials('sk-test-key')
+
+        expect(provider.baseUrl).toBe(GATEWAY)
+        expect(requests[0]?.url).toBe(`${GATEWAY}/models`)
+      },
+    )
+
+    it('lets validateCredentials try a URL without saving it', async () => {
+      const {requests} = mockFetch(() => modelsResponse(['gpt-5']))
+      const provider = new OpenAIProvider()
+
+      await provider.validateCredentials('sk-test-key', 'https://gateway.example.com/v1/')
+
+      expect(requests[0]?.url).toBe('https://gateway.example.com/v1/models')
+      expect(provider.baseUrl).toBeUndefined()
+    })
+
+    it('lists the models the gateway reports, and keeps the built-in list for OpenAI itself', async () => {
+      const {requests} = mockFetch(() => modelsResponse(['gpt-4o', 'gemini-2.5-pro']))
+      const provider = createProvider()
+
+      expect((await provider.listModels()).map(m => m.id)).toContain('gpt-3.5-turbo')
+      expect(requests).toHaveLength(0)
+
+      provider.configure({baseUrl: GATEWAY})
+      const models = await provider.listModels()
+
+      expect(requests.map(r => r.url)).toEqual([`${GATEWAY}/models`])
+      expect(models.map(m => m.id)).toEqual(['gpt-4o', 'gemini-2.5-pro'])
+      expect(models.every(m => m.provider === 'openai')).toBe(true)
+    })
+
+    it('maps a gateway model-list failure to a ProviderError', async () => {
+      mockFetch(() => errorResponse(401, 'Unauthorized'))
+      const provider = createProvider()
+      provider.configure({baseUrl: GATEWAY})
+
+      await expect(provider.listModels()).rejects.toMatchObject({type: 'authentication', provider: 'openai'})
+    })
+
+    it('goes back to OpenAI when the base URL is cleared, even with a key already set', async () => {
+      const {requests} = mockFetch(() => streamResponse(textStreamEvents(['Hi'])))
+      const provider = createProvider()
+
+      provider.configure({baseUrl: GATEWAY})
+      await collectChunks(provider.createCompletion(request()))
+      provider.configure({baseUrl: undefined})
+      await collectChunks(provider.createCompletion(request()))
+
+      expect(requests.map(r => r.url)).toEqual([`${GATEWAY}/responses`, 'https://api.openai.com/v1/responses'])
+    })
+
+    it.each([
+      'localhost:8317/v1',
+      'ftp://example.com/v1',
+      'javascript:alert(1)',
+      'http://user:pass@host/v1',
+      'http://host/v1?x=1',
+      '',
+    ])('refuses %j as a base URL', async value => {
+      const {requests} = mockFetch(() => modelsResponse([]))
+      const provider = new OpenAIProvider()
+
+      expect(() => {
+        provider.configure({baseUrl: value})
+      }).toThrow()
+      expect(provider.baseUrl).toBeUndefined()
+
+      const result = await provider.validateCredentials('sk-test-key', value)
+      expect(result.valid).toBe(false)
+      expect(result.error).toBeTruthy()
+      expect(requests).toHaveLength(0)
     })
   })
 

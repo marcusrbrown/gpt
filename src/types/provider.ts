@@ -34,6 +34,47 @@ export const ProviderConfigSchema = z.object({
 
 export type ProviderConfig = z.infer<typeof ProviderConfigSchema>
 
+/** Providers that can talk to a compatible gateway instead of the vendor's own endpoint. */
+export const BaseUrlProviderIdSchema = z.enum(['openai', 'anthropic'])
+export type BaseUrlProviderId = z.infer<typeof BaseUrlProviderIdSchema>
+
+function parseUrl(value: string): URL | undefined {
+  try {
+    return new URL(value)
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * An optional endpoint override, entered with its API version segment (for example `https://host/v1`), the same shape
+ * as the vendor defaults. Trimmed, http(s) only, trailing slashes dropped. Credentials, a query string or a fragment
+ * are refused: the URL is stored unencrypted and requests append paths to it.
+ */
+export const ProviderBaseUrlSchema = z
+  .string()
+  .trim()
+  .pipe(z.url({protocol: /^https?$/, error: 'Enter an http:// or https:// URL, for example http://localhost:8317/v1'}))
+  // These run even when the URL check above failed, so they must tolerate a value that does not parse.
+  .refine(value => {
+    const url = parseUrl(value)
+    return !url?.username && !url?.password
+  }, 'Remove the username and password from the URL')
+  .refine(value => {
+    const url = parseUrl(value)
+    return !url?.search && !url?.hash
+  }, 'Remove the query string and fragment from the URL')
+  .transform(value => value.replace(/\/+$/, ''))
+
+export const ProviderEndpointConfigSchema = z.object({
+  baseUrl: ProviderBaseUrlSchema.optional(),
+})
+
+export type ProviderEndpointConfig = z.input<typeof ProviderEndpointConfigSchema>
+
+export const ProviderBaseUrlsSchema = z.partialRecord(BaseUrlProviderIdSchema, ProviderBaseUrlSchema)
+export type ProviderBaseUrls = z.infer<typeof ProviderBaseUrlsSchema>
+
 export const MessageRoleSchema = z.enum(['system', 'user', 'assistant', 'tool'])
 export type MessageRole = z.infer<typeof MessageRoleSchema>
 
