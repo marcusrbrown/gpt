@@ -5,6 +5,7 @@ import {Footer} from './components/footer'
 import {Navbar} from './components/navbar'
 import {SessionWarning} from './components/session-warning'
 import {cn, ds} from './lib/design-system'
+import {routeTransitionKey} from './lib/route-transition-key'
 import {BackupRestorePage} from './pages/backup-restore-page'
 import {GPTEditorPage} from './pages/gpt-editor-page'
 import {GPTShowcasePage} from './pages/gpt-showcase-page'
@@ -35,8 +36,8 @@ function App() {
         <SessionWarning />
         <Navbar />
         <div className="grow">
-          {/* Key by pathname to trigger page transition animations on route changes */}
-          <Routes key={location.pathname}>
+          {/* Key by route to replay page transition animations on route changes (a chat's first save keeps its page) */}
+          <Routes key={routeTransitionKey(location.pathname)}>
             <Route path="/" element={<HomePage />} />
 
             <Route

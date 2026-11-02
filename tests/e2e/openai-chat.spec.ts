@@ -77,6 +77,30 @@ async function openOpenAIChat(pages: {
   expect(await gptTestPage.getModelIndicator()).toContain(`OpenAI · ${MODEL}`)
 }
 
+const NEW_CHAT_URL = /\/gpt\/test\/[^/]+$/
+const SAVED_CHAT_URL = /\/gpt\/test\/[^/]+\/c\/[^/]+$/
+
+interface SaveGateWindow {
+  __releaseConversationReads?: () => void
+}
+
+/**
+ * Holds every read of a conversation record until the returned function is called. A new chat's first save starts with
+ * that read, so the save (and the move to the chat's own URL that follows it) waits too. Loaded from the Vite dev
+ * server so it is the app's own Dexie instance.
+ */
+async function holdConversationReads(page: Page): Promise<() => Promise<void>> {
+  await page.evaluate(`(async () => {
+    const {db} = await import('/src/lib/database.ts')
+    const read = db.conversations.get.bind(db.conversations)
+    const gate = new Promise(resolve => { window.__releaseConversationReads = resolve })
+    db.conversations.get = async (...args) => { await gate; return read(...args) }
+  })()`)
+  return async () => {
+    await page.evaluate(() => (window as unknown as SaveGateWindow).__releaseConversationReads?.())
+  }
+}
+
 test.describe('OpenAI chat (mocked Responses API)', () => {
   test('streams a reply and sends instructions, the message and store: false', async ({
     page,
@@ -115,6 +139,8 @@ test.describe('OpenAI chat (mocked Responses API)', () => {
 
     await gptTestPage.sendMessage('First question')
     await expect(gptTestPage.assistantMessages.last()).toContainText('First answer.')
+    // The first save moves the chat to its own URL; a message typed before that would be lost to the remount
+    await expect(page).toHaveURL(SAVED_CHAT_URL)
 
     await gptTestPage.sendMessage('Second question')
     await expect(gptTestPage.assistantMessages.last()).toContainText('Second answer.')
@@ -129,6 +155,35 @@ test.describe('OpenAI chat (mocked Responses API)', () => {
         {role: 'user', content: 'Second question'},
       ],
     })
+  })
+
+  test('keeps a draft typed while the first save is pending when the chat moves to its own URL', async ({
+    page,
+    settingsPage,
+    homePage,
+    gptShowcasePage,
+    gptTestPage,
+  }) => {
+    const requests = await mockOpenAIResponses(page, [['First answer.'], ['Second answer.']])
+    await openOpenAIChat({page, settingsPage, homePage, gptShowcasePage, gptTestPage})
+    const releaseSave = await holdConversationReads(page)
+
+    await gptTestPage.sendMessage('First question')
+    await expect(gptTestPage.assistantMessages.last()).toContainText('First answer.')
+    // The reply is done and its save is held, so the chat is still on the new-chat URL
+    await expect(page).toHaveURL(NEW_CHAT_URL)
+    await expect(gptTestPage.messageInput).toBeEnabled()
+    await gptTestPage.messageInput.fill('Second question')
+
+    await releaseSave()
+
+    await expect(page).toHaveURL(SAVED_CHAT_URL)
+    await expect(gptTestPage.messageInput).toHaveValue('Second question')
+    await expect(gptTestPage.assistantMessages.last()).toContainText('First answer.')
+
+    await gptTestPage.sendButton.click()
+    await expect(gptTestPage.assistantMessages.last()).toContainText('Second answer.')
+    expect(requests).toHaveLength(2)
   })
 
   test('regenerate resends up to the last user message and replaces the reply', async ({
