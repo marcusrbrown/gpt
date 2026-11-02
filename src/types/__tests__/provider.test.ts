@@ -320,6 +320,8 @@ describe('ProviderBaseUrlSchema', () => {
     ['http://user:pass@host/v1', /username and password/],
     ['http://host/v1?key=1', /query string/],
     ['http://host/v1#frag', /query string/],
+    ['https://h/v1?', /query string/],
+    ['https://h/v1#', /query string/],
   ])('refuses %j', (input, message) => {
     const result = ProviderBaseUrlSchema.safeParse(input)
 

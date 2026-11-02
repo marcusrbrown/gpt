@@ -60,10 +60,9 @@ export const ProviderBaseUrlSchema = z
     const url = parseUrl(value)
     return !url?.username && !url?.password
   }, 'Remove the username and password from the URL')
-  .refine(value => {
-    const url = parseUrl(value)
-    return !url?.search && !url?.hash
-  }, 'Remove the query string and fragment from the URL')
+  // Check the raw text: `URL.search` and `URL.hash` are empty for a bare trailing `?` or `#`, but the stored string
+  // would still break the request paths appended to it.
+  .refine(value => !value.includes('?') && !value.includes('#'), 'Remove the query string and fragment from the URL')
   .transform(value => value.replace(/\/+$/, ''))
 
 export const ProviderEndpointConfigSchema = z.object({
