@@ -200,7 +200,7 @@ Based on 4px base unit with consistent increments:
 />
 ```
 
-`Select` is on HeroUI v3: see "Select (v3)" under v2/v3 Coexistence.
+`Select`, `Switch`, `Checkbox` and `Radio` are on HeroUI v3: see "Select (v3)" and "Switch, Checkbox, Radio (v3)" under v2/v3 Coexistence.
 
 ## Layout Patterns
 
@@ -527,7 +527,7 @@ Differences to expect, and what the app does about them:
 - v3 rounds the dialog to 32px and fills the close button. `src/styles/heroui-v3.css` keeps the v2 radius (`--heroui-radius-large`) and a transparent close button. Drop both at cutover.
 - The v2 menu that opens a dialog (the GPT actions `Dropdown`) is still animating out when the dialog mounts, and v3 does not set `aria-hidden` on it, so it briefly counts as a second `role="dialog"`. Locate the dialog by name in tests: `getByRole('dialog', {name: /export/i})`.
 
-**Do not put a v2 overlay (`Select`, `Dropdown`, `Popover`) inside a v3 `Modal`.** The two majors resolve different `@react-aria/focus` and `@react-aria/overlays` versions, so their focus scopes do not nest: the v3 modal pulls focus back from the v2 popover and the popover closes on open. (Seen on a v2 `Select` in `mcp/mcp-server-form.tsx`: `aria-expanded` flipped back to `false`, and a `portalContainer` inside the dialog did not fix it.) Use the v3 `Select` (below), which nests in the v3 modal; `mcp-server-form.tsx` is the reference. v2 `Tooltip` and non-overlay v2 components (`Input`, `Checkbox`, `Switch`, `Radio`, `Progress`, `Accordion`) work inside a v3 modal.
+**Do not put a v2 overlay (`Select`, `Dropdown`, `Popover`) inside a v3 `Modal`.** The two majors resolve different `@react-aria/focus` and `@react-aria/overlays` versions, so their focus scopes do not nest: the v3 modal pulls focus back from the v2 popover and the popover closes on open. (Seen on a v2 `Select` in `mcp/mcp-server-form.tsx`: `aria-expanded` flipped back to `false`, and a `portalContainer` inside the dialog did not fix it.) Use the v3 `Select` (below), which nests in the v3 modal; `mcp-server-form.tsx` is the reference. v2 `Tooltip` and non-overlay v2 components (`Input`, `Progress`, `Accordion`) work inside a v3 modal.
 
 The v3 import list in `src/styles/heroui-v3.css` gains `base/overlay-motion.css` (`layer(base)`), `close-button.css` (shared, before `modal.css`) and `modal.css`.
 
@@ -577,6 +577,65 @@ Differences to expect:
 - Pass `aria-label` when there is no `<Label>`; v3 does not name the select from `placeholder`.
 
 `src/styles/heroui-v3.css` gains `label.css` and `field-error.css` (shared, first), then `list-box-item.css`, `list-box.css` and `select.css`.
+
+### Switch, Checkbox, Radio (v3)
+
+```tsx
+import '@/styles/heroui-v3.css'
+import {Checkbox, Description, Label, Radio, RadioGroup, Switch} from '@heroui-v3/react'
+
+<Switch isSelected={on} onChange={setOn} size="sm">
+  <Switch.Content>
+    <Switch.Control><Switch.Thumb /></Switch.Control>
+    <Label className="font-normal">Include metadata</Label>
+  </Switch.Content>
+  <Description className="text-content-tertiary">Model info, token usage</Description>
+</Switch>
+
+<Checkbox id="webBrowsing" isSelected={on} onChange={setOn}>
+  <Checkbox.Content>
+    <Checkbox.Control className="size-5"><Checkbox.Indicator /></Checkbox.Control>
+    Web browsing
+  </Checkbox.Content>
+</Checkbox>
+
+<RadioGroup name="format" aria-labelledby={headingId} value={format} onChange={setFormat}>
+  <Radio value="json" className="mt-0">
+    <Radio.Content>
+      <Radio.Control><Radio.Indicator /></Radio.Control>
+      JSON
+    </Radio.Content>
+  </Radio>
+</RadioGroup>
+```
+
+| v2 | v3 |
+| --- | --- |
+| `onValueChange` | `onChange` (same `(value) => void`) |
+| `<Switch>label</Switch>` | `Switch.Content` > `Switch.Control` > `Switch.Thumb`, then the `Label`. A label-less switch keeps `aria-label` on `Switch` |
+| `size="sm"` on `Switch` | `size="sm"` (kept) |
+| `color` on `Switch` / `Checkbox` | none. The checked fill follows `--accent`. `color="danger"`: `className="[--accent:var(--danger)]"` on `Checkbox` |
+| `size` on `Checkbox` | none: `size-5` on `Checkbox.Control` (default `size-4`, v2's `sm`) |
+| `<Checkbox>label</Checkbox>` | `Checkbox.Content` > `Checkbox.Control` > `Checkbox.Indicator`, then the label. Put `id` on `Checkbox`: it lands on the `<input>` as before |
+| `description` slot / a second `<span>` in the label | `Description` as a sibling of `*.Content` (outside the clickable label) |
+| `RadioGroup` + `Radio` | `RadioGroup` + `Radio` > `Radio.Content` > `Radio.Control` > `Radio.Indicator`. `name` is needed for forms |
+| `Radio aria-label` with no label | the same, keep `aria-label` on `Radio` and still render `Radio.Content` > `Radio.Control` |
+| `classNames.base` on `Radio` | `className` on `Radio.Content` (the clickable label): put a card's padding, background and border there so the whole card is the click target. `data-selected` is set on `Radio.Content` |
+| `classNames.wrapper` on `RadioGroup` | `className` on `RadioGroup` |
+
+Differences to expect, and what the app does about them:
+
+- Selected switches, checkboxes and radios are the Button accent, not v2's colours. The backup switches were neutral grey when on; they are blue now. `src/styles/heroui-v3.css` already re-points `--accent` at `--heroui-primary`.
+- The app's `:root` / `.dark` define their own `--accent-hover` (`#e5e5e5` in dark), which beats v3's. `heroui-v3.css` derives it from `--accent` for these controls so a white checkmark never sits on pale grey on hover.
+- v3's unchecked checkbox and radio have no border (`--border-width-field` is 0), so on a plain page or dialog they have no edge. `heroui-v3.css` gives them the 2px `default-500` border the Select trigger has, and the unchecked switch track is `default-500` too. Contrast against the surface behind: 4.1:1 to 4.8:1 (light), 6.5:1 to 8.2:1 (dark), and 4.6:1 / 6.8:1 for the switch track. v2 was 1.5:1 (checkbox border) and 1.2:1 / 1.7:1 (switch track). WCAG 1.4.11 needs 3:1. Drop the overrides at cutover and re-check.
+- A selected radio is a filled disc with a white dot; v2 was a ring with a dot. v3's default radio is 16px; the app passes `size-5` to `Radio.Control` where v2's 20px radio was used.
+- `RadioGroup` adds `mt-4` to every radio in a vertical group. Pass `mt-0` / `m-0` on `Radio` and use `gap-*` on the group.
+- The label sits in `font-medium`. Rows that used v2's normal weight pass `font-normal` to `Label`.
+- The description sits below the row with the `gap-1` of the root, a few px looser than v2's stacked label.
+- A `Label` and `Description` must be children of the control for the accessible name and description to be wired up. The old backup switches had a bare `<span>` beside them and no accessible name; their label is now the switch's.
+- The checkbox's hidden input is the focus target. `getByRole('checkbox', {name})` and `getByLabel` work; a force click on the input still toggles it.
+
+`src/styles/heroui-v3.css` gains `description.css` (shared, first), `switch.css`, `checkbox.css`, `radio.css` and `radio-group.css`, plus one override block for the points above.
 
 ### Cutover
 

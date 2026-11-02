@@ -25,6 +25,13 @@
 @import '@heroui-v3/styles/components/list-box.css' layer(components);
 @import '@heroui-v3/styles/components/select.css' layer(components);
 
+/* Switch, Checkbox, Radio: shared description first. */
+@import '@heroui-v3/styles/components/description.css' layer(components);
+@import '@heroui-v3/styles/components/switch.css' layer(components);
+@import '@heroui-v3/styles/components/checkbox.css' layer(components);
+@import '@heroui-v3/styles/components/radio.css' layer(components);
+@import '@heroui-v3/styles/components/radio-group.css' layer(components);
+
 /*
  * Keep v3 buttons on the app's v2 brand colours. White text on the v3 default accent and danger is
  * 3.6:1 and 3.5:1 (WCAG AA needs 4.5:1 for normal text); the v2 values are 4.5:1 and 4.0:1, so this
@@ -70,5 +77,40 @@
     &[data-focused='true'] {
       border-color: var(--field-border-focus);
     }
+  }
+}
+
+/*
+ * Switch, Checkbox and Radio parity with v2 until cutover.
+ *
+ * Hover: the app's :root / .dark define their own --accent-hover (#2563eb, and #e5e5e5 in dark), which
+ * beats v3's value. Pale grey under a white checkmark or thumb would vanish on hover, so these controls
+ * derive their hover colour from --accent instead.
+ *
+ * Unchecked boundary: v3's checkbox and radio have no border (--border-width-field is 0) and a white
+ * fill, so on a white page or dark dialog they have no visible edge. They get a 2px border at default-500,
+ * as the Select trigger does: 4.1:1 to 4.8:1 in light and 6.5:1 to 8.2:1 in dark (WCAG 1.4.11 needs 3:1;
+ * v2's checkbox border, default-300, is 1.5:1 on white). The switch has no border, so its unchecked track
+ * is default-500 (4.6:1 light, 6.8:1 dark; v2's default-200 track is 1.2:1 and 1.7:1) and the white thumb
+ * stays visible on it. Drop it with the v2 plugin.
+ */
+@layer components {
+  .switch,
+  .checkbox,
+  .radio {
+    --accent-hover: color-mix(in oklab, var(--accent) 88%, black);
+  }
+
+  .switch {
+    --switch-control-bg: hsl(var(--heroui-default-500));
+    --switch-control-bg-hover: hsl(var(--heroui-default-600));
+    --switch-control-bg-pressed: hsl(var(--heroui-default-600));
+  }
+
+  .checkbox__control,
+  .radio__control {
+    --border-width-field: var(--heroui-border-width-medium);
+    --field-border: hsl(var(--heroui-default-500));
+    --field-border-hover: hsl(var(--heroui-default-600));
   }
 }

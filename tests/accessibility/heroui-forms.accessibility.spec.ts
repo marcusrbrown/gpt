@@ -249,3 +249,66 @@ test.describe('HeroUI Form Components Accessibility', () => {
     })
   })
 })
+
+test.describe('HeroUI v3 Switch, Checkbox and Radio Accessibility', () => {
+  test('switches expose a name and checked state and toggle with Space', async ({page}) => {
+    await page.goto('/backup')
+    await page.getByRole('heading', {name: /backup & restore/i}).waitFor()
+
+    const conversations = page.getByRole('switch', {name: 'Include conversations'})
+    await expect(conversations).toBeChecked()
+
+    await conversations.focus()
+    await expect(conversations).toBeFocused()
+    await page.keyboard.press('Space')
+    await expect(conversations).not.toBeChecked()
+    await page.keyboard.press('Space')
+    await expect(conversations).toBeChecked()
+
+    // The label text is part of the control
+    await page.getByText('Include settings', {exact: true}).click()
+    await expect(page.getByRole('switch', {name: 'Include settings'})).not.toBeChecked()
+
+    await accessibilityTest.expectAccessible(page, getAccessibilityConfig('form'), 0, 0)
+  })
+
+  test('the reduce-motion switch is announced as disabled', async ({page}) => {
+    await page.goto('/settings')
+    await page.getByRole('tab', {name: 'Appearance'}).click()
+
+    const motion = page.getByRole('switch', {name: /reduce motion/i})
+    await expect(motion).toBeDisabled()
+  })
+
+  test('capability checkboxes keep their ids and toggle with Space', async ({page}) => {
+    await page.goto('/gpt/new')
+    const checkbox = page.getByRole('checkbox', {name: /web.*browsing/i})
+    await expect(checkbox).toHaveAttribute('id', 'webBrowsing')
+    await expect(checkbox).not.toBeChecked()
+
+    await checkbox.focus()
+    await page.keyboard.press('Space')
+    await expect(checkbox).toBeChecked()
+    await page.keyboard.press('Space')
+    await expect(checkbox).not.toBeChecked()
+  })
+
+  test('the extraction mode radio group has a name, one tab stop and arrow-key selection', async ({page}) => {
+    await page.goto('/gpt/new')
+    await page.locator('button[role="tab"]', {hasText: 'Knowledge'}).click()
+
+    const group = page.getByRole('radiogroup', {name: 'Extraction Mode'})
+    const manual = group.getByRole('radio', {name: 'Manual'})
+    const auto = group.getByRole('radio', {name: 'Auto-extract'})
+    await expect(manual).toBeChecked()
+
+    await manual.focus()
+    await page.keyboard.press('ArrowDown')
+    await expect(auto).toBeChecked()
+    await expect(auto).toBeFocused()
+
+    // Roving tabindex: only the checked radio is a tab stop
+    await expect(auto).toHaveAttribute('tabindex', '0')
+    await expect(manual).toHaveAttribute('tabindex', '-1')
+  })
+})

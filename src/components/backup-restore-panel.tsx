@@ -1,7 +1,7 @@
-import {cn, ds, heroui} from '@/lib/design-system'
+import {cn, ds} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {Card, CardBody, CardHeader, Checkbox, Progress, Switch} from '@heroui/react'
-import {Button, Modal, Spinner} from '@heroui-v3/react'
+import {Card, CardBody, CardHeader, Progress} from '@heroui/react'
+import {Button, Checkbox, Description, Label, Modal, Spinner, Switch} from '@heroui-v3/react'
 import {AlertTriangle, Calendar, CheckCircle2, Database, Download, FileArchive, HardDrive, Upload} from 'lucide-react'
 import {useCallback, useRef, useState} from 'react'
 
@@ -30,6 +30,28 @@ interface RestoreResult {
 }
 
 const DEFAULT_ITEM_COUNTS = {gpts: 0, conversations: 0, folders: 0}
+
+/** Label on the left, switch on the right; the whole row toggles. */
+function BackupOptionSwitch({
+  label,
+  isSelected,
+  onChange,
+}: {
+  label: string
+  isSelected: boolean
+  onChange: (isSelected: boolean) => void
+}) {
+  return (
+    <Switch isSelected={isSelected} onChange={onChange} size="sm" className="w-full">
+      <Switch.Content className="w-full flex-row-reverse justify-between">
+        <Switch.Control>
+          <Switch.Thumb />
+        </Switch.Control>
+        <Label className="font-normal">{label}</Label>
+      </Switch.Content>
+    </Switch>
+  )
+}
 
 export function BackupRestorePanel({
   onCreateBackup,
@@ -196,22 +218,17 @@ export function BackupRestorePanel({
           </CardHeader>
           <CardBody className="space-y-4">
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Include conversations</span>
-                <Switch
-                  {...heroui.switch.neutral}
-                  isSelected={includeConversations}
-                  onValueChange={setIncludeConversations}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Include knowledge files</span>
-                <Switch {...heroui.switch.neutral} isSelected={includeKnowledge} onValueChange={setIncludeKnowledge} />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">Include settings</span>
-                <Switch {...heroui.switch.neutral} isSelected={includeSettings} onValueChange={setIncludeSettings} />
-              </div>
+              <BackupOptionSwitch
+                label="Include conversations"
+                isSelected={includeConversations}
+                onChange={setIncludeConversations}
+              />
+              <BackupOptionSwitch
+                label="Include knowledge files"
+                isSelected={includeKnowledge}
+                onChange={setIncludeKnowledge}
+              />
+              <BackupOptionSwitch label="Include settings" isSelected={includeSettings} onChange={setIncludeSettings} />
             </div>
 
             {isCreatingBackup && (
@@ -334,13 +351,17 @@ export function BackupRestorePanel({
                   </div>
 
                   <div className="p-4 bg-danger/10 rounded-lg">
-                    <Checkbox isSelected={wipeExisting} onValueChange={setWipeExisting} color="danger" size="sm">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-medium text-danger">Delete all existing data before restore</span>
-                        <span className="text-xs text-content-tertiary">
-                          This will permanently remove all current data
-                        </span>
-                      </div>
+                    {/* v3 has no color prop: the checked fill follows --accent, so point it at danger */}
+                    <Checkbox isSelected={wipeExisting} onChange={setWipeExisting} className="[--accent:var(--danger)]">
+                      <Checkbox.Content>
+                        <Checkbox.Control>
+                          <Checkbox.Indicator />
+                        </Checkbox.Control>
+                        <Label className="text-danger">Delete all existing data before restore</Label>
+                      </Checkbox.Content>
+                      <Description className="text-content-tertiary">
+                        This will permanently remove all current data
+                      </Description>
                     </Checkbox>
                   </div>
 

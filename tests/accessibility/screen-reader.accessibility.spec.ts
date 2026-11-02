@@ -239,7 +239,9 @@ test.describe('Screen Reader Compatibility', () => {
             // Check for HeroUI pattern - label within parent
             if (!hasLabel) {
               const parentLabel = input.locator('..').locator('label')
-              hasLabel = (await parentLabel.count()) > 0
+              // v3 Switch/Checkbox/Radio wrap the input in the <label> itself (implicit label)
+              const wrappingLabel = input.locator('xpath=ancestor::label[1]')
+              hasLabel = (await parentLabel.count()) > 0 || (await wrappingLabel.count()) > 0
             }
 
             expect(hasLabel).toBeTruthy()
@@ -284,7 +286,9 @@ test.describe('Screen Reader Compatibility', () => {
             // Check for HeroUI label within parent
             if (!hasAccessibleName) {
               const parentLabel = input.locator('..').locator('label')
-              hasAccessibleName = (await parentLabel.count()) > 0
+              // v3 Switch/Checkbox/Radio wrap the input in the <label> itself (implicit label)
+              const wrappingLabel = input.locator('xpath=ancestor::label[1]')
+              hasAccessibleName = (await parentLabel.count()) > 0 || (await wrappingLabel.count()) > 0
             }
 
             expect(hasAccessibleName).toBeTruthy()

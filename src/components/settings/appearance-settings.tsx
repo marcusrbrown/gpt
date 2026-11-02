@@ -2,8 +2,8 @@ import type {Key} from 'react'
 import {useReducedMotion} from '@/hooks/use-reduced-motion'
 import {cn, ds} from '@/lib/design-system'
 import '@/styles/heroui-v3.css'
-import {addToast, Switch} from '@heroui/react'
-import {ListBox, Select} from '@heroui-v3/react'
+import {addToast} from '@heroui/react'
+import {ListBox, Select, Switch} from '@heroui-v3/react'
 import {Monitor, Moon, Sun} from 'lucide-react'
 import {useTheme} from 'next-themes'
 
@@ -89,7 +89,13 @@ export function AppearanceSettings() {
             isDisabled
             aria-label="Reduce motion (controlled by system preference)"
             size="sm"
-          />
+          >
+            <Switch.Content>
+              <Switch.Control>
+                <Switch.Thumb />
+              </Switch.Control>
+            </Switch.Content>
+          </Switch>
         </div>
 
         <div className={cn('p-4 rounded-lg', 'bg-surface-secondary')}>
