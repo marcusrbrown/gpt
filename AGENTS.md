@@ -27,6 +27,7 @@ src/
 ├── lib/            # Utilities (design-system, crypto, database)
 ├── pages/          # Route-level components
 ├── services/       # Business logic, providers, storage
+├── styles/         # HeroUI v3 stylesheet for migrated components
 ├── types/          # Zod schemas → TypeScript types
 ├── test/           # Test setup
 └── hero.ts         # HeroUI Vite plugin config for Tailwind v4
