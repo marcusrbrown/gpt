@@ -6,12 +6,12 @@ Project documentation and guidelines for the GPT platform.
 
 | File                   | Purpose                                          |
 | ---------------------- | ------------------------------------------------ |
-| `RULES.md`             | Comprehensive development guidelines (894 lines) |
-| `design-system.md`     | UI tokens, patterns, accessibility (416 lines)   |
+| `RULES.md`             | Comprehensive development guidelines             |
+| `design-system.md`     | UI tokens, patterns, accessibility               |
 | `prd.md`               | Product requirements, MoSCoW priorities          |
 | `features.md`          | Feature breakdown and status                     |
 | `overview.md`          | Project overview                                 |
-| `plan/`                | RFC drafts and planning docs                     |
+| `plans/`               | Implementation plans                             |
 
 ## Where to Look
 
@@ -33,7 +33,7 @@ Project documentation and guidelines for the GPT platform.
 ## Conventions
 
 - Docs are Markdown with YAML frontmatter where applicable
-- `RULES.md` versioned (currently v1.2)
+- `RULES.md` versioned (currently v1.3)
 - Cross-references use relative paths
 
 ## Anti-Patterns
