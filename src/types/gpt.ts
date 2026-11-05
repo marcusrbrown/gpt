@@ -1,5 +1,5 @@
 import {z} from 'zod'
-import {ProviderIdSchema, ReplayDataSchema} from './provider'
+import {ProviderIdSchema, ReplayDataSchema} from '@/types/provider'
 
 /**
  * Core types for GPT configurations and related entities

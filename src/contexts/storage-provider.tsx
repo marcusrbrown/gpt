@@ -5,7 +5,7 @@ import {migrateFromLocalStorage, needsMigration} from '@/services/migration'
 import {IndexedDBStorageService, type GetConversationsOptions, type StorageWarning} from '@/services/storage'
 import {VersionHistoryService} from '@/services/version-history'
 import {useCallback, useEffect, useMemo, useRef, useState, type ReactNode} from 'react'
-import {StorageContext} from './storage-context'
+import {StorageContext} from '@/contexts/storage-context'
 
 interface StorageProviderProps {
   children: ReactNode

@@ -12,7 +12,7 @@ import {
   supportsVision,
 } from '@/types/ollama'
 import {ProviderError} from '@/types/provider'
-import {BaseLLMProvider} from './base-provider'
+import {BaseLLMProvider} from '@/services/providers/base-provider'
 
 const DEFAULT_BASE_URL = 'http://localhost:11434'
 const MODEL_CACHE_TTL = 60000
