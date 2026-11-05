@@ -1,6 +1,6 @@
 import type {CompletionChunk, CompletionRequest, Model, ValidationResult} from '@/types/provider'
 import {ProviderError} from '@/types/provider'
-import {BaseLLMProvider} from './base-provider'
+import {BaseLLMProvider} from '@/services/providers/base-provider'
 
 export class AzureProvider extends BaseLLMProvider {
   readonly id = 'azure' as const

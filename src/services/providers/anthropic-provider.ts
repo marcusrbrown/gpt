@@ -17,7 +17,7 @@ import {
 } from '@/types/anthropic'
 import {ProviderBaseUrlSchema, ProviderEndpointConfigSchema, ProviderError} from '@/types/provider'
 import {z} from 'zod'
-import {BaseLLMProvider} from './base-provider'
+import {BaseLLMProvider} from '@/services/providers/base-provider'
 
 const ANTHROPIC_MODELS: Model[] = [
   {

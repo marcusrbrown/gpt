@@ -1,13 +1,13 @@
 import type {ExportFormat} from '@/services/conversation-export-service'
 import type {SearchResult} from '@/services/conversation-search-service'
 import type {Conversation, ConversationMessage} from '@/types/gpt'
-import type {GetConversationsOptions} from './conversation-context'
+import type {GetConversationsOptions} from '@/contexts/conversation-context'
 import {use, useCallback, useEffect, useMemo, useState, type ReactNode} from 'react'
 import {v4 as uuid} from 'uuid'
 import {conversationExportService} from '@/services/conversation-export-service'
 import {conversationSearchService} from '@/services/conversation-search-service'
-import {ConversationContext} from './conversation-context'
-import {StorageContext} from './storage-context'
+import {ConversationContext} from '@/contexts/conversation-context'
+import {StorageContext} from '@/contexts/storage-context'
 
 interface ConversationProviderProps {
   children: ReactNode

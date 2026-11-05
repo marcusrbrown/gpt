@@ -1,6 +1,6 @@
 import type {Model, ProviderConfig, ProviderId} from '@/types/provider'
 
-import type {BaseLLMProvider} from './base-provider'
+import type {BaseLLMProvider} from '@/services/providers/base-provider'
 
 interface ProviderState {
   provider: BaseLLMProvider

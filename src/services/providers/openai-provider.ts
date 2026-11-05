@@ -9,7 +9,7 @@ import type {
 import {ProviderBaseUrlSchema, ProviderEndpointConfigSchema, ProviderError, ReplayDataSchema} from '@/types/provider'
 import OpenAI, {type ClientOptions} from 'openai'
 import {z} from 'zod'
-import {BaseLLMProvider} from './base-provider'
+import {BaseLLMProvider} from '@/services/providers/base-provider'
 
 type ResponseParams = Omit<OpenAI.Responses.ResponseCreateParamsNonStreaming, 'stream'>
 type ResponseInput = OpenAI.Responses.ResponseInputItem[]
