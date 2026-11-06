@@ -1,4 +1,4 @@
-import {InteractiveNotebook} from './interactive-notebook'
+import {InteractiveNotebook} from '@/components/docs/interactive-notebook'
 
 const INITIAL_CELLS = [
   {

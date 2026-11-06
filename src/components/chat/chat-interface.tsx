@@ -8,9 +8,9 @@ import {Menu, MessageSquare, MoreVertical, Trash2} from 'lucide-react'
 import React, {useEffect, useRef, useState} from 'react'
 import {Link} from 'react-router-dom'
 
-import {ChatInput} from './chat-input'
-import {MessageBubble} from './message-bubble'
-import {SidebarContent} from './sidebar-content'
+import {ChatInput} from '@/components/chat/chat-input'
+import {MessageBubble} from '@/components/chat/message-bubble'
+import {SidebarContent} from '@/components/chat/sidebar-content'
 
 function turnErrorMessage(error: ChatTurnError, providerName: string): string {
   switch (error.type) {
