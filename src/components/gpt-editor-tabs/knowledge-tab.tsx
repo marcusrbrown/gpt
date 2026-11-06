@@ -10,7 +10,7 @@ import type {
 } from '@/types/knowledge'
 import {KnowledgeConfiguration} from '@/components/knowledge-configuration'
 import {responsive} from '@/lib/design-system'
-import {VectorKnowledge} from './vector-knowledge'
+import {VectorKnowledge} from '@/components/gpt-editor-tabs/vector-knowledge'
 
 interface KnowledgeTabProps {
   gpt: GPTConfiguration

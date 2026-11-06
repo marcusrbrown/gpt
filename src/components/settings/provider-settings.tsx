@@ -2,9 +2,9 @@ import {SessionUnlockPrompt} from '@/components/session-unlock-prompt'
 import {cn, ds, theme} from '@/lib/design-system'
 import {Accordion, AccordionItem} from '@heroui/react'
 import {ChevronDown} from 'lucide-react'
-import {AnthropicSettings} from './anthropic-settings'
-import {APISettings} from './api-settings'
-import {OllamaSettings} from './ollama-settings'
+import {AnthropicSettings} from '@/components/settings/anthropic-settings'
+import {APISettings} from '@/components/settings/api-settings'
+import {OllamaSettings} from '@/components/settings/ollama-settings'
 
 /**
  * Unified provider settings component that combines all AI provider configurations.

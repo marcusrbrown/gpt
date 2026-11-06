@@ -2,7 +2,7 @@ import {cn, ds, theme} from '@/lib/design-system'
 import {Spinner} from '@heroui/react'
 import {Upload} from 'lucide-react'
 import {useRef, useState, type ChangeEvent} from 'react'
-import {DEFAULT_ALLOWED_TYPES} from './constants'
+import {DEFAULT_ALLOWED_TYPES} from '@/components/file-upload/constants'
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void

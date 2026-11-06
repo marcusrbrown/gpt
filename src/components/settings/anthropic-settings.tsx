@@ -7,7 +7,7 @@ import {addToast} from '@heroui/react'
 import {Button, Description, Input, TextField} from '@heroui-v3/react'
 import {XCircle} from 'lucide-react'
 import {useState} from 'react'
-import {ProviderBaseUrlField} from './provider-base-url-field'
+import {ProviderBaseUrlField} from '@/components/settings/provider-base-url-field'
 
 export function AnthropicSettings() {
   const {setSecret, deleteSecret, getSecret} = useSession()

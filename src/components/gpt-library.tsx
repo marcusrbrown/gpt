@@ -6,8 +6,8 @@ import {Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spinner, Tab, Tab
 import {Button, Card, InputGroup, TextField} from '@heroui-v3/react'
 import {Archive, Copy, Download, Edit, MoreVertical, Plus, RotateCcw, Search, Trash2} from 'lucide-react'
 import {useCallback, useEffect, useMemo, useState} from 'react'
-import {ArchiveDialog} from './archive-dialog'
-import {GPTExportDialog} from './gpt-export-dialog'
+import {ArchiveDialog} from '@/components/archive-dialog'
+import {GPTExportDialog} from '@/components/gpt-export-dialog'
 
 interface GPTLibraryProps {
   onSelectGPT: (gptId: string) => void
