@@ -108,11 +108,30 @@ env:
     (`git fetch origin main` then `git switch -c <branch> origin/main`),
     never from whatever ref the run checked out.
 
+    REPORT TITLE RULE
+    A daily report title is a whole-title match for
+    `Daily Fro Bot Report — YYYY-MM-DD (UTC)`: the em dash is literal and the
+    date is a real calendar date. Test every candidate title locally against
+    this anchored regex, which must match the entire title:
+    `^Daily Fro Bot Report — [0-9]{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]) \(UTC\)$`
+    Prefix, substring, "starts with", and fuzzy matching never qualify; for
+    example `Daily Fro Bot Report — rotation bug` is never closed or read as
+    a report. The only other titles that count are exactly
+    `Daily Autohealing Report` and `Daily Maintenance Report` (legacy), each
+    as a whole-title match. A report issue must also be authored by exactly
+    `fro-bot`; no other author or app identity qualifies. GitHub search is
+    only a fuzzy pre-filter: apply the title regex and the author check
+    locally to every issue it returns. Every selection below uses this rule.
+
     CONTINUITY (read before acting)
-    1. Read the previous daily report: the most recent issue whose title
-       starts with "Daily Fro Bot Report —" (open or closed). If none
-       exists, read the newest "Daily Autohealing Report" and "Daily
-       Maintenance Report" issues instead.
+    1. Read the previous daily report: the newest issue, open or closed,
+       whose title passes the REPORT TITLE RULE, authored by exactly
+       `fro-bot`, other than the issue for today. Find it with
+       `gh issue list --state all --search "Daily Fro Bot Report in:title"
+       --json number,title,author,createdAt`, then apply the title regex and
+       the author check locally. If none exists, read the newest issue
+       titled exactly "Daily Autohealing Report" and the newest titled
+       exactly "Daily Maintenance Report" instead (same author check).
     2. Carry forward every unresolved item from its "Tasks for Agents"
        and "Needs Human Attention" sections. Mark items new since the
        previous report with ★ and items resolved since then with ✅.
@@ -410,17 +429,31 @@ env:
     commit the report to the repository or open a PR for it.
     Maintain exactly one open daily report. Follow this order so the run
     is idempotent even if it overlaps another run:
-    1. Search open issues whose exact title is
+    1. Find open issues whose title is exactly
        "Daily Fro Bot Report — YYYY-MM-DD (UTC)" for today's UTC date.
+       Use `gh issue list --state open --search "Daily Fro Bot Report
+       in:title" --json number,title,author`, then apply the REPORT TITLE
+       RULE regex, today's date, and the exact `fro-bot` author check
+       locally; search is fuzzy.
     2. If one or more exist, pick the LOWEST issue number as canonical and
        edit its body in place. If none exist, create it.
-    3. Close every OTHER open issue whose title starts with "Daily Fro Bot
-       Report —" (older dates and same-day duplicates), plus any open
-       legacy "Daily Autohealing Report" or "Daily Maintenance Report"
-       issue, each with a one-line closing comment linking the canonical
-       report.
+    3. Close every OTHER open issue authored by exactly `fro-bot` whose title
+       passes the REPORT TITLE RULE (older dates and same-day duplicates),
+       plus any open issue authored by exactly `fro-bot` whose title is
+       exactly "Daily Autohealing Report" or "Daily Maintenance Report"
+       (legacy), each with a one-line closing comment linking the canonical
+       report. Never close any other issue, including one with a similar
+       title that fails the rule.
     There must be exactly one open daily report when the run finishes.
     Never close the canonical issue you just selected.
+
+    ONE REPORT, ONE BODY
+    The full report lives in the issue body. Never post the report, or a
+    copy of any previous body, as a comment. The only comments on report
+    issues are the one-line closing or superseded comments above. Never
+    write canary or placeholder content to the report issue: build the
+    complete body in a local file and write it once with `gh issue create
+    --body-file` or `gh issue edit --body-file`.
 
     The issue body MUST use this structure. Write "None" for empty
     sections, use links only (no full content duplication), and write
