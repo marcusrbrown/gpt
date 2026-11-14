@@ -1,6 +1,7 @@
 import {APP_VERSION, ConversationExportSchema, CURRENT_EXPORT_VERSION, GPTExportSchema} from '@/types/export-import'
 import JSZip from 'jszip'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
+import {createFullBackup} from '../export-service'
 import {importGPT, previewImport, restoreBackup, validateImport} from '../import-service'
 import {loadProviderBaseUrls} from '../provider-base-urls'
 
@@ -35,6 +36,7 @@ vi.mock('@/lib/database', () => ({
       toArray: vi.fn().mockResolvedValue([]),
     },
     messages: {
+      toArray: vi.fn().mockResolvedValue([]),
       where: vi.fn().mockReturnValue({
         equals: vi.fn().mockReturnValue({
           toArray: vi.fn().mockResolvedValue([]),
@@ -43,6 +45,7 @@ vi.mock('@/lib/database', () => ({
       bulkPut: vi.fn(),
     },
     knowledgeFiles: {
+      toArray: vi.fn().mockResolvedValue([]),
       where: vi.fn().mockReturnValue({
         equals: vi.fn().mockReturnValue({
           toArray: vi.fn().mockResolvedValue([]),
@@ -147,6 +150,36 @@ describe('import-service', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     settingsStore.clear()
+  })
+
+  describe('restoreBackup archive entry', () => {
+    it('restores an archive produced by createFullBackup', async () => {
+      settingsStore.set('theme', JSON.stringify('dark'))
+      const {db} = await import('@/lib/database')
+      vi.mocked(db.settings.toArray).mockResolvedValueOnce([{key: 'theme', value: 'dark'}] as never)
+
+      const blob = await createFullBackup()
+      const result = await restoreBackup(new File([blob], 'backup.zip', {type: 'application/zip'}))
+
+      expect(result.success).toBe(true)
+      expect(result.errors).toHaveLength(0)
+    })
+
+    it('still restores legacy archives that use manifest.json', async () => {
+      const result = await restoreBackup(await createBackupFile({theme: 'dark'}))
+
+      expect(result.success).toBe(true)
+    })
+
+    it('fails when the archive has no backup entry', async () => {
+      const zip = new JSZip()
+      zip.file('other.json', '{}')
+      const bytes = await zip.generateAsync({type: 'arraybuffer'})
+
+      const result = await restoreBackup(new File([bytes], 'backup.zip', {type: 'application/zip'}))
+
+      expect(result.success).toBe(false)
+    })
   })
 
   describe('restoreBackup settings', () => {

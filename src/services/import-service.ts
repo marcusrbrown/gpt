@@ -574,10 +574,10 @@ export async function restoreBackup(
 
   try {
     const zip = await JSZip.loadAsync(file)
-    const manifestFile = zip.file('manifest.json')
+    const manifestFile = zip.file('backup.json') ?? zip.file('manifest.json')
 
     if (!manifestFile) {
-      throw new Error('Missing manifest.json in backup archive')
+      throw new Error('Missing backup.json in backup archive')
     }
 
     const manifestContent = await manifestFile.async('string')
