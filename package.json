@@ -95,7 +95,7 @@
     "simple-git-hooks": "2.14.0",
     "tailwindcss": "4.3.5",
     "typescript": "5.9.3",
-    "vite": "8.3.7",
+    "vite": "8.3.8",
     "vite-tsconfig-paths": "6.1.1",
     "vitest": "5.1.0"
   },
