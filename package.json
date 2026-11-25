@@ -32,8 +32,8 @@
   },
   "prettier": "@bfra.me/prettier-config/120-proof",
   "dependencies": {
-    "@heroui-v3/react": "npm:@heroui/react@3.2.7",
-    "@heroui-v3/styles": "npm:@heroui/styles@3.2.7",
+    "@heroui-v3/react": "npm:@heroui/react@3.2.8",
+    "@heroui-v3/styles": "npm:@heroui/styles@3.2.8",
     "@heroui/react": "2.8.10",
     "@internationalized/date": "3.12.4",
     "@modelcontextprotocol/sdk": "1.32.2",
